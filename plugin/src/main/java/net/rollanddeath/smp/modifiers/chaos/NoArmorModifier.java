@@ -32,7 +32,7 @@ public class NoArmorModifier extends Modifier {
             ItemStack item = event.getCursor();
             if (item != null && item.getType().name().contains("CHESTPLATE")) {
                 event.setCancelled(true);
-                event.getWhoClicked().sendMessage(MiniMessage.miniMessage().deserialize("<red>¡No puedes equipar pecheras hoy!"));
+                event.getWhoClicked().sendMessage(MiniMessage.miniMessage().deserialize("<red>¡No puedes equipar pecheras!"));
             }
         }
         // Also check shift-click
@@ -40,7 +40,7 @@ public class NoArmorModifier extends Modifier {
             ItemStack item = event.getCurrentItem();
             if (item != null && item.getType().name().contains("CHESTPLATE")) {
                 event.setCancelled(true);
-                event.getWhoClicked().sendMessage(MiniMessage.miniMessage().deserialize("<red>¡No puedes equipar pecheras hoy!"));
+                event.getWhoClicked().sendMessage(MiniMessage.miniMessage().deserialize("<red>¡No puedes equipar pecheras!"));
             }
         }
     }

@@ -61,7 +61,6 @@ public final class RollAndDeathSMP extends JavaPlugin {
         this.roleManager = new RoleManager(this);
         this.mobManager = new MobManager(this);
         this.itemManager = new ItemManager(this);
-        this.dailyRollManager = new DailyRollManager(this, itemManager);
         this.recipeManager = new RecipeManager(this);
         this.lootManager = new LootManager(this);
         this.gameManager = new GameManager(this);
@@ -163,7 +162,6 @@ public final class RollAndDeathSMP extends JavaPlugin {
         modifierManager.registerModifier(new ZeroGravityModifier(this));
         modifierManager.registerModifier(new IceFloorModifier(this));
         modifierManager.registerModifier(new CursedChatModifier(this));
-        modifierManager.registerModifier(new ForcedPvPModifier(this));
         modifierManager.registerModifier(new MusicalChairsModifier(this));
         modifierManager.registerModifier(new GiantWorldModifier(this));
         modifierManager.registerModifier(new NoCoordinatesModifier(this));
@@ -175,8 +173,6 @@ public final class RollAndDeathSMP extends JavaPlugin {
         modifierManager.registerModifier(new WhispersModifier(this));
         modifierManager.registerModifier(new ExplosiveChickensModifier(this));
         modifierManager.registerModifier(new RandomBlocksModifier(this));
-        modifierManager.registerModifier(new SpeedrunModifier(this));
-        modifierManager.registerModifier(new SlowmotionModifier(this));
         modifierManager.registerModifier(new NoArmorModifier(this));
         modifierManager.registerModifier(new SnowWarModifier(this));
         modifierManager.registerModifier(new LavaFloorsModifier(this));
@@ -293,6 +289,8 @@ public final class RollAndDeathSMP extends JavaPlugin {
         itemManager.registerItem(new RealDragonEgg(this));
         itemManager.registerItem(new HandOfGod(this));
 
+        this.dailyRollManager = new DailyRollManager(this, itemManager);
+
         // Register Recipes & Loot
         recipeManager.registerRecipes();
         getServer().getPluginManager().registerEvents(lootManager, this);
@@ -311,6 +309,10 @@ public final class RollAndDeathSMP extends JavaPlugin {
         getCommand("item").setExecutor(new ItemCommand(this));
         getCommand("rd").setExecutor(new AdminCommand(this));
         getCommand("daily").setExecutor(new DailyCommand(dailyRollManager));
+        
+        net.rollanddeath.smp.core.commands.MenuCommand menuCmd = new net.rollanddeath.smp.core.commands.MenuCommand(this);
+        getCommand("menu").setExecutor(menuCmd);
+        getServer().getPluginManager().registerEvents(menuCmd, this);
 
         getLogger().info("RollAndDeath SMP Plugin has been enabled!");
         getLogger().info("Protocolo Diciembre iniciado...");

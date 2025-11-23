@@ -54,22 +54,23 @@ public class MirrorWorldModifier extends Modifier {
         net.minecraft.world.entity.animal.Pig nmsPig = (net.minecraft.world.entity.animal.Pig) ((CraftEntity) pig).getHandle();
         
         // Add attack goals
-        nmsPig.goalSelector.addGoal(1, new MeleeAttackGoal(nmsPig, 1.2D, false));
+        nmsPig.goalSelector.addGoal(1, new PigAttackGoal(nmsPig, 1.2D, false));
         nmsPig.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(nmsPig, net.minecraft.world.entity.player.Player.class, true));
-        
-        // Ensure Pig has attack damage attribute
-        if (pig.getAttribute(Attribute.ATTACK_DAMAGE) == null) {
-             // Pigs don't have this attribute by default, we might need to register it via NMS or just hope Bukkit allows setting it if we add modifier?
-             // Actually, Bukkit's registerAttribute is not available on all entities easily if not defined.
-             // But let's try to set it. If it's null, we can't set it via Bukkit easily without NMS attribute map modification.
-             // However, for this task, let's assume we can just add the goal and maybe they deal 1 damage (default punch).
-             // Or we can use NMS to add the attribute.
-             // For simplicity and safety, let's just add the AI. If they attack but do 0 damage, it's still "aggressive".
-             // But we can try to set the attribute if it exists.
+    }
+
+    private static class PigAttackGoal extends MeleeAttackGoal {
+        public PigAttackGoal(net.minecraft.world.entity.PathfinderMob mob, double speedModifier, boolean followingTargetEvenIfNotSeen) {
+            super(mob, speedModifier, followingTargetEvenIfNotSeen);
         }
-        
-        // Let's try to add the attribute via NMS if possible, or just ignore damage for now.
-        // Actually, we can use a modifier on the item in hand? No, pigs don't hold items usually.
-        // Let's just leave the AI.
+
+        @Override
+        protected void checkAndPerformAttack(net.minecraft.world.entity.LivingEntity enemy) {
+            if (this.canPerformAttack(enemy)) {
+                this.resetAttackCooldown();
+                this.mob.swing(net.minecraft.world.InteractionHand.MAIN_HAND);
+                float damage = 2.0f;
+                enemy.hurt(this.mob.damageSources().mobAttack(this.mob), damage);
+            }
+        }
     }
 }

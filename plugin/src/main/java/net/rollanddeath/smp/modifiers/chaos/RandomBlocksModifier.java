@@ -16,7 +16,7 @@ public class RandomBlocksModifier extends Modifier {
     private final Material[] materials = Material.values();
 
     public RandomBlocksModifier(RollAndDeathSMP plugin) {
-        super(plugin, "Bloques Random", ModifierType.CHAOS, "Los drops de bloques están aleatorizados hoy.");
+        super(plugin, "Bloques Random", ModifierType.CHAOS, "Los drops de bloques están aleatorizados.");
     }
 
     @EventHandler

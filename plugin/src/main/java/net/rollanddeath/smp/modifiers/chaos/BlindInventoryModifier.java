@@ -3,7 +3,16 @@ package net.rollanddeath.smp.modifiers.chaos;
 import net.rollanddeath.smp.RollAndDeathSMP;
 import net.rollanddeath.smp.core.modifiers.Modifier;
 import net.rollanddeath.smp.core.modifiers.ModifierType;
-import net.kyori.adventure.text.minimessage.MiniMessage;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.entity.EntityPickupItemEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.PrepareItemCraftEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 public class BlindInventoryModifier extends Modifier {
 
@@ -11,40 +20,64 @@ public class BlindInventoryModifier extends Modifier {
         super(plugin, "Inventario Ciego", ModifierType.CHAOS, "Los tooltips de los items están ocultos.");
     }
 
-    // This is a best-effort implementation. Hiding tooltips completely requires packets.
-    // Here we just hide attributes and enchants flags when they open inventory?
-    // Actually, modifying items is risky.
-    // Let's just do nothing for now as it requires ProtocolLib for a proper implementation without modifying NBT.
-    // Or we can just send a message.
-    
-    // Alternative: Give Blindness when opening inventory?
-    // Let's try that.
-    
-    /*
-    @EventHandler
-    public void onOpen(InventoryOpenEvent event) {
-        event.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 10000, 0));
-    }
-    
-    @EventHandler
-    public void onClose(InventoryCloseEvent event) {
-        event.getPlayer().removePotionEffect(PotionEffectType.BLINDNESS);
-    }
-    */
-    
-    // Actually, let's just implement it as a placeholder for now, or skip it.
-    // The user asked to "finish everything".
-    // I'll implement a simple version that hides ItemFlags on held items? No.
-    
-    // Let's just leave it empty with a message on join/enable.
-    
     @Override
     public void onEnable() {
         super.onEnable();
-        // In a real implementation, we would use ProtocolLib to intercept window items packets
-        // and send fake packets with empty items or barrier blocks to the client,
-        // while keeping the server-side inventory intact.
-        // Since we don't have ProtocolLib dependency here, we just announce it.
-        plugin.getServer().broadcast(MiniMessage.miniMessage().deserialize("<yellow>[Inventario Ciego] <gray>Este evento requiere ProtocolLib para funcionar correctamente. (Simulado)"));
+        updateAll(true);
+    }
+
+    @Override
+    public void onDisable() {
+        super.onDisable();
+        updateAll(false);
+    }
+
+    private void updateAll(boolean hide) {
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            updateInventory(p.getInventory(), hide);
+        }
+    }
+
+    private void updateInventory(Inventory inv, boolean hide) {
+        for (ItemStack item : inv.getContents()) {
+            updateItem(item, hide);
+        }
+    }
+
+    private void updateItem(ItemStack item, boolean hide) {
+        if (item == null || item.getType().isAir()) return;
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) return;
+        
+        // Requires Paper/Spigot 1.20.5+
+        try {
+            meta.setHideTooltip(hide);
+            item.setItemMeta(meta);
+        } catch (NoSuchMethodError e) {
+            // Fallback for older versions or if method is missing
+        }
+    }
+
+    @EventHandler
+    public void onJoin(PlayerJoinEvent event) {
+        updateInventory(event.getPlayer().getInventory(), true);
+    }
+
+    @EventHandler
+    public void onPickup(EntityPickupItemEvent event) {
+        if (event.getEntity() instanceof Player) {
+            updateItem(event.getItem().getItemStack(), true);
+        }
+    }
+
+    @EventHandler
+    public void onClick(InventoryClickEvent event) {
+        updateItem(event.getCurrentItem(), true);
+        updateItem(event.getCursor(), true);
+    }
+
+    @EventHandler
+    public void onCraft(PrepareItemCraftEvent event) {
+        updateItem(event.getInventory().getResult(), true);
     }
 }

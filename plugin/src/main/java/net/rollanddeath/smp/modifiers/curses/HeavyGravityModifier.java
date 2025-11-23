@@ -2,6 +2,8 @@ package net.rollanddeath.smp.modifiers.curses;
 
 import net.rollanddeath.smp.core.modifiers.Modifier;
 import net.rollanddeath.smp.core.modifiers.ModifierType;
+
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -24,11 +26,8 @@ public class HeavyGravityModifier extends Modifier {
             @Override
             public void run() {
                 for (Player p : plugin.getServer().getOnlinePlayers()) {
-                    // Amplifier 128 prevents jumping in most versions, or negative jump boost
-                    // In 1.20+, negative amplifiers work. -5 is usually enough to prevent 1 block jump.
-                    // 128 is the old trick. Let's try 250 (byte -6) or 128.
-                    // Actually, PotionEffectType.JUMP with amplifier 128 prevents jumping.
-                    p.addPotionEffect(new PotionEffect(PotionEffectType.JUMP_BOOST, 40, 128, false, false, false));
+                    //use attribute modifier instead of potion effect to avoid particles
+                    p.getAttribute(Attribute.JUMP_STRENGTH).setBaseValue(0.25);
                 }
             }
         }.runTaskTimer(plugin, 0L, 20L);

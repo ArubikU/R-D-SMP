@@ -4,46 +4,77 @@ import net.rollanddeath.smp.RollAndDeathSMP;
 import net.rollanddeath.smp.core.modifiers.Modifier;
 import net.rollanddeath.smp.core.modifiers.ModifierType;
 import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.entity.Player;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
-import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 public class ExtraLifeModifier extends Modifier {
 
-    private BukkitRunnable task;
+    private final NamespacedKey modifierKey;
 
     public ExtraLifeModifier(RollAndDeathSMP plugin) {
-        super(plugin, "Vida Extra", ModifierType.BLESSING, "+1 Corazón Dorado (absorción) que se regenera cada día.");
+        super(plugin, "Vida Extra", ModifierType.BLESSING, "+2 Corazones de vida máxima.");
+        this.modifierKey = new NamespacedKey(plugin, "extra_life");
     }
 
     @Override
     public void onEnable() {
         super.onEnable();
-        task = new BukkitRunnable() {
-            @Override
-            public void run() {
-                long time = Bukkit.getWorlds().get(0).getTime();
-                // Check if it's morning (0 to 200 ticks)
-                if (time >= 0 && time < 200) {
-                    for (Player player : Bukkit.getOnlinePlayers()) {
-                        // Apply Absorption I (2 hearts)
-                        // Duration: Infinite (until lost)
-                        // If they already have it, this refreshes it (healing the absorption hearts)
-                        player.addPotionEffect(new PotionEffect(PotionEffectType.ABSORPTION, PotionEffect.INFINITE_DURATION, 0, false, false));
-                    }
-                }
-            }
-        };
-        task.runTaskTimer(plugin, 0L, 100L); // Check every 5 seconds
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            applyModifier(player);
+        }
     }
 
     @Override
     public void onDisable() {
         super.onDisable();
-        if (task != null) {
-            task.cancel();
-            task = null;
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            removeModifier(player);
         }
+    }
+
+    @EventHandler
+    public void onJoin(PlayerJoinEvent event) {
+        applyModifier(event.getPlayer());
+    }
+    
+    @EventHandler
+    public void onQuit(PlayerQuitEvent event) {
+        removeModifier(event.getPlayer());
+    }
+
+    private void applyModifier(Player player) {
+        AttributeInstance attribute = player.getAttribute(Attribute.MAX_HEALTH);
+        if (attribute != null) {
+            if (!hasModifier(attribute)) {
+                attribute.addModifier(new AttributeModifier(modifierKey, 4.0, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlotGroup.ANY));
+            }
+        }
+    }
+
+    private void removeModifier(Player player) {
+        AttributeInstance attribute = player.getAttribute(Attribute.MAX_HEALTH);
+        if (attribute != null) {
+            for (AttributeModifier modifier : attribute.getModifiers()) {
+                if (modifier.getKey().equals(modifierKey)) {
+                    attribute.removeModifier(modifier);
+                }
+            }
+        }
+    }
+    
+    private boolean hasModifier(AttributeInstance attribute) {
+        for (AttributeModifier modifier : attribute.getModifiers()) {
+            if (modifier.getKey().equals(modifierKey)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

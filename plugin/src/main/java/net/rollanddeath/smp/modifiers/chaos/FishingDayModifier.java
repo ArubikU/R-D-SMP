@@ -22,7 +22,7 @@ public class FishingDayModifier extends Modifier {
                 event.getItem().getType() != Material.TROPICAL_FISH && event.getItem().getType() != Material.PUFFERFISH) {
                 
                 event.setCancelled(true);
-                event.getPlayer().sendMessage(MiniMessage.miniMessage().deserialize("<red>¡Hoy solo puedes comer pescado!"));
+                event.getPlayer().sendMessage(MiniMessage.miniMessage().deserialize("<red>¡Solo puedes comer pescado!"));
             }
         }
     }

@@ -62,7 +62,7 @@ public class SniperSkeletonsModifier extends Modifier {
         nmsSkeleton.goalSelector.getAvailableGoals().forEach(wrappedGoal -> {
             if (wrappedGoal.getGoal() instanceof RangedBowAttackGoal<?> bowGoal) {
                 try {
-                    setMinAttackInterval(bowGoal, 10); // Default is 20, so 10 is 2x faster (50% less delay)
+                    bowGoal.setMinAttackInterval(10);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -76,19 +76,11 @@ public class SniperSkeletonsModifier extends Modifier {
         nmsSkeleton.goalSelector.getAvailableGoals().forEach(wrappedGoal -> {
             if (wrappedGoal.getGoal() instanceof RangedBowAttackGoal<?> bowGoal) {
                 try {
-                    setMinAttackInterval(bowGoal, 20); // Reset to default
+                    bowGoal.setMinAttackInterval(20);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         });
-    }
-
-    private void setMinAttackInterval(RangedBowAttackGoal<?> goal, int interval) throws NoSuchFieldException, IllegalAccessException {
-        // Field name might be 'attackIntervalMin' or obfuscated.
-        // In Mojang mappings (Paperweight), it should be 'attackIntervalMin'.
-        Field field = RangedBowAttackGoal.class.getDeclaredField("attackIntervalMin");
-        field.setAccessible(true);
-        field.setInt(goal, interval);
     }
 }

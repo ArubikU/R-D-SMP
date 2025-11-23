@@ -68,6 +68,23 @@ public class ModifierManager {
         }
     }
 
+    public void deactivateModifier(String name) {
+        Modifier mod = registeredModifiers.get(name);
+        if (mod != null && activeModifiers.contains(name)) {
+            mod.onDisable();
+            activeModifiers.remove(name);
+            saveActiveModifiers();
+            plugin.getLogger().info("Modificador desactivado: " + name);
+            Bukkit.broadcast(Component.text("Evento finalizado: " + mod.getName(), NamedTextColor.GREEN));
+        }
+    }
+
+    public void clearAllModifiers() {
+        for (String name : new HashSet<>(activeModifiers)) {
+            deactivateModifier(name);
+        }
+    }
+
     public boolean isActive(String name) {
         return activeModifiers.contains(name);
     }
@@ -80,9 +97,22 @@ public class ModifierManager {
         return registeredModifiers.get(name);
     }
 
+    public Set<String> getRegisteredModifierNames() {
+        return registeredModifiers.keySet();
+    }
+
     public void startRandomModifier() {
-        List<Modifier> available = new ArrayList<>(registeredModifiers.values());
-        if (available.isEmpty()) return;
+        List<Modifier> available = new ArrayList<>();
+        for (Modifier mod : registeredModifiers.values()) {
+            if (!activeModifiers.contains(mod.getName())) {
+                available.add(mod);
+            }
+        }
+        
+        if (available.isEmpty()) {
+            Bukkit.broadcast(Component.text("¡Todos los eventos posibles ya están activos!", NamedTextColor.RED));
+            return;
+        }
         
         Modifier randomMod = available.get(random.nextInt(available.size()));
         activateModifier(randomMod.getName());

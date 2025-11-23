@@ -28,7 +28,7 @@ public class ZeroGravityModifier extends Modifier {
                 }
             }
         };
-        task.runTaskTimer(plugin, 0L, 20L);
+        task.runTaskTimer(plugin, 0L, 400L);
     }
 
     @Override

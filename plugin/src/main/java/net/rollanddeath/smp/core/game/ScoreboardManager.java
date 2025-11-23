@@ -78,9 +78,10 @@ public class ScoreboardManager implements Listener {
         // Since I can't easily overwrite without teams, I'll just use the simple method and accept some flicker or use a library.
         // For this task, I'll implement a basic overwrite.
         
-        // To avoid flickering, we usually use Teams with entries like ChatColor.BLACK + "" and update prefix/suffix.
-        // But that's complex to write from scratch quickly.
-        // I'll just set scores for now.
+        // Clear existing scores to prevent duplicates
+        for (String entry : board.getEntries()) {
+            board.resetScores(entry);
+        }
         
         // Day
         setScore(obj, " ", 15);

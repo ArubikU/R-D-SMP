@@ -8,7 +8,7 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 public class ThePurgeModifier extends Modifier {
 
     public ThePurgeModifier(RollAndDeathSMP plugin) {
-        super(plugin, "La Purga", ModifierType.CHAOS, "Se pueden robar cofres protegidos hoy.");
+        super(plugin, "La Purga", ModifierType.CHAOS, "Se pueden robar cofres protegidos.");
     }
 
     @Override

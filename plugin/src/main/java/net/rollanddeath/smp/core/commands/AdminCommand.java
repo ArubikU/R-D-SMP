@@ -114,8 +114,24 @@ public class AdminCommand implements CommandExecutor {
                     } else {
                         sender.sendMessage(Component.text("Evento no encontrado.", NamedTextColor.RED));
                     }
+                } else if (args.length >= 3 && args[1].equalsIgnoreCase("remove")) {
+                    String eventName = String.join(" ", Arrays.copyOfRange(args, 2, args.length));
+                    if (plugin.getModifierManager().isActive(eventName)) {
+                        plugin.getModifierManager().deactivateModifier(eventName);
+                        sender.sendMessage(Component.text("Evento desactivado: " + eventName, NamedTextColor.GREEN));
+                    } else {
+                        sender.sendMessage(Component.text("El evento no está activo o no existe.", NamedTextColor.RED));
+                    }
+                } else if (args.length >= 2 && args[1].equalsIgnoreCase("clear")) {
+                    plugin.getModifierManager().clearAllModifiers();
+                    sender.sendMessage(Component.text("Todos los eventos han sido desactivados.", NamedTextColor.GREEN));
+                } else if (args.length >= 2 && args[1].equalsIgnoreCase("list")) {
+                    sender.sendMessage(Component.text("Eventos disponibles:", NamedTextColor.GOLD));
+                    for (String name : plugin.getModifierManager().getRegisteredModifierNames()) {
+                        sender.sendMessage(Component.text("- " + name, NamedTextColor.YELLOW));
+                    }
                 } else {
-                    sender.sendMessage(Component.text("Uso: /rd admin event add <event_name>", NamedTextColor.RED));
+                    sender.sendMessage(Component.text("Uso: /rd admin event <add|remove|clear|list> [name]", NamedTextColor.RED));
                 }
                 break;
             default:
@@ -131,5 +147,8 @@ public class AdminCommand implements CommandExecutor {
         sender.sendMessage(Component.text("/rd admin life set <player> <amount> - Setear vidas", NamedTextColor.YELLOW));
         sender.sendMessage(Component.text("/rd admin role set <player> <role> - Setear rol", NamedTextColor.YELLOW));
         sender.sendMessage(Component.text("/rd admin event add <name> - Activar evento", NamedTextColor.YELLOW));
+        sender.sendMessage(Component.text("/rd admin event remove <name> - Desactivar evento", NamedTextColor.YELLOW));
+        sender.sendMessage(Component.text("/rd admin event clear - Desactivar todos los eventos", NamedTextColor.YELLOW));
+        sender.sendMessage(Component.text("/rd admin event list - Listar eventos disponibles", NamedTextColor.YELLOW));
     }
 }

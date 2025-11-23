@@ -12,7 +12,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class BindingCurseModifier extends Modifier {
 
     public BindingCurseModifier(JavaPlugin plugin) {
-        super(plugin, "Maldición de Binding", ModifierType.CURSE, "Toda armadura equipada hoy no se puede quitar.");
+        super(plugin, "Maldición de Binding", ModifierType.CURSE, "Toda armadura equipada no se puede quitar.");
     }
 
     @EventHandler
