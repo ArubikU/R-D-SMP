@@ -1,0 +1,51 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    font-family: 'VT323', monospace;
+    background-color: #0f0f13;
+    color: #e4e4e7;
+    background-image: radial-gradient(#27272a 1px, transparent 1px);
+    background-size: 20px 20px;
+}
+
+.mc-btn {
+    box-shadow: inset -4px -4px 0px 0px #520606, inset 4px 4px 0px 0px #ff5c5c;
+    background-color: #991b1b;
+    border: 2px solid #000;
+    transition: transform 0.1s;
+}
+.mc-btn:active {
+    transform: scale(0.95);
+    box-shadow: inset 4px 4px 0px 0px #520606;
+}
+.mc-card {
+    border: 2px solid #3f3f46;
+    box-shadow: 4px 4px 0px 0px #000;
+}
+.text-shadow {
+    text-shadow: 2px 2px 0px #000;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 10px;
+}
+::-webkit-scrollbar-track {
+    background: #18181b; 
+}
+::-webkit-scrollbar-thumb {
+    background: #52525b; 
+    border: 1px solid #000;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #71717a; 
+}
+
+/* Rarity Classes */
+.rarity-comun { border-color: #9ca3af; color: #9ca3af; } /* Gray */
+.rarity-raro { border-color: #3b82f6; color: #3b82f6; } /* Blue */
+.rarity-epico { border-color: #a855f7; color: #a855f7; } /* Purple */
+.rarity-legendario { border-color: #eab308; color: #eab308; } /* Gold */
+.rarity-mitico { border-color: #ef4444; color: #ef4444; } /* Red */

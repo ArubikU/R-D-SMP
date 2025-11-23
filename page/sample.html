@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roll and Death SMP | Wiki Oficial</title>
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: VT323 (Pixel style) -->
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        body {
+            font-family: 'VT323', monospace;
+            background-color: #0f0f13;
+            color: #e4e4e7;
+            background-image: radial-gradient(#27272a 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        .mc-btn {
+            box-shadow: inset -4px -4px 0px 0px #520606, inset 4px 4px 0px 0px #ff5c5c;
+            background-color: #991b1b;
+            border: 2px solid #000;
+            transition: transform 0.1s;
+        }
+        .mc-btn:active {
+            transform: scale(0.95);
+            box-shadow: inset 4px 4px 0px 0px #520606;
+        }
+        .mc-card {
+            border: 2px solid #3f3f46;
+            box-shadow: 4px 4px 0px 0px #000;
+        }
+        .text-shadow {
+            text-shadow: 2px 2px 0px #000;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #18181b; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #52525b; 
+            border: 1px solid #000;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #71717a; 
+        }
+        
+        /* Rarity Classes */
+        .rarity-comun { border-color: #9ca3af; color: #9ca3af; } /* Gray */
+        .rarity-raro { border-color: #3b82f6; color: #3b82f6; } /* Blue */
+        .rarity-epico { border-color: #a855f7; color: #a855f7; } /* Purple */
+        .rarity-legendario { border-color: #eab308; color: #eab308; } /* Gold */
+        .rarity-mitico { border-color: #ef4444; color: #ef4444; } /* Red */
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useMemo } = React;
+
+        // --- DATA ---
+
+        const dailyEvents = [
+            // --- MALDICIONES (CURSES) ---
+            { name: "Sol Tóxico", type: "Maldición", desc: "La luz directa del sol causa lentitud y hambre.", icon: "☀️" },
+            { name: "Gravedad Pesada", type: "Maldición", desc: "No se puede saltar bloques completos. Caída hace x2 daño.", icon: "⚓" },
+            { name: "Escasez de Hierro", type: "Maldición", desc: "Golems hostiles. Ores de hierro reducidos.", icon: "🛡️" },
+            { name: "Atmósfera Densa", type: "Maldición", desc: "Elytras se rompen x2 rápido y consumen más cohetes.", icon: "☁️" },
+            { name: "Tierra Maldita", type: "Maldición", desc: "Al morir, spawnea un Zombie Gigante con tu loot.", icon: "🧟" },
+            { name: "Arachnophobia", type: "Maldición", desc: "Todas las arañas tienen Velocidad II e Invisibilidad.", icon: "🕷️" },
+            { name: "Inflación", type: "Maldición", desc: "Aldeanos cobran x3 esmeraldas por todo.", icon: "💎" },
+            { name: "Suelo Frágil", type: "Maldición", desc: "Stone/Cobble tiene chance de convertirse en Gravel al pisar.", icon: "🏚️" },
+            { name: "Hambre Voraz", type: "Maldición", desc: "El hambre baja 3 veces más rápido.", icon: "🍖" },
+            { name: "Sin Regeneración", type: "Maldición", desc: "La vida no se regenera por comida (UHC Mode).", icon: "💔" },
+            { name: "Creeper Nuclear", type: "Maldición", desc: "Explosiones de Creeper son x3 más grandes.", icon: "💥" },
+            { name: "Pesadillas", type: "Maldición", desc: "Dormir tiene un 50% de chance de spawnear un Phantom instantáneo.", icon: "🛌" },
+            { name: "Agua Ácida", type: "Maldición", desc: "Entrar al agua aplica Veneno.", icon: "🧪" },
+            { name: "Ceguera Profunda", type: "Maldición", desc: "Bajo Y=0, tienes Ceguera permanente.", icon: "👁️" },
+            { name: "Inventario Pesado", type: "Maldición", desc: "Si llevas el inventario lleno, tienes Lentitud I.", icon: "🎒" },
+            { name: "Tormenta Eterna", type: "Maldición", desc: "Llueve y hay truenos constantemente.", icon: "⚡" },
+            { name: "Esqueletos Francotiradores", type: "Maldición", desc: "Los esqueletos disparan un 50% más rápido.", icon: "🏹" },
+            { name: "Manos Resbaladizas", type: "Maldición", desc: "Chance del 1% de soltar el ítem de tu mano al usarlo.", icon: "✋" },
+            { name: "Madera Podrida", type: "Maldición", desc: "Talar madera tiene chance de no dropear nada.", icon: "🌲" },
+            { name: "Silencio Mortal", type: "Maldición", desc: "Los mobs hostiles no hacen sonidos.", icon: "🔇" },
+            { name: "Plaga de Ratas", type: "Maldición", desc: "Silverfish spawnean al romper Stone.", icon: "🐀" },
+            { name: "Gravedad Lunar Inversa", type: "Maldición", desc: "Si saltas, flotas hacia arriba por 5 segundos.", icon: "🎈" },
+            { name: "Nether Inestable", type: "Maldición", desc: "Los portales te llevan a coordenadas random en el Nether.", icon: "🔥" },
+            { name: "Toque de Midas Maligno", type: "Maldición", desc: "La comida se convierte en oro (no comestible) al tocarla.", icon: "🥖" },
+            { name: "Enderman Furiosos", type: "Maldición", desc: "Mirar a cualquier lado puede aggrear Endermans.", icon: "👀" },
+            { name: "Maldición de Binding", type: "Maldición", desc: "Toda armadura equipada hoy no se puede quitar.", icon: "🔒" },
+            { name: "Sombra Persistente", type: "Maldición", desc: "Las antorchas se apagan solas tras 5 minutos.", icon: "🕯️" },
+            { name: "Pies de Plomo", type: "Maldición", desc: "No puedes nadar hacia arriba, te hundes rápido.", icon: "⚓" },
+            { name: "Vientos Huracanados", type: "Maldición", desc: "Empuje (Knockback) recibido es x3.", icon: "💨" },
+            { name: "Sed de Sangre", type: "Maldición", desc: "Si no matas algo en 10 min, pierdes 1 corazón.", icon: "🩸" },
+            { name: "Ceguera de Nieve", type: "Maldición", desc: "Niebla blanca densa en todas partes (Como Powder Snow).", icon: "🌫️" },
+            { name: "Modo Hardcore UI", type: "Maldición", desc: "No ves tus corazones ni tu barra de comida (F1 parcial).", icon: "🫣" },
+            { name: "Sordera", type: "Maldición", desc: "Todos los sonidos del juego desactivados.", icon: "🙉" },
+            { name: "Paranoia", type: "Maldición", desc: "Sonidos falsos de Creeper y TNT expltando aleatoriamente.", icon: "😱" },
+            { name: "Desorientación", type: "Maldición", desc: "La brújula apunta a direcciones aleatorias, no al spawn.", icon: "🧭" },
+            { name: "Maldición de Ícaro", type: "Maldición", desc: "Si subes por encima de Y=150, empiezas a quemarte.", icon: "☀️" },
+            { name: "Fuego Fatuo", type: "Maldición", desc: "El fuego azul (soul fire) mata instantáneamente.", icon: "🔥" },
+            { name: "Cristal Frágil", type: "Maldición", desc: "Romper cristal causa explosión pequeña.", icon: "🪟" },
+
+            // --- BENDICIONES (BLESSINGS) ---
+            { name: "Corazón de Titán", type: "Bendición", desc: "+2 Corazones de vida máxima permanentes.", icon: "❤️" },
+            { name: "Fuerza Descomunal", type: "Bendición", desc: "+20% de Daño físico permanente.", icon: "💪" },
+            { name: "Sangre de Vampiro", type: "Bendición", desc: "Matar mobs cura medio corazón.", icon: "🩸" },
+            { name: "Manos de Seda", type: "Bendición", desc: "Toque de seda automático en todo.", icon: "🧤" },
+            { name: "Adrenalina", type: "Bendición", desc: "Bajo 3 corazones = Velocidad III.", icon: "⚡" },
+            { name: "Bendición de Demeter", type: "Bendición", desc: "Cultivos crecen instantáneamente con click derecho.", icon: "🌾" },
+            { name: "Piel de Acero", type: "Bendición", desc: "Resistencia al fuego permanente.", icon: "🔥" },
+            { name: "Minería Explosiva", type: "Bendición", desc: "Chance de encontrar TNT o Diamantes al picar.", icon: "⛏️" },
+            { name: "Vuelo de Ícaro", type: "Bendición", desc: "Caída lenta permanente.", icon: "🪶" },
+            { name: "Branquias", type: "Bendición", desc: "Respiración acuática infinita.", icon: "🐟" },
+            { name: "Aura de Luz", type: "Bendición", desc: "Emites luz al caminar (Vision Nocturna).", icon: "💡" },
+            { name: "Doble Loot", type: "Bendición", desc: "Mobs sueltan el doble de ítems.", icon: "💰" },
+            { name: "Experiencia Líquida", type: "Bendición", desc: "Todo da x3 XP.", icon: "🧪" },
+            { name: "Puño de Hierro", type: "Bendición", desc: "Golpear con la mano hace daño como espada de piedra.", icon: "👊" },
+            { name: "Fotosíntesis", type: "Bendición", desc: "Recuperas hambre bajo el sol.", icon: "🌻" },
+            { name: "Amistad Animal", type: "Bendición", desc: "Lobos y Gatos domados son inmortales.", icon: "🐺" },
+            { name: "Toque de Fortuna", type: "Bendición", desc: "Ores siempre dan el máximo drop posible.", icon: "🍀" },
+            { name: "Velocidad de la Luz", type: "Bendición", desc: "Caminar sobre caminos de tierra da Velocidad II.", icon: "👟" },
+            { name: "Pescador Legendario", type: "Bendición", desc: "Pesca es instantánea.", icon: "🎣" },
+            { name: "Herrero Divino", type: "Bendición", desc: "Yunques nunca se rompen.", icon: "🔨" },
+            { name: "Inmunidad al Veneno", type: "Bendición", desc: "Inmune a veneno y wither.", icon: "🤢" },
+            { name: "Salto de Fe", type: "Bendición", desc: "No recibes daño de caída en césped.", icon: "🌱" },
+            { name: "Comercio Justo", type: "Bendición", desc: "Piglin Bartering siempre da cosas buenas.", icon: "🐷" },
+            { name: "Escudo Reflejante", type: "Bendición", desc: "Bloquear devuelve el 50% del daño.", icon: "🛡️" },
+            { name: "Leñador Maestro", type: "Bendición", desc: "Talar un bloque rompe todo el árbol.", icon: "🪓" },
+            { name: "Imán de Items", type: "Bendición", desc: "Los items del suelo vuelan hacia ti (rango 5m).", icon: "🧲" },
+            { name: "Regalo del Cielo", type: "Bendición", desc: "Cofre con suministros cae en Spawn cada hora.", icon: "🎁" },
+            { name: "Arquero Mágico", type: "Bendición", desc: "Las flechas no se consumen.", icon: "🏹" },
+            { name: "Poción Permanente", type: "Bendición", desc: "Efecto de Haste I para todos.", icon: "⛏️" },
+            { name: "Sin Hambre", type: "Bendición", desc: "La barra de comida no baja si no corres.", icon: "🍔" },
+            { name: "Ojos de Ender", type: "Bendición", desc: "Endermans dropean perlas 100% garantizado.", icon: "🟣" },
+            { name: "Cama Regenerativa", type: "Bendición", desc: "Dormir cura toda la vida al instante.", icon: "🛌" },
+            { name: "Invisibilidad Táctica", type: "Bendición", desc: "Si te agachas por 3 segundos, te vuelves invisible.", icon: "👻" },
+            { name: "Supersalto", type: "Bendición", desc: "Salto Impulso II permanente.", icon: "🐇" },
+            { name: "Vida Extra", type: "Bendición", desc: "+1 Corazón Dorado (absorción) que se regenera cada día.", icon: "💛" },
+
+            // --- CAOS (CHAOS) ---
+            { name: "Mundo Espejo", type: "Caos", desc: "Enderman pacíficos, Cerdos agresivos.", icon: "🪞" },
+            { name: "Lluvia de Slimes", type: "Caos", desc: "Lluvia spawnea slimes del cielo.", icon: "🟢" },
+            { name: "Intercambio Equivalente", type: "Caos", desc: "Matar un mob te teletransporta a su lugar.", icon: "🔄" },
+            { name: "Noche Eterna", type: "Caos", desc: "El sol nunca sale.", icon: "🌑" },
+            { name: "Botín Explosivo", type: "Caos", desc: "20% chance de que cofres exploten.", icon: "💣" },
+            { name: "Gravedad Cero", type: "Caos", desc: "Todos tienen levitación leve constante.", icon: "🚀" },
+            { name: "Suelo de Hielo", type: "Caos", desc: "Todo el mundo resbala como en hielo.", icon: "❄️" },
+            { name: "Chat Maldito", type: "Caos", desc: "Hablar en chat te hace daño.", icon: "💬" },
+            { name: "PvP Forzado", type: "Caos", desc: "PvP activado en todas partes por 24h.", icon: "⚔️" },
+            { name: "Juego de la Silla", type: "Caos", desc: "Cada 30 min, todos cambian de posición con otro jugador.", icon: "🪑" },
+            { name: "Mundo Gigante", type: "Caos", desc: "Los Slimes y Magma Cubes son x4 tamaño.", icon: "🟩" },
+            { name: "Colores Invertidos", type: "Caos", desc: "Shader de colores invertidos forzado (si posible) o Niebla densa.", icon: "🎨" },
+            { name: "Sin Coordenadas", type: "Caos", desc: "F3 desactivado/oculto completamente.", icon: "🗺️" },
+            { name: "Invasión Zombie", type: "Caos", desc: "Solo spawnean Zombies, pero muchísimos.", icon: "🧟" },
+            { name: "Invasión Esqueleto", type: "Caos", desc: "Solo spawnean Esqueletos.", icon: "💀" },
+            { name: "Día de Pesca", type: "Caos", desc: "Solo se puede comer pescado.", icon: "🐟" },
+            { name: "La Purga", type: "Caos", desc: "Se pueden robar cofres protegidos hoy.", icon: "🎭" },
+            { name: "Terremoto", type: "Caos", desc: "La pantalla tiembla cada cierto tiempo.", icon: "📉" },
+            { name: "Susurros", type: "Caos", desc: "Sonidos de cueva aleatorios para todos.", icon: "👻" },
+            { name: "Gallinas Explosivas", type: "Caos", desc: "Las gallinas explotan si te acercas.", icon: "🐔" },
+            { name: "Bloques Random", type: "Caos", desc: "Los drops de bloques están aleatorizados hoy.", icon: "🎲" },
+            { name: "Speedrun", type: "Caos", desc: "El tiempo pasa x2 de rápido.", icon: "⏩" },
+            { name: "Slowmotion", type: "Caos", desc: "El tiempo pasa x0.5 de lento.", icon: "⏪" },
+            { name: "Sin Armadura", type: "Caos", desc: "No se puede equipar pecheras hoy.", icon: "👕" },
+            { name: "Guerra de Nieve", type: "Caos", desc: "Las bolas de nieve hacen 2 corazones de daño.", icon: "⛄" },
+            { name: "Pisos de Lava", type: "Caos", desc: "La lava fluye tan rápido como el agua.", icon: "🌋" },
+            { name: "Atracción Fatal", type: "Caos", desc: "Todos los mobs son atraídos hacia el jugador más cercano.", icon: "🧲" },
+            { name: "Sin Nombres", type: "Caos", desc: "Nametags de jugadores ocultos.", icon: "🕵️" },
+            { name: "Ruleta Rusa", type: "Caos", desc: "Comer tiene 1% de chance de matar.", icon: "🔫" },
+            { name: "Sin Chat", type: "Caos", desc: "El chat está deshabilitado. Nadie puede leerte.", icon: "🤐" },
+            { name: "Inventario Ciego", type: "Caos", desc: "Los tooltips de los items están ocultos.", icon: "❓" },
+            { name: "Daltonismo", type: "Caos", desc: "Shader de escala de grises (Blanco y Negro).", icon: "⚫" },
+            { name: "Miopes", type: "Caos", desc: "Distancia de renderizado forzada a 2 chunks.", icon: "👓" },
+        ];
+
+        const weeklyRoles = [
+            { name: "El Pacifista", pros: "+10 Corazones Máximos.", cons: "No puede infligir daño directo.", icon: "🕊️" },
+            { name: "El Vampiro", pros: "Fuerza II de noche, Visión Nocturna.", cons: "Se quema al sol sin casco.", icon: "🦇" },
+            { name: "Glass Cannon", pros: "Fuerza III permanente.", cons: "Solo 3 corazones de vida máxima.", icon: "💥" },
+            { name: "Rey Midas", pros: "Mobs dropean oro.", cons: "No regenera vida naturalmente.", icon: "👑" },
+            { name: "El Nómada", pros: "Velocidad II y Salto II.", cons: "Si duerme 2 veces en la misma cama, explota.", icon: "⛺" },
+            { name: "El Tanque", pros: "Resistencia II y Knockback Resist.", cons: "Hambre baja x3 rápido.", icon: "🛡️" },
+            { name: "El Asesino", pros: "Invisibilidad al agacharse (Sneak).", cons: "Solo puede usar armadura de cuero.", icon: "🗡️" },
+            { name: "El Ingeniero", pros: "Puede craftear items tecnológicos únicos.", cons: "Lentitud I permanente.", icon: "🔧" },
+            { name: "El Pirotécnico", pros: "Inmune al fuego y explosiones.", cons: "Recibe daño al tocar agua.", icon: "🧨" },
+            { name: "El Maldito", pros: "Puede revivir una vez gratis.", cons: "Luck -5 (Mal loot siempre).", icon: "💀" },
+            { name: "El Druida", pros: "Los animales no le atacan y regenera en pasto.", cons: "No puede usar armadura de metal.", icon: "🌿" },
+            { name: "El Berserker", pros: "Más daño cuanta menos vida tenga.", cons: "No puede usar escudos.", icon: "🪓" },
+            { name: "El Francotirador", pros: "+50% Daño con arco.", cons: "Daño cuerpo a cuerpo reducido 50%.", icon: "🎯" },
+            { name: "El Mercader", pros: "Descuentos masivos con aldeanos.", cons: "Los mobs hostiles lo targetean primero.", icon: "💰" },
+            { name: "El Fantasma", pros: "Atraviesa puertas y rejas.", cons: "Tiene solo 5 corazones.", icon: "👻" },
+            { name: "El Acuático", pros: "Conduit Power permanente.", cons: "Se seca (daño) fuera del agua/lluvia.", icon: "🧜" },
+            { name: "El Minero", pros: "Haste II y Visión Nocturna bajo Y=0.", cons: "Ceguera en la superficie de día.", icon: "⛏️" },
+            { name: "El Domador", pros: "Sus mascotas tienen x3 vida y daño.", cons: "Comparte el daño recibido con sus mascotas.", icon: "🐕" },
+            { name: "El Alquimista", pros: "Efectos de pociones duran x3.", cons: "Efectos negativos también duran x3.", icon: "⚗️" },
+            { name: "El Caballero", pros: "+2 Armadura natural.", cons: "No puede usar arcos ni tridentes.", icon: "⚔️" },
+            { name: "El Ladrón", pros: "Velocidad III.", cons: "Si recibe un golpe, suelta el item de su mano.", icon: "🦝" },
+            { name: "El Gigante", pros: "+50% Vida y Alcance.", cons: "Hitbox más grande (fácil de pegar).", icon: "🦍" },
+            { name: "El Enano", pros: "Hitbox pequeña (1 bloque).", cons: "Menos vida y alcance reducido.", icon: "🐁" },
+            { name: "El Ilusionista", pros: "Puede crear un clon señuelo.", cons: "No puede comer carne.", icon: "🎭" },
+            { name: "El Bárbaro", pros: "Fuerza I natural.", cons: "No puede encantar items.", icon: "🍖" },
+            { name: "El Sabio", pros: "Gana x3 Experiencia.", cons: "Físicamente débil (Debilidad I).", icon: "📚" },
+            { name: "El Caótico", pros: "Efecto random positivo cada 10 min.", cons: "Efecto random negativo cada 10 min.", icon: "🎲" },
+            { name: "El Guardián", pros: "Da buffs a aliados cercanos.", cons: "Lento si está solo.", icon: "🏰" },
+            { name: "El Explorador", pros: "Inmune a fatiga y lentitud.", cons: "Inventario reducido (menos slots).", icon: "🧭" },
+            { name: "El Cocinero", pros: "La comida da buffs extra.", cons: "Odia la comida cruda (veneno).", icon: "👨‍🍳" },
+        ];
+
+        const mobs = [
+            // --- COMÚN ---
+            { name: "Rata de Cueva", desc: "Silverfish un poco más grande. Envenena.", danger: "⭐", rarity: "comun" },
+            { name: "Fantasma Menor", desc: "Vuela bajo y empuja. No hace mucho daño.", danger: "⭐", rarity: "comun" },
+            { name: "Slime de Magma", desc: "Versión pequeña del Magma Cube. Spawnea en superficie.", danger: "⭐", rarity: "comun" },
+            { name: "Araña Saltadora", desc: "Araña que salta 5 bloques de altura.", danger: "⭐", rarity: "comun" },
+            { name: "Zombie Minero", desc: "Lleva casco y pico. Rompe puertas rápido.", danger: "⭐", rarity: "comun" },
+            { name: "Esqueleto Vagabundo", desc: "Usa espada en lugar de arco. Corre rápido.", danger: "⭐", rarity: "comun" },
+            { name: "Creeper Húmedo", desc: "No explota, pero deja un charco de agua persistente.", danger: "⭐", rarity: "comun" },
+            
+            // --- RARO ---
+            { name: "Esqueleto Blindado", desc: "Esqueleto con armadura completa de hierro.", danger: "⭐⭐", rarity: "raro" },
+            { name: "Zombie Veloz", desc: "Zombie con Velocidad II. Muy molesto.", danger: "⭐⭐", rarity: "raro" },
+            { name: "La Colmena", desc: "Zombie que suelta 5 Silverfish y 2 Arañas al morir.", danger: "⭐⭐⭐", rarity: "raro" },
+            { name: "Espíritu Vengativo", desc: "Vex que no desaparece. Spawnea al minar diamantes.", danger: "⭐⭐⭐", rarity: "raro" },
+            { name: "Golem Corrupto", desc: "Iron Golem agresivo con textura oxidada. Lento pero letal.", danger: "⭐⭐⭐", rarity: "raro" },
+            { name: "Creeper de Hielo", desc: "Explosión congela el área y aplica lentitud.", danger: "⭐⭐", rarity: "raro" },
+            { name: "Fantasma Gigante", desc: "Phantom x3 tamaño. Puede agarrar jugadores.", danger: "⭐⭐⭐", rarity: "raro" },
+            { name: "Bruja del Pantano", desc: "Lanza pociones de nivel II. Spawnea slimes.", danger: "⭐⭐", rarity: "raro" },
+            
+            // --- ÉPICO ---
+            { name: "El Acechador", desc: "Creeper invisible. Hace sonido de estática. Ceguera.", danger: "⭐⭐⭐⭐", rarity: "epico" },
+            { name: "Torreta de Hueso", desc: "Esqueleto inmóvil. Rango 100 bloques. Perforante.", danger: "⭐⭐⭐⭐", rarity: "epico" },
+            { name: "Sombra", desc: "Enderman que no se teletransporta pero corre supersónico.", danger: "⭐⭐⭐⭐", rarity: "epico" },
+            { name: "Blaze Azul", desc: "Dispara fuego azul (Soul Fire). Daño x2.", danger: "⭐⭐⭐⭐", rarity: "epico" },
+            { name: "Shulker Mímico", desc: "Parece un bloque de piedra. Ataca al minarlo.", danger: "⭐⭐⭐⭐", rarity: "epico" },
+            { name: "Jinete de Araña Elite", desc: "Esqueleto Wither montado en Araña de Cueva.", danger: "⭐⭐⭐⭐", rarity: "epico" },
+            { name: "Evoker Loco", desc: "Spawnea Vexes infinitos hasta que muere.", danger: "⭐⭐⭐⭐", rarity: "epico" },
+            
+            // --- LEGENDARIO / MÍTICO ---
+            { name: "Caballero del Apocalipsis", desc: "Wither Skeleton en caballo. Full Netherite.", danger: "⭐⭐⭐⭐⭐", rarity: "legendario" },
+            { name: "Leviatán", desc: "Guardián Anciano gigante en ríos profundos.", danger: "⭐⭐⭐⭐⭐", rarity: "legendario" },
+            { name: "Rey Rata", desc: "Silverfish gigante que invoca hordas infinitas.", danger: "⭐⭐⭐⭐⭐", rarity: "mitico" },
+            { name: "El Warden Despierto", desc: "Warden que puede salir de la Ancient City de noche.", danger: "⭐⭐⭐⭐⭐⭐", rarity: "mitico" },
+            { name: "Dragón Alpha", desc: "Ender Dragon con 3 cabezas y aliento tóxico.", danger: "⭐⭐⭐⭐⭐⭐", rarity: "mitico" },
+            { name: "El Segador", desc: "Esqueleto gigante con guadaña. Mata de 1 golpe.", danger: "⭐⭐⭐⭐⭐", rarity: "legendario" },
+            { name: "Rey Slime", desc: "Slime masivo. Al morir se divide en 50 slimes normales.", danger: "⭐⭐⭐⭐⭐", rarity: "legendario" },
+        ];
+
+        const items = [
+            // --- COMÚN ---
+            { name: "Venda Curativa", type: "Consumible", desc: "Cura 2 corazones. Tarda 3s en usarse.", rarity: "comun" },
+            { name: "Piedra de Afilar", type: "Material", desc: "Repara items un 10% sin yunque.", rarity: "comun" },
+            { name: "Pan Mohoso", type: "Comida", desc: "Restaura mucho hambre pero da Nausea.", rarity: "comun" },
+            { name: "Antorcha Eterna", type: "Utilidad", desc: "No se apaga con el evento 'Sombra Persistente'.", rarity: "comun" },
+            { name: "Palo Afilado", type: "Arma", desc: "Daño de espada de madera, pero ataca muy rápido.", rarity: "comun" },
+            { name: "Botas de Cuero Reforzadas", type: "Armadura", desc: "Evitan daño por caída leve (3 bloques).", rarity: "comun" },
+            { name: "Sopa Misteriosa", type: "Consumible", desc: "Efecto aleatorio (bueno o malo) por 10s.", rarity: "comun" },
+            
+            // --- RARO ---
+            { name: "Botas de Hermes", type: "Armadura", desc: "Doble salto. Se rompen muy rápido.", rarity: "raro" },
+            { name: "Poción de Olvido", type: "Consumible", desc: "Elimina el agro de los mobs cercanos.", rarity: "raro" },
+            { name: "Escudo de Espinas", type: "Escudo", desc: "Devuelve 100% del daño. Baja durabilidad.", rarity: "raro" },
+            { name: "Arco de Hueso", type: "Arma", desc: "Dispara flechas torcidas pero hace más daño.", rarity: "raro" },
+            { name: "Pico de Vidrio", type: "Herramienta", desc: "Mina instantáneo pero tiene 10 usos.", rarity: "raro" },
+            { name: "Imán de XP", type: "Amuleto", desc: "Atrae experiencia desde 20 bloques.", rarity: "raro" },
+            { name: "Mochila Pequeña", type: "Utilidad", desc: "Añade 9 espacios de inventario extra (comando).", rarity: "raro" },
+            { name: "Gancho de Agarre", type: "Utilidad", desc: "Te permite escalar paredes verticales.", rarity: "raro" },
+            
+            // --- ÉPICO ---
+            { name: "Pico de la Codicia", type: "Herramienta", desc: "Fortuna X, pero te quita vida al picar.", rarity: "epico" },
+            { name: "Manzana de la Discordia", type: "Consumible", desc: "Fuerza IV (1 min), luego Veneno II (1 min).", rarity: "epico" },
+            { name: "Fragmento de Tiempo", type: "Material", desc: "Craftea el reloj de reinicio de evento.", rarity: "epico" },
+            { name: "Tridente de Poseidón", type: "Arma", desc: "Invoca rayos sin tormenta. Riptide fuera del agua.", rarity: "epico" },
+            { name: "Alas Blindadas", type: "Armadura", desc: "Elytras que dan protección como pechera de hierro.", rarity: "epico" },
+            { name: "Capa de Invisibilidad", type: "Armadura", desc: "Te hace invisible a mobs si no te mueves.", rarity: "epico" },
+            { name: "Martillo de Guerra", type: "Arma", desc: "Daño de área masivo, recarga muy lenta.", rarity: "epico" },
+            { name: "Tótem de Regeneración", type: "Reliquia", desc: "Cura a todos los aliados en 10 bloques.", rarity: "epico" },
+            
+            // --- LEGENDARIO / MÍTICO ---
+            { name: "Tótem del Azar", type: "Reliquia", desc: "Te salva de morir + efecto random.", rarity: "legendario" },
+            { name: "Orbe de Resurrección", type: "Consumible", desc: "Revive a un compañero. Costo: 1 Vida propia.", rarity: "legendario" },
+            { name: "Espada Vampírica", type: "Arma", desc: "Roba vida, quema al sol.", rarity: "legendario" },
+            { name: "Pico Destructor de Mundos", type: "Herramienta", desc: "Mina 3x3 bloques (Tunnel bore).", rarity: "legendario" },
+            { name: "Casco de la Visión Verdadera", type: "Armadura", desc: "Ves mobs invisibles y ores a través de paredes.", rarity: "legendario" },
+            { name: "Corazón de Notch", type: "Legendario", desc: "+1 Vida Extra permanente. Drop único.", rarity: "mitico" },
+            { name: "Contrato de Alma", type: "Consumible", desc: "Ban 24h a cambio de revivir a otro.", rarity: "mitico" },
+            { name: "Llamada del Vacío", type: "Trampa", desc: "Crea agujero negro temporal.", rarity: "mitico" },
+            { name: "Huevo de Dragón Real", type: "Mascota", desc: "Invoca un Dragón bebé que ataca enemigos.", rarity: "mitico" },
+            { name: "La Mano de Dios", type: "Admin Item", desc: "Elimina un evento permanente de la lista. Un solo uso.", rarity: "mitico" },
+        ];
+
+        const serverRules = [
+            { title: "Vida y Muerte", desc: "Empiezas con 3 vidas. Al llegar a 0, eres espectador hasta que alguien te reviva. El día 31 es PERMADEATH." },
+            { title: "Acumulación", desc: "Los efectos de la ruleta NO se reinician. Se acumulan. Adáptate o muere." },
+            { title: "Griefing Táctico", desc: "El griefing está permitido SOLO si hay guerra declarada o evento de 'Purga'. Bases desconectadas son seguras." },
+            { title: "Fair Play", desc: "Cero hacks (X-Ray, KillAura, etc). Uso de bugs está prohibido salvo que la ruleta lo permita." },
+            { title: "Respeto", desc: "El toxicidad extrema o ataques personales resultan en ban directo sin gastar vidas." },
+            { title: "Alianzas", desc: "Equipos de máximo 4 personas. Las traiciones están permitidas, pero tienen consecuencias sociales." },
+            { title: "Stream Sniping", desc: "Prohibido. Usar información de streams para matar es ban." },
+            { title: "Eventos", desc: "La asistencia a la 'Hora de la Ruleta' (00:00 server time) es obligatoria si estás online." },
+        ];
+
+        // --- COMPONENTS ---
+
+        const Badge = ({ type }) => {
+            let colors = "bg-gray-700 text-gray-200";
+            if (type === "Maldición") colors = "bg-red-900/50 text-red-200 border border-red-700";
+            if (type === "Bendición") colors = "bg-green-900/50 text-green-200 border border-green-700";
+            if (type === "Caos") colors = "bg-purple-900/50 text-purple-200 border border-purple-700";
+            
+            return (
+                <span className={`px-2 py-0.5 text-xs md:text-sm uppercase tracking-wider rounded ${colors}`}>
+                    {type}
+                </span>
+            );
+        };
+
+        const RarityBadge = ({ rarity }) => {
+            const map = {
+                comun: "text-gray-400 border-gray-600 bg-gray-900/50",
+                raro: "text-blue-400 border-blue-600 bg-blue-900/50",
+                epico: "text-purple-400 border-purple-600 bg-purple-900/50",
+                legendario: "text-yellow-400 border-yellow-600 bg-yellow-900/50",
+                mitico: "text-red-500 border-red-600 bg-red-900/50 font-bold"
+            };
+            return (
+                <span className={`px-2 py-0.5 text-xs uppercase tracking-wider rounded border ${map[rarity] || map.comun}`}>
+                    {rarity}
+                </span>
+            );
+        }
+
+        const NavButton = ({ active, onClick, children }) => (
+            <button 
+                onClick={onClick}
+                className={`px-3 md:px-6 py-2 text-lg md:text-xl uppercase tracking-wider transition-all border-b-4 ${active ? 'border-red-600 text-red-500 bg-red-900/20' : 'border-transparent text-gray-400 hover:text-white hover:bg-white/5'}`}
+            >
+                {children}
+            </button>
+        );
+
+        const SectionTitle = ({ children }) => (
+            <h2 className="text-3xl text-red-500 mb-6 border-l-4 border-red-600 pl-3 uppercase tracking-widest text-shadow">
+                {children}
+            </h2>
+        );
+
+        // --- MAIN APP ---
+
+        function App() {
+            const [view, setView] = useState('home'); 
+            const [searchTerm, setSearchTerm] = useState("");
+            const [simResult, setSimResult] = useState(null);
+            const [isSpinning, setIsSpinning] = useState(false);
+
+            // Filter logic
+            const filteredEvents = dailyEvents.filter(ev => 
+                ev.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                ev.type.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+
+            const spinRoulette = () => {
+                if (isSpinning) return;
+                setIsSpinning(true);
+                setSimResult(null);
+                
+                let count = 0;
+                const maxSpins = 20;
+                const interval = setInterval(() => {
+                    const randomEvent = dailyEvents[Math.floor(Math.random() * dailyEvents.length)];
+                    setSimResult(randomEvent);
+                    count++;
+                    if (count >= maxSpins) {
+                        clearInterval(interval);
+                        setIsSpinning(false);
+                    }
+                }, 80);
+            };
+
+            const renderContent = () => {
+                switch(view) {
+                    case 'rules':
+                        return (
+                            <div className="animate-in fade-in duration-500 max-w-4xl mx-auto">
+                                <SectionTitle>Reglas del Servidor</SectionTitle>
+                                <div className="space-y-4">
+                                    {serverRules.map((rule, idx) => (
+                                        <div key={idx} className="mc-card bg-zinc-900 p-6 flex gap-4">
+                                            <div className="text-red-500 text-2xl font-bold select-none">{idx + 1}.</div>
+                                            <div>
+                                                <h3 className="text-2xl text-white mb-2 uppercase">{rule.title}</h3>
+                                                <p className="text-gray-400 text-xl">{rule.desc}</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        );
+
+                    case 'wiki':
+                        return (
+                            <div className="space-y-12 animate-in fade-in duration-500">
+                                <div className="bg-yellow-900/20 border border-yellow-700 p-4 mb-8 flex flex-col md:flex-row gap-4 justify-between items-center">
+                                    <div>
+                                        <h3 className="text-yellow-500 text-2xl mb-1">⚠️ Efectos Acumulativos</h3>
+                                        <p className="text-lg text-gray-400">Total de eventos posibles: <span className="text-white font-bold">{dailyEvents.length}</span></p>
+                                    </div>
+                                    <input 
+                                        type="text" 
+                                        placeholder="Buscar evento..." 
+                                        className="bg-black border border-gray-600 p-2 text-white w-full md:w-64 focus:border-red-500 outline-none font-mono"
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
+                                </div>
+
+                                {/* RULETA DIARIA */}
+                                <div>
+                                    <SectionTitle>La Ruleta Diaria ({filteredEvents.length})</SectionTitle>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                        {filteredEvents.map((ev, idx) => (
+                                            <div key={idx} className="mc-card bg-zinc-900 p-4 hover:bg-zinc-800 transition-colors group">
+                                                <div className="flex justify-between items-start mb-2">
+                                                    <span className="text-4xl group-hover:scale-110 transition-transform">{ev.icon}</span>
+                                                    <Badge type={ev.type} />
+                                                </div>
+                                                <h3 className="text-2xl text-white mb-1">{ev.name}</h3>
+                                                <p className="text-gray-400 text-lg leading-tight">{ev.desc}</p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* RULETA SEMANAL (NUEVO) */}
+                                <div>
+                                    <SectionTitle>Ruleta Semanal (Roles)</SectionTitle>
+                                    <p className="text-gray-400 mb-4">Estos efectos son personales y definen tu rol durante una semana completa.</p>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                        {weeklyRoles.map((role, idx) => (
+                                            <div key={idx} className="mc-card bg-zinc-900 p-4 relative overflow-hidden border border-gray-700">
+                                                <div className="flex justify-between items-start mb-2 relative z-10">
+                                                    <span className="text-3xl">{role.icon}</span>
+                                                    <span className="text-xs uppercase bg-gray-800 px-2 py-1 rounded text-gray-400">Personal</span>
+                                                </div>
+                                                <h3 className="text-xl text-white mb-2 relative z-10 font-bold">{role.name}</h3>
+                                                <div className="space-y-2 relative z-10 text-sm">
+                                                    <div className="flex items-start gap-2">
+                                                        <span className="text-green-500 font-bold">+</span>
+                                                        <p className="text-gray-400 leading-tight">{role.pros}</p>
+                                                    </div>
+                                                    <div className="flex items-start gap-2">
+                                                        <span className="text-red-500 font-bold">-</span>
+                                                        <p className="text-gray-400 leading-tight">{role.cons}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    {/* BESTIARIO */}
+                                    <div>
+                                        <SectionTitle>Bestiario ({mobs.length})</SectionTitle>
+                                        <div className="space-y-3">
+                                            {mobs.map((m, i) => (
+                                                <div key={i} className={`border-l-2 pl-4 bg-zinc-900/50 p-2 border-l-${m.rarity === 'comun' ? 'gray' : m.rarity === 'raro' ? 'blue' : m.rarity === 'epico' ? 'purple' : m.rarity === 'legendario' ? 'yellow' : 'red'}-600`}>
+                                                    <div className="flex justify-between items-center mb-1">
+                                                        <strong className="text-lg text-gray-200">{m.name}</strong>
+                                                        <RarityBadge rarity={m.rarity} />
+                                                    </div>
+                                                    <p className="text-gray-500 text-sm mb-1">{m.desc}</p>
+                                                    <div className="text-xs text-red-500 tracking-widest">{m.danger}</div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    {/* ITEMS */}
+                                    <div>
+                                        <SectionTitle>Ítems & Artefactos ({items.length})</SectionTitle>
+                                        <div className="space-y-3">
+                                            {items.map((it, i) => (
+                                                <div key={i} className={`border-l-2 pl-4 bg-zinc-900/50 p-2 relative overflow-hidden border-l-${it.rarity === 'comun' ? 'gray' : it.rarity === 'raro' ? 'blue' : it.rarity === 'epico' ? 'purple' : it.rarity === 'legendario' ? 'yellow' : 'red'}-600`}>
+                                                    <div className="flex justify-between items-center mb-1 relative z-10">
+                                                        <strong className="text-lg text-gray-200">{it.name}</strong>
+                                                        <RarityBadge rarity={it.rarity} />
+                                                    </div>
+                                                    <p className="text-gray-500 text-sm relative z-10">{it.desc}</p>
+                                                    <span className="text-xs text-gray-600 uppercase mt-1 block relative z-10">{it.type}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    
+                    case 'roles':
+                        // Duplicate view kept for detailed focus, but also present in Wiki now
+                        return (
+                            <div className="animate-in slide-in-from-bottom-4 duration-500">
+                                <SectionTitle>Detalle de Roles Semanales</SectionTitle>
+                                <p className="text-xl text-gray-400 mb-8">Información extendida sobre los modificadores personales.</p>
+                                
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                    {weeklyRoles.map((role, idx) => (
+                                        <div key={idx} className="mc-card bg-zinc-900 p-0 overflow-hidden relative group">
+                                            <div className="absolute top-0 right-0 p-4 text-6xl opacity-10 group-hover:opacity-30 transition-opacity select-none">
+                                                {role.icon}
+                                            </div>
+                                            <div className="p-6 relative z-10">
+                                                <h3 className="text-3xl text-white mb-4 border-b border-gray-700 pb-2 flex items-center gap-3">
+                                                    <span>{role.icon}</span> {role.name}
+                                                </h3>
+                                                <div className="space-y-4">
+                                                    <div className="flex items-start gap-3">
+                                                        <div className="bg-green-900/30 text-green-400 px-2 py-0.5 rounded text-sm shrink-0 mt-1">PROS</div>
+                                                        <p className="text-lg text-gray-300">{role.pros}</p>
+                                                    </div>
+                                                    <div className="flex items-start gap-3">
+                                                        <div className="bg-red-900/30 text-red-400 px-2 py-0.5 rounded text-sm shrink-0 mt-1">CONS</div>
+                                                        <p className="text-lg text-gray-300">{role.cons}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        );
+
+                    case 'simulator':
+                        return (
+                            <div className="flex flex-col items-center justify-center min-h-[50vh] animate-in zoom-in duration-300">
+                                <div className="text-center mb-8">
+                                    <h2 className="text-4xl text-white mb-2 text-shadow">SIMULADOR DE RULETA</h2>
+                                    <p className="text-xl text-gray-400">Prueba tu suerte antes de entrar al server...</p>
+                                </div>
+
+                                <div className="mc-card w-full max-w-md bg-black p-8 text-center min-h-[250px] flex items-center justify-center flex-col relative overflow-hidden ring-4 ring-red-900/50">
+                                    {/* Decoration lines */}
+                                    <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-red-600 via-transparent to-red-600"></div>
+                                    <div className="absolute bottom-0 left-0 w-full h-2 bg-gradient-to-r from-red-600 via-transparent to-red-600"></div>
+                                    <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+
+                                    {simResult ? (
+                                        <div className="animate-in bounce-in duration-500 z-10">
+                                            <div className="text-7xl mb-4 filter drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">{simResult.icon}</div>
+                                            <h3 className={`text-3xl mb-2 uppercase font-bold tracking-wider ${simResult.type === 'Maldición' ? 'text-red-500' : simResult.type === 'Bendición' ? 'text-green-500' : 'text-purple-500'}`}>
+                                                {simResult.name}
+                                            </h3>
+                                            <Badge type={simResult.type} />
+                                            <p className="mt-6 text-gray-300 text-xl border-t border-gray-800 pt-4">{simResult.desc}</p>
+                                        </div>
+                                    ) : (
+                                        <div className="text-gray-600 text-2xl z-10">
+                                            {isSpinning ? "GIRANDO..." : "PRESIONA EL BOTÓN"}
+                                        </div>
+                                    )}
+                                </div>
+
+                                <button 
+                                    onClick={spinRoulette} 
+                                    disabled={isSpinning}
+                                    className="mc-btn mt-8 px-8 py-4 text-2xl text-white font-bold uppercase tracking-widest hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed transform hover:-translate-y-1 active:translate-y-0 transition-all"
+                                >
+                                    {isSpinning ? "Rodando..." : "TIRAR DADO"}
+                                </button>
+                                
+                                {simResult && (
+                                    <p className="mt-4 text-gray-500 text-lg">Probabilidad: {(100/dailyEvents.length).toFixed(2)}%</p>
+                                )}
+                            </div>
+                        );
+
+                    default: // Home
+                        return (
+                            <div className="text-center space-y-12 animate-in fade-in duration-700">
+                                <div className="relative py-16">
+                                    <div className="absolute inset-0 bg-red-900/10 blur-3xl rounded-full"></div>
+                                    <h1 className="text-6xl md:text-9xl font-bold text-white mb-4 text-shadow relative z-10 tracking-tighter">
+                                        <span className="text-red-600">ROLL</span><span className="text-gray-700">AND</span>DEATH
+                                    </h1>
+                                    <p className="text-2xl md:text-3xl text-gray-400 tracking-[0.2em] uppercase font-bold">Protocolo Diciembre</p>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+                                    <div className="bg-zinc-900/80 p-8 border-t-4 border-red-600 hover:bg-zinc-800 transition-colors cursor-default">
+                                        <div className="text-5xl mb-4">💀</div>
+                                        <h3 className="text-3xl text-white mb-2 uppercase">3 Vidas</h3>
+                                        <p className="text-xl text-gray-400">Sistema Hardcore con revivir limitado. Si pierdes todo, entras al Limbo hasta que alguien pague el precio.</p>
+                                    </div>
+                                    <div className="bg-zinc-900/80 p-8 border-t-4 border-purple-600 hover:bg-zinc-800 transition-colors cursor-default">
+                                        <div className="text-5xl mb-4">🎲</div>
+                                        <h3 className="text-3xl text-white mb-2 uppercase">Caos Acumulativo</h3>
+                                        <p className="text-xl text-gray-400">Cada día se suma una nueva regla. Día 1 = 1 Regla. Día 30 = 30 Reglas activas a la vez.</p>
+                                    </div>
+                                    <div className="bg-zinc-900/80 p-8 border-t-4 border-blue-600 hover:bg-zinc-800 transition-colors cursor-default">
+                                        <div className="text-5xl mb-4">⚔️</div>
+                                        <h3 className="text-3xl text-white mb-2 uppercase">Roles & RPG</h3>
+                                        <p className="text-xl text-gray-400">Roll Semanal personal. Obtén clases como "Vampiro", "Berserker" o "Tanque" con ventajas y debilidades únicas.</p>
+                                    </div>
+                                </div>
+
+                                <div className="pt-8 flex justify-center gap-4 flex-wrap">
+                                    <button onClick={() => setView('wiki')} className="bg-white text-black px-8 py-4 text-2xl font-bold hover:bg-gray-200 transition-colors uppercase tracking-wider">
+                                        Ver Eventos ({dailyEvents.length})
+                                    </button>
+                                    <button onClick={() => setView('rules')} className="border-2 border-white text-white px-8 py-4 text-2xl font-bold hover:bg-white/10 transition-colors uppercase tracking-wider">
+                                        Leer Reglas
+                                    </button>
+                                </div>
+                            </div>
+                        );
+                }
+            };
+
+            return (
+                <div className="min-h-screen pb-20">
+                    {/* Header */}
+                    <header className="border-b-4 border-zinc-800 bg-black/80 sticky top-0 z-50 backdrop-blur-md">
+                        <div className="container mx-auto px-4">
+                            <div className="flex flex-col md:flex-row justify-between items-center py-4 gap-4">
+                                <div 
+                                    className="text-4xl text-white font-bold tracking-tighter cursor-pointer hover:text-red-500 transition-colors select-none"
+                                    onClick={() => setView('home')}
+                                >
+                                    R&D<span className="text-red-600">SMP</span>
+                                </div>
+                                <nav className="flex gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 justify-center">
+                                    <NavButton active={view === 'home'} onClick={() => setView('home')}>Inicio</NavButton>
+                                    <NavButton active={view === 'wiki'} onClick={() => setView('wiki')}>Wiki</NavButton>
+                                    <NavButton active={view === 'roles'} onClick={() => setView('roles')}>Roles</NavButton>
+                                    <NavButton active={view === 'rules'} onClick={() => setView('rules')}>Reglas</NavButton>
+                                    <NavButton active={view === 'simulator'} onClick={() => setView('simulator')}>Sim</NavButton>
+                                </nav>
+                            </div>
+                        </div>
+                    </header>
+
+                    {/* Main Content */}
+                    <main className="container mx-auto px-4 py-8">
+                        {renderContent()}
+                    </main>
+
+                    {/* Footer / Server Status */}
+                    <footer className="fixed bottom-0 w-full bg-zinc-900 border-t-2 border-zinc-700 p-2 text-center text-gray-500 text-lg z-40 flex justify-between px-4 md:justify-center md:gap-8">
+                        <div className="flex items-center gap-2">
+                            <span className="w-3 h-3 bg-green-500 rounded-full animate-pulse shadow-[0_0_10px_#22c55e]"></span>
+                            <span className="text-green-500 font-bold">ONLINE</span>
+                        </div>
+                        <div className="hidden md:block">|</div>
+                        <div className="font-mono text-gray-400 hover:text-white cursor-pointer select-all">play.rollanddeath.net</div>
+                    </footer>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
