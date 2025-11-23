@@ -1,0 +1,56 @@
+package net.rollanddeath.smp.core.roles.impl;
+
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.rollanddeath.smp.RollAndDeathSMP;
+import net.rollanddeath.smp.core.roles.Role;
+import net.rollanddeath.smp.core.roles.RoleType;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitRunnable;
+
+public class VampireRole extends Role {
+
+    public VampireRole(RollAndDeathSMP plugin) {
+        super(plugin, RoleType.VAMPIRE);
+    }
+
+    @Override
+    public void onEnable() {
+        super.onEnable();
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                for (Player player : plugin.getServer().getOnlinePlayers()) {
+                    if (hasRole(player)) {
+                        handleVampireEffects(player);
+                    }
+                }
+            }
+        }.runTaskTimer(plugin, 0L, 20L); // Every second
+    }
+
+    private void handleVampireEffects(Player player) {
+        long time = player.getWorld().getTime();
+        boolean isDay = time > 0 && time < 12300;
+        boolean isRaining = player.getWorld().hasStorm();
+
+        if (isDay && !isRaining && player.getLocation().getBlock().getLightFromSky() == 15) {
+            // Burn logic
+            ItemStack helmet = player.getInventory().getHelmet();
+            if (helmet != null && helmet.getType() != Material.AIR) {
+                // Helmet protects but takes damage
+                // Logic to damage helmet could go here
+            } else {
+                player.setFireTicks(60);
+            }
+        } else {
+            // Night or indoors -> Buffs
+            player.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 40, 0, false, false));
+            player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 240, 0, false, false));
+        }
+    }
+}

@@ -49,3 +49,80 @@ body {
 .rarity-epico { border-color: #a855f7; color: #a855f7; } /* Purple */
 .rarity-legendario { border-color: #eab308; color: #eab308; } /* Gold */
 .rarity-mitico { border-color: #ef4444; color: #ef4444; } /* Red */
+
+/* Minecraft Wiki Recipe Styles */
+.mcui-Crafting_Table {
+    display: inline-block;
+    vertical-align: top;
+    background-color: #c6c6c6;
+    border: 2px solid;
+    border-color: #373737 #fff #fff #373737;
+    padding: 10px;
+    image-rendering: pixelated;
+    color: #000;
+}
+
+.mcui-input {
+    display: inline-block;
+    vertical-align: top;
+}
+
+.mcui-row {
+    display: block;
+    height: 36px; /* 32px + 4px margin/border? */
+}
+
+.invslot {
+    display: inline-block;
+    width: 34px;
+    height: 34px;
+    background-color: #8b8b8b;
+    border: 2px solid;
+    border-color: #373737 #fff #fff #373737;
+    margin-right: 2px;
+    margin-bottom: 2px;
+    position: relative;
+}
+
+.invslot-item {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.invslot-item img {
+    max-width: 30px;
+    max-height: 30px;
+}
+
+.mcui-arrow {
+    display: inline-block;
+    width: 24px;
+    height: 18px;
+    background: url('https://minecraft.wiki/images/GUI_Crafting_Arrow.png') no-repeat center;
+    background-size: contain;
+    vertical-align: middle;
+    margin: 0 10px;
+    margin-top: 40px; /* Center vertically relative to 3 rows */
+}
+
+.mcui-output {
+    display: inline-block;
+    vertical-align: top;
+    margin-top: 28px; /* Center vertically */
+}
+
+.invslot-large {
+    width: 50px;
+    height: 50px;
+}
+
+.invslot-large .invslot-item img {
+    max-width: 46px;
+    max-height: 46px;
+}

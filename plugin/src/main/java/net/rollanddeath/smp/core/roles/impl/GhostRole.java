@@ -1,0 +1,61 @@
+package net.rollanddeath.smp.core.roles.impl;
+
+import net.rollanddeath.smp.RollAndDeathSMP;
+import net.rollanddeath.smp.core.roles.Role;
+import net.rollanddeath.smp.core.roles.RoleType;
+import org.bukkit.Material;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.block.Block;
+import org.bukkit.block.data.type.Door;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.scheduler.BukkitRunnable;
+
+public class GhostRole extends Role {
+
+    public GhostRole(RollAndDeathSMP plugin) {
+        super(plugin, RoleType.GHOST);
+    }
+
+    @Override
+    public void onEnable() {
+        super.onEnable();
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                for (Player player : plugin.getServer().getOnlinePlayers()) {
+                    if (hasRole(player)) {
+                        if (player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() != 14.0) {
+                            player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(14.0); // 7 hearts
+                        }
+                    } else {
+                         if (player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() == 14.0 && 
+                            plugin.getRoleManager().getPlayerRole(player) != RoleType.GHOST) {
+                            player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(20.0);
+                        }
+                    }
+                }
+            }
+        }.runTaskTimer(plugin, 0L, 80L);
+    }
+
+    @EventHandler
+    public void onInteract(PlayerInteractEvent event) {
+        if (event.getAction() == Action.RIGHT_CLICK_BLOCK && hasRole(event.getPlayer())) {
+            Block block = event.getClickedBlock();
+            if (block != null && (block.getType().name().contains("DOOR") || block.getType() == Material.IRON_DOOR)) {
+                if (event.getPlayer().isSneaking()) {
+                    if (block.getBlockData() instanceof Door) {
+                        Door door = (Door) block.getBlockData();
+                        if (!door.isOpen()) {
+                            door.setOpen(true);
+                            block.setBlockData(door);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

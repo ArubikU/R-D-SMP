@@ -265,45 +265,45 @@
 
         const items = [
             // --- COMÚN ---
-            { name: "Venda Curativa", type: "Consumible", desc: "Cura 2 corazones. Tarda 3s en usarse.", rarity: "comun" },
-            { name: "Piedra de Afilar", type: "Material", desc: "Repara items un 10% sin yunque.", rarity: "comun" },
-            { name: "Pan Mohoso", type: "Comida", desc: "Restaura mucho hambre pero da Nausea.", rarity: "comun" },
-            { name: "Antorcha Eterna", type: "Utilidad", desc: "No se apaga con el evento 'Sombra Persistente'.", rarity: "comun" },
-            { name: "Palo Afilado", type: "Arma", desc: "Daño de espada de madera, pero ataca muy rápido.", rarity: "comun" },
-            { name: "Botas de Cuero Reforzadas", type: "Armadura", desc: "Evitan daño por caída leve (3 bloques).", rarity: "comun" },
-            { name: "Sopa Misteriosa", type: "Consumible", desc: "Efecto aleatorio (bueno o malo) por 10s.", rarity: "comun" },
+            { name: "Venda Curativa", type: "Consumible", desc: "Cura 2 corazones. Tarda 3s en usarse.", rarity: "comun", acquisition: "Crafting: Papel + Lana" },
+            { name: "Piedra de Afilar", type: "Material", desc: "Repara items un 10% sin yunque.", rarity: "comun", acquisition: "Crafting: Piedra + Pedernal" },
+            { name: "Pan Mohoso", type: "Comida", desc: "Restaura mucho hambre pero da Nausea.", rarity: "comun", acquisition: "Crafting: Pan + Hongo Marrón" },
+            { name: "Antorcha Eterna", type: "Utilidad", desc: "No se apaga con el evento 'Sombra Persistente'.", rarity: "comun", acquisition: "Crafting: Antorcha + Glowstone" },
+            { name: "Palo Afilado", type: "Arma", desc: "Daño de espada de madera, pero ataca muy rápido.", rarity: "comun", acquisition: "Crafting: Palo + Pedernal" },
+            { name: "Botas de Cuero Reforzadas", type: "Armadura", desc: "Evitan daño por caída leve (3 bloques).", rarity: "comun", acquisition: "Crafting: Botas Cuero + Lingote Hierro" },
+            { name: "Sopa Misteriosa", type: "Consumible", desc: "Efecto aleatorio (bueno o malo) por 10s.", rarity: "comun", acquisition: "Crafting: Bowl + Verruga + Ojo Araña" },
             
             // --- RARO ---
-            { name: "Botas de Hermes", type: "Armadura", desc: "Doble salto. Se rompen muy rápido.", rarity: "raro" },
-            { name: "Poción de Olvido", type: "Consumible", desc: "Elimina el agro de los mobs cercanos.", rarity: "raro" },
-            { name: "Escudo de Espinas", type: "Escudo", desc: "Devuelve 100% del daño. Baja durabilidad.", rarity: "raro" },
-            { name: "Arco de Hueso", type: "Arma", desc: "Dispara flechas torcidas pero hace más daño.", rarity: "raro" },
-            { name: "Pico de Vidrio", type: "Herramienta", desc: "Mina instantáneo pero tiene 10 usos.", rarity: "raro" },
-            { name: "Imán de XP", type: "Amuleto", desc: "Atrae experiencia desde 20 bloques.", rarity: "raro" },
-            { name: "Mochila Pequeña", type: "Utilidad", desc: "Añade 9 espacios de inventario extra (comando).", rarity: "raro" },
-            { name: "Gancho de Agarre", type: "Utilidad", desc: "Te permite escalar paredes verticales.", rarity: "raro" },
+            { name: "Botas de Hermes", type: "Armadura", desc: "Doble salto. Se rompen muy rápido.", rarity: "raro", acquisition: "Drop: Zombie Veloz (5%)" },
+            { name: "Poción de Olvido", type: "Consumible", desc: "Elimina el agro de los mobs cercanos.", rarity: "raro", acquisition: "Drop: Bruja del Pantano" },
+            { name: "Escudo de Espinas", type: "Escudo", desc: "Devuelve 100% del daño. Baja durabilidad.", rarity: "raro", acquisition: "Crafting: Escudo + Cactus" },
+            { name: "Arco de Hueso", type: "Arma", desc: "Dispara flechas torcidas pero hace más daño.", rarity: "raro", acquisition: "Crafting: Arco + Hueso" },
+            { name: "Pico de Vidrio", type: "Herramienta", desc: "Mina instantáneo pero tiene 10 usos.", rarity: "raro", acquisition: "Crafting: Pico Hierro + Cristal" },
+            { name: "Imán de XP", type: "Amuleto", desc: "Atrae experiencia desde 20 bloques.", rarity: "raro", acquisition: "Drop: Slime de Magma" },
+            { name: "Mochila Pequeña", type: "Utilidad", desc: "Añade 9 espacios de inventario extra (comando).", rarity: "raro", acquisition: "Crafting: Cuero + Cofre" },
+            { name: "Gancho de Agarre", type: "Utilidad", desc: "Te permite escalar paredes verticales.", rarity: "raro", acquisition: "Crafting: Cuerda + Hierro" },
             
             // --- ÉPICO ---
-            { name: "Pico de la Codicia", type: "Herramienta", desc: "Fortuna X, pero te quita vida al picar.", rarity: "epico" },
-            { name: "Manzana de la Discordia", type: "Consumible", desc: "Fuerza IV (1 min), luego Veneno II (1 min).", rarity: "epico" },
-            { name: "Fragmento de Tiempo", type: "Material", desc: "Craftea el reloj de reinicio de evento.", rarity: "epico" },
-            { name: "Tridente de Poseidón", type: "Arma", desc: "Invoca rayos sin tormenta. Riptide fuera del agua.", rarity: "epico" },
-            { name: "Alas Blindadas", type: "Armadura", desc: "Elytras que dan protección como pechera de hierro.", rarity: "epico" },
-            { name: "Capa de Invisibilidad", type: "Armadura", desc: "Te hace invisible a mobs si no te mueves.", rarity: "epico" },
-            { name: "Martillo de Guerra", type: "Arma", desc: "Daño de área masivo, recarga muy lenta.", rarity: "epico" },
-            { name: "Tótem de Regeneración", type: "Reliquia", desc: "Cura a todos los aliados en 10 bloques.", rarity: "epico" },
+            { name: "Pico de la Codicia", type: "Herramienta", desc: "Fortuna X, pero te quita vida al picar.", rarity: "epico", acquisition: "Drop: Zombie Minero (1%)" },
+            { name: "Manzana de la Discordia", type: "Consumible", desc: "Fuerza IV (1 min), luego Veneno II (1 min).", rarity: "epico", acquisition: "Drop: Bruja (2%)" },
+            { name: "Fragmento de Tiempo", type: "Material", desc: "Craftea el reloj de reinicio de evento.", rarity: "epico", acquisition: "Crafting: Reloj + Diamante" },
+            { name: "Tridente de Poseidón", type: "Arma", desc: "Invoca rayos sin tormenta. Riptide fuera del agua.", rarity: "epico", acquisition: "Drop: Leviatán / Ahogado" },
+            { name: "Alas Blindadas", type: "Armadura", desc: "Elytras que dan protección como pechera de hierro.", rarity: "epico", acquisition: "Crafting: Elytra + Netherite" },
+            { name: "Capa de Invisibilidad", type: "Armadura", desc: "Te hace invisible a mobs si no te mueves.", rarity: "epico", acquisition: "Crafting: Lana Negra + Poción Invisibilidad" },
+            { name: "Martillo de Guerra", type: "Arma", desc: "Daño de área masivo, recarga muy lenta.", rarity: "epico", acquisition: "Drop: Golem Corrupto" },
+            { name: "Tótem de Regeneración", type: "Reliquia", desc: "Cura a todos los aliados en 10 bloques.", rarity: "epico", acquisition: "Cofres de Dungeon / Roll" },
             
             // --- LEGENDARIO / MÍTICO ---
-            { name: "Tótem del Azar", type: "Reliquia", desc: "Te salva de morir + efecto random.", rarity: "legendario" },
-            { name: "Orbe de Resurrección", type: "Consumible", desc: "Revive a un compañero. Costo: 1 Vida propia.", rarity: "legendario" },
-            { name: "Espada Vampírica", type: "Arma", desc: "Roba vida, quema al sol.", rarity: "legendario" },
-            { name: "Pico Destructor de Mundos", type: "Herramienta", desc: "Mina 3x3 bloques (Tunnel bore).", rarity: "legendario" },
-            { name: "Casco de la Visión Verdadera", type: "Armadura", desc: "Ves mobs invisibles y ores a través de paredes.", rarity: "legendario" },
-            { name: "Corazón de Notch", type: "Legendario", desc: "+1 Vida Extra permanente. Drop único.", rarity: "mitico" },
-            { name: "Contrato de Alma", type: "Consumible", desc: "Ban 24h a cambio de revivir a otro.", rarity: "mitico" },
-            { name: "Llamada del Vacío", type: "Trampa", desc: "Crea agujero negro temporal.", rarity: "mitico" },
-            { name: "Huevo de Dragón Real", type: "Mascota", desc: "Invoca un Dragón bebé que ataca enemigos.", rarity: "mitico" },
-            { name: "La Mano de Dios", type: "Admin Item", desc: "Elimina un evento permanente de la lista. Un solo uso.", rarity: "mitico" },
+            { name: "Tótem del Azar", type: "Reliquia", desc: "Te salva de morir + efecto random.", rarity: "legendario", acquisition: "Roll Diario (Muy Raro)" },
+            { name: "Orbe de Resurrección", type: "Consumible", desc: "Revive a un compañero. Costo: 1 Vida propia.", rarity: "legendario", acquisition: "Crafting: Estrella Nether + Diamante + Oro" },
+            { name: "Espada Vampírica", type: "Arma", desc: "Roba vida, quema al sol.", rarity: "legendario", acquisition: "Drop: Wither Skeleton (0.1%)" },
+            { name: "Pico Destructor de Mundos", type: "Herramienta", desc: "Mina 3x3 bloques (Tunnel bore).", rarity: "legendario", acquisition: "Evento Especial" },
+            { name: "Casco de la Visión Verdadera", type: "Armadura", desc: "Ves mobs invisibles y ores a través de paredes.", rarity: "legendario", acquisition: "Crafting: Casco Oro + Ojo Ender + Zanahoria Dorada" },
+            { name: "Corazón de Notch", type: "Legendario", desc: "+1 Vida Extra permanente. Drop único.", rarity: "mitico", acquisition: "Drop: Warden Despierto" },
+            { name: "Contrato de Alma", type: "Consumible", desc: "Ban 24h a cambio de revivir a otro.", rarity: "mitico", acquisition: "Trade Especial / Evento" },
+            { name: "Llamada del Vacío", type: "Trampa", desc: "Crea agujero negro temporal.", rarity: "mitico", acquisition: "Drop: The Stalker" },
+            { name: "Huevo de Dragón Real", type: "Mascota", desc: "Invoca un Dragón bebé que ataca enemigos.", rarity: "mitico", acquisition: "Drop: Dragón Alpha" },
+            { name: "La Mano de Dios", type: "Admin Item", desc: "Elimina un evento permanente de la lista. Un solo uso.", rarity: "mitico", acquisition: "Admin Only" },
         ];
 
         const serverRules = [
@@ -502,6 +502,7 @@
                                                         <RarityBadge rarity={it.rarity} />
                                                     </div>
                                                     <p className="text-gray-500 text-sm relative z-10">{it.desc}</p>
+                                                    <div className="text-xs text-green-500 mt-1 relative z-10">Obtención: {it.acquisition}</div>
                                                     <span className="text-xs text-gray-600 uppercase mt-1 block relative z-10">{it.type}</span>
                                                 </div>
                                             ))}

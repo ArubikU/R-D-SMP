@@ -1,5 +1,6 @@
 import React from 'react';
 import { RarityBadge } from './ui/RarityBadge';
+import { RecipeShowcase } from './RecipeShowcase';
 
 interface ItemCardProps {
     item: {
@@ -7,6 +8,14 @@ interface ItemCardProps {
         type: string;
         desc: string;
         rarity: string;
+        acquisition?: string;
+        recipe?: {
+            type: string;
+            grid?: (string | null)[];
+            ingredients?: string[];
+            result: string;
+            warning?: string;
+        };
     };
 }
 
@@ -17,6 +26,18 @@ export const ItemCard: React.FC<ItemCardProps> = ({ item }) => (
             <RarityBadge rarity={item.rarity} />
         </div>
         <p className="text-gray-500 text-sm relative z-10">{item.desc}</p>
+        {item.acquisition && (
+            <div className="text-xs text-green-500 mt-1 relative z-10">Obtención: {item.acquisition}</div>
+        )}
         <span className="text-xs text-gray-600 uppercase mt-1 block relative z-10">{item.type}</span>
+        
+        {item.recipe && (
+            <div className="mt-2 relative z-10">
+                <details className="cursor-pointer">
+                    <summary className="text-xs text-gray-400 hover:text-white select-none">Ver Receta</summary>
+                    <RecipeShowcase recipe={item.recipe} />
+                </details>
+            </div>
+        )}
     </div>
 );
