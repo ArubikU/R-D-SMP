@@ -48,11 +48,23 @@ public class AdminCommand implements CommandExecutor {
         switch (sub) {
             case "roulette":
                 if (args.length > 1 && args[1].equalsIgnoreCase("spin")) {
-                    plugin.getModifierManager().startRandomModifier();
+                    plugin.getModifierManager().spinRoulette();
                     sender.sendMessage(Component.text("¡Ruleta girada!", NamedTextColor.GREEN));
-                    Bukkit.broadcast(Component.text("¡La Ruleta ha girado! Un nuevo evento ha comenzado...", NamedTextColor.GOLD));
                 } else {
                     sender.sendMessage(Component.text("Uso: /rd admin roulette spin", NamedTextColor.RED));
+                }
+                break;
+            case "setday":
+                if (args.length >= 2) {
+                    try {
+                        int day = Integer.parseInt(args[1]);
+                        plugin.getGameManager().setDay(day);
+                        sender.sendMessage(Component.text("Día establecido a " + day, NamedTextColor.GREEN));
+                    } catch (NumberFormatException e) {
+                        sender.sendMessage(Component.text("Número inválido.", NamedTextColor.RED));
+                    }
+                } else {
+                    sender.sendMessage(Component.text("Uso: /rd admin setDay <day>", NamedTextColor.RED));
                 }
                 break;
             case "life":
@@ -115,6 +127,7 @@ public class AdminCommand implements CommandExecutor {
     private void sendHelp(CommandSender sender) {
         sender.sendMessage(Component.text("--- Comandos de Admin RollAndDeath ---", NamedTextColor.GOLD));
         sender.sendMessage(Component.text("/rd admin roulette spin - Girar ruleta", NamedTextColor.YELLOW));
+        sender.sendMessage(Component.text("/rd admin setDay <day> - Establecer día y girar ruleta", NamedTextColor.YELLOW));
         sender.sendMessage(Component.text("/rd admin life set <player> <amount> - Setear vidas", NamedTextColor.YELLOW));
         sender.sendMessage(Component.text("/rd admin role set <player> <role> - Setear rol", NamedTextColor.YELLOW));
         sender.sendMessage(Component.text("/rd admin event add <name> - Activar evento", NamedTextColor.YELLOW));

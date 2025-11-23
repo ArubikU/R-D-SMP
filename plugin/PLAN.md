@@ -19,15 +19,15 @@ Este documento detalla la hoja de ruta para el desarrollo del plugin de Minecraf
     - [x] Item "Orbe de Resurrección" (funcionalidad al usar).
     - [x] Item "Contrato de Alma" (ban propio por revivir a otro).
     - [x] Comando admin `/rd revive <player>` (Implementado como `/rd admin life set`).
-- [ ] **Día 31 (Permadeath)**: Configuración para activar ban permanente en fecha específica.
+- [x] **Día 31 (Permadeath)**: Configuración para activar ban permanente en fecha específica.
 
 ### 2.2. Sistema de Teams (Alianzas)
 - [x] **Gestor de Equipos**: Estructura de datos `Team` y `TeamManager`.
 - [x] **Comandos**: `/team create`, `/invite`, `/kick`, `/leave`, `/disband`.
 - [x] **Restricciones**: Máximo 4 jugadores (Implementado en lógica, falta comando).
-- [ ] **Chat**: Canal privado `/tc <msg>`.
-- [ ] **Friendly Fire**: Toggleable, por defecto OFF (salvo en eventos de Caos).
-- [ ] **Guerra**: Sistema para declarar guerra entre teams (habilita griefing/pvp en protecciones).
+- [x] **Chat**: Canal privado `/tc <msg>`.
+- [x] **Friendly Fire**: Toggleable, por defecto OFF (salvo en eventos de Caos).
+- [x] **Guerra**: Sistema para declarar guerra entre teams (habilita griefing/pvp en protecciones).
 
 ### 2.3. Sistema de Protección (Claims)
 - [x] **Protección de Bloques**:
@@ -45,8 +45,8 @@ Este documento detalla la hoja de ruta para el desarrollo del plugin de Minecraf
 
 ### 3.1. Motor de Eventos
 - [x] **ModifierManager**: Sistema abstracto para registrar, iniciar y detener efectos.
-- [ ] **Scheduler**: Ejecución automática a las 00:00 (hora servidor) o manual.
-- [ ] **Acumulación**: Lista persistente de efectos activos que crece cada día.
+- [x] **Scheduler**: Ejecución automática a las 00:00 (hora servidor) o manual.
+- [x] **Acumulación**: Lista persistente de efectos activos que crece cada día.
 
 ### 3.2. Implementación de Efectos
 - **Maldiciones**:
@@ -85,39 +85,40 @@ Este documento detalla la hoja de ruta para el desarrollo del plugin de Minecraf
 
 ### 4.1. Gestor de Roles
 - [ ] Asignación aleatoria semanal (reset de roles).
-- [ ] Persistencia del rol del jugador.
+- [x] Persistencia del rol del jugador.
 
 ### 4.2. Habilidades de Roles
-- [ ] **Vampiro**: Listener de daño por sol, buff de fuerza nocturna.
-- [ ] **Ingeniero**: Recetas de crafteo personalizadas (solo él puede usarlas).
-- [ ] **Fantasma**: Toggle para atravesar puertas (modo espectador limitado o teleport).
-- [ ] **Minero**: Haste/Night Vision bajo Y=0.
-- [ ] **Domador**: Buff a lobos/gatos propios.
+- [x] **Vampiro**: Listener de daño por sol, buff de fuerza nocturna.
+- [x] **Ingeniero**: Recetas de crafteo personalizadas (solo él puede usarlas).
+- [x] **Fantasma**: Toggle para atravesar puertas (modo espectador limitado o teleport).
+- [x] **Minero**: Haste/Night Vision bajo Y=0.
+- [x] **Domador**: Buff a lobos/gatos propios.
 
 ## 5. Custom Items & Mobs
 
 ### 5.1. Item Factory
-- [ ] Sistema para generar ItemStack con NBT/PDC tags únicos.
-- [ ] **Items Funcionales**:
+- [x] Sistema para generar ItemStack con NBT/PDC tags únicos.
+- [x] **Items Funcionales**:
     - *Venda Curativa*: `PlayerInteractEvent` -> Cooldown + Heal.
     - *Mochila Pequeña*: Abre inventario virtual guardado en NBT/Base de datos.
     - *Gancho de Agarre*: Lógica de caña de pescar que impulsa al jugador.
     - *Pico Destructor*: `BlockBreakEvent` -> Rompe área 3x3.
 
 ### 5.2. Mob Factory
-- [ ] `CreatureSpawnEvent`: Reemplazar mobs vanilla por versiones custom según probabilidad.
-- [ ] **Mobs Custom**:
+- [x] `CreatureSpawnEvent`: Reemplazar mobs vanilla por versiones custom según probabilidad.
+- [x] **Mobs Custom**:
     - *Creeper Nuclear*: Aumentar radio de explosión.
     - *Zombie Veloz*: Aplicar Speed II.
     - *Rey Rata*: Silverfish con más vida que spawnea otros al recibir daño.
 
 ## 6. UX & Integración
-- [ ] **Scoreboard/Tablist**: Mostrar Vidas, Rol actual y Eventos activos.
-- [ ] **Chat Formatting**: `[Team] [Rol] Nick: Mensaje`.
-- [ ] **Web Integration**: Exportar `status.json` en la carpeta del plugin con los modificadores activos para que la web lo lea (si están en el mismo host) o API REST simple.
+- [x] **Scoreboard/Tablist**: Mostrar Vidas, Rol actual y Eventos activos.
+- [x] **Chat Formatting**: `[Team] [Rol] Nick: Mensaje`.
+- [x] **Web Integration**: Exportar `status.json` en la carpeta del plugin con los modificadores activos para que la web lo lea (si están en el mismo host) o API REST simple.
 
 ## 7. Comandos Administrativos
-- `/rd admin roulette spin`: Forzar giro de ruleta.
-- `/rd admin life set <player> <amount>`: Modificar vidas.
-- `/rd admin role set <player> <role>`: Forzar rol.
-- `/rd admin event add <event_name>`: Activar evento manualmente.
+- [x] `/rd admin roulette spin`: Forzar giro de ruleta.
+- [x] `/rd admin setday <day>`: Establecer día, guardar y girar ruleta con animación.
+- [x] `/rd admin life set <player> <amount>`: Modificar vidas.
+- [x] `/rd admin role set <player> <role>`: Forzar rol.
+- [x] `/rd admin event add <event_name>`: Activar evento manualmente.

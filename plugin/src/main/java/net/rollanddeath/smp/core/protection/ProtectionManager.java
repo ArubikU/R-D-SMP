@@ -74,8 +74,16 @@ public class ProtectionManager {
 
         // 3. Check if player is in the same team as owner
         Team ownerTeam = teamManager.getTeam(ownerUUID);
-        if (ownerTeam != null && ownerTeam.isMember(player.getUniqueId())) {
-            return true;
+        if (ownerTeam != null) {
+            if (ownerTeam.isMember(player.getUniqueId())) {
+                return true;
+            }
+            
+            // 4. Check War
+            Team playerTeam = teamManager.getTeam(player.getUniqueId());
+            if (playerTeam != null && playerTeam.isAtWarWith(ownerTeam.getName())) {
+                return true; // War allows access
+            }
         }
 
         return false;

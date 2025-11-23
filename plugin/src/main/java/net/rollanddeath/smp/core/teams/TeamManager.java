@@ -1,5 +1,8 @@
 package net.rollanddeath.smp.core.teams;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.HashMap;
@@ -15,6 +18,19 @@ public class TeamManager {
 
     public TeamManager(JavaPlugin plugin) {
         this.plugin = plugin;
+    }
+    
+    public void declareWar(Team attacker, Team defender) {
+        if (attacker.equals(defender)) return;
+        
+        if (!attacker.isAtWarWith(defender.getName())) {
+            attacker.addWar(defender.getName());
+            defender.addWar(attacker.getName()); // Mutual war
+            
+            Bukkit.broadcast(Component.text("⚔ ¡GUERRA! ⚔", NamedTextColor.DARK_RED));
+            Bukkit.broadcast(Component.text("El equipo " + attacker.getName() + " ha declarado la guerra a " + defender.getName() + "!", NamedTextColor.RED));
+            Bukkit.broadcast(Component.text("¡Sus ubicaciones serán reveladas si se acercan!", NamedTextColor.GOLD));
+        }
     }
 
     public Team createTeam(String name, UUID owner) {

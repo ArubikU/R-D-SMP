@@ -99,7 +99,7 @@ export const dailyEvents = [
     { name: "Bloques Random", type: "Caos", desc: "Los drops de bloques están aleatorizados hoy.", icon: "🎲" },
     { name: "Speedrun", type: "Caos", desc: "El tiempo pasa x2 de rápido.", icon: "⏩" },
     { name: "Slowmotion", type: "Caos", desc: "El tiempo pasa x0.5 de lento.", icon: "⏪" },
-    { name: "Sin Armadura", type: "Caos", desc: "No se puede equipar pecheras hoy.", icon: "👕" },
+    { name: "Sin Armadura", type: "Caos", desc: "No se puede equipar pecheras.", icon: "👕" },
     { name: "Guerra de Nieve", type: "Caos", desc: "Las bolas de nieve hacen 2 corazones de daño.", icon: "⛄" },
     { name: "Pisos de Lava", type: "Caos", desc: "La lava fluye tan rápido como el agua.", icon: "🌋" },
     { name: "Atracción Fatal", type: "Caos", desc: "Todos los mobs son atraídos hacia el jugador más cercano.", icon: "🧲" },
@@ -484,4 +484,38 @@ export const serverRules = [
 // Agrega aquí los nombres EXACTOS de los eventos que quieres mostrar en la pestaña "Activos"
 export const activeModifiersConfig: string[] = [
     // Ejemplo: "Sol Tóxico", "Corazón de Titán"
+];
+
+export const tutorials = [
+    {
+        id: "teams",
+        title: "Sistema de Equipos",
+        icon: "🛡️",
+        content: [
+            { subtitle: "Creación y Gestión", text: "Usa /team create <nombre> para fundar tu equipo. Invita jugadores con /team invite <jugador>. El límite es de 4 jugadores por equipo." },
+            { subtitle: "Fuego Amigo", text: "Por defecto, no puedes dañar a tus compañeros de equipo. Esto evita accidentes con espadas o arcos durante peleas." },
+            { subtitle: "Chat de Equipo", text: "Usa /team chat para alternar entre el chat global y el chat privado de tu equipo." },
+            { subtitle: "Abandonar", text: "Si deseas salir, usa /team leave. Si eres el líder, el equipo se disolverá si no pasas el liderazgo antes." }
+        ]
+    },
+    {
+        id: "war",
+        title: "Guerra y PvP",
+        icon: "⚔️",
+        content: [
+            { subtitle: "Declarar Guerra", text: "Los líderes de equipo pueden declarar la guerra a otros equipos usando /team war <equipo>. Esto habilita el PvP sin restricciones entre esos equipos." },
+            { subtitle: "Consecuencias", text: "Durante una guerra, tu ubicación será revelada (efecto Glowing) si te acercas a tus enemigos. ¡No podrás esconderte!" },
+            { subtitle: "Rendición", text: "Una guerra termina cuando un equipo se rinde o es eliminado completamente." }
+        ]
+    },
+    {
+        id: "protection",
+        title: "Protección de Tierras",
+        icon: "uD83CuDFD0",
+        content: [
+            { subtitle: "Bloque de Protección", text: "Coloca un Bloque de Diamante para crear una protección de 10x10 a tu alrededor." },
+            { subtitle: "Permisos", text: "Tus compañeros de equipo tienen acceso automático a tus protecciones." },
+            { subtitle: "Vulnerabilidad", text: "Las protecciones NO funcionan durante eventos de 'Purga', pero siguen activas durante guerras." }
+        ]
+    }
 ];

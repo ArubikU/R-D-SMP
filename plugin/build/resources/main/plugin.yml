@@ -11,5 +11,20 @@ commands:
     permission: rd.admin
   team:
     description: Manage teams
-    usage: /team <create|invite|accept|leave|kick|info>
+    usage: /team <create|invite|accept|leave|kick|info|chat|war|ff>
     aliases: [t]
+  tc:
+    description: Team chat shortcut
+    usage: /tc <message>
+  role:
+    description: Manage roles
+    usage: /role set <player> <role>
+    permission: rd.admin.roles
+  mob:
+    description: Manage custom mobs
+    usage: /mob spawn <type>
+    permission: rd.admin.mobs
+  item:
+    description: Manage custom items
+    usage: /item give <player> <type> [amount]
+    permission: rd.admin.items

@@ -5,7 +5,10 @@ import net.rollanddeath.smp.core.modifiers.ModifierManager;
 import net.rollanddeath.smp.core.protection.ProtectionListener;
 import net.rollanddeath.smp.core.protection.ProtectionManager;
 import net.rollanddeath.smp.core.teams.TeamCommand;
+import net.rollanddeath.smp.core.teams.TeamListener;
 import net.rollanddeath.smp.core.teams.TeamManager;
+import net.rollanddeath.smp.core.teams.WarTrackerTask;
+import net.rollanddeath.smp.events.ChatListener;
 import net.rollanddeath.smp.events.PlayerDeathListener;
 import net.rollanddeath.smp.modifiers.curses.*;
 import net.rollanddeath.smp.modifiers.blessings.*;
@@ -21,6 +24,9 @@ import net.rollanddeath.smp.core.mobs.MobManager;
 import net.rollanddeath.smp.core.mobs.MobCommand;
 import net.rollanddeath.smp.core.items.impl.*;
 import net.rollanddeath.smp.core.mobs.impl.*;
+import net.rollanddeath.smp.core.game.GameManager;
+import net.rollanddeath.smp.core.game.ScoreboardManager;
+import net.rollanddeath.smp.core.game.WebStatusManager;
 import net.rollanddeath.smp.core.items.CraftingListener;
 import net.rollanddeath.smp.core.commands.AdminCommand;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -36,6 +42,7 @@ public final class RollAndDeathSMP extends JavaPlugin {
     private ItemManager itemManager;
     private RecipeManager recipeManager;
     private LootManager lootManager;
+    private GameManager gameManager;
 
     @Override
     public void onEnable() {
@@ -44,11 +51,20 @@ public final class RollAndDeathSMP extends JavaPlugin {
         this.modifierManager = new ModifierManager(this);
         this.teamManager = new TeamManager(this);
         this.protectionManager = new ProtectionManager(this, teamManager);
+        
+        // Start War Tracker
+        new WarTrackerTask(teamManager).runTaskTimer(this, 100L, 60L);
+
         this.roleManager = new RoleManager(this);
         this.mobManager = new MobManager(this);
         this.itemManager = new ItemManager(this);
         this.recipeManager = new RecipeManager(this);
         this.lootManager = new LootManager(this);
+        this.gameManager = new GameManager(this);
+
+        // Initialize UI/Web
+        new WebStatusManager(this);
+        getServer().getPluginManager().registerEvents(new ScoreboardManager(this), this);
 
         // Register Modifiers
         modifierManager.registerModifier(new ToxicSunModifier(this));
@@ -279,8 +295,10 @@ public final class RollAndDeathSMP extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new CraftingListener(this), this);
 
         // Register Listeners
-        getServer().getPluginManager().registerEvents(new PlayerDeathListener(lifeManager), this);
+        getServer().getPluginManager().registerEvents(new PlayerDeathListener(this, lifeManager), this);
         getServer().getPluginManager().registerEvents(new ProtectionListener(protectionManager), this);
+        getServer().getPluginManager().registerEvents(new TeamListener(teamManager), this);
+        getServer().getPluginManager().registerEvents(new ChatListener(teamManager, roleManager), this);
 
         // Register Commands
         getCommand("team").setExecutor(new TeamCommand(teamManager));
@@ -325,5 +343,17 @@ public final class RollAndDeathSMP extends JavaPlugin {
 
     public ItemManager getItemManager() {
         return itemManager;
+    }
+
+    public RecipeManager getRecipeManager() {
+        return recipeManager;
+    }
+
+    public LootManager getLootManager() {
+        return lootManager;
+    }
+
+    public GameManager getGameManager() {
+        return gameManager;
     }
 }

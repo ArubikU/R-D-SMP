@@ -26,6 +26,17 @@ public class TeamCommand implements CommandExecutor {
             return true;
         }
 
+        if (label.equalsIgnoreCase("tc")) {
+            if (args.length == 0) {
+                player.sendMessage(Component.text("Uso: /tc <mensaje>", NamedTextColor.RED));
+                return true;
+            }
+            // Treat all args as chat message
+            String message = String.join(" ", args);
+            sendTeamMessage(player, message);
+            return true;
+        }
+
         if (args.length == 0) {
             sendHelp(player);
             return true;
@@ -49,6 +60,17 @@ public class TeamCommand implements CommandExecutor {
             case "kick":
                 handleKick(player, args);
                 break;
+            case "chat":
+            case "c":
+                handleChat(player, args);
+                break;
+            case "friendlyfire":
+            case "ff":
+                handleFriendlyFire(player);
+                break;
+            case "war":
+                handleWar(player, args);
+                break;
             case "info":
                 handleInfo(player);
                 break;
@@ -67,7 +89,102 @@ public class TeamCommand implements CommandExecutor {
         player.sendMessage(Component.text("/team accept - Aceptar invitación", NamedTextColor.YELLOW));
         player.sendMessage(Component.text("/team leave - Salir del equipo", NamedTextColor.YELLOW));
         player.sendMessage(Component.text("/team kick <jugador> - Expulsar miembro (Solo líder)", NamedTextColor.YELLOW));
+        player.sendMessage(Component.text("/team chat <msg> - Chat de equipo", NamedTextColor.YELLOW));
+        player.sendMessage(Component.text("/team ff - Alternar fuego amigo", NamedTextColor.YELLOW));
+        player.sendMessage(Component.text("/team war <equipo> - Declarar guerra", NamedTextColor.YELLOW));
         player.sendMessage(Component.text("/team info - Ver información del equipo", NamedTextColor.YELLOW));
+    }
+
+    private void handleWar(Player player, String[] args) {
+        Team attacker = teamManager.getTeam(player.getUniqueId());
+        if (attacker == null) {
+            player.sendMessage(Component.text("No estás en un equipo.", NamedTextColor.RED));
+            return;
+        }
+
+        if (!attacker.getOwner().equals(player.getUniqueId())) {
+            player.sendMessage(Component.text("Solo el líder puede declarar la guerra.", NamedTextColor.RED));
+            return;
+        }
+
+        if (args.length < 2) {
+            player.sendMessage(Component.text("Uso: /team war <equipo_objetivo>", NamedTextColor.RED));
+            return;
+        }
+
+        String targetName = args[1];
+        Team defender = teamManager.getTeam(targetName);
+        
+        if (defender == null) {
+            player.sendMessage(Component.text("Equipo no encontrado.", NamedTextColor.RED));
+            return;
+        }
+        
+        if (attacker.equals(defender)) {
+            player.sendMessage(Component.text("No puedes declarar la guerra a tu propio equipo.", NamedTextColor.RED));
+            return;
+        }
+
+        if (attacker.isAtWarWith(defender.getName())) {
+            player.sendMessage(Component.text("Ya estáis en guerra con este equipo.", NamedTextColor.RED));
+            return;
+        }
+
+        teamManager.declareWar(attacker, defender);
+    }
+
+    private void handleChat(Player player, String[] args) {
+        if (args.length < 2) {
+            player.sendMessage(Component.text("Uso: /team chat <mensaje>", NamedTextColor.RED));
+            return;
+        }
+        String message = String.join(" ", java.util.Arrays.copyOfRange(args, 1, args.length));
+        sendTeamMessage(player, message);
+    }
+
+    private void sendTeamMessage(Player player, String message) {
+        Team team = teamManager.getTeam(player.getUniqueId());
+        if (team == null) {
+            player.sendMessage(Component.text("No estás en un equipo.", NamedTextColor.RED));
+            return;
+        }
+
+        Component chatFormat = Component.text("[TeamChat] ", NamedTextColor.AQUA)
+                .append(Component.text(player.getName() + ": ", NamedTextColor.WHITE))
+                .append(Component.text(message, NamedTextColor.GRAY));
+
+        for (UUID memberId : team.getMembers()) {
+            Player member = Bukkit.getPlayer(memberId);
+            if (member != null) {
+                member.sendMessage(chatFormat);
+            }
+        }
+    }
+
+    private void handleFriendlyFire(Player player) {
+        Team team = teamManager.getTeam(player.getUniqueId());
+        if (team == null) {
+            player.sendMessage(Component.text("No estás en un equipo.", NamedTextColor.RED));
+            return;
+        }
+
+        if (!team.getOwner().equals(player.getUniqueId())) {
+            player.sendMessage(Component.text("Solo el líder puede cambiar esto.", NamedTextColor.RED));
+            return;
+        }
+
+        boolean newState = !team.isFriendlyFire();
+        team.setFriendlyFire(newState);
+        
+        Component msg = Component.text("Fuego Amigo ha sido ", NamedTextColor.YELLOW)
+                .append(Component.text(newState ? "ACTIVADO" : "DESACTIVADO", newState ? NamedTextColor.RED : NamedTextColor.GREEN));
+        
+        for (UUID memberId : team.getMembers()) {
+            Player member = Bukkit.getPlayer(memberId);
+            if (member != null) {
+                member.sendMessage(msg);
+            }
+        }
     }
 
     private void handleCreate(Player player, String[] args) {

@@ -1,6 +1,13 @@
 package net.rollanddeath.smp.core.modifiers;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.title.Title;
+import org.bukkit.Bukkit;
+import org.bukkit.Sound;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -18,10 +25,27 @@ public class ModifierManager {
 
     public ModifierManager(JavaPlugin plugin) {
         this.plugin = plugin;
+        loadActiveModifiers();
+    }
+
+    private void loadActiveModifiers() {
+        List<String> saved = plugin.getConfig().getStringList("game.active_modifiers");
+        if (saved != null) {
+            activeModifiers.addAll(saved);
+        }
+    }
+
+    private void saveActiveModifiers() {
+        plugin.getConfig().set("game.active_modifiers", new ArrayList<>(activeModifiers));
+        plugin.saveConfig();
     }
 
     public void registerModifier(Modifier modifier) {
         registeredModifiers.put(modifier.getName(), modifier);
+        if (activeModifiers.contains(modifier.getName())) {
+            modifier.onEnable();
+            plugin.getLogger().info("Restaurando modificador activo: " + modifier.getName());
+        }
     }
 
     public void activateModifier(String name) {
@@ -29,7 +53,18 @@ public class ModifierManager {
         if (mod != null && !activeModifiers.contains(name)) {
             mod.onEnable();
             activeModifiers.add(name);
+            saveActiveModifiers();
             plugin.getLogger().info("Modificador activado: " + name);
+            
+            // Announce to players
+            Title title = Title.title(
+                Component.text(mod.getName(), NamedTextColor.RED),
+                Component.text(mod.getDescription(), NamedTextColor.YELLOW),
+                Title.Times.times(Duration.ofMillis(500), Duration.ofMillis(5000), Duration.ofMillis(1000))
+            );
+            Bukkit.getServer().showTitle(title);
+            Bukkit.broadcast(Component.text("¡Nuevo Evento: " + mod.getName() + "!", NamedTextColor.GOLD));
+            Bukkit.broadcast(Component.text(mod.getDescription(), NamedTextColor.YELLOW));
         }
     }
 
@@ -49,9 +84,47 @@ public class ModifierManager {
         List<Modifier> available = new ArrayList<>(registeredModifiers.values());
         if (available.isEmpty()) return;
         
-        // Filter out already active ones if we want unique daily events?
-        // For now, just pick one.
         Modifier randomMod = available.get(random.nextInt(available.size()));
         activateModifier(randomMod.getName());
+    }
+
+    public void spinRoulette() {
+        List<Modifier> available = new ArrayList<>(registeredModifiers.values());
+        if (available.isEmpty()) return;
+
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            try {
+                // Animation loop
+                for (int i = 0; i < 10; i++) {
+                    Modifier temp = available.get(random.nextInt(available.size()));
+                    Title title = Title.title(
+                        Component.text(temp.getName(), NamedTextColor.GRAY),
+                        Component.text("Girando...", NamedTextColor.YELLOW),
+                        Title.Times.times(Duration.ofMillis(0), Duration.ofMillis(200), Duration.ofMillis(0))
+                    );
+                    
+                    Bukkit.getScheduler().runTask(plugin, () -> {
+                        Bukkit.getServer().showTitle(title);
+                        for (Player p : Bukkit.getOnlinePlayers()) {
+                            p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_HAT, 1f, 1f);
+                        }
+                    });
+                    
+                    Thread.sleep(200 + (i * 50)); // Slow down
+                }
+                
+                // Final selection
+                Bukkit.getScheduler().runTask(plugin, this::startRandomModifier);
+                
+                Bukkit.getScheduler().runTask(plugin, () -> {
+                    for (Player p : Bukkit.getOnlinePlayers()) {
+                        p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f);
+                    }
+                });
+
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
     }
 }

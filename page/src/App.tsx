@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { dailyEvents, weeklyRoles, mobs, items, serverRules } from './data';
+import { dailyEvents, weeklyRoles, mobs, items, serverRules, tutorials } from './data';
 import { NavButton } from './components/ui/NavButton';
 import { SectionTitle } from './components/ui/SectionTitle';
 import { EventCard } from './components/EventCard';
@@ -13,12 +13,116 @@ import { ActiveModifiers } from './components/ActiveModifiers';
 
 function App() {
     const [view, setView] = useState('home'); 
+    const [wikiSection, setWikiSection] = useState('events');
     const [searchTerm, setSearchTerm] = useState("");
 
     // Filter logic
     const filteredEvents = dailyEvents.filter(ev => 
         ev.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
         ev.type.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    const renderWikiContent = () => {
+        switch(wikiSection) {
+            case 'events':
+                return (
+                    <div className="space-y-8">
+                        <div className="bg-yellow-900/20 border border-yellow-700 p-4 flex flex-col md:flex-row gap-4 justify-between items-center">
+                            <div>
+                                <h3 className="text-yellow-500 text-2xl mb-1">⚠️ Efectos Acumulativos</h3>
+                                <p className="text-lg text-gray-400">Total de eventos posibles: <span className="text-white font-bold">{dailyEvents.length}</span></p>
+                            </div>
+                            <input 
+                                type="text" 
+                                placeholder="Buscar evento..." 
+                                className="bg-black border border-gray-600 p-2 text-white w-full md:w-64 focus:border-red-500 outline-none font-mono"
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                value={searchTerm}
+                            />
+                        </div>
+                        <div>
+                            <SectionTitle>La Ruleta Diaria ({filteredEvents.length})</SectionTitle>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+                                {filteredEvents.map((ev, idx) => (
+                                    <EventCard key={idx} event={ev} />
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                );
+            case 'roles':
+                return (
+                    <div>
+                        <SectionTitle>Ruleta Semanal (Roles)</SectionTitle>
+                        <p className="text-gray-400 mb-6 text-lg">Estos efectos son personales y definen tu rol durante una semana completa.</p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+                            {weeklyRoles.map((role, idx) => (
+                                <RoleCard key={idx} role={role} />
+                            ))}
+                        </div>
+                    </div>
+                );
+            case 'mobs':
+                return (
+                    <div>
+                        <SectionTitle>Bestiario ({mobs.length})</SectionTitle>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {mobs.map((m, i) => (
+                                <MobCard key={i} mob={m} />
+                            ))}
+                        </div>
+                    </div>
+                );
+            case 'items':
+                return (
+                    <div>
+                        <SectionTitle>Ítems & Artefactos ({items.length})</SectionTitle>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {items.map((it, i) => (
+                                <ItemCard key={i} item={it} />
+                            ))}
+                        </div>
+                    </div>
+                );
+            case 'tutorials':
+                return (
+                    <div>
+                        <SectionTitle>Tutoriales y Guías</SectionTitle>
+                        <div className="grid gap-6">
+                            {tutorials.map((t, i) => (
+                                <div key={i} className="bg-zinc-900/80 border border-zinc-700 p-6 hover:border-red-900/50 transition-colors">
+                                    <h3 className="text-3xl text-white mb-6 flex items-center gap-3 border-b border-zinc-800 pb-4">
+                                        <span className="text-4xl">{t.icon}</span> {t.title}
+                                    </h3>
+                                    <div className="space-y-6">
+                                        {t.content.map((c, j) => (
+                                            <div key={j}>
+                                                <h4 className="text-red-500 font-bold uppercase tracking-wider text-sm mb-2">{c.subtitle}</h4>
+                                                <p className="text-gray-300 text-lg leading-relaxed">{c.text}</p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                );
+            default:
+                return null;
+        }
+    };
+
+    const WikiSidebarBtn = ({ id, label, icon }: { id: string, label: string, icon: string }) => (
+        <button 
+            onClick={() => setWikiSection(id)}
+            className={`w-full text-left px-6 py-4 text-lg font-bold uppercase tracking-wider transition-all border-l-4 ${
+                wikiSection === id 
+                ? 'bg-red-900/20 border-red-600 text-white' 
+                : 'border-transparent text-gray-500 hover:text-gray-300 hover:bg-zinc-900'
+            }`}
+        >
+            <span className="mr-3">{icon}</span> {label}
+        </button>
     );
 
     const renderContent = () => {
@@ -43,66 +147,34 @@ function App() {
 
             case 'wiki':
                 return (
-                    <div className="space-y-12 animate-in fade-in duration-500">
-                        <div className="bg-yellow-900/20 border border-yellow-700 p-4 mb-8 flex flex-col md:flex-row gap-4 justify-between items-center">
-                            <div>
-                                <h3 className="text-yellow-500 text-2xl mb-1">⚠️ Efectos Acumulativos</h3>
-                                <p className="text-lg text-gray-400">Total de eventos posibles: <span className="text-white font-bold">{dailyEvents.length}</span></p>
-                            </div>
-                            <input 
-                                type="text" 
-                                placeholder="Buscar evento..." 
-                                className="bg-black border border-gray-600 p-2 text-white w-full md:w-64 focus:border-red-500 outline-none font-mono"
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                            />
-                        </div>
-
-                        {/* RULETA DIARIA */}
-                        <div>
-                            <SectionTitle>La Ruleta Diaria ({filteredEvents.length})</SectionTitle>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                {filteredEvents.map((ev, idx) => (
-                                    <EventCard key={idx} event={ev} />
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* RULETA SEMANAL (NUEVO) */}
-                        <div>
-                            <SectionTitle>Ruleta Semanal (Roles)</SectionTitle>
-                            <p className="text-gray-400 mb-4">Estos efectos son personales y definen tu rol durante una semana completa.</p>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                {weeklyRoles.map((role, idx) => (
-                                    <RoleCard key={idx} role={role} />
-                                ))}
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            {/* BESTIARIO */}
-                            <div>
-                                <SectionTitle>Bestiario ({mobs.length})</SectionTitle>
-                                <div className="space-y-3">
-                                    {mobs.map((m, i) => (
-                                        <MobCard key={i} mob={m} />
-                                    ))}
+                    <div className="flex flex-col lg:flex-row gap-8 animate-in fade-in duration-500 min-h-[60vh]">
+                        {/* Sidebar */}
+                        <aside className="lg:w-72 flex-shrink-0">
+                            <div className="sticky top-28 bg-black/40 border border-zinc-800 backdrop-blur-sm">
+                                <div className="p-4 border-b border-zinc-800">
+                                    <h2 className="text-xl text-white font-bold uppercase tracking-widest">Wiki</h2>
+                                </div>
+                                <div className="flex flex-col">
+                                    <WikiSidebarBtn id="events" label="Eventos" icon="🎲" />
+                                    <WikiSidebarBtn id="roles" label="Roles" icon="⚔️" />
+                                    <WikiSidebarBtn id="mobs" label="Bestiario" icon="🧟" />
+                                    <WikiSidebarBtn id="items" label="Items" icon="🎒" />
+                                    <WikiSidebarBtn id="tutorials" label="Tutoriales" icon="📚" />
                                 </div>
                             </div>
-                            {/* ITEMS */}
-                            <div>
-                                <SectionTitle>Ítems & Artefactos ({items.length})</SectionTitle>
-                                <div className="space-y-3">
-                                    {items.map((it, i) => (
-                                        <ItemCard key={i} item={it} />
-                                    ))}
-                                </div>
-                            </div>
+                        </aside>
+
+                        {/* Content Area */}
+                        <div className="flex-1">
+                            {renderWikiContent()}
                         </div>
                     </div>
                 );
             
             case 'roles':
-                // Duplicate view kept for detailed focus, but also present in Wiki now
+                // Redirect to wiki roles for consistency, or keep as standalone? 
+                // Keeping standalone for now as per original design, but maybe user wants it unified.
+                // Let's just render the same content but wrapped.
                 return (
                     <div className="animate-in slide-in-from-bottom-4 duration-500">
                         <SectionTitle>Detalle de Roles Semanales</SectionTitle>

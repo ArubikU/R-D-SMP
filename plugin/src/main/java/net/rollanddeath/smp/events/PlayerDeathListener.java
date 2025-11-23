@@ -1,8 +1,11 @@
 package net.rollanddeath.smp.events;
 
+import net.rollanddeath.smp.RollAndDeathSMP;
 import net.rollanddeath.smp.core.LifeManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.BanList;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -13,15 +16,33 @@ import org.bukkit.event.player.PlayerRespawnEvent;
 
 public class PlayerDeathListener implements Listener {
 
+    private final RollAndDeathSMP plugin;
     private final LifeManager lifeManager;
 
-    public PlayerDeathListener(LifeManager lifeManager) {
+    public PlayerDeathListener(RollAndDeathSMP plugin, LifeManager lifeManager) {
+        this.plugin = plugin;
         this.lifeManager = lifeManager;
     }
 
     @EventHandler
+    @SuppressWarnings("deprecation")
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player player = event.getEntity();
+        
+        // Check Permadeath (Day 31+)
+        if (plugin.getGameManager().isPermadeathActive()) {
+            Component banMsg = Component.text("¡Has muerto durante la MUERTE PERMANENTE!", NamedTextColor.DARK_RED);
+            // Ban permanently
+            Bukkit.getBanList(BanList.Type.NAME).addBan(player.getName(), "Muerte Permanente (Día 31+)", null, "RollAndDeath");
+            player.kick(banMsg);
+            
+            Component announcement = Component.text("☠ ", NamedTextColor.DARK_RED)
+                .append(Component.text(player.getName(), NamedTextColor.RED))
+                .append(Component.text(" ha muerto permanentemente.", NamedTextColor.GRAY));
+            Bukkit.broadcast(announcement);
+            return;
+        }
+
         lifeManager.removeLife(player);
         int remainingLives = lifeManager.getLives(player);
 

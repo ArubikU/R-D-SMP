@@ -8,13 +8,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 
 public class NoArmorModifier extends Modifier {
 
     public NoArmorModifier(RollAndDeathSMP plugin) {
-        super(plugin, "Sin Armadura", ModifierType.CHAOS, "No se puede equipar pecheras hoy.");
+        super(plugin, "Sin Armadura", ModifierType.CHAOS, "No se puede equipar pecheras.");
     }
 
     @Override
