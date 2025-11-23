@@ -467,6 +467,16 @@ export const items = [
     { name: "Llamada del Vacío", type: "Trampa", desc: "Crea agujero negro temporal.", rarity: "mitico", acquisition: "Drop: The Stalker" },
     { name: "Huevo de Dragón Real", type: "Mascota", desc: "Invoca un Dragón bebé que ataca enemigos.", rarity: "mitico", acquisition: "Drop: Dragón Alpha" },
     { name: "La Mano de Dios", type: "Admin Item", desc: "Elimina un evento permanente de la lista. Un solo uso.", rarity: "mitico", acquisition: "Admin Only" },
+    
+    // --- VANILLA (ROLL DIARIO) ---
+    { name: "Pan (x5)", type: "Material", desc: "Comida básica.", rarity: "comun", acquisition: "Roll Diario" },
+    { name: "Lingote de Hierro (x3)", type: "Material", desc: "Material de crafteo.", rarity: "comun", acquisition: "Roll Diario" },
+    { name: "Diamante", type: "Material", desc: "Joya preciosa.", rarity: "raro", acquisition: "Roll Diario / Minería" },
+    { name: "Manzana Dorada", type: "Consumible", desc: "Absorción y Regeneración.", rarity: "raro", acquisition: "Roll Diario / Crafting" },
+    { name: "Fragmento de Netherite", type: "Material", desc: "Material antiguo.", rarity: "epico", acquisition: "Roll Diario / Minería" },
+    { name: "Totem de la Inmortalidad", type: "Consumible", desc: "Evita la muerte una vez.", rarity: "epico", acquisition: "Roll Diario / Evokers" },
+    { name: "Lingote de Netherite", type: "Material", desc: "El metal más fuerte.", rarity: "legendario", acquisition: "Roll Diario / Crafting" },
+    { name: "Manzana de Notch", type: "Consumible", desc: "Efectos poderosos de regeneración y resistencia.", rarity: "legendario", acquisition: "Roll Diario" },
 ];
 
 export const serverRules = [
@@ -516,6 +526,16 @@ export const tutorials = [
             { subtitle: "Bloque de Protección", text: "Coloca un Bloque y sera protegido automaticamente por tu o tu team." },
             { subtitle: "Permisos", text: "Tus compañeros de equipo tienen acceso automático a tus protecciones." },
             { subtitle: "Vulnerabilidad", text: "Las protecciones NO funcionan durante eventos de 'Purga', pero siguen activas durante guerras." }
+        ]
+    },
+    {
+        id: "daily_roll",
+        title: "Roll Diario",
+        icon: "🎲",
+        content: [
+            { subtitle: "Comando", text: "Usa /daily una vez cada 24 horas para obtener una recompensa aleatoria." },
+            { subtitle: "Probabilidades", text: "70% Común, 20% Raro, 9% Épico, 1% Legendario." },
+            { subtitle: "Premios", text: "Puedes obtener desde materiales básicos (Pan, Hierro) hasta objetos Legendarios únicos o Netherite. ¡Prueba tu suerte!" }
         ]
     }
 ];

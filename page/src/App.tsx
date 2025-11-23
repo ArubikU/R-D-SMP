@@ -7,6 +7,7 @@ import { RoleCard } from './components/RoleCard';
 import { MobCard } from './components/MobCard';
 import { ItemCard } from './components/ItemCard';
 import { RouletteSimulator } from './components/RouletteSimulator';
+import { ItemRollSimulator } from './components/ItemRollSimulator';
 import { ActiveModifiers } from './components/ActiveModifiers';
 
 // --- MAIN APP ---
@@ -14,6 +15,7 @@ import { ActiveModifiers } from './components/ActiveModifiers';
 function App() {
     const [view, setView] = useState('home'); 
     const [wikiSection, setWikiSection] = useState('events');
+    const [simSection, setSimSection] = useState('roulette');
     const [searchTerm, setSearchTerm] = useState("");
 
     // Filter logic
@@ -189,7 +191,34 @@ function App() {
                 );
 
             case 'simulator':
-                return <RouletteSimulator />;
+                return (
+                    <div className="flex flex-col items-center">
+                        <div className="flex gap-4 mb-8">
+                            <button 
+                                onClick={() => setSimSection('roulette')}
+                                className={`px-6 py-3 text-xl font-bold uppercase tracking-wider border-b-4 transition-colors ${
+                                    simSection === 'roulette' 
+                                    ? 'border-red-600 text-white' 
+                                    : 'border-transparent text-gray-500 hover:text-gray-300'
+                                }`}
+                            >
+                                Ruleta de Eventos
+                            </button>
+                            <button 
+                                onClick={() => setSimSection('item')}
+                                className={`px-6 py-3 text-xl font-bold uppercase tracking-wider border-b-4 transition-colors ${
+                                    simSection === 'item' 
+                                    ? 'border-blue-600 text-white' 
+                                    : 'border-transparent text-gray-500 hover:text-gray-300'
+                                }`}
+                            >
+                                Roll Diario de Items
+                            </button>
+                        </div>
+                        
+                        {simSection === 'roulette' ? <RouletteSimulator /> : <ItemRollSimulator />}
+                    </div>
+                );
 
             case 'active':
                 return <ActiveModifiers />;

@@ -29,6 +29,8 @@ import net.rollanddeath.smp.core.game.ScoreboardManager;
 import net.rollanddeath.smp.core.game.WebStatusManager;
 import net.rollanddeath.smp.core.items.CraftingListener;
 import net.rollanddeath.smp.core.commands.AdminCommand;
+import net.rollanddeath.smp.core.items.DailyRollManager;
+import net.rollanddeath.smp.core.commands.DailyCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class RollAndDeathSMP extends JavaPlugin {
@@ -43,6 +45,7 @@ public final class RollAndDeathSMP extends JavaPlugin {
     private RecipeManager recipeManager;
     private LootManager lootManager;
     private GameManager gameManager;
+    private DailyRollManager dailyRollManager;
 
     @Override
     public void onEnable() {
@@ -58,6 +61,7 @@ public final class RollAndDeathSMP extends JavaPlugin {
         this.roleManager = new RoleManager(this);
         this.mobManager = new MobManager(this);
         this.itemManager = new ItemManager(this);
+        this.dailyRollManager = new DailyRollManager(this, itemManager);
         this.recipeManager = new RecipeManager(this);
         this.lootManager = new LootManager(this);
         this.gameManager = new GameManager(this);
@@ -306,6 +310,7 @@ public final class RollAndDeathSMP extends JavaPlugin {
         getCommand("mob").setExecutor(new MobCommand(this));
         getCommand("item").setExecutor(new ItemCommand(this));
         getCommand("rd").setExecutor(new AdminCommand(this));
+        getCommand("daily").setExecutor(new DailyCommand(dailyRollManager));
 
         getLogger().info("RollAndDeath SMP Plugin has been enabled!");
         getLogger().info("Protocolo Diciembre iniciado...");
