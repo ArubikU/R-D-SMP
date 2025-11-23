@@ -21,15 +21,15 @@ public class DwarfRole extends Role {
             public void run() {
                 Attribute scaleAttr;
                 try {
-                    scaleAttr = Attribute.valueOf("GENERIC_SCALE");
+                    scaleAttr = Attribute.valueOf("SCALE");
                 } catch (IllegalArgumentException e) {
                     scaleAttr = null;
                 }
 
                 for (Player player : plugin.getServer().getOnlinePlayers()) {
                     if (hasRole(player)) {
-                        if (player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() != 16.0) {
-                            player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(16.0);
+                        if (player.getAttribute(Attribute.MAX_HEALTH).getValue() != 16.0) {
+                            player.getAttribute(Attribute.MAX_HEALTH).setBaseValue(16.0);
                         }
                         if (scaleAttr != null && player.getAttribute(scaleAttr) != null) {
                             if (player.getAttribute(scaleAttr).getValue() != 0.5) {
@@ -37,9 +37,9 @@ public class DwarfRole extends Role {
                             }
                         }
                     } else {
-                         if (player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() == 16.0 && 
+                         if (player.getAttribute(Attribute.MAX_HEALTH).getValue() == 16.0 && 
                             plugin.getRoleManager().getPlayerRole(player) != RoleType.DWARF) {
-                            player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(20.0);
+                            player.getAttribute(Attribute.MAX_HEALTH).setBaseValue(20.0);
                         }
                         if (scaleAttr != null && player.getAttribute(scaleAttr) != null) {
                             if (player.getAttribute(scaleAttr).getValue() == 0.5 && 

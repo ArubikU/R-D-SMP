@@ -34,7 +34,7 @@ public class SharpStick extends CustomItem {
         ItemStack item = super.getItemStack();
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
-            meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, 
+            meta.addAttributeModifier(Attribute.ATTACK_DAMAGE, 
                 new AttributeModifier(UUID.randomUUID(), "generic.attackDamage", 4.0, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.HAND));
             item.setItemMeta(meta);
         }

@@ -51,15 +51,15 @@ public class CursedEarthModifier extends Modifier {
         Giant giant = (Giant) player.getWorld().spawnEntity(player.getLocation(), EntityType.GIANT);
         
         // Setup Giant Stats
-        if (giant.getAttribute(Attribute.GENERIC_MAX_HEALTH) != null)
-            giant.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(100.0);
+        if (giant.getAttribute(Attribute.MAX_HEALTH) != null)
+            giant.getAttribute(Attribute.MAX_HEALTH).setBaseValue(100.0);
         giant.setHealth(100.0);
-        if (giant.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED) != null)
-            giant.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(0.3);
-        if (giant.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE) != null)
-            giant.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(15.0);
-        if (giant.getAttribute(Attribute.GENERIC_FOLLOW_RANGE) != null)
-            giant.getAttribute(Attribute.GENERIC_FOLLOW_RANGE).setBaseValue(32.0);
+        if (giant.getAttribute(Attribute.MOVEMENT_SPEED) != null)
+            giant.getAttribute(Attribute.MOVEMENT_SPEED).setBaseValue(0.3);
+        if (giant.getAttribute(Attribute.ATTACK_DAMAGE) != null)
+            giant.getAttribute(Attribute.ATTACK_DAMAGE).setBaseValue(15.0);
+        if (giant.getAttribute(Attribute.FOLLOW_RANGE) != null)
+            giant.getAttribute(Attribute.FOLLOW_RANGE).setBaseValue(32.0);
 
         giant.setCanPickupItems(false);
         giant.setRemoveWhenFarAway(false);

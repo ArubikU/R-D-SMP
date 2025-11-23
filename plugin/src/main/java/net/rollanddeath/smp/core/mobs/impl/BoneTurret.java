@@ -19,8 +19,8 @@ public class BoneTurret extends CustomMob {
     protected void applyAttributes(LivingEntity entity) {
         setMaxHealth(entity, 40.0);
         setMovementSpeed(entity, 0.0); // Cannot move
-        if (entity.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE) != null) {
-            entity.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE).setBaseValue(1.0); // Cannot be pushed
+        if (entity.getAttribute(Attribute.KNOCKBACK_RESISTANCE) != null) {
+            entity.getAttribute(Attribute.KNOCKBACK_RESISTANCE).setBaseValue(1.0); // Cannot be pushed
         }
     }
 

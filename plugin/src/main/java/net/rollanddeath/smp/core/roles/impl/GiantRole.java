@@ -23,15 +23,15 @@ public class GiantRole extends Role {
             public void run() {
                 Attribute scaleAttr;
                 try {
-                    scaleAttr = Attribute.valueOf("GENERIC_SCALE");
+                    scaleAttr = Attribute.valueOf("SCALE");
                 } catch (IllegalArgumentException e) {
                     scaleAttr = null;
                 }
 
                 for (Player player : plugin.getServer().getOnlinePlayers()) {
                     if (hasRole(player)) {
-                        if (player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() != 40.0) {
-                            player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(40.0);
+                        if (player.getAttribute(Attribute.MAX_HEALTH).getValue() != 40.0) {
+                            player.getAttribute(Attribute.MAX_HEALTH).setBaseValue(40.0);
                         }
                         if (scaleAttr != null && player.getAttribute(scaleAttr) != null) {
                             if (player.getAttribute(scaleAttr).getValue() != 2.0) {
@@ -39,9 +39,9 @@ public class GiantRole extends Role {
                             }
                         }
                     } else {
-                         if (player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() == 40.0 && 
+                         if (player.getAttribute(Attribute.MAX_HEALTH).getValue() == 40.0 && 
                             plugin.getRoleManager().getPlayerRole(player) != RoleType.GIANT) {
-                            player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(20.0);
+                            player.getAttribute(Attribute.MAX_HEALTH).setBaseValue(20.0);
                         }
                         if (scaleAttr != null && player.getAttribute(scaleAttr) != null) {
                             if (player.getAttribute(scaleAttr).getValue() == 2.0 && 

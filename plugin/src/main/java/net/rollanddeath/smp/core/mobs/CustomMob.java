@@ -47,21 +47,21 @@ public abstract class CustomMob implements Listener {
     }
     
     protected void setMaxHealth(LivingEntity entity, double health) {
-        if (entity.getAttribute(Attribute.GENERIC_MAX_HEALTH) != null) {
-            entity.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(health);
+        if (entity.getAttribute(Attribute.MAX_HEALTH) != null) {
+            entity.getAttribute(Attribute.MAX_HEALTH).setBaseValue(health);
             entity.setHealth(health);
         }
     }
     
     protected void setAttackDamage(LivingEntity entity, double damage) {
-        if (entity.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE) != null) {
-            entity.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(damage);
+        if (entity.getAttribute(Attribute.ATTACK_DAMAGE) != null) {
+            entity.getAttribute(Attribute.ATTACK_DAMAGE).setBaseValue(damage);
         }
     }
     
     protected void setMovementSpeed(LivingEntity entity, double speed) {
-        if (entity.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED) != null) {
-            entity.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(speed);
+        if (entity.getAttribute(Attribute.MOVEMENT_SPEED) != null) {
+            entity.getAttribute(Attribute.MOVEMENT_SPEED).setBaseValue(speed);
         }
     }
 }

@@ -45,14 +45,14 @@ public class SuperStrengthModifier extends Modifier {
     }
 
     private void addStrength(Player player) {
-        AttributeInstance attribute = player.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE);
+        AttributeInstance attribute = player.getAttribute(Attribute.ATTACK_DAMAGE);
         if (attribute != null && !attribute.getModifiers().contains(STRENGTH_BOOST)) {
             attribute.addModifier(STRENGTH_BOOST);
         }
     }
 
     private void removeStrength(Player player) {
-        AttributeInstance attribute = player.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE);
+        AttributeInstance attribute = player.getAttribute(Attribute.ATTACK_DAMAGE);
         if (attribute != null && attribute.getModifiers().contains(STRENGTH_BOOST)) {
             attribute.removeModifier(STRENGTH_BOOST);
         }

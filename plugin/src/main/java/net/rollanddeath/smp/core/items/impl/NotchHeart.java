@@ -36,8 +36,8 @@ public class NotchHeart extends CustomItem {
 
         Player player = event.getPlayer();
         // Increase Max Health
-        double maxHealth = player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue();
-        player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(maxHealth + 2.0);
+        double maxHealth = player.getAttribute(Attribute.MAX_HEALTH).getBaseValue();
+        player.getAttribute(Attribute.MAX_HEALTH).setBaseValue(maxHealth + 2.0);
         player.sendMessage(MiniMessage.miniMessage().deserialize("<gold>¡Tu vida máxima ha aumentado!"));
     }
 }

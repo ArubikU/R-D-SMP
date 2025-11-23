@@ -71,7 +71,7 @@ Este documento detalla la hoja de ruta para el desarrollo del plugin de Minecraf
     - [x] *Silencio Mortal*: Los mobs hostiles no hacen sonidos.
     - [x] *Plaga de Ratas*: Silverfish spawnean al romper Stone.
 - **Bendiciones**:
-    - [x] *Corazón de Titán*: `Attribute.GENERIC_MAX_HEALTH`.
+    - [x] *Corazón de Titán*: `Attribute.MAX_HEALTH`.
     - [x] *Vuelo de Ícaro*: Efecto `SLOW_FALLING` permanente.
     - [x] *Minería Explosiva*: `BlockBreakEvent` -> Drop extra/TNT.
     - [x] *Regalo del Cielo*: Scheduler que spawnea cofre en coords random cerca del spawn.

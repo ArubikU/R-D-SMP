@@ -30,7 +30,7 @@ public class EarthquakeModifier extends Modifier {
             public void run() {
                 if (random.nextDouble() < 0.05) { // 5% chance every second
                     for (Player player : Bukkit.getOnlinePlayers()) {
-                        player.playSound(player.getLocation(), org.bukkit.Sound.ENTITY_GENERIC_EXPLODE, 0.5f, 0.5f);
+                        player.playSound(player.getLocation(), org.bukkit.Sound.ENTITY_EXPLODE, 0.5f, 0.5f);
                         if (Math.random() < 0.1) {
                             player.sendMessage(MiniMessage.miniMessage().deserialize("<red>¡Terremoto!"));
                         }

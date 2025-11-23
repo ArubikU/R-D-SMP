@@ -5,6 +5,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.rollanddeath.smp.core.roles.Role;
 import net.rollanddeath.smp.core.roles.RoleManager;
+import net.rollanddeath.smp.core.roles.RoleType;
 import net.rollanddeath.smp.core.teams.Team;
 import net.rollanddeath.smp.core.teams.TeamManager;
 import org.bukkit.event.EventHandler;
@@ -32,7 +33,7 @@ public class ChatListener implements Listener {
             }
 
             // Role Tag
-            Role role = roleManager.getPlayerRole(source);
+            RoleType role = roleManager.getPlayerRole(source);
             if (role != null) {
                 formatted = formatted.append(Component.text("[" + role.getName() + "] ", NamedTextColor.GOLD));
             }

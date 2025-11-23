@@ -38,7 +38,7 @@ public class VampireSword extends CustomItem {
 
         // Heal 10% of damage dealt
         double heal = event.getFinalDamage() * 0.1;
-        double newHealth = Math.min(player.getAttribute(org.bukkit.attribute.Attribute.GENERIC_MAX_HEALTH).getValue(), player.getHealth() + heal);
+        double newHealth = Math.min(player.getAttribute(org.bukkit.attribute.Attribute.MAX_HEALTH).getValue(), player.getHealth() + heal);
         player.setHealth(newHealth);
     }
 

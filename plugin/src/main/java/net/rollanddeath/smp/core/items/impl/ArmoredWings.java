@@ -31,7 +31,7 @@ public class ArmoredWings extends CustomItem {
             AttributeModifier.Operation.ADD_NUMBER, 
             EquipmentSlot.CHEST
         );
-        meta.addAttributeModifier(Attribute.GENERIC_ARMOR, armor);
+        meta.addAttributeModifier(Attribute.ARMOR, armor);
         
         item.setItemMeta(meta);
         return item;

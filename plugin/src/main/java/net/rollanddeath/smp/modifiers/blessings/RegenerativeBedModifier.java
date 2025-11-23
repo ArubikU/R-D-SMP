@@ -28,7 +28,7 @@ public class RegenerativeBedModifier extends Modifier {
     public void onBedEnter(PlayerBedEnterEvent event) {
         if (event.getBedEnterResult() == PlayerBedEnterEvent.BedEnterResult.OK) {
             Player player = event.getPlayer();
-            double maxHealth = player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
+            double maxHealth = player.getAttribute(Attribute.MAX_HEALTH).getValue();
             if (player.getHealth() < maxHealth) {
                 player.setHealth(maxHealth);
                 player.sendMessage(MiniMessage.miniMessage().deserialize("<green>¡Has descansado y recuperado toda tu salud!"));

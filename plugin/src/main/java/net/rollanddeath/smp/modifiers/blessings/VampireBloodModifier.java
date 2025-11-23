@@ -17,7 +17,7 @@ public class VampireBloodModifier extends Modifier {
     @EventHandler
     public void onEntityDeath(EntityDeathEvent event) {
         if (event.getEntity().getKiller() instanceof Player player) {
-            double maxHealth = player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
+            double maxHealth = player.getAttribute(Attribute.MAX_HEALTH).getValue();
             double newHealth = Math.min(player.getHealth() + 1.0, maxHealth);
             player.setHealth(newHealth);
         }

@@ -34,7 +34,7 @@ public class HealingBandage extends CustomItem {
         if (event.getItem() != null && isItem(event.getItem())) {
             if (event.getAction().isRightClick()) {
                 Player player = event.getPlayer();
-                player.setHealth(Math.min(player.getAttribute(org.bukkit.attribute.Attribute.GENERIC_MAX_HEALTH).getValue(), player.getHealth() + 8.0));
+                player.setHealth(Math.min(player.getAttribute(org.bukkit.attribute.Attribute.MAX_HEALTH).getValue(), player.getHealth() + 8.0));
                 player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 100, 1));
                 event.getItem().setAmount(event.getItem().getAmount() - 1);
             }

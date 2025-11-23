@@ -510,10 +510,10 @@ export const tutorials = [
     },
     {
         id: "protection",
-        title: "Protección de Tierras",
-        icon: "uD83CuDFD0",
+        title: "Protección de Bloques",
+        icon: "🏰",
         content: [
-            { subtitle: "Bloque de Protección", text: "Coloca un Bloque de Diamante para crear una protección de 10x10 a tu alrededor." },
+            { subtitle: "Bloque de Protección", text: "Coloca un Bloque y sera protegido automaticamente por tu o tu team." },
             { subtitle: "Permisos", text: "Tus compañeros de equipo tienen acceso automático a tus protecciones." },
             { subtitle: "Vulnerabilidad", text: "Las protecciones NO funcionan durante eventos de 'Purga', pero siguen activas durante guerras." }
         ]

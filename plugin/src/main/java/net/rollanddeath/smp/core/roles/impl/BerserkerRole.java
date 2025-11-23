@@ -18,7 +18,7 @@ public class BerserkerRole extends Role {
     public void onAttack(EntityDamageByEntityEvent event) {
         if (event.getDamager() instanceof Player player) {
             if (hasRole(player)) {
-                double maxHealth = player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
+                double maxHealth = player.getAttribute(Attribute.MAX_HEALTH).getValue();
                 double currentHealth = player.getHealth();
                 double missingHealth = maxHealth - currentHealth;
 

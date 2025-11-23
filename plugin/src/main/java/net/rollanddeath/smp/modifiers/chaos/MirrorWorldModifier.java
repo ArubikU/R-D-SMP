@@ -58,7 +58,7 @@ public class MirrorWorldModifier extends Modifier {
         nmsPig.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(nmsPig, net.minecraft.world.entity.player.Player.class, true));
         
         // Ensure Pig has attack damage attribute
-        if (pig.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE) == null) {
+        if (pig.getAttribute(Attribute.ATTACK_DAMAGE) == null) {
              // Pigs don't have this attribute by default, we might need to register it via NMS or just hope Bukkit allows setting it if we add modifier?
              // Actually, Bukkit's registerAttribute is not available on all entities easily if not defined.
              // But let's try to set it. If it's null, we can't set it via Bukkit easily without NMS attribute map modification.

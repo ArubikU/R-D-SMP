@@ -45,14 +45,14 @@ public class TitanHeartModifier extends Modifier {
     }
 
     private void addHeart(Player player) {
-        AttributeInstance attribute = player.getAttribute(Attribute.GENERIC_MAX_HEALTH);
+        AttributeInstance attribute = player.getAttribute(Attribute.MAX_HEALTH);
         if (attribute != null && !attribute.getModifiers().contains(HEALTH_BOOST)) {
             attribute.addModifier(HEALTH_BOOST);
         }
     }
 
     private void removeHeart(Player player) {
-        AttributeInstance attribute = player.getAttribute(Attribute.GENERIC_MAX_HEALTH);
+        AttributeInstance attribute = player.getAttribute(Attribute.MAX_HEALTH);
         if (attribute != null && attribute.getModifiers().contains(HEALTH_BOOST)) {
             attribute.removeModifier(HEALTH_BOOST);
         }

@@ -9,6 +9,7 @@ import net.rollanddeath.smp.core.LifeManager;
 import net.rollanddeath.smp.core.modifiers.ModifierManager;
 import net.rollanddeath.smp.core.roles.Role;
 import net.rollanddeath.smp.core.roles.RoleManager;
+import net.rollanddeath.smp.core.roles.RoleType;
 import net.rollanddeath.smp.core.teams.Team;
 import net.rollanddeath.smp.core.teams.TeamManager;
 import org.bukkit.Bukkit;
@@ -65,7 +66,7 @@ public class WebStatusManager {
                 Team team = teamManager.getTeam(p.getUniqueId());
                 playerObj.addProperty("team", team != null ? team.getName() : null);
                 
-                Role role = roleManager.getPlayerRole(p.getPlayer());
+                RoleType role = roleManager.getPlayerRole(p.getPlayer());
                 playerObj.addProperty("role", role != null ? role.getName() : null);
             } else {
                 // For offline players, we might not have easy access to lives/role if they are stored in PDC on the player entity

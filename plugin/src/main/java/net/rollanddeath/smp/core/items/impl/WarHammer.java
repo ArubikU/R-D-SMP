@@ -37,7 +37,7 @@ public class WarHammer extends CustomItem {
             AttributeModifier.Operation.ADD_NUMBER, 
             EquipmentSlot.HAND
         );
-        meta.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, speed);
+        meta.addAttributeModifier(Attribute.ATTACK_SPEED, speed);
         
         // High damage
         AttributeModifier damage = new AttributeModifier(
@@ -47,7 +47,7 @@ public class WarHammer extends CustomItem {
             AttributeModifier.Operation.ADD_NUMBER, 
             EquipmentSlot.HAND
         );
-        meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, damage);
+        meta.addAttributeModifier(Attribute.ATTACK_DAMAGE, damage);
         
         item.setItemMeta(meta);
         return item;

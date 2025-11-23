@@ -8,6 +8,7 @@ import net.rollanddeath.smp.core.LifeManager;
 import net.rollanddeath.smp.core.modifiers.ModifierManager;
 import net.rollanddeath.smp.core.roles.Role;
 import net.rollanddeath.smp.core.roles.RoleManager;
+import net.rollanddeath.smp.core.roles.RoleType;
 import net.rollanddeath.smp.core.teams.Team;
 import net.rollanddeath.smp.core.teams.TeamManager;
 import org.bukkit.Bukkit;
@@ -95,7 +96,7 @@ public class ScoreboardManager implements Listener {
         setScore(obj, "Equipo: " + (team != null ? team.getName() : "Ninguno"), 10);
         
         // Role
-        Role role = roleManager.getPlayerRole(player);
+        RoleType role = roleManager.getPlayerRole(player);
         setScore(obj, "    ", 9);
         setScore(obj, "Rol: " + (role != null ? role.getName() : "Ninguno"), 8);
         

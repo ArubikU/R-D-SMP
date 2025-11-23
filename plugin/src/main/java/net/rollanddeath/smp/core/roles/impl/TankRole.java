@@ -26,15 +26,15 @@ public class TankRole extends Role {
                         player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 100, 0, false, false));
                         player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 100, 1, false, false));
                         
-                        if (player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() != 40.0) {
-                            player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(40.0);
+                        if (player.getAttribute(Attribute.MAX_HEALTH).getValue() != 40.0) {
+                            player.getAttribute(Attribute.MAX_HEALTH).setBaseValue(40.0);
                         }
                     } else {
                         // Reset health if they lost the role (simple check)
                         // Ideally RoleManager handles cleanup when switching roles
-                        if (player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() == 40.0 && 
+                        if (player.getAttribute(Attribute.MAX_HEALTH).getValue() == 40.0 && 
                             plugin.getRoleManager().getPlayerRole(player) != RoleType.TANK) {
-                            player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(20.0);
+                            player.getAttribute(Attribute.MAX_HEALTH).setBaseValue(20.0);
                         }
                     }
                 }

@@ -36,7 +36,7 @@ public class HermesBoots extends CustomItem {
         LeatherArmorMeta meta = (LeatherArmorMeta) item.getItemMeta();
         if (meta != null) {
             meta.setColor(Color.WHITE);
-            meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, 
+            meta.addAttributeModifier(Attribute.MOVEMENT_SPEED, 
                 new AttributeModifier(UUID.randomUUID(), "generic.movementSpeed", 0.3, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlot.FEET));
             item.setItemMeta(meta);
         }
