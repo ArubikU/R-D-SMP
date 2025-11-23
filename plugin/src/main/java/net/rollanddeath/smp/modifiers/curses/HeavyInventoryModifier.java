@@ -36,7 +36,7 @@ public class HeavyInventoryModifier extends Modifier {
     private void checkPlayers() {
         for (Player player : Bukkit.getOnlinePlayers()) {
             if (isInventoryFull(player)) {
-                player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 40, 0, false, false));
+                player.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 40, 0, false, false));
             }
         }
     }

@@ -31,7 +31,7 @@ public class PermanentPotionModifier extends Modifier {
         super.onDisable();
         // Remove from all online players
         for (Player player : Bukkit.getOnlinePlayers()) {
-            player.removePotionEffect(PotionEffectType.FAST_DIGGING);
+            player.removePotionEffect(PotionEffectType.HASTE);
         }
     }
 
@@ -47,6 +47,6 @@ public class PermanentPotionModifier extends Modifier {
 
     private void applyEffect(Player player) {
         // Haste I (Amplifier 0), Infinite duration
-        player.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, PotionEffect.INFINITE_DURATION, 0, false, false));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.HASTE, PotionEffect.INFINITE_DURATION, 0, false, false));
     }
 }

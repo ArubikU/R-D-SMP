@@ -4,14 +4,14 @@ import net.rollanddeath.smp.RollAndDeathSMP;
 import net.rollanddeath.smp.core.items.CustomItem;
 import net.rollanddeath.smp.core.items.CustomItemType;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
-import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.List;
-import java.util.UUID;
 
 public class ArmoredWings extends CustomItem {
 
@@ -25,11 +25,10 @@ public class ArmoredWings extends CustomItem {
         ItemMeta meta = item.getItemMeta();
         
         AttributeModifier armor = new AttributeModifier(
-            UUID.randomUUID(), 
-            "generic.armor", 
+            new NamespacedKey(plugin, "armored_wings_armor"), 
             6.0, 
             AttributeModifier.Operation.ADD_NUMBER, 
-            EquipmentSlot.CHEST
+            EquipmentSlotGroup.CHEST
         );
         meta.addAttributeModifier(Attribute.ARMOR, armor);
         

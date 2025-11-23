@@ -28,7 +28,7 @@ public class HeavyGravityModifier extends Modifier {
                     // In 1.20+, negative amplifiers work. -5 is usually enough to prevent 1 block jump.
                     // 128 is the old trick. Let's try 250 (byte -6) or 128.
                     // Actually, PotionEffectType.JUMP with amplifier 128 prevents jumping.
-                    p.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 40, 128, false, false, false));
+                    p.addPotionEffect(new PotionEffect(PotionEffectType.JUMP_BOOST, 40, 128, false, false, false));
                 }
             }
         }.runTaskTimer(plugin, 0L, 20L);

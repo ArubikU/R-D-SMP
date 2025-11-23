@@ -4,6 +4,7 @@ import net.rollanddeath.smp.core.modifiers.Modifier;
 import net.rollanddeath.smp.core.modifiers.ModifierType;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Giant;
 import org.bukkit.entity.Player;
@@ -17,13 +18,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.util.io.BukkitObjectInputStream;
-import org.bukkit.util.io.BukkitObjectOutputStream;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 
 public class CursedEarthModifier extends Modifier {
@@ -116,14 +112,9 @@ public class CursedEarthModifier extends Modifier {
 
     private void storeLoot(Giant giant, List<ItemStack> items) {
         try {
-            ByteArrayOutputStream io = new ByteArrayOutputStream();
-            BukkitObjectOutputStream os = new BukkitObjectOutputStream(io);
-            os.writeInt(items.size());
-            for (ItemStack item : items) {
-                os.writeObject(item);
-            }
-            os.flush();
-            String encoded = Base64.getEncoder().encodeToString(io.toByteArray());
+            YamlConfiguration config = new YamlConfiguration();
+            config.set("c", items);
+            String encoded = config.saveToString();
             giant.getPersistentDataContainer().set(lootKey, PersistentDataType.STRING, encoded);
         } catch (Exception e) {
             e.printStackTrace();
@@ -136,11 +127,15 @@ public class CursedEarthModifier extends Modifier {
             String encoded = entity.getPersistentDataContainer().get(lootKey, PersistentDataType.STRING);
             if (encoded == null) return items;
             
-            ByteArrayInputStream in = new ByteArrayInputStream(Base64.getDecoder().decode(encoded));
-            BukkitObjectInputStream is = new BukkitObjectInputStream(in);
-            int size = is.readInt();
-            for (int i = 0; i < size; i++) {
-                items.add((ItemStack) is.readObject());
+            YamlConfiguration config = new YamlConfiguration();
+            config.loadFromString(encoded);
+            List<?> list = config.getList("c");
+            if (list != null) {
+                for (Object obj : list) {
+                    if (obj instanceof ItemStack) {
+                        items.add((ItemStack) obj);
+                    }
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();

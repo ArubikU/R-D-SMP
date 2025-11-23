@@ -56,7 +56,7 @@ public class VoidCall extends CustomItem {
                     return;
                 }
                 
-                loc.getWorld().spawnParticle(Particle.SMOKE_LARGE, loc, 10, 0.5, 0.5, 0.5, 0);
+                loc.getWorld().spawnParticle(Particle.LARGE_SMOKE, loc, 10, 0.5, 0.5, 0.5, 0);
                 
                 for (Entity entity : loc.getWorld().getNearbyEntities(loc, 10, 10, 10)) {
                     if (entity instanceof Player && ((Player) entity).getGameMode().name().equals("SPECTATOR")) continue;

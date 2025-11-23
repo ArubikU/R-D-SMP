@@ -22,7 +22,7 @@ public class EngineerRole extends Role {
             public void run() {
                 for (Player player : plugin.getServer().getOnlinePlayers()) {
                     if (hasRole(player)) {
-                        player.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, 100, 1, false, false));
+                        player.addPotionEffect(new PotionEffect(PotionEffectType.HASTE, 100, 1, false, false));
                         player.addPotionEffect(new PotionEffect(PotionEffectType.LUCK, 100, 1, false, false));
                     }
                 }

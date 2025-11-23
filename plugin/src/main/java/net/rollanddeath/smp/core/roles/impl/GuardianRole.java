@@ -23,10 +23,10 @@ public class GuardianRole extends Role {
             public void run() {
                 for (Player player : plugin.getServer().getOnlinePlayers()) {
                     if (hasRole(player)) {
-                        player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 40, 0, false, false));
+                        player.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 40, 0, false, false));
                         for (Entity nearby : player.getNearbyEntities(5, 5, 5)) {
                             if (nearby instanceof Player ally) {
-                                ally.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 40, 0, false, false));
+                                ally.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 40, 0, false, false));
                                 ally.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 40, 0, false, false));
                             }
                         }

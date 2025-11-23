@@ -23,8 +23,8 @@ public class TankRole extends Role {
             public void run() {
                 for (Player player : plugin.getServer().getOnlinePlayers()) {
                     if (hasRole(player)) {
-                        player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 100, 0, false, false));
-                        player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 100, 1, false, false));
+                        player.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 100, 0, false, false));
+                        player.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 100, 1, false, false));
                         
                         if (player.getAttribute(Attribute.MAX_HEALTH).getValue() != 40.0) {
                             player.getAttribute(Attribute.MAX_HEALTH).setBaseValue(40.0);

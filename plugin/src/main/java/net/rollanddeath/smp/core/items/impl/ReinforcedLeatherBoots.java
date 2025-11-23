@@ -31,8 +31,8 @@ public class ReinforcedLeatherBoots extends CustomItem {
         ItemStack item = super.getItemStack();
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
-            meta.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 4, true);
-            meta.addEnchant(Enchantment.DURABILITY, 3, true);
+            meta.addEnchant(Enchantment.PROTECTION, 4, true);
+            meta.addEnchant(Enchantment.UNBREAKING, 3, true);
             item.setItemMeta(meta);
         }
         return item;

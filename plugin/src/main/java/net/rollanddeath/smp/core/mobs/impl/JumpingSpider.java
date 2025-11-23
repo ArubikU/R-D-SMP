@@ -18,6 +18,6 @@ public class JumpingSpider extends CustomMob {
     protected void applyAttributes(LivingEntity entity) {
         setMaxHealth(entity, 16.0);
         setAttackDamage(entity, 4.0);
-        entity.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, Integer.MAX_VALUE, 2));
+        entity.addPotionEffect(new PotionEffect(PotionEffectType.JUMP_BOOST, Integer.MAX_VALUE, 2));
     }
 }

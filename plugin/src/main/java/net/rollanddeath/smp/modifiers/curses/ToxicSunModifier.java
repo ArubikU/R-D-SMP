@@ -24,7 +24,7 @@ public class ToxicSunModifier extends Modifier {
             public void run() {
                 for (Player player : Bukkit.getOnlinePlayers()) {
                     if (isExposedToSun(player)) {
-                        player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 40, 0)); // 2 seconds
+                        player.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 40, 0)); // 2 seconds
                         player.addPotionEffect(new PotionEffect(PotionEffectType.HUNGER, 40, 0));
                     }
                 }

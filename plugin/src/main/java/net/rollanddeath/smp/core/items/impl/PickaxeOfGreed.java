@@ -23,7 +23,7 @@ public class PickaxeOfGreed extends CustomItem {
     protected ItemStack createBaseItem() {
         ItemStack item = new ItemStack(Material.DIAMOND_PICKAXE);
         ItemMeta meta = item.getItemMeta();
-        meta.addEnchant(Enchantment.LOOT_BONUS_BLOCKS, 10, true);
+        meta.addEnchant(Enchantment.FORTUNE, 10, true);
         item.setItemMeta(meta);
         return item;
     }

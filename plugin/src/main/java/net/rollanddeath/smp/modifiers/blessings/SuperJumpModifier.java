@@ -41,7 +41,7 @@ public class SuperJumpModifier extends Modifier {
             task.cancel();
         }
         for (Player player : Bukkit.getOnlinePlayers()) {
-            player.removePotionEffect(PotionEffectType.JUMP);
+            player.removePotionEffect(PotionEffectType.JUMP_BOOST);
         }
     }
 
@@ -67,8 +67,8 @@ public class SuperJumpModifier extends Modifier {
     }
 
     private void applyEffect(Player player) {
-        if (!player.hasPotionEffect(PotionEffectType.JUMP)) {
-            player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, Integer.MAX_VALUE, 1, false, false));
+        if (!player.hasPotionEffect(PotionEffectType.JUMP_BOOST)) {
+            player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP_BOOST, Integer.MAX_VALUE, 1, false, false));
         }
     }
 }

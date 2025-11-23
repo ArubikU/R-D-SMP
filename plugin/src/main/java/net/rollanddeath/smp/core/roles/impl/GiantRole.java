@@ -21,12 +21,7 @@ public class GiantRole extends Role {
         new BukkitRunnable() {
             @Override
             public void run() {
-                Attribute scaleAttr;
-                try {
-                    scaleAttr = Attribute.valueOf("SCALE");
-                } catch (IllegalArgumentException e) {
-                    scaleAttr = null;
-                }
+                Attribute scaleAttr = Attribute.SCALE;
 
                 for (Player player : plugin.getServer().getOnlinePlayers()) {
                     if (hasRole(player)) {

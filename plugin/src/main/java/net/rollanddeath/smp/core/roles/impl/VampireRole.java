@@ -44,12 +44,17 @@ public class VampireRole extends Role {
             if (helmet != null && helmet.getType() != Material.AIR) {
                 // Helmet protects but takes damage
                 // Logic to damage helmet could go here
+                Block block = player.getLocation().getBlock();
+                block.getWorld().spawnParticle(org.bukkit.Particle.SMOKE, player.getLocation().add(0, 1, 0), 5, 0.2, 0.2, 0.2, 0.01);
+                ItemStack damagedHelmet = helmet.clone();
+                damagedHelmet.damage(1, player);
+                player.getInventory().setHelmet(damagedHelmet);
             } else {
                 player.setFireTicks(60);
             }
         } else {
             // Night or indoors -> Buffs
-            player.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 40, 0, false, false));
+            player.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, 40, 0, false, false));
             player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 240, 0, false, false));
         }
     }

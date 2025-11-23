@@ -32,7 +32,7 @@ public class FortuneTouchModifier extends Modifier {
             }
 
             ItemStack tool = new ItemStack(Material.DIAMOND_PICKAXE);
-            tool.addEnchantment(Enchantment.LOOT_BONUS_BLOCKS, 3);
+            tool.addEnchantment(Enchantment.FORTUNE, 3);
 
             // Try 10 times to get the best drop
             Collection<ItemStack> bestDrops = null;

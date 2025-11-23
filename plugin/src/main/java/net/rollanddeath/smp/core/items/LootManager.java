@@ -1,5 +1,6 @@
 package net.rollanddeath.smp.core.items;
 
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.rollanddeath.smp.RollAndDeathSMP;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -25,7 +26,7 @@ public class LootManager implements Listener {
             if (random.nextDouble() < 0.05) { // 5%
                 dropItem(event, CustomItemType.HERMES_BOOTS);
             }
-            if (entity.getCustomName() != null && entity.getCustomName().contains("Minero") && random.nextDouble() < 0.01) {
+            if (entity.customName() != null && PlainTextComponentSerializer.plainText().serialize(entity.customName()).contains("Minero") && random.nextDouble() < 0.01) {
                 dropItem(event, CustomItemType.GREED_PICKAXE);
             }
         }

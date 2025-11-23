@@ -27,7 +27,8 @@ public class DruidRole extends Role {
                     if (hasRole(player)) {
                         // Forest Buffs
                         Biome biome = player.getLocation().getBlock().getBiome();
-                        if (biome.name().contains("FOREST") || biome.name().contains("JUNGLE") || biome.name().contains("TAIGA")) {
+                        String biomeName = biome.getKey().getKey();
+                        if (biomeName.contains("FOREST") || biomeName.contains("JUNGLE") || biomeName.contains("TAIGA")) {
                             player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 100, 0, false, false));
                             player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 100, 0, false, false));
                         }

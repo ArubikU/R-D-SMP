@@ -16,8 +16,8 @@ public class ChaoticRole extends Role {
 
     private final Random random = new Random();
     private final PotionEffectType[] effects = {
-            PotionEffectType.POISON, PotionEffectType.SLOW, PotionEffectType.WEAKNESS,
-            PotionEffectType.BLINDNESS, PotionEffectType.CONFUSION, PotionEffectType.WITHER,
+            PotionEffectType.POISON, PotionEffectType.SLOWNESS, PotionEffectType.WEAKNESS,
+            PotionEffectType.BLINDNESS, PotionEffectType.NAUSEA, PotionEffectType.WITHER,
             PotionEffectType.LEVITATION
     };
 

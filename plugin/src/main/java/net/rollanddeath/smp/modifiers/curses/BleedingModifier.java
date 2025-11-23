@@ -50,7 +50,7 @@ public class BleedingModifier extends Modifier {
                     // Damage every 2 seconds (40 ticks). Task runs every 10 ticks.
                     // Let's simplify: Task runs every 20 ticks (1s). Damage every 1s.
                     player.damage(1.0);
-                    player.getWorld().spawnParticle(Particle.REDSTONE, player.getLocation().add(0, 1, 0), 10, 0.2, 0.2, 0.2, new Particle.DustOptions(Color.RED, 1));
+                    player.getWorld().spawnParticle(Particle.DUST, player.getLocation().add(0, 1, 0), 10, 0.2, 0.2, 0.2, new Particle.DustOptions(Color.RED, 1));
                     
                     bleedingPlayers.put(uuid, ticks - 1);
                 }
@@ -76,7 +76,7 @@ public class BleedingModifier extends Modifier {
             // We can't easily distinguish player.damage(1.0) from other sources without metadata or custom event.
             // But 1.0 damage is low. Maybe ignore damage < 2.0?
             
-            if (event.getDamage() < 1.0) return; // Ignore tiny damage
+            if (event.getDamage() < 1.5) return; // Ignore tiny damage
 
             if (Math.random() < 0.20) {
                 bleedingPlayers.put(player.getUniqueId(), 10); // 10 seconds of bleeding

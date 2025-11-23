@@ -20,7 +20,7 @@ public class RussianRouletteModifier extends Modifier {
 
     @EventHandler
     public void onConsume(PlayerItemConsumeEvent event) {
-        if (Math.random() < 1.0 / 6.0) {
+        if (random.nextDouble() < 1.0 / 6.0) {
             event.getPlayer().setHealth(0);
             event.getPlayer().sendMessage(MiniMessage.miniMessage().deserialize("<red>¡Has perdido la Ruleta Rusa!"));
             plugin.getServer().broadcast(MiniMessage.miniMessage().deserialize("<red>" + event.getPlayer().getName() + " murió jugando a la Ruleta Rusa."));

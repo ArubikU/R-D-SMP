@@ -60,7 +60,7 @@ public class SniperSkeletonsModifier extends Modifier {
         AbstractSkeleton nmsSkeleton = (AbstractSkeleton) ((CraftEntity) skeleton).getHandle();
         
         nmsSkeleton.goalSelector.getAvailableGoals().forEach(wrappedGoal -> {
-            if (wrappedGoal.getGoal() instanceof RangedBowAttackGoal bowGoal) {
+            if (wrappedGoal.getGoal() instanceof RangedBowAttackGoal<?> bowGoal) {
                 try {
                     setMinAttackInterval(bowGoal, 10); // Default is 20, so 10 is 2x faster (50% less delay)
                 } catch (Exception e) {
@@ -74,7 +74,7 @@ public class SniperSkeletonsModifier extends Modifier {
         AbstractSkeleton nmsSkeleton = (AbstractSkeleton) ((CraftEntity) skeleton).getHandle();
         
         nmsSkeleton.goalSelector.getAvailableGoals().forEach(wrappedGoal -> {
-            if (wrappedGoal.getGoal() instanceof RangedBowAttackGoal bowGoal) {
+            if (wrappedGoal.getGoal() instanceof RangedBowAttackGoal<?> bowGoal) {
                 try {
                     setMinAttackInterval(bowGoal, 20); // Reset to default
                 } catch (Exception e) {
@@ -84,7 +84,7 @@ public class SniperSkeletonsModifier extends Modifier {
         });
     }
 
-    private void setMinAttackInterval(RangedBowAttackGoal goal, int interval) throws NoSuchFieldException, IllegalAccessException {
+    private void setMinAttackInterval(RangedBowAttackGoal<?> goal, int interval) throws NoSuchFieldException, IllegalAccessException {
         // Field name might be 'attackIntervalMin' or obfuscated.
         // In Mojang mappings (Paperweight), it should be 'attackIntervalMin'.
         Field field = RangedBowAttackGoal.class.getDeclaredField("attackIntervalMin");

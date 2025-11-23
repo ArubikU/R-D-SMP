@@ -32,7 +32,7 @@ public class ThornShield extends CustomItem {
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
             meta.addEnchant(Enchantment.THORNS, 3, true);
-            meta.addEnchant(Enchantment.DURABILITY, 3, true);
+            meta.addEnchant(Enchantment.UNBREAKING, 3, true);
             item.setItemMeta(meta);
         }
         return item;

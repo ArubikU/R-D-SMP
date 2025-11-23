@@ -4,6 +4,7 @@ import net.rollanddeath.smp.RollAndDeathSMP;
 import net.rollanddeath.smp.core.items.CustomItem;
 import net.rollanddeath.smp.core.items.CustomItemType;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Entity;
@@ -11,12 +12,11 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.List;
-import java.util.UUID;
 
 public class WarHammer extends CustomItem {
 
@@ -31,21 +31,19 @@ public class WarHammer extends CustomItem {
         
         // Slow attack speed
         AttributeModifier speed = new AttributeModifier(
-            UUID.randomUUID(), 
-            "generic.attack_speed", 
+            new NamespacedKey(plugin, "warhammer_attack_speed"), 
             -3.0, 
             AttributeModifier.Operation.ADD_NUMBER, 
-            EquipmentSlot.HAND
+            EquipmentSlotGroup.MAINHAND
         );
         meta.addAttributeModifier(Attribute.ATTACK_SPEED, speed);
         
         // High damage
         AttributeModifier damage = new AttributeModifier(
-            UUID.randomUUID(), 
-            "generic.attack_damage", 
+            new NamespacedKey(plugin, "warhammer_attack_damage"), 
             10.0, 
             AttributeModifier.Operation.ADD_NUMBER, 
-            EquipmentSlot.HAND
+            EquipmentSlotGroup.MAINHAND
         );
         meta.addAttributeModifier(Attribute.ATTACK_DAMAGE, damage);
         

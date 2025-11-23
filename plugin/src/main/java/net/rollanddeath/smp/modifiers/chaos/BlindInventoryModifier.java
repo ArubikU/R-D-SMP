@@ -3,12 +3,6 @@ package net.rollanddeath.smp.modifiers.chaos;
 import net.rollanddeath.smp.RollAndDeathSMP;
 import net.rollanddeath.smp.core.modifiers.Modifier;
 import net.rollanddeath.smp.core.modifiers.ModifierType;
-import org.bukkit.inventory.ItemFlag;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.inventory.InventoryOpenEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 
 public class BlindInventoryModifier extends Modifier {

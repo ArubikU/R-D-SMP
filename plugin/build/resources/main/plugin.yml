@@ -28,3 +28,7 @@ commands:
     description: Manage custom items
     usage: /item give <player> <type> [amount]
     permission: rd.admin.items
+  daily:
+    description: Claim your daily item roll
+    usage: /daily
+    aliases: [rollitem]

@@ -51,7 +51,7 @@ public class IceCreeper extends CustomMob {
             // Slow nearby entities
             event.getLocation().getNearbyEntities(5, 5, 5).forEach(e -> {
                 if (e instanceof LivingEntity) {
-                    ((LivingEntity) e).addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 200, 2));
+                    ((LivingEntity) e).addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 200, 2));
                 }
             });
         }

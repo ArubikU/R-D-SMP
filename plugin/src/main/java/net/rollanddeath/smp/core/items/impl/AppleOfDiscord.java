@@ -39,7 +39,7 @@ public class AppleOfDiscord extends CustomItem {
         Player player = event.getPlayer();
         
         // Strength IV for 1 minute
-        player.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 20 * 60, 3));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, 20 * 60, 3));
         
         // Schedule Poison II after 1 minute
         Bukkit.getScheduler().runTaskLater(plugin, () -> {

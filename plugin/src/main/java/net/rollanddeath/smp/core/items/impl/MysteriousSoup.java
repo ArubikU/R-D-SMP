@@ -35,10 +35,10 @@ public class MysteriousSoup extends CustomItem {
         if (isItem(event.getItem())) {
             Player player = event.getPlayer();
             PotionEffectType[] effects = {
-                PotionEffectType.SPEED, PotionEffectType.SLOW, PotionEffectType.FAST_DIGGING, 
-                PotionEffectType.SLOW_DIGGING, PotionEffectType.INCREASE_DAMAGE, PotionEffectType.HEAL, 
-                PotionEffectType.HARM, PotionEffectType.JUMP, PotionEffectType.CONFUSION, 
-                PotionEffectType.REGENERATION, PotionEffectType.DAMAGE_RESISTANCE, PotionEffectType.FIRE_RESISTANCE, 
+                PotionEffectType.SPEED, PotionEffectType.SLOWNESS, PotionEffectType.HASTE, 
+                PotionEffectType.MINING_FATIGUE, PotionEffectType.STRENGTH, PotionEffectType.INSTANT_HEALTH, 
+                PotionEffectType.INSTANT_DAMAGE, PotionEffectType.JUMP_BOOST, PotionEffectType.NAUSEA, 
+                PotionEffectType.REGENERATION, PotionEffectType.RESISTANCE, PotionEffectType.FIRE_RESISTANCE, 
                 PotionEffectType.WATER_BREATHING, PotionEffectType.INVISIBILITY, PotionEffectType.BLINDNESS, 
                 PotionEffectType.NIGHT_VISION, PotionEffectType.HUNGER, PotionEffectType.WEAKNESS, 
                 PotionEffectType.POISON, PotionEffectType.WITHER, PotionEffectType.HEALTH_BOOST, 

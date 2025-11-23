@@ -60,12 +60,12 @@ public class GlassPickaxe extends CustomItem {
         ItemStack newItem = player.getInventory().getItem(event.getNewSlot());
         
         if (isItem(newItem)) {
-            player.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, 20 * 60, 255, false, false, false));
+            player.addPotionEffect(new PotionEffect(PotionEffectType.HASTE, 20 * 60, 255, false, false, false));
         } else {
-            if (player.hasPotionEffect(PotionEffectType.FAST_DIGGING)) {
-                 PotionEffect effect = player.getPotionEffect(PotionEffectType.FAST_DIGGING);
+            if (player.hasPotionEffect(PotionEffectType.HASTE)) {
+                 PotionEffect effect = player.getPotionEffect(PotionEffectType.HASTE);
                  if (effect != null && effect.getAmplifier() > 10) {
-                     player.removePotionEffect(PotionEffectType.FAST_DIGGING);
+                     player.removePotionEffect(PotionEffectType.HASTE);
                  }
             }
         }

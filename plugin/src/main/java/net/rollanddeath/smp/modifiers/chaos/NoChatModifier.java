@@ -4,7 +4,7 @@ import net.rollanddeath.smp.RollAndDeathSMP;
 import net.rollanddeath.smp.core.modifiers.Modifier;
 import net.rollanddeath.smp.core.modifiers.ModifierType;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
+import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 
 public class NoChatModifier extends Modifier {
@@ -14,7 +14,7 @@ public class NoChatModifier extends Modifier {
     }
 
     @EventHandler
-    public void onChat(AsyncPlayerChatEvent event) {
+    public void onChat(AsyncChatEvent event) {
         event.setCancelled(true);
         event.getPlayer().sendMessage(MiniMessage.miniMessage().deserialize("<red>El chat está deshabilitado por el evento 'Sin Chat'."));
     }

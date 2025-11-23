@@ -4,14 +4,14 @@ import net.rollanddeath.smp.RollAndDeathSMP;
 import net.rollanddeath.smp.core.items.CustomItem;
 import net.rollanddeath.smp.core.items.CustomItemType;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
-import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.List;
-import java.util.UUID;
 
 public class SharpStick extends CustomItem {
 
@@ -35,7 +35,7 @@ public class SharpStick extends CustomItem {
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
             meta.addAttributeModifier(Attribute.ATTACK_DAMAGE, 
-                new AttributeModifier(UUID.randomUUID(), "generic.attackDamage", 4.0, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.HAND));
+                new AttributeModifier(new NamespacedKey(plugin, "sharp_stick_damage"), 4.0, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlotGroup.MAINHAND));
             item.setItemMeta(meta);
         }
         return item;

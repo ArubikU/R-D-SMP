@@ -20,14 +20,14 @@ public class ChanceTotem extends CustomItem {
     private final Random random = new Random();
     private final PotionEffectType[] effects = {
         PotionEffectType.SPEED,
-        PotionEffectType.INCREASE_DAMAGE,
+        PotionEffectType.STRENGTH,
         PotionEffectType.REGENERATION,
         PotionEffectType.ABSORPTION,
         PotionEffectType.FIRE_RESISTANCE,
         PotionEffectType.INVISIBILITY,
         PotionEffectType.NIGHT_VISION,
-        PotionEffectType.JUMP,
-        PotionEffectType.SLOW,
+        PotionEffectType.JUMP_BOOST,
+        PotionEffectType.SLOWNESS,
         PotionEffectType.WEAKNESS,
         PotionEffectType.POISON,
         PotionEffectType.BLINDNESS
@@ -55,7 +55,20 @@ public class ChanceTotem extends CustomItem {
         ItemStack main = player.getInventory().getItemInMainHand();
         ItemStack off = player.getInventory().getItemInOffHand();
         
-        if (isItem(main) || isItem(off)) {
+        boolean isChanceTotem = false;
+
+        // Minecraft priority: Main Hand > Off Hand
+        if (main.getType() == Material.TOTEM_OF_UNDYING) {
+            if (isItem(main)) {
+                isChanceTotem = true;
+            }
+        } else if (off.getType() == Material.TOTEM_OF_UNDYING) {
+            if (isItem(off)) {
+                isChanceTotem = true;
+            }
+        }
+        
+        if (isChanceTotem) {
             // Vanilla handles the resurrection part (consuming totem)
             // We just add the random effect
             PotionEffectType type = effects[random.nextInt(effects.length)];

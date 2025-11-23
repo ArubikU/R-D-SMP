@@ -22,7 +22,7 @@ public class MinerRole extends Role {
             public void run() {
                 for (Player player : plugin.getServer().getOnlinePlayers()) {
                     if (hasRole(player)) {
-                        player.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, 100, 1, false, false)); // Haste II
+                        player.addPotionEffect(new PotionEffect(PotionEffectType.HASTE, 100, 1, false, false)); // Haste II
                         if (player.getLocation().getY() < 0) {
                             player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 240, 0, false, false));
                         }
