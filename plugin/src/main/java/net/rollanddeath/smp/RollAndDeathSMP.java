@@ -112,7 +112,6 @@ public final class RollAndDeathSMP extends JavaPlugin {
         modifierManager.registerModifier(new LeadFeetModifier(this));
         modifierManager.registerModifier(new HurricaneWindsModifier(this));
         modifierManager.registerModifier(new BloodThirstModifier(this));
-        modifierManager.registerModifier(new SnowBlindnessModifier(this));
         modifierManager.registerModifier(new DeafnessModifier(this));
         modifierManager.registerModifier(new ParanoiaModifier(this));
         modifierManager.registerModifier(new DisorientationModifier(this));
