@@ -68,7 +68,6 @@ public class DailyRollManager {
         // Epic
         addCustom(epicItems, CustomItemType.GREED_PICKAXE);
         addCustom(epicItems, CustomItemType.DISCORD_APPLE);
-        addCustom(epicItems, CustomItemType.TIME_FRAGMENT);
         addCustom(epicItems, CustomItemType.POSEIDON_TRIDENT);
         addCustom(epicItems, CustomItemType.ARMORED_WINGS);
         addCustom(epicItems, CustomItemType.INVISIBILITY_CLOAK);

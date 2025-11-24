@@ -358,18 +358,7 @@ export const items = [
     // --- ÉPICO ---
     { name: "Pico de la Codicia", type: "Herramienta", desc: "Fortuna X, pero te quita vida al picar.", rarity: "epico", acquisition: "Drop: Zombie Minero (1%)" },
     { name: "Manzana de la Discordia", type: "Consumible", desc: "Fuerza IV (1 min), luego Veneno II (1 min).", rarity: "epico", acquisition: "Drop: Bruja (2%)" },
-    { 
-        name: "Fragmento de Tiempo", 
-        type: "Material", 
-        desc: "Craftea el reloj de reinicio de evento.", 
-        rarity: "epico",
-        acquisition: "Crafting",
-        recipe: {
-            type: "shapeless",
-            ingredients: ["Clock", "Diamond"],
-            result: "Fragmento de Tiempo"
-        }
-    },
+
     { name: "Tridente de Poseidón", type: "Arma", desc: "Invoca rayos sin tormenta. Riptide fuera del agua.", rarity: "epico", acquisition: "Drop: Leviatán / Ahogado" },
     { 
         name: "Alas Blindadas", 

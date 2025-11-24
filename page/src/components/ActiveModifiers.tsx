@@ -25,7 +25,7 @@ export const ActiveModifiers: React.FC = () => {
     useEffect(() => {
         const fetchStatus = async () => {
             try {
-                const response = await fetch('https://rollanddeath.play.hosting:33503/status');
+                const response = await fetch('https://thingproxy-760k.onrender.com/fetch/http://rollanddeath.play.hosting:33503/status');
                 if (!response.ok) throw new Error('Error al conectar con el servidor');
                 const data = await response.json();
                 setStatus(data);

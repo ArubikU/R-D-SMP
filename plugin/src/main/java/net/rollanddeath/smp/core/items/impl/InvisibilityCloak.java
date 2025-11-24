@@ -32,7 +32,7 @@ public class InvisibilityCloak extends CustomItem {
                 if (isItem(chest)) {
                     long lastMove = lastMoveTime.getOrDefault(player.getUniqueId(), System.currentTimeMillis());
                     if (System.currentTimeMillis() - lastMove > 3000) {
-                        player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 40, 0, false, false, false));
+                        player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 60, 0, false, false, false));
                     }
                 }
             }

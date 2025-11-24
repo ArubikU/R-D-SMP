@@ -18,7 +18,6 @@ public enum CustomItemType {
     GRAPPLING_HOOK("Gancho de Agarre"),
     GREED_PICKAXE("Pico de la Codicia"),
     DISCORD_APPLE("Manzana de la Discordia"),
-    TIME_FRAGMENT("Fragmento de Tiempo"),
     POSEIDON_TRIDENT("Tridente de Poseidón"),
     ARMORED_WINGS("Alas Blindadas"),
     INVISIBILITY_CLOAK("Capa de Invisibilidad"),

@@ -274,7 +274,6 @@ public final class RollAndDeathSMP extends JavaPlugin {
         itemManager.registerItem(new GrapplingHook(this));
         itemManager.registerItem(new PickaxeOfGreed(this));
         itemManager.registerItem(new AppleOfDiscord(this));
-        itemManager.registerItem(new TimeFragment(this));
         itemManager.registerItem(new PoseidonTrident(this));
         itemManager.registerItem(new ArmoredWings(this));
         

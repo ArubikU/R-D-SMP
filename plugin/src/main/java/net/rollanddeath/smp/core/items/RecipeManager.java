@@ -28,7 +28,6 @@ public class RecipeManager {
         registerGlassPickaxe();
         registerSmallBackpack();
         registerGrapplingHook();
-        registerTimeFragment();
         registerArmoredWings();
         registerInvisibilityCloak();
         registerTrueSightHelmet();
@@ -135,14 +134,6 @@ public class RecipeManager {
         recipe.shape(" II", " SI", "S  ");
         recipe.setIngredient('I', Material.IRON_INGOT);
         recipe.setIngredient('S', Material.STRING);
-        plugin.getServer().addRecipe(recipe);
-    }
-
-    private void registerTimeFragment() {
-        ItemStack item = plugin.getItemManager().getItem(CustomItemType.TIME_FRAGMENT).getItemStack();
-        ShapelessRecipe recipe = new ShapelessRecipe(new NamespacedKey(plugin, "time_fragment"), item);
-        recipe.addIngredient(Material.CLOCK);
-        recipe.addIngredient(Material.DIAMOND);
         plugin.getServer().addRecipe(recipe);
     }
 
