@@ -1,0 +1,6 @@
+# Configuration for RollAndDeath SMP
+
+# Web Status Server
+web-status:
+  enabled: true
+  port: 33503

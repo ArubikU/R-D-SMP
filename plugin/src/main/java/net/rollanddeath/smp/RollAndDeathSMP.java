@@ -46,9 +46,13 @@ public final class RollAndDeathSMP extends JavaPlugin {
     private LootManager lootManager;
     private GameManager gameManager;
     private DailyRollManager dailyRollManager;
+    private WebStatusManager webStatusManager;
 
     @Override
     public void onEnable() {
+        // Load Config
+        saveDefaultConfig();
+
         // Initialize Managers
         this.lifeManager = new LifeManager(this);
         this.modifierManager = new ModifierManager(this);
@@ -66,7 +70,7 @@ public final class RollAndDeathSMP extends JavaPlugin {
         this.gameManager = new GameManager(this);
 
         // Initialize UI/Web
-        new WebStatusManager(this);
+        this.webStatusManager = new WebStatusManager(this);
         getServer().getPluginManager().registerEvents(new ScoreboardManager(this), this);
 
         // Register Modifiers
@@ -321,6 +325,9 @@ public final class RollAndDeathSMP extends JavaPlugin {
     @Override
     public void onDisable() {
         // Plugin shutdown logic
+        if (webStatusManager != null) {
+            webStatusManager.stop();
+        }
         getLogger().info("RollAndDeath SMP Plugin has been disabled!");
     }
 
