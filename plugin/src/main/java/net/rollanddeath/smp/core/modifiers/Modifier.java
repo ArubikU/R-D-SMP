@@ -36,7 +36,6 @@ public abstract class Modifier implements Listener {
 
     // Called when the modifier is deactivated (if ever needed, though they accumulate)
     public void onDisable() {
-        // Unregister listeners logic would go here if Bukkit supported easy unregistering of specific listeners
-        // For now, we can use a flag in the event handlers
+        org.bukkit.event.HandlerList.unregisterAll(this);
     }
 }

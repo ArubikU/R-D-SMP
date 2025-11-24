@@ -70,12 +70,21 @@ public class ModifierManager {
 
     public void deactivateModifier(String name) {
         Modifier mod = registeredModifiers.get(name);
-        if (mod != null && activeModifiers.contains(name)) {
+        
+        if (mod != null) {
             mod.onDisable();
+        }
+
+        if (activeModifiers.contains(name)) {
             activeModifiers.remove(name);
             saveActiveModifiers();
-            plugin.getLogger().info("Modificador desactivado: " + name);
-            Bukkit.broadcast(Component.text("Evento finalizado: " + mod.getName(), NamedTextColor.GREEN));
+            
+            if (mod != null) {
+                plugin.getLogger().info("Modificador desactivado: " + name);
+                Bukkit.broadcast(Component.text("Evento finalizado: " + mod.getName(), NamedTextColor.GREEN));
+            } else {
+                plugin.getLogger().info("Modificador desconocido eliminado de la lista de activos: " + name);
+            }
         }
     }
 

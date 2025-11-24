@@ -21,7 +21,7 @@ export const dailyEvents = [
     { name: "Madera Podrida", type: "Maldición", desc: "Talar madera tiene chance de no dropear nada.", icon: "🌲" },
     { name: "Silencio Mortal", type: "Maldición", desc: "Los mobs hostiles no hacen sonidos.", icon: "🔇" },
     { name: "Plaga de Ratas", type: "Maldición", desc: "Silverfish spawnean al romper Stone.", icon: "🐀" },
-    { name: "Gravedad Lunar Inversa", type: "Maldición", desc: "Si saltas, flotas hacia arriba por 5 segundos.", icon: "🎈" },
+    { name: "Gravedad Lunar Inversa", type: "Maldición", desc: "La gravedad se reduce en un 20%.", icon: "🎈" },
     { name: "Nether Inestable", type: "Maldición", desc: "Los portales te llevan a coordenadas random en el Nether.", icon: "🔥" },
     { name: "Toque de Midas Maligno", type: "Maldición", desc: "La comida se convierte en oro (no comestible) al tocarla.", icon: "🥖" },
     { name: "Enderman Furiosos", type: "Maldición", desc: "Mirar a cualquier lado puede aggrear Endermans.", icon: "👀" },
@@ -107,7 +107,7 @@ export const dailyEvents = [
 ];
 
 export const weeklyRoles = [
-    { name: "El Pacifista", pros: "+10 Corazones Máximos.", cons: "No puede infligir daño directo.", icon: "🕊️" },
+    { name: "El Pacifista", pros: "Regeneración pasiva.", cons: "No puede infligir daño directo.", icon: "🕊️" },
     { name: "El Vampiro", pros: "Fuerza II de noche, Visión Nocturna.", cons: "Se quema al sol sin casco.", icon: "🦇" },
     { name: "Glass Cannon", pros: "Fuerza III permanente.", cons: "Solo 3 corazones de vida máxima.", icon: "💥" },
     { name: "Rey Midas", pros: "Mobs dropean oro.", cons: "No regenera vida naturalmente.", icon: "👑" },
