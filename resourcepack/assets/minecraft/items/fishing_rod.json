@@ -1,0 +1,26 @@
+{
+  "model": {
+    "type": "minecraft:range_dispatch",
+    "fallback": {
+      "type": "minecraft:select",
+      "cases": [
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "minecraft:item/fishing_rod_cast"
+          },
+          "when": "minecraft:cast"
+        }
+      ],
+      "fallback": {
+        "type": "minecraft:model",
+        "model": "minecraft:item/fishing_rod"
+      },
+      "property": "minecraft:fishing_rod"
+    },
+    "property": "minecraft:custom_model_data",
+    "entries": [
+      {"model": {"type": "minecraft:model", "model": "minecraft:item/custom/climb_hook"}, "threshold": 710014.0}
+    ]
+  }
+}

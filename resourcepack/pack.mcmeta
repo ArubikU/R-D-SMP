@@ -1,0 +1,14 @@
+{
+  "id": "glamour_table",
+  "pack": {
+    "description": "Assets for Glamour and Paint Tables",
+    "min_format": [
+      69,
+      0
+    ],
+    "max_format": 69,
+    "pack_format": 69
+  }
+}
+
+

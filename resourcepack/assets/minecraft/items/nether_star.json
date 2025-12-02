@@ -1,0 +1,13 @@
+{
+  "model": {
+    "type": "minecraft:range_dispatch",
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "minecraft:item/nether_star"
+    },
+    "property": "minecraft:custom_model_data",
+    "entries": [
+      {"model": {"type": "minecraft:model", "model": "minecraft:item/custom/god_hand"}, "threshold": 710030.0}
+    ]
+  }
+}

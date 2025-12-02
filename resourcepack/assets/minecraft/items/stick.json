@@ -1,0 +1,13 @@
+{
+  "model": {
+    "type": "minecraft:range_dispatch",
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "minecraft:item/stick"
+    },
+    "property": "minecraft:custom_model_data",
+    "entries": [
+      {"model": {"type": "minecraft:model", "model": "minecraft:item/custom/sharp_stick"}, "threshold": 710005.0}
+    ]
+  }
+}

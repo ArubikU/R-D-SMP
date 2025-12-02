@@ -1,0 +1,13 @@
+{
+  "model": {
+    "type": "minecraft:range_dispatch",
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "minecraft:item/golden_apple"
+    },
+    "property": "minecraft:custom_model_data",
+    "entries": [
+      {"model": {"type": "minecraft:model", "model": "minecraft:item/custom/discordia_apple"}, "threshold": 710016.0}
+    ]
+  }
+}

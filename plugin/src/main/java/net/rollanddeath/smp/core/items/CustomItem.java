@@ -34,6 +34,11 @@ public abstract class CustomItem implements Listener {
         if (meta != null) {
             meta.displayName(MiniMessage.miniMessage().deserialize("<!i><white>" + type.getDisplayName()));
             meta.getPersistentDataContainer().set(key, PersistentDataType.STRING, type.name());
+
+            Integer cmd = type.getCustomModelData();
+            if (cmd != null) {
+                meta.setCustomModelData(cmd);
+            }
             
             List<String> lore = getLore();
             if (lore != null && !lore.isEmpty()) {

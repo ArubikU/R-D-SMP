@@ -9,6 +9,7 @@ import { ItemCard } from './components/ItemCard';
 import { RouletteSimulator } from './components/RouletteSimulator';
 import { ItemRollSimulator } from './components/ItemRollSimulator';
 import { ActiveModifiers } from './components/ActiveModifiers';
+import { partnerLogos } from './assets/partnerLogos';
 
 // --- MAIN APP ---
 
@@ -252,6 +253,25 @@ function App() {
                             </div>
                         </div>
 
+                        {partnerLogos.length > 0 && (
+                            <div className="max-w-4xl mx-auto bg-zinc-900/60 border border-zinc-800 py-8 px-6 rounded-lg">
+                                <h2 className="text-2xl uppercase tracking-[0.4em] text-gray-400 mb-6">Aliados</h2>
+                                <div className="flex flex-wrap items-center justify-center gap-8">
+                                    {partnerLogos.map(logo => (
+                                        <div key={logo.name} className="flex flex-col items-center gap-2">
+                                            <img
+                                                src={logo.src}
+                                                alt={logo.name}
+                                                className="h-16 w-auto object-contain"
+                                                height={64}
+                                            />
+                                            <span className="text-sm uppercase tracking-widest text-gray-500">{logo.name}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
                         <div className="pt-8 flex justify-center gap-4 flex-wrap">
                             <button onClick={() => setView('wiki')} className="bg-white text-black px-8 py-4 text-2xl font-bold hover:bg-gray-200 transition-colors uppercase tracking-wider">
                                 Ver Eventos ({dailyEvents.length})
@@ -301,7 +321,7 @@ function App() {
                     <span className="text-green-500 font-bold">ONLINE</span>
                 </div>
                 <div className="hidden md:block">|</div>
-                <div className="font-mono text-gray-400 hover:text-white cursor-pointer select-all">play.rollanddeath.net</div>
+                <div className="font-mono text-gray-400 hover:text-white cursor-pointer select-all">rollanddeath.teramont.host</div>
             </footer>
         </div>
     );

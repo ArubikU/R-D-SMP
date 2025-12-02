@@ -1,6 +1,7 @@
 import React from 'react';
 import { RarityBadge } from './ui/RarityBadge';
 import { RecipeShowcase } from './RecipeShowcase';
+import { itemIconMap } from '../assets/itemIcons';
 
 interface ItemCardProps {
     item: {
@@ -19,10 +20,24 @@ interface ItemCardProps {
     };
 }
 
-export const ItemCard: React.FC<ItemCardProps> = ({ item }) => (
+export const ItemCard: React.FC<ItemCardProps> = ({ item }) => {
+    const iconSrc = itemIconMap[item.name];
+
+    return (
     <div className={`border-l-2 pl-4 bg-zinc-900/50 p-2 relative overflow-hidden border-l-${item.rarity === 'comun' ? 'gray' : item.rarity === 'raro' ? 'blue' : item.rarity === 'epico' ? 'purple' : item.rarity === 'legendario' ? 'yellow' : 'red'}-600`}>
         <div className="flex justify-between items-center mb-1 relative z-10">
-            <strong className="text-lg text-gray-200">{item.name}</strong>
+            <div className="flex items-center gap-2">
+                {iconSrc && (
+                    <img
+                        src={iconSrc}
+                        alt={item.name}
+                        className="w-4 h-4 object-contain"
+                        width={16}
+                        height={16}
+                    />
+                )}
+                <strong className="text-lg text-gray-200">{item.name}</strong>
+            </div>
             <RarityBadge rarity={item.rarity} />
         </div>
         <p className="text-gray-500 text-sm relative z-10">{item.desc}</p>
@@ -40,4 +55,5 @@ export const ItemCard: React.FC<ItemCardProps> = ({ item }) => (
             </div>
         )}
     </div>
-);
+    );
+};

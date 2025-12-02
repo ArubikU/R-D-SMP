@@ -1,0 +1,13 @@
+{
+  "model": {
+    "type": "minecraft:range_dispatch",
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "minecraft:item/heart_of_the_sea"
+    },
+    "property": "minecraft:custom_model_data",
+    "entries": [
+      {"model": {"type": "minecraft:model", "model": "minecraft:item/custom/resurection_orb"}, "threshold": 710022.0}
+    ]
+  }
+}

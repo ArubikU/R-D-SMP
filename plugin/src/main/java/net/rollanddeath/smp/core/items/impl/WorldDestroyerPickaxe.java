@@ -36,21 +36,34 @@ public class WorldDestroyerPickaxe extends CustomItem {
         if (!isItem(item)) return;
 
         Block block = event.getBlock();
-        // Simple 3x3 logic based on player facing is complex.
-        // Let's just break 3x3 around the block relative to the face hit?
-        // We don't have the face hit in BlockBreakEvent.
-        // We can approximate or just break 3x3x1 cube centered on block.
         
+        int glassCount = 0;
+        boolean fragileGlassActive = plugin.getModifierManager().isActive("Cristal Frágil");
+
+        // Check center block
+        if (block.getType().name().contains("GLASS")) {
+            glassCount++;
+        }
+
         for (int x = -1; x <= 1; x++) {
             for (int y = -1; y <= 1; y++) {
                 for (int z = -1; z <= 1; z++) {
                     if (x == 0 && y == 0 && z == 0) continue;
                     Block relative = block.getRelative(x, y, z);
                     if (relative.getType() != Material.BEDROCK && relative.getType() != Material.AIR) {
+                        if (relative.getType().name().contains("GLASS")) {
+                            glassCount++;
+                        }
                         relative.breakNaturally(item);
                     }
                 }
             }
+        }
+
+        if (fragileGlassActive && glassCount > 0) {
+            // Base power 2.0F + 0.5F per glass block. Max ~6.5F for 9 blocks.
+            float power = 2.0F + (glassCount * 0.5F);
+            block.getWorld().createExplosion(block.getLocation(), power, false, false);
         }
     }
 }

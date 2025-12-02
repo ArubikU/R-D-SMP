@@ -1,0 +1,369 @@
+{
+  "model": {
+    "type": "minecraft:select",
+    "cases": [
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "minecraft:item/leather_leggings_quartz_trim",
+          "tints": [
+            {
+              "type": "minecraft:dye",
+              "default": -6265536
+            }
+          ]
+        },
+        "when": "minecraft:quartz"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "minecraft:item/leather_leggings_iron_trim",
+          "tints": [
+            {
+              "type": "minecraft:dye",
+              "default": -6265536
+            }
+          ]
+        },
+        "when": "minecraft:iron"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "minecraft:item/leather_leggings_netherite_trim",
+          "tints": [
+            {
+              "type": "minecraft:dye",
+              "default": -6265536
+            }
+          ]
+        },
+        "when": "minecraft:netherite"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "minecraft:item/leather_leggings_redstone_trim",
+          "tints": [
+            {
+              "type": "minecraft:dye",
+              "default": -6265536
+            }
+          ]
+        },
+        "when": "minecraft:redstone"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "minecraft:item/leather_leggings_copper_trim",
+          "tints": [
+            {
+              "type": "minecraft:dye",
+              "default": -6265536
+            }
+          ]
+        },
+        "when": "minecraft:copper"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "minecraft:item/leather_leggings_gold_trim",
+          "tints": [
+            {
+              "type": "minecraft:dye",
+              "default": -6265536
+            }
+          ]
+        },
+        "when": "minecraft:gold"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "minecraft:item/leather_leggings_emerald_trim",
+          "tints": [
+            {
+              "type": "minecraft:dye",
+              "default": -6265536
+            }
+          ]
+        },
+        "when": "minecraft:emerald"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "minecraft:item/leather_leggings_diamond_trim",
+          "tints": [
+            {
+              "type": "minecraft:dye",
+              "default": -6265536
+            }
+          ]
+        },
+        "when": "minecraft:diamond"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "minecraft:item/leather_leggings_lapis_trim",
+          "tints": [
+            {
+              "type": "minecraft:dye",
+              "default": -6265536
+            }
+          ]
+        },
+        "when": "minecraft:lapis"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "minecraft:item/leather_leggings_amethyst_trim",
+          "tints": [
+            {
+              "type": "minecraft:dye",
+              "default": -6265536
+            }
+          ]
+        },
+        "when": "minecraft:amethyst"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "minecraft:item/leather_leggings_resin_trim",
+          "tints": [
+            {
+              "type": "minecraft:dye",
+              "default": -6265536
+            }
+          ]
+        },
+        "when": "minecraft:resin"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "colorful_trims:item/leather_leggings_red_trim",
+          "tints": [
+            {
+              "type": "minecraft:dye",
+              "default": -6265536
+            }
+          ]
+        },
+        "when": "colorful_trims:red"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "colorful_trims:item/leather_leggings_orange_trim",
+          "tints": [
+            {
+              "type": "minecraft:dye",
+              "default": -6265536
+            }
+          ]
+        },
+        "when": "colorful_trims:orange"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "colorful_trims:item/leather_leggings_yellow_trim",
+          "tints": [
+            {
+              "type": "minecraft:dye",
+              "default": -6265536
+            }
+          ]
+        },
+        "when": "colorful_trims:yellow"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "colorful_trims:item/leather_leggings_lime_trim",
+          "tints": [
+            {
+              "type": "minecraft:dye",
+              "default": -6265536
+            }
+          ]
+        },
+        "when": "colorful_trims:lime"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "colorful_trims:item/leather_leggings_green_trim",
+          "tints": [
+            {
+              "type": "minecraft:dye",
+              "default": -6265536
+            }
+          ]
+        },
+        "when": "colorful_trims:green"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "colorful_trims:item/leather_leggings_cyan_trim",
+          "tints": [
+            {
+              "type": "minecraft:dye",
+              "default": -6265536
+            }
+          ]
+        },
+        "when": "colorful_trims:cyan"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "colorful_trims:item/leather_leggings_light_blue_trim",
+          "tints": [
+            {
+              "type": "minecraft:dye",
+              "default": -6265536
+            }
+          ]
+        },
+        "when": "colorful_trims:light_blue"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "colorful_trims:item/leather_leggings_blue_trim",
+          "tints": [
+            {
+              "type": "minecraft:dye",
+              "default": -6265536
+            }
+          ]
+        },
+        "when": "colorful_trims:blue"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "colorful_trims:item/leather_leggings_purple_trim",
+          "tints": [
+            {
+              "type": "minecraft:dye",
+              "default": -6265536
+            }
+          ]
+        },
+        "when": "colorful_trims:purple"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "colorful_trims:item/leather_leggings_magenta_trim",
+          "tints": [
+            {
+              "type": "minecraft:dye",
+              "default": -6265536
+            }
+          ]
+        },
+        "when": "colorful_trims:magenta"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "colorful_trims:item/leather_leggings_pink_trim",
+          "tints": [
+            {
+              "type": "minecraft:dye",
+              "default": -6265536
+            }
+          ]
+        },
+        "when": "colorful_trims:pink"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "colorful_trims:item/leather_leggings_white_trim",
+          "tints": [
+            {
+              "type": "minecraft:dye",
+              "default": -6265536
+            }
+          ]
+        },
+        "when": "colorful_trims:white"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "colorful_trims:item/leather_leggings_light_gray_trim",
+          "tints": [
+            {
+              "type": "minecraft:dye",
+              "default": -6265536
+            }
+          ]
+        },
+        "when": "colorful_trims:light_gray"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "colorful_trims:item/leather_leggings_gray_trim",
+          "tints": [
+            {
+              "type": "minecraft:dye",
+              "default": -6265536
+            }
+          ]
+        },
+        "when": "colorful_trims:gray"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "colorful_trims:item/leather_leggings_black_trim",
+          "tints": [
+            {
+              "type": "minecraft:dye",
+              "default": -6265536
+            }
+          ]
+        },
+        "when": "colorful_trims:black"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "colorful_trims:item/leather_leggings_brown_trim",
+          "tints": [
+            {
+              "type": "minecraft:dye",
+              "default": -6265536
+            }
+          ]
+        },
+        "when": "colorful_trims:brown"
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "minecraft:item/leather_leggings",
+      "tints": [
+        {
+          "type": "minecraft:dye",
+          "default": -6265536
+        }
+      ]
+    },
+    "property": "minecraft:trim_material"
+  }
+}

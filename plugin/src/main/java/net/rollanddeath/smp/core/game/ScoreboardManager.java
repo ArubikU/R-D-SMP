@@ -3,6 +3,7 @@ package net.rollanddeath.smp.core.game;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.rollanddeath.smp.RollAndDeathSMP;
 import net.rollanddeath.smp.core.LifeManager;
 import net.rollanddeath.smp.core.modifiers.ModifierManager;
@@ -67,7 +68,11 @@ public class ScoreboardManager implements Listener {
 
         Objective obj = board.getObjective("rd_sidebar");
         if (obj == null) {
-            obj = board.registerNewObjective("rd_sidebar", Criteria.DUMMY, Component.text("RollAndDeath SMP", NamedTextColor.GOLD, TextDecoration.BOLD));
+            //ROLL RED TEXT
+            //AND BLACK GRAY TEXT
+            //DEATH WHITE TEXT
+            //
+            obj = board.registerNewObjective("rd_sidebar", Criteria.DUMMY, MiniMessage.miniMessage().deserialize("<bold><red>ROLL<dark_red>AND<white>DEATH</white></dark_red></red>  <white>SMP</white></bold>"));
             obj.setDisplaySlot(DisplaySlot.SIDEBAR);
         }
 

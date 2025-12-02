@@ -1,4 +1,5 @@
 import React from 'react';
+import { itemIconMap } from '../assets/itemIcons';
 
 interface RecipeProps {
     recipe: {
@@ -11,7 +12,29 @@ interface RecipeProps {
 }
 
 export const RecipeShowcase: React.FC<RecipeProps> = ({ recipe }) => {
+    const resolveLocalIcon = (name: string) => {
+        const direct = itemIconMap[name];
+        if (direct) return direct;
+
+        const normalizedTarget = name
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .toLowerCase();
+
+        const matched = Object.entries(itemIconMap).find(([key]) =>
+            key
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .toLowerCase() === normalizedTarget
+        );
+
+        return matched ? matched[1] : undefined;
+    };
+
     const getImageUrl = (name: string) => {
+        const localIcon = resolveLocalIcon(name);
+        if (localIcon) return localIcon;
+
         const formattedName = name.replace(/ /g, '_');
         return `https://minecraft.wiki/images/Invicon_${formattedName}.png`;
     };
@@ -61,7 +84,14 @@ export const RecipeShowcase: React.FC<RecipeProps> = ({ recipe }) => {
                 <div className="mcui-output">
                     <span className="invslot invslot-large" title={recipe.result}>
                         <span className="invslot-item invslot-item-image">
-                            <img src={getImageUrl(recipe.result)} alt={recipe.result} />
+                            <img 
+                                src={getImageUrl(recipe.result)} 
+                                alt={recipe.result} 
+                                onError={(e) => {
+                                    (e.target as HTMLImageElement).style.display = 'none';
+                                    (e.target as HTMLImageElement).parentElement!.innerText = recipe.result.substring(0, 2);
+                                }}
+                            />
                         </span>
                     </span>
                 </div>

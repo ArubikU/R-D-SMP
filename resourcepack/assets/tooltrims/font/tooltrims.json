@@ -1,0 +1,76 @@
+{
+   "providers": [
+      {
+         "type": "space",
+         "advances": {
+            "\u3000": -8
+         }
+      },
+      {
+         "type": "space",
+         "advances": {
+            "\u3001": -89
+         }
+      },
+      {
+         "type": "space",
+         "advances": {
+            "\u3002": -94
+         }
+      },
+      {
+         "type": "bitmap",
+         "file": "tooltrims:item/gui/toolsmithing_table.png",
+         "ascent": 13,
+         "height": 256,
+         "chars": [
+            "\u3100"
+         ]
+      },
+      {
+         "type": "bitmap",
+         "file": "tooltrims:font/english/tooltip_toolsmithing_table.png",
+         "ascent": 33,
+         "height": 44,
+         "chars": [
+            "\u3101"
+         ]
+      },
+      {
+         "type": "bitmap",
+         "file": "tooltrims:font/english/tooltip_linear_tool_trim_smithing_template.png",
+         "ascent": 43,
+         "height": 54,
+         "chars": [
+            "\u3102"
+         ]
+      },
+      {
+         "type": "bitmap",
+         "file": "tooltrims:font/english/tooltip_tracks_tool_trim_smithing_template.png",
+         "ascent": 43,
+         "height": 54,
+         "chars": [
+            "\u3103"
+         ]
+      },
+      {
+         "type": "bitmap",
+         "file": "tooltrims:font/english/tooltip_charge_tool_trim_smithing_template.png",
+         "ascent": 43,
+         "height": 54,
+         "chars": [
+            "\u3104"
+         ]
+      },
+      {
+         "type": "bitmap",
+         "file": "tooltrims:font/english/tooltip_frost_tool_trim_smithing_template.png",
+         "ascent": 43,
+         "height": 54,
+         "chars": [
+            "\u3105"
+         ]
+      }
+   ]
+}

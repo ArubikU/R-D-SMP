@@ -2,35 +2,62 @@ package net.rollanddeath.smp.modifiers.curses;
 
 import net.rollanddeath.smp.core.modifiers.Modifier;
 import net.rollanddeath.smp.core.modifiers.ModifierType;
-
+import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.HandlerList;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
-import org.bukkit.scheduler.BukkitRunnable;
 
 public class HeavyGravityModifier extends Modifier {
 
+    private final AttributeModifier jumpPenalty;
+
     public HeavyGravityModifier(JavaPlugin plugin) {
         super(plugin, "Gravedad Pesada", ModifierType.CURSE, "No se puede saltar bloques completos. Caída hace x2 daño.");
+        // Reduce jump strength by ~40% to prevent jumping full blocks
+        this.jumpPenalty = new AttributeModifier(new NamespacedKey(plugin, "heavy_gravity"), -0.4, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.ANY);
     }
 
     @Override
     public void onEnable() {
         super.onEnable();
-        // Apply Jump Boost 128 (No Jump) constantly
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                for (Player p : plugin.getServer().getOnlinePlayers()) {
-                    //use attribute modifier instead of potion effect to avoid particles
-                    p.getAttribute(Attribute.JUMP_STRENGTH).setBaseValue(0.25);
-                }
-            }
-        }.runTaskTimer(plugin, 0L, 20L);
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            applyGravity(p);
+        }
+    }
+
+    @Override
+    public void onDisable() {
+        HandlerList.unregisterAll(this);
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            removeGravity(p);
+        }
+    }
+
+    @EventHandler
+    public void onJoin(PlayerJoinEvent event) {
+        applyGravity(event.getPlayer());
+    }
+
+    private void applyGravity(Player player) {
+        AttributeInstance attribute = player.getAttribute(Attribute.JUMP_STRENGTH);
+        if (attribute != null && !attribute.getModifiers().contains(jumpPenalty)) {
+            attribute.addModifier(jumpPenalty);
+        }
+    }
+
+    private void removeGravity(Player player) {
+        AttributeInstance attribute = player.getAttribute(Attribute.JUMP_STRENGTH);
+        if (attribute != null && attribute.getModifiers().contains(jumpPenalty)) {
+            attribute.removeModifier(jumpPenalty);
+        }
     }
 
     @EventHandler

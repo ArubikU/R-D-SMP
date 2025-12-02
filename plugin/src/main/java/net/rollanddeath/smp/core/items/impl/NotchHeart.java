@@ -5,7 +5,11 @@ import net.rollanddeath.smp.core.items.CustomItem;
 import net.rollanddeath.smp.core.items.CustomItemType;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
@@ -35,9 +39,26 @@ public class NotchHeart extends CustomItem {
         if (!isItem(item)) return;
 
         Player player = event.getPlayer();
-        // Increase Max Health
-        double maxHealth = player.getAttribute(Attribute.MAX_HEALTH).getBaseValue();
-        player.getAttribute(Attribute.MAX_HEALTH).setBaseValue(maxHealth + 2.0);
-        player.sendMessage(MiniMessage.miniMessage().deserialize("<gold>¡Tu vida máxima ha aumentado!"));
+        AttributeInstance attribute = player.getAttribute(Attribute.MAX_HEALTH);
+        
+        if (attribute != null) {
+            NamespacedKey key = new NamespacedKey(plugin, "notch_heart");
+            double currentBonus = 0.0;
+
+            // Find existing modifier and remove it to update
+            for (AttributeModifier modifier : attribute.getModifiers()) {
+                if (key.equals(modifier.getKey())) {
+                    currentBonus = modifier.getAmount();
+                    attribute.removeModifier(modifier);
+                    break;
+                }
+            }
+
+            double newBonus = currentBonus + 2.0;
+            AttributeModifier newModifier = new AttributeModifier(key, newBonus, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlotGroup.ANY);
+            attribute.addModifier(newModifier);
+            
+            player.sendMessage(MiniMessage.miniMessage().deserialize("<gold>¡Tu vida máxima ha aumentado!"));
+        }
     }
 }

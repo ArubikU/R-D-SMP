@@ -1,0 +1,201 @@
+{
+  "model": {
+    "type": "minecraft:select",
+    "cases": [
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "minecraft:item/copper_leggings_quartz_trim"
+        },
+        "when": "minecraft:quartz"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "minecraft:item/copper_leggings_iron_trim"
+        },
+        "when": "minecraft:iron"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "minecraft:item/copper_leggings_netherite_trim"
+        },
+        "when": "minecraft:netherite"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "minecraft:item/copper_leggings_redstone_trim"
+        },
+        "when": "minecraft:redstone"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "minecraft:item/copper_leggings_copper_trim"
+        },
+        "when": "minecraft:copper"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "minecraft:item/copper_leggings_gold_trim"
+        },
+        "when": "minecraft:gold"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "minecraft:item/copper_leggings_emerald_trim"
+        },
+        "when": "minecraft:emerald"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "minecraft:item/copper_leggings_diamond_trim"
+        },
+        "when": "minecraft:diamond"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "minecraft:item/copper_leggings_lapis_trim"
+        },
+        "when": "minecraft:lapis"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "minecraft:item/copper_leggings_amethyst_trim"
+        },
+        "when": "minecraft:amethyst"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "minecraft:item/copper_leggings_resin_trim"
+        },
+        "when": "minecraft:resin"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "colorful_trims:item/copper_leggings_red_trim"
+        },
+        "when": "colorful_trims:red"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "colorful_trims:item/copper_leggings_orange_trim"
+        },
+        "when": "colorful_trims:orange"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "colorful_trims:item/copper_leggings_yellow_trim"
+        },
+        "when": "colorful_trims:yellow"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "colorful_trims:item/copper_leggings_lime_trim"
+        },
+        "when": "colorful_trims:lime"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "colorful_trims:item/copper_leggings_green_trim"
+        },
+        "when": "colorful_trims:green"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "colorful_trims:item/copper_leggings_cyan_trim"
+        },
+        "when": "colorful_trims:cyan"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "colorful_trims:item/copper_leggings_light_blue_trim"
+        },
+        "when": "colorful_trims:light_blue"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "colorful_trims:item/copper_leggings_blue_trim"
+        },
+        "when": "colorful_trims:blue"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "colorful_trims:item/copper_leggings_purple_trim"
+        },
+        "when": "colorful_trims:purple"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "colorful_trims:item/copper_leggings_magenta_trim"
+        },
+        "when": "colorful_trims:magenta"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "colorful_trims:item/copper_leggings_pink_trim"
+        },
+        "when": "colorful_trims:pink"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "colorful_trims:item/copper_leggings_white_trim"
+        },
+        "when": "colorful_trims:white"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "colorful_trims:item/copper_leggings_light_gray_trim"
+        },
+        "when": "colorful_trims:light_gray"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "colorful_trims:item/copper_leggings_gray_trim"
+        },
+        "when": "colorful_trims:gray"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "colorful_trims:item/copper_leggings_black_trim"
+        },
+        "when": "colorful_trims:black"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "colorful_trims:item/copper_leggings_brown_trim"
+        },
+        "when": "colorful_trims:brown"
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "minecraft:item/copper_leggings"
+    },
+    "property": "minecraft:trim_material"
+  }
+}

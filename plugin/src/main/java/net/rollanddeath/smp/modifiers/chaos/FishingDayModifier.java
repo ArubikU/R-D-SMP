@@ -4,8 +4,11 @@ import net.rollanddeath.smp.RollAndDeathSMP;
 import net.rollanddeath.smp.core.modifiers.Modifier;
 import net.rollanddeath.smp.core.modifiers.ModifierType;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataType;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 
 public class FishingDayModifier extends Modifier {
@@ -16,10 +19,21 @@ public class FishingDayModifier extends Modifier {
 
     @EventHandler
     public void onConsume(PlayerItemConsumeEvent event) {
-        if (event.getItem() != null && event.getItem().getType().isEdible()) {
-            if (event.getItem().getType() != Material.COOKED_COD && event.getItem().getType() != Material.COOKED_SALMON &&
-                event.getItem().getType() != Material.COD && event.getItem().getType() != Material.SALMON &&
-                event.getItem().getType() != Material.TROPICAL_FISH && event.getItem().getType() != Material.PUFFERFISH) {
+        ItemStack item = event.getItem();
+        if (item.getType().isEdible()) {
+            
+            // Allow Notch Heart
+            if (item.hasItemMeta()) {
+                NamespacedKey key = new NamespacedKey(plugin, "custom_item_id");
+                String id = item.getItemMeta().getPersistentDataContainer().get(key, PersistentDataType.STRING);
+                if ("NOTCH_HEART".equals(id)) {
+                    return;
+                }
+            }
+
+            if (item.getType() != Material.COOKED_COD && item.getType() != Material.COOKED_SALMON &&
+                item.getType() != Material.COD && item.getType() != Material.SALMON &&
+                item.getType() != Material.TROPICAL_FISH && item.getType() != Material.PUFFERFISH) {
                 
                 event.setCancelled(true);
                 event.getPlayer().sendMessage(MiniMessage.miniMessage().deserialize("<red>¡Solo puedes comer pescado!"));
