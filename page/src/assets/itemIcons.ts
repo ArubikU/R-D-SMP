@@ -9,6 +9,7 @@ export const itemIconMap: Record<string, string> = {
     "Botas de Hermes": "/icons/items/hermes_boots.png",
     "Poción de Olvido": "/icons/items/potion_of_forgetfulness.png",
     "Arco de Hueso": "/icons/items/bone_bow.png",
+    "Escudo de Espinas": "/icons/items/thorns_shield.png",
     "Pico de Vidrio": "/icons/items/glass_pickaxe.png",
     "Imán de XP": "/icons/items/experience_magnet.png",
     "Mochila Pequeña": "/icons/items/small_bag.png",
