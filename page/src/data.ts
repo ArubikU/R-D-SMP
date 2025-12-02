@@ -257,7 +257,7 @@ export const items = [
                 "Leather Boots", null, "Leather Boots",
                 null, null, null
             ],
-            result: "Botas Reforzadas"
+            result: "Botas de Cuero Reforzadas"
         }
     },
     { 
