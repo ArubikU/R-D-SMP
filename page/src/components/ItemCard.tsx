@@ -21,7 +21,17 @@ interface ItemCardProps {
 }
 
 export const ItemCard: React.FC<ItemCardProps> = ({ item }) => {
-    const iconSrc = itemIconMap[item.name];
+    let iconSrc = itemIconMap[item.name];
+    //use current base url for images
+    //actually just 2 cases if url incluides localhost keep as is, else use production url
+    //https://arubiku.github.io/R-D-SMP/
+    if (iconSrc && !iconSrc.startsWith('http')) {
+        if (window.location.href.includes('localhost')) {
+            iconSrc = `http://localhost:3000${iconSrc}`;
+        } else {
+            iconSrc = `https://arubiku.github.io/R-D-SMP${iconSrc}`;
+        }
+    }
 
     return (
     <div className={`border-l-2 pl-4 bg-zinc-900/50 p-2 relative overflow-hidden border-l-${item.rarity === 'comun' ? 'gray' : item.rarity === 'raro' ? 'blue' : item.rarity === 'epico' ? 'purple' : item.rarity === 'legendario' ? 'yellow' : 'red'}-600`}>

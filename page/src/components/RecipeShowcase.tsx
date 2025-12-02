@@ -21,13 +21,19 @@ export const RecipeShowcase: React.FC<RecipeProps> = ({ recipe }) => {
             .replace(/[\u0300-\u036f]/g, '')
             .toLowerCase();
 
-        const matched = Object.entries(itemIconMap).find(([key]) =>
+        let matched = Object.entries(itemIconMap).find(([key]) =>
             key
                 .normalize('NFD')
                 .replace(/[\u0300-\u036f]/g, '')
                 .toLowerCase() === normalizedTarget
         );
-
+    if (matched && !matched[1].startsWith('http')) {
+        if (window.location.href.includes('localhost')) {
+            matched[1] = `http://localhost:3000${matched[1]}`;
+        } else {
+            matched[1] = `https://arubiku.github.io/R-D-SMP${matched[1]}`;
+        }
+    }
         return matched ? matched[1] : undefined;
     };
 
