@@ -5,6 +5,6 @@ interface PartnerLogo {
 }
 
 export const partnerLogos: PartnerLogo[] = [
-    { name: "CML Studio", src: "/icons/logos/cmlstudio.png" },
-    { name: "Teramont", src: "/icons/logos/teramont.png" }
+    { name: "CML Studio", src: "https://arubiku.github.io/R-D-SMP/icons/logos/cmlstudio.png" },
+    { name: "Teramont", src: "https://arubiku.github.io/R-D-SMP/icons/logos/teramont.png" }
 ];
