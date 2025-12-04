@@ -19,7 +19,7 @@ public enum CustomItemType {
     GREED_PICKAXE("Pico de la Codicia", 710015),
     DISCORD_APPLE("Manzana de la Discordia", 710016),
     POSEIDON_TRIDENT("Tridente de Poseidón", 710017),
-    ARMORED_WINGS("Alas Blindadas"),
+    ARMORED_WINGS("Alas Blindadas", 710031),
     INVISIBILITY_CLOAK("Capa de Invisibilidad", 710018),
     WAR_HAMMER("Martillo de Guerra", 710019),
     REGENERATION_TOTEM("Tótem de Regeneración", 710020),

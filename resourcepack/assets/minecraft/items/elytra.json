@@ -1,0 +1,19 @@
+{
+  "model": {
+    "type": "minecraft:range_dispatch",
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "minecraft:item/elytra"
+    },
+    "property": "minecraft:custom_model_data",
+    "entries": [
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "minecraft:item/custom/strong_elytras"
+        },
+        "threshold": 710031.0
+      }
+    ]
+  }
+}

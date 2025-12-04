@@ -17,6 +17,7 @@ export const itemIconMap: Record<string, string> = {
     "Pico de la Codicia": "https://arubiku.github.io/R-D-SMP/icons/items/greed_pickaxe.png",
     "Manzana de la Discordia": "https://arubiku.github.io/R-D-SMP/icons/items/discordia_apple.png",
     "Tridente de Poseidón": "https://arubiku.github.io/R-D-SMP/icons/items/poseidon_trident.png",
+    "Alas Blindadas": "https://arubiku.github.io/R-D-SMP/icons/items/strong_elytras.png",
     "Capa de Invisibilidad": "https://arubiku.github.io/R-D-SMP/icons/items/invisibility_cape.png",
     "Martillo de Guerra": "https://arubiku.github.io/R-D-SMP/icons/items/war_hammer.png",
     "Tótem de Regeneración": "https://arubiku.github.io/R-D-SMP/icons/items/regeneration_totem.png",
