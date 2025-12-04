@@ -324,7 +324,7 @@ export const items = [
     { 
         name: "Mochila Pequeña", 
         type: "Utilidad", 
-        desc: "Añade 9 espacios de inventario extra (comando).", 
+        desc: "Una mochila pequeña para llevar más objetos (9 slots).", 
         rarity: "raro",
         acquisition: "Crafting",
         recipe: {

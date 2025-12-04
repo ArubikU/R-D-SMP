@@ -1,0 +1,13 @@
+# Mensajes automáticos que usa el servidor.
+# Usa formato MiniMessage: https://docs.advntr.dev/minimessage/format.html
+# default_interval_seconds: Tiempo por defecto entre mensajes cuando no se indica uno específico.
+# initial_delay_seconds: Tiempo antes de que aparezca el primer anuncio tras encender el servidor.
+
+default_interval_seconds: 600
+initial_delay_seconds: 120
+
+announcements:
+  - message: "<gold><bold>Roll & Death SMP</bold> te recuerda revisar /menu para tus progresos.</gold>"
+    interval_seconds: 600
+  - message: "<aqua>Únete al discord para enterarte de eventos sorpresa.</aqua>"
+    interval_seconds: 900

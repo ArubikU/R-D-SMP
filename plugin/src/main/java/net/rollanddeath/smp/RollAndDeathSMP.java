@@ -27,6 +27,7 @@ import net.rollanddeath.smp.core.mobs.impl.*;
 import net.rollanddeath.smp.core.game.GameManager;
 import net.rollanddeath.smp.core.game.ScoreboardManager;
 import net.rollanddeath.smp.core.game.WebStatusManager;
+import net.rollanddeath.smp.core.game.AnnounceManager;
 import net.rollanddeath.smp.core.items.CraftingListener;
 import net.rollanddeath.smp.core.commands.AdminCommand;
 import net.rollanddeath.smp.core.items.DailyRollManager;
@@ -47,6 +48,7 @@ public final class RollAndDeathSMP extends JavaPlugin {
     private GameManager gameManager;
     private DailyRollManager dailyRollManager;
     private WebStatusManager webStatusManager;
+    private AnnounceManager announceManager;
 
     @Override
     public void onEnable() {
@@ -68,6 +70,7 @@ public final class RollAndDeathSMP extends JavaPlugin {
         this.recipeManager = new RecipeManager(this);
         this.lootManager = new LootManager(this);
         this.gameManager = new GameManager(this);
+        this.announceManager = new AnnounceManager(this);
 
         // Initialize UI/Web
         this.webStatusManager = new WebStatusManager(this);
@@ -326,6 +329,9 @@ public final class RollAndDeathSMP extends JavaPlugin {
         if (webStatusManager != null) {
             webStatusManager.stop();
         }
+        if (announceManager != null) {
+            announceManager.stop();
+        }
         getLogger().info("RollAndDeath SMP Plugin has been disabled!");
     }
 
@@ -367,6 +373,10 @@ public final class RollAndDeathSMP extends JavaPlugin {
 
     public GameManager getGameManager() {
         return gameManager;
+    }
+
+    public AnnounceManager getAnnounceManager() {
+        return announceManager;
     }
 
     public DailyRollManager getDailyRollManager() {
