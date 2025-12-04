@@ -3,10 +3,11 @@ package net.rollanddeath.smp.core.modifiers;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.title.Title;
+import net.rollanddeath.smp.RollAndDeathSMP;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
+
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,25 +19,32 @@ import java.util.Set;
 
 public class ModifierManager {
 
-    private final JavaPlugin plugin;
+    private final RollAndDeathSMP plugin;
     private final Map<String, Modifier> registeredModifiers = new HashMap<>();
     private final Set<String> activeModifiers = new HashSet<>();
+    private final List<String> eventHistory = new ArrayList<>();
     private final Random random = new Random();
 
-    public ModifierManager(JavaPlugin plugin) {
+    public ModifierManager(RollAndDeathSMP plugin) {
         this.plugin = plugin;
-        loadActiveModifiers();
+        loadModifierState();
     }
 
-    private void loadActiveModifiers() {
-        List<String> saved = plugin.getConfig().getStringList("game.active_modifiers");
-        if (saved != null) {
-            activeModifiers.addAll(saved);
+    private void loadModifierState() {
+        List<String> savedActive = plugin.getConfig().getStringList("game.active_modifiers");
+        if (savedActive != null) {
+            activeModifiers.addAll(savedActive);
+        }
+
+        List<String> savedHistory = plugin.getConfig().getStringList("game.event_history");
+        if (savedHistory != null) {
+            eventHistory.addAll(savedHistory);
         }
     }
 
-    private void saveActiveModifiers() {
+    private void persistModifierState() {
         plugin.getConfig().set("game.active_modifiers", new ArrayList<>(activeModifiers));
+        plugin.getConfig().set("game.event_history", new ArrayList<>(eventHistory));
         plugin.saveConfig();
     }
 
@@ -53,18 +61,11 @@ public class ModifierManager {
         if (mod != null && !activeModifiers.contains(name)) {
             mod.onEnable();
             activeModifiers.add(name);
-            saveActiveModifiers();
+            eventHistory.add(mod.getName());
+            persistModifierState();
             plugin.getLogger().info("Modificador activado: " + name);
-            
-            // Announce to players
-            Title title = Title.title(
-                Component.text(mod.getName(), NamedTextColor.RED),
-                Component.text(mod.getDescription(), NamedTextColor.YELLOW),
-                Title.Times.times(Duration.ofMillis(500), Duration.ofMillis(5000), Duration.ofMillis(1000))
-            );
-            Bukkit.getServer().showTitle(title);
-            Bukkit.broadcast(Component.text("¡Nuevo Evento: " + mod.getName() + "!", NamedTextColor.GOLD));
-            Bukkit.broadcast(Component.text(mod.getDescription(), NamedTextColor.YELLOW));
+
+            announceModifier(mod);
         }
     }
 
@@ -77,7 +78,7 @@ public class ModifierManager {
 
         if (activeModifiers.contains(name)) {
             activeModifiers.remove(name);
-            saveActiveModifiers();
+            persistModifierState();
             
             if (mod != null) {
                 plugin.getLogger().info("Modificador desactivado: " + name);
@@ -102,6 +103,10 @@ public class ModifierManager {
         return new HashSet<>(activeModifiers);
     }
 
+    public List<String> getEventHistory() {
+        return new ArrayList<>(eventHistory);
+    }
+
     public Modifier getModifier(String name) {
         return registeredModifiers.get(name);
     }
@@ -110,7 +115,7 @@ public class ModifierManager {
         return registeredModifiers.keySet();
     }
 
-    public void startRandomModifier() {
+    public Modifier startRandomModifier() {
         List<Modifier> available = new ArrayList<>();
         for (Modifier mod : registeredModifiers.values()) {
             if (!activeModifiers.contains(mod.getName())) {
@@ -120,11 +125,12 @@ public class ModifierManager {
         
         if (available.isEmpty()) {
             Bukkit.broadcast(Component.text("¡Todos los eventos posibles ya están activos!", NamedTextColor.RED));
-            return;
+            return null;
         }
         
         Modifier randomMod = available.get(random.nextInt(available.size()));
         activateModifier(randomMod.getName());
+        return randomMod;
     }
 
     public void spinRoulette() {
@@ -152,10 +158,13 @@ public class ModifierManager {
                     Thread.sleep(200 + (i * 50)); // Slow down
                 }
                 
-                // Final selection
-                Bukkit.getScheduler().runTask(plugin, this::startRandomModifier);
-                
+                // Final selection and feedback
                 Bukkit.getScheduler().runTask(plugin, () -> {
+                    Modifier selected = startRandomModifier();
+                    if (selected != null) {
+                        plugin.getGameManager().markEventExecuted();
+                    }
+
                     for (Player p : Bukkit.getOnlinePlayers()) {
                         p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f);
                     }
@@ -165,5 +174,55 @@ public class ModifierManager {
                 e.printStackTrace();
             }
         });
+    }
+
+    private void announceModifier(Modifier mod) {
+        ModifierType type = mod.getType();
+        NamedTextColor typeColor = getTypeColor(type);
+        Component titleMain = Component.text("[Evento]", typeColor);
+        Component titleSub = Component.text(getTypeDisplayName(type) + " - " + mod.getName(), NamedTextColor.WHITE);
+        Title title = Title.title(
+            titleMain,
+            titleSub,
+            Title.Times.times(Duration.ofMillis(500), Duration.ofMillis(5000), Duration.ofMillis(1000))
+        );
+
+        Bukkit.getServer().showTitle(title);
+
+        Component chatMessage = Component.text("[Evento] ", NamedTextColor.LIGHT_PURPLE)
+            .append(Component.text(getTypeDisplayName(type), typeColor))
+            .append(Component.text(" - " + mod.getName(), NamedTextColor.WHITE));
+
+        Bukkit.broadcast(chatMessage);
+        Bukkit.broadcast(Component.text(mod.getDescription(), NamedTextColor.GRAY));
+
+        Sound sound = getTypeSound(type);
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            p.playSound(p.getLocation(), sound, 1f, 1f);
+        }
+    }
+
+    private NamedTextColor getTypeColor(ModifierType type) {
+        return switch (type) {
+            case CURSE -> NamedTextColor.DARK_PURPLE;
+            case CHAOS -> NamedTextColor.GOLD;
+            case BLESSING -> NamedTextColor.AQUA;
+        };
+    }
+
+    private String getTypeDisplayName(ModifierType type) {
+        return switch (type) {
+            case CURSE -> "Maldición";
+            case CHAOS -> "Caos";
+            case BLESSING -> "Bendición";
+        };
+    }
+
+    private Sound getTypeSound(ModifierType type) {
+        return switch (type) {
+            case CURSE -> Sound.ENTITY_ENDER_DRAGON_GROWL;
+            case CHAOS -> Sound.ENTITY_WITHER_SPAWN;
+            case BLESSING -> Sound.UI_TOAST_CHALLENGE_COMPLETE;
+        };
     }
 }

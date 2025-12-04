@@ -23,43 +23,43 @@ public class LootManager implements Listener {
         LivingEntity entity = event.getEntity();
 
         if (entity instanceof Zombie) {
-            if (random.nextDouble() < 0.05) { // 5%
+            if (random.nextDouble() < 0.06) { // 6%
                 dropItem(event, CustomItemType.HERMES_BOOTS);
             }
-            if (entity.customName() != null && PlainTextComponentSerializer.plainText().serialize(entity.customName()).contains("Minero") && random.nextDouble() < 0.01) {
+            if (entity.customName() != null && PlainTextComponentSerializer.plainText().serialize(entity.customName()).contains("Minero") && random.nextDouble() < 0.015) {
                 dropItem(event, CustomItemType.GREED_PICKAXE);
             }
         }
 
         if (entity instanceof Witch) {
-            if (random.nextDouble() < 0.10) {
+            if (random.nextDouble() < 0.12) {
                 dropItem(event, CustomItemType.OBLIVION_POTION);
             }
-            if (random.nextDouble() < 0.02) {
+            if (random.nextDouble() < 0.03) {
                 dropItem(event, CustomItemType.DISCORD_APPLE);
             }
         }
 
         if (entity instanceof MagmaCube) {
-            if (random.nextDouble() < 0.10) {
+            if (random.nextDouble() < 0.12) {
                 dropItem(event, CustomItemType.XP_MAGNET);
             }
         }
 
         if (entity instanceof Drowned || entity instanceof Guardian) {
-            if (random.nextDouble() < 0.01) {
+            if (random.nextDouble() < 0.015) {
                 dropItem(event, CustomItemType.POSEIDON_TRIDENT);
             }
         }
 
         if (entity instanceof IronGolem) {
-            if (random.nextDouble() < 0.05) {
+            if (random.nextDouble() < 0.065) {
                 dropItem(event, CustomItemType.WAR_HAMMER);
             }
         }
 
         if (entity instanceof WitherSkeleton) {
-            if (random.nextDouble() < 0.001) { // 0.1%
+            if (random.nextDouble() < 0.002) { // 0.2%
                 dropItem(event, CustomItemType.VAMPIRE_SWORD);
             }
         }
@@ -73,7 +73,7 @@ public class LootManager implements Listener {
         }
         
         if (entity instanceof Enderman) {
-             if (random.nextDouble() < 0.005) {
+               if (random.nextDouble() < 0.008) {
                  dropItem(event, CustomItemType.VOID_CALL);
              }
         }

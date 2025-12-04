@@ -7,6 +7,7 @@ import com.google.gson.JsonObject;
 import com.sun.net.httpserver.HttpServer;
 import net.rollanddeath.smp.RollAndDeathSMP;
 import net.rollanddeath.smp.core.LifeManager;
+import net.rollanddeath.smp.core.items.DailyRollManager;
 import net.rollanddeath.smp.core.modifiers.ModifierManager;
 import net.rollanddeath.smp.core.roles.RoleManager;
 import net.rollanddeath.smp.core.roles.RoleType;
@@ -21,6 +22,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.Instant;
 
 public class WebStatusManager {
 
@@ -74,10 +77,22 @@ public class WebStatusManager {
         LifeManager lifeManager = plugin.getLifeManager();
         TeamManager teamManager = plugin.getTeamManager();
         RoleManager roleManager = plugin.getRoleManager();
+        DailyRollManager dailyRollManager = plugin.getDailyRollManager();
 
         JsonObject root = new JsonObject();
         root.addProperty("day", gameManager.getCurrentDay());
         root.addProperty("permadeath", gameManager.isPermadeathActive());
+        Instant nextEvent = gameManager.getNextEventTime();
+        Duration untilNext = gameManager.getTimeUntilNextEvent();
+        root.addProperty("next_event_time", nextEvent.toEpochMilli());
+        root.addProperty("next_event_seconds", untilNext.isNegative() ? 0L : untilNext.getSeconds());
+
+        JsonObject rollOdds = new JsonObject();
+        rollOdds.addProperty("common", 65);
+        rollOdds.addProperty("rare", 20);
+        rollOdds.addProperty("epic", 12);
+        rollOdds.addProperty("legendary", 3);
+        root.add("daily_roll_odds", rollOdds);
 
         JsonArray modifiers = new JsonArray();
         for (String mod : modifierManager.getActiveModifiers()) {
@@ -85,8 +100,17 @@ public class WebStatusManager {
         }
         root.add("active_modifiers", modifiers);
 
+        JsonArray history = new JsonArray();
+        for (String mod : modifierManager.getEventHistory()) {
+            history.add(mod);
+        }
+        root.add("event_history", history);
+
         JsonArray players = new JsonArray();
         for (OfflinePlayer p : Bukkit.getOfflinePlayers()) {
+            if (p.getName() == null) {
+                continue;
+            }
             JsonObject playerObj = new JsonObject();
             playerObj.addProperty("name", p.getName());
             playerObj.addProperty("uuid", p.getUniqueId().toString());
@@ -103,6 +127,10 @@ public class WebStatusManager {
             } else {
                 playerObj.addProperty("lives", "?");
             }
+
+            Duration rollRemaining = dailyRollManager.getTimeUntilNextRoll(p.getUniqueId());
+            playerObj.addProperty("daily_roll_available", rollRemaining.isZero());
+            playerObj.addProperty("daily_roll_seconds", rollRemaining.getSeconds());
             
             players.add(playerObj);
         }

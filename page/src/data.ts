@@ -274,7 +274,7 @@ export const items = [
     },
     
     // --- RARO ---
-    { name: "Botas de Hermes", type: "Armadura", desc: "Doble salto. Se rompen muy rápido.", rarity: "raro", acquisition: "Drop: Zombie Veloz (5%)" },
+    { name: "Botas de Hermes", type: "Armadura", desc: "Doble salto. Se rompen muy rápido.", rarity: "raro", acquisition: "Drop: Zombie Veloz (6%)" },
     { name: "Poción de Olvido", type: "Consumible", desc: "Elimina el agro de los mobs cercanos.", rarity: "raro", acquisition: "Drop: Bruja del Pantano" },
     { 
         name: "Escudo de Espinas", 
@@ -355,8 +355,8 @@ export const items = [
     },
     
     // --- ÉPICO ---
-    { name: "Pico de la Codicia", type: "Herramienta", desc: "Fortuna X, pero te quita vida al picar.", rarity: "epico", acquisition: "Drop: Zombie Minero (1%)" },
-    { name: "Manzana de la Discordia", type: "Consumible", desc: "Fuerza IV (1 min), luego Veneno II (1 min).", rarity: "epico", acquisition: "Drop: Bruja (2%)" },
+    { name: "Pico de la Codicia", type: "Herramienta", desc: "Fortuna X, pero te quita vida al picar.", rarity: "epico", acquisition: "Drop: Zombie Minero (1.5%)" },
+    { name: "Manzana de la Discordia", type: "Consumible", desc: "Fuerza IV (1 min), luego Veneno II (1 min).", rarity: "epico", acquisition: "Drop: Bruja (3%)" },
 
     { name: "Tridente de Poseidón", type: "Arma", desc: "Invoca rayos sin tormenta. Riptide fuera del agua.", rarity: "epico", acquisition: "Drop: Leviatán / Ahogado" },
     { 
@@ -405,15 +405,15 @@ export const items = [
         recipe: {
             type: "shaped",
             grid: [
-                "Diamond Block", "Nether Star", "Diamond Block",
-                "Nether Star", "Gold Block", "Nether Star",
-                "Diamond Block", "Nether Star", "Diamond Block"
+                "Block of Diamond", "Nether Star", "Block of Diamond",
+                "Nether Star", "Block of Gold", "Nether Star",
+                "Block of Diamond", "Nether Star", "Block of Diamond"
             ],
             result: "Orbe de Resurrección",
             warning: "Al craftear este ítem, perderás 1 vida permanentemente."
         }
     },
-    { name: "Espada Vampírica", type: "Arma", desc: "Roba vida, quema al sol.", rarity: "legendario", acquisition: "Drop: Wither Skeleton (0.1%)" },
+    { name: "Espada Vampírica", type: "Arma", desc: "Roba vida, quema al sol.", rarity: "legendario", acquisition: "Drop: Wither Skeleton (0.2%)" },
     { name: "Pico Destructor de Mundos", type: "Herramienta", desc: "Mina 3x3 bloques (Tunnel bore).", rarity: "legendario", acquisition: "Evento Especial" },
     { 
         name: "Casco de la Visión Verdadera", 
@@ -428,7 +428,7 @@ export const items = [
                 "Gold Ingot", null, "Gold Ingot",
                 null, null, null
             ],
-            result: "Casco Visión"
+            result: "Casco de la Visión Verdadera"
         }
     },
     { name: "Corazón de Notch", type: "Legendario", desc: "+1 Vida Extra permanente. Drop único.", rarity: "mitico", acquisition: "Drop: Warden Despierto" },
@@ -519,7 +519,7 @@ export const tutorials = [
         icon: "🎲",
         content: [
             { subtitle: "Comando", text: "Usa /daily una vez cada 24 horas para obtener una recompensa aleatoria." },
-            { subtitle: "Probabilidades", text: "70% Común, 20% Raro, 9% Épico, 1% Legendario." },
+            { subtitle: "Probabilidades", text: "65% Común, 20% Raro, 12% Épico, 3% Legendario." },
             { subtitle: "Premios", text: "Puedes obtener desde materiales básicos (Pan, Hierro) hasta objetos Legendarios únicos o Netherite. ¡Prueba tu suerte!" }
         ]
     }

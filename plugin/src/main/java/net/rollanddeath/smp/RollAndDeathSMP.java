@@ -368,4 +368,12 @@ public final class RollAndDeathSMP extends JavaPlugin {
     public GameManager getGameManager() {
         return gameManager;
     }
+
+    public DailyRollManager getDailyRollManager() {
+        return dailyRollManager;
+    }
+
+    public WebStatusManager getWebStatusManager() {
+        return webStatusManager;
+    }
 }

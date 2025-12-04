@@ -35,6 +35,9 @@ export const RecipeShowcase: React.FC<RecipeProps> = ({ recipe }) => {
         if (localIcon) return localIcon;
 
         const formattedName = name.replace(/ /g, '_');
+        if(formattedName === "Nether_Star") {
+        return `https://minecraft.wiki/images/Invicon_${formattedName}.gif`;
+        }
         return `https://minecraft.wiki/images/Invicon_${formattedName}.png`;
     };
 

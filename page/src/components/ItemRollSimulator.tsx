@@ -38,10 +38,10 @@ export const ItemRollSimulator: React.FC = () => {
                 // Final result with weighted logic
                 const roll = Math.random() * 100;
                 let rarityPool = "comun";
-                
-                if (roll < 70) rarityPool = "comun";
-                else if (roll < 90) rarityPool = "raro";
-                else if (roll < 99) rarityPool = "epico";
+
+                if (roll < 65) rarityPool = "comun";
+                else if (roll < 85) rarityPool = "raro";
+                else if (roll < 97) rarityPool = "epico";
                 else rarityPool = "legendario"; // Includes mitico
 
                 let pool = items.filter(i => i.rarity.toLowerCase() === rarityPool);
@@ -100,7 +100,7 @@ export const ItemRollSimulator: React.FC = () => {
             <div className="mt-8 grid grid-cols-4 gap-4 text-center text-sm text-gray-500">
                 <div>
                     <div className="text-gray-400 font-bold">Común</div>
-                    <div>70%</div>
+                    <div>65%</div>
                 </div>
                 <div>
                     <div className="text-blue-400 font-bold">Raro</div>
@@ -108,11 +108,11 @@ export const ItemRollSimulator: React.FC = () => {
                 </div>
                 <div>
                     <div className="text-purple-400 font-bold">Épico</div>
-                    <div>9%</div>
+                    <div>12%</div>
                 </div>
                 <div>
                     <div className="text-yellow-400 font-bold">Leg/Mít</div>
-                    <div>1%</div>
+                    <div>3%</div>
                 </div>
             </div>
         </div>

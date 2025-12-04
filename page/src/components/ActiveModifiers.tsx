@@ -7,6 +7,12 @@ interface ServerStatus {
     day: number;
     permadeath: boolean;
     active_modifiers: string[];
+    daily_roll_odds?: {
+        common: number;
+        rare: number;
+        epic: number;
+        legendary: number;
+    };
     players: {
         name: string;
         uuid: string;

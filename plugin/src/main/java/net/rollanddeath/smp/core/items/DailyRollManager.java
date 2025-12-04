@@ -10,11 +10,15 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 
 public class DailyRollManager {
+
+    private static final long COOLDOWN_MILLIS = 24L * 60 * 60 * 1000;
 
     private final RollAndDeathSMP plugin;
     private final ItemManager itemManager;
@@ -102,15 +106,14 @@ public class DailyRollManager {
 
     public void performRoll(Player player) {
         long now = System.currentTimeMillis();
-        Long lastRoll = player.getPersistentDataContainer().get(lastRollKey, PersistentDataType.LONG);
+        long lastRoll = getLastRollTimestamp(player.getUniqueId());
 
-        if (lastRoll != null) {
+        if (lastRoll > 0) {
             long diff = now - lastRoll;
-            long cooldown = 24 * 60 * 60 * 1000; // 24 hours
-            if (diff < cooldown) {
-                long remaining = (cooldown - diff) / 1000 / 60; // minutes
-                long hours = remaining / 60;
-                long minutes = remaining % 60;
+            if (diff < COOLDOWN_MILLIS) {
+                Duration remaining = Duration.ofMillis(COOLDOWN_MILLIS - diff);
+                long hours = remaining.toHours();
+                long minutes = remaining.minusHours(hours).toMinutes();
                 player.sendMessage(Component.text("Debes esperar " + hours + "h " + minutes + "m para tu próximo roll diario.", NamedTextColor.RED));
                 return;
             }
@@ -121,14 +124,14 @@ public class DailyRollManager {
         player.getInventory().addItem(reward);
         
         // Save time
-        player.getPersistentDataContainer().set(lastRollKey, PersistentDataType.LONG, now);
+        recordRoll(player, now);
 
         // Effects
         player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1f, 2f);
         player.sendMessage(Component.text("¡Has obtenido: ", NamedTextColor.GREEN)
                 .append(reward.displayName().color(getRarityColor(reward))));
         
-        if (legendaryItems.contains(reward)) {
+        if (isLegendary(reward)) {
             plugin.getServer().broadcast(Component.text("¡" + player.getName() + " ha obtenido un objeto LEGENDARIO en su roll diario!", NamedTextColor.GOLD));
             player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1f, 1f);
         }
@@ -137,22 +140,73 @@ public class DailyRollManager {
     private ItemStack rollItem() {
         int roll = random.nextInt(100); // 0-99
 
-        if (roll < 70) { // 0-69 (70%)
-            return commonItems.get(random.nextInt(commonItems.size()));
-        } else if (roll < 90) { // 70-89 (20%)
-            return rareItems.get(random.nextInt(rareItems.size()));
-        } else if (roll < 99) { // 90-98 (9%)
-            return epicItems.get(random.nextInt(epicItems.size()));
-        } else { // 99 (1%)
-            return legendaryItems.get(random.nextInt(legendaryItems.size()));
+        if (roll < 65) { // 0-64 (65%)
+            return commonItems.get(random.nextInt(commonItems.size())).clone();
+        } else if (roll < 85) { // 65-84 (20%)
+            return rareItems.get(random.nextInt(rareItems.size())).clone();
+        } else if (roll < 97) { // 85-96 (12%)
+            return epicItems.get(random.nextInt(epicItems.size())).clone();
+        } else { // 97-99 (3%)
+            return legendaryItems.get(random.nextInt(legendaryItems.size())).clone();
         }
     }
 
     private NamedTextColor getRarityColor(ItemStack item) {
-        if (commonItems.contains(item)) return NamedTextColor.GRAY;
-        if (rareItems.contains(item)) return NamedTextColor.BLUE;
-        if (epicItems.contains(item)) return NamedTextColor.DARK_PURPLE;
-        if (legendaryItems.contains(item)) return NamedTextColor.GOLD;
+        if (containsSimilar(commonItems, item)) return NamedTextColor.GRAY;
+        if (containsSimilar(rareItems, item)) return NamedTextColor.BLUE;
+        if (containsSimilar(epicItems, item)) return NamedTextColor.DARK_PURPLE;
+        if (containsSimilar(legendaryItems, item)) return NamedTextColor.GOLD;
         return NamedTextColor.WHITE;
+    }
+
+    public boolean isRollAvailable(UUID uuid) {
+        long last = getLastRollTimestamp(uuid);
+        if (last <= 0) {
+            return true;
+        }
+        return System.currentTimeMillis() - last >= COOLDOWN_MILLIS;
+    }
+
+    public Duration getTimeUntilNextRoll(UUID uuid) {
+        long last = getLastRollTimestamp(uuid);
+        if (last <= 0) {
+            return Duration.ZERO;
+        }
+        long elapsed = System.currentTimeMillis() - last;
+        if (elapsed >= COOLDOWN_MILLIS) {
+            return Duration.ZERO;
+        }
+        return Duration.ofMillis(COOLDOWN_MILLIS - elapsed);
+    }
+
+    private long getLastRollTimestamp(UUID uuid) {
+        Player online = plugin.getServer().getPlayer(uuid);
+        if (online != null) {
+            Long stored = online.getPersistentDataContainer().get(lastRollKey, PersistentDataType.LONG);
+            if (stored != null && stored > 0) {
+                return stored;
+            }
+        }
+
+        return plugin.getConfig().getLong("daily.last_roll." + uuid, -1L);
+    }
+
+    private void recordRoll(Player player, long timestamp) {
+        player.getPersistentDataContainer().set(lastRollKey, PersistentDataType.LONG, timestamp);
+        plugin.getConfig().set("daily.last_roll." + player.getUniqueId(), timestamp);
+        plugin.saveConfig();
+    }
+
+    private boolean containsSimilar(List<ItemStack> list, ItemStack item) {
+        for (ItemStack candidate : list) {
+            if (candidate.isSimilar(item)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isLegendary(ItemStack item) {
+        return containsSimilar(legendaryItems, item);
     }
 }

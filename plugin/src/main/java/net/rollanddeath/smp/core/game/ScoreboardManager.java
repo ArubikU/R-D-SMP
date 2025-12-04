@@ -7,6 +7,7 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.rollanddeath.smp.RollAndDeathSMP;
 import net.rollanddeath.smp.core.LifeManager;
 import net.rollanddeath.smp.core.modifiers.ModifierManager;
+import net.rollanddeath.smp.core.items.DailyRollManager;
 import net.rollanddeath.smp.core.roles.Role;
 import net.rollanddeath.smp.core.roles.RoleManager;
 import net.rollanddeath.smp.core.roles.RoleType;
@@ -24,6 +25,7 @@ import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team.Option;
 import org.bukkit.scoreboard.Team.OptionStatus;
 
+import java.time.Duration;
 import java.util.Set;
 
 public class ScoreboardManager implements Listener {
@@ -34,6 +36,7 @@ public class ScoreboardManager implements Listener {
     private final TeamManager teamManager;
     private final RoleManager roleManager;
     private final ModifierManager modifierManager;
+    private final DailyRollManager dailyRollManager;
 
     public ScoreboardManager(RollAndDeathSMP plugin) {
         this.plugin = plugin;
@@ -42,6 +45,7 @@ public class ScoreboardManager implements Listener {
         this.teamManager = plugin.getTeamManager();
         this.roleManager = plugin.getRoleManager();
         this.modifierManager = plugin.getModifierManager();
+        this.dailyRollManager = plugin.getDailyRollManager();
         
         startUpdateTask();
     }
@@ -57,6 +61,10 @@ public class ScoreboardManager implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         updateScoreboard(event.getPlayer());
+
+        if (dailyRollManager.isRollAvailable(event.getPlayer().getUniqueId())) {
+            event.getPlayer().sendMessage(Component.text("¡Reclama tu roll diario!", NamedTextColor.GOLD));
+        }
     }
 
     private void updateScoreboard(Player player) {
@@ -91,23 +99,29 @@ public class ScoreboardManager implements Listener {
         // Day
         setScore(obj, " ", 15);
         setScore(obj, "Día: " + gameManager.getCurrentDay(), 14);
+        setScore(obj, "Próximo evento: " + formatDuration(gameManager.getTimeUntilNextEvent()), 13);
         
         // Lives
-        setScore(obj, "  ", 13);
-        setScore(obj, "Vidas: " + lifeManager.getLives(player), 12);
+        setScore(obj, "  ", 12);
+        setScore(obj, "Vidas: " + lifeManager.getLives(player), 11);
         
         // Team
         Team team = teamManager.getTeam(player.getUniqueId());
-        setScore(obj, "   ", 11);
         setScore(obj, "Equipo: " + (team != null ? team.getName() : "Ninguno"), 10);
         
         // Role
         RoleType role = roleManager.getPlayerRole(player);
-        setScore(obj, "    ", 9);
-        setScore(obj, "Rol: " + (role != null ? role.getName() : "Ninguno"), 8);
+        setScore(obj, "Rol: " + (role != null ? role.getName() : "Ninguno"), 9);
+
+        // Daily Roll
+        boolean rollAvailable = dailyRollManager.isRollAvailable(player.getUniqueId());
+        String rollStatus = rollAvailable
+            ? "Listo"
+            : formatDuration(dailyRollManager.getTimeUntilNextRoll(player.getUniqueId()));
+        setScore(obj, "Daily roll: " + rollStatus, 8);
         
         // Events
-        setScore(obj, "     ", 7);
+        setScore(obj, "   ", 7);
         setScore(obj, "Eventos:", 6);
         
         Set<String> events = modifierManager.getActiveModifiers();
@@ -129,5 +143,17 @@ public class ScoreboardManager implements Listener {
         // I'll just add the score.
         org.bukkit.scoreboard.Score s = obj.getScore(text);
         s.setScore(score);
+    }
+
+    private String formatDuration(Duration duration) {
+        duration = duration.isNegative() ? Duration.ZERO : duration;
+        long seconds = duration.getSeconds();
+        long hours = seconds / 3600;
+        long minutes = (seconds % 3600) / 60;
+        long secs = seconds % 60;
+        if (hours > 0) {
+            return String.format("%02d:%02d:%02d", hours, minutes, secs);
+        }
+        return String.format("%02d:%02d", minutes, secs);
     }
 }
