@@ -36,7 +36,7 @@ public class ScoreboardManager implements Listener {
     private final TeamManager teamManager;
     private final RoleManager roleManager;
     private final ModifierManager modifierManager;
-    private final DailyRollManager dailyRollManager;
+    private DailyRollManager dailyRollManager;
 
     public ScoreboardManager(RollAndDeathSMP plugin) {
         this.plugin = plugin;
@@ -62,7 +62,8 @@ public class ScoreboardManager implements Listener {
     public void onJoin(PlayerJoinEvent event) {
         updateScoreboard(event.getPlayer());
 
-        if (dailyRollManager != null && dailyRollManager.isRollAvailable(event.getPlayer().getUniqueId())) {
+        DailyRollManager rolls = getDailyRollManager();
+        if (rolls != null && rolls.isRollAvailable(event.getPlayer().getUniqueId())) {
             event.getPlayer().sendMessage(Component.text("¡Reclama tu roll diario!", NamedTextColor.GOLD));
         }
     }
@@ -114,11 +115,12 @@ public class ScoreboardManager implements Listener {
         setScore(obj, "Rol: " + (role != null ? role.getName() : "Ninguno"), 9);
 
         // Daily Roll
-        if (dailyRollManager != null) {
-            boolean rollAvailable = dailyRollManager.isRollAvailable(player.getUniqueId());
+        DailyRollManager rolls = getDailyRollManager();
+        if (rolls != null) {
+            boolean rollAvailable = rolls.isRollAvailable(player.getUniqueId());
             String rollStatus = rollAvailable
                 ? "Listo"
-                : formatDuration(dailyRollManager.getTimeUntilNextRoll(player.getUniqueId()));
+                : formatDuration(rolls.getTimeUntilNextRoll(player.getUniqueId()));
             setScore(obj, "Daily roll: " + rollStatus, 8);
         } else {
             setScore(obj, "Daily roll: N/D", 8);
@@ -159,5 +161,12 @@ public class ScoreboardManager implements Listener {
             return String.format("%02d:%02d:%02d", hours, minutes, secs);
         }
         return String.format("%02d:%02d", minutes, secs);
+    }
+
+    private DailyRollManager getDailyRollManager() {
+        if (dailyRollManager == null) {
+            dailyRollManager = plugin.getDailyRollManager();
+        }
+        return dailyRollManager;
     }
 }

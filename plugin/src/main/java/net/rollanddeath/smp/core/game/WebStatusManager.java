@@ -41,8 +41,9 @@ public class WebStatusManager {
         
         if (plugin.getConfig().getBoolean("web-status.enabled", true)) {
             int port = plugin.getConfig().getInt("web-status.port", 8081);
+            String host = plugin.getConfig().getString("web-status.host", "0.0.0.0");
             try {
-                server = HttpServer.create(new InetSocketAddress(port), 0);
+                server = HttpServer.create(new InetSocketAddress(host, port), 0);
                 server.createContext("/status", exchange -> {
                     byte[] response = cachedJson.getBytes(StandardCharsets.UTF_8);
                     exchange.getResponseHeaders().add("Content-Type", "application/json");
@@ -54,7 +55,7 @@ public class WebStatusManager {
                 });
                 server.setExecutor(null);
                 server.start();
-                plugin.getLogger().info("Web Status Server started on port " + port);
+                plugin.getLogger().info("Web Status Server started on " + host + ":" + port);
             } catch (IOException e) {
                 plugin.getLogger().severe("Failed to start Web Status Server: " + e.getMessage());
             }
