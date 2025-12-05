@@ -128,7 +128,7 @@ public class WebStatusManager {
 
                     double health = online.getHealth();
                     playerObj.addProperty("health", health);
-                    AttributeInstance maxHealthAttr = online.getAttribute(Attribute.GENERIC_MAX_HEALTH);
+                    AttributeInstance maxHealthAttr = online.getAttribute(Attribute.MAX_HEALTH);
                     double maxHealth = maxHealthAttr != null ? maxHealthAttr.getValue() : online.getMaxHealth();
                     playerObj.addProperty("max_health", maxHealth);
 

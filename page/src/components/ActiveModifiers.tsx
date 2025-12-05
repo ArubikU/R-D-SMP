@@ -38,7 +38,7 @@ export const ActiveModifiers: React.FC = () => {
     useEffect(() => {
         const fetchStatus = async () => {
             try {
-                const response = await fetch('151.245.32.130:25573');
+                const response = await fetch('http://151.245.32.130:25573');
                 if (!response.ok) throw new Error('Error al conectar con el servidor');
                 const data = await response.json();
                 setStatus(data);

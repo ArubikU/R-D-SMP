@@ -62,7 +62,7 @@ public class ScoreboardManager implements Listener {
     public void onJoin(PlayerJoinEvent event) {
         updateScoreboard(event.getPlayer());
 
-        if (dailyRollManager.isRollAvailable(event.getPlayer().getUniqueId())) {
+        if (dailyRollManager != null && dailyRollManager.isRollAvailable(event.getPlayer().getUniqueId())) {
             event.getPlayer().sendMessage(Component.text("¡Reclama tu roll diario!", NamedTextColor.GOLD));
         }
     }
@@ -114,11 +114,15 @@ public class ScoreboardManager implements Listener {
         setScore(obj, "Rol: " + (role != null ? role.getName() : "Ninguno"), 9);
 
         // Daily Roll
-        boolean rollAvailable = dailyRollManager.isRollAvailable(player.getUniqueId());
-        String rollStatus = rollAvailable
-            ? "Listo"
-            : formatDuration(dailyRollManager.getTimeUntilNextRoll(player.getUniqueId()));
-        setScore(obj, "Daily roll: " + rollStatus, 8);
+        if (dailyRollManager != null) {
+            boolean rollAvailable = dailyRollManager.isRollAvailable(player.getUniqueId());
+            String rollStatus = rollAvailable
+                ? "Listo"
+                : formatDuration(dailyRollManager.getTimeUntilNextRoll(player.getUniqueId()));
+            setScore(obj, "Daily roll: " + rollStatus, 8);
+        } else {
+            setScore(obj, "Daily roll: N/D", 8);
+        }
         
         // Events
         setScore(obj, "   ", 7);
