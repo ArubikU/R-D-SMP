@@ -8,11 +8,11 @@ import net.rollanddeath.smp.RollAndDeathSMP;
 import net.rollanddeath.smp.core.LifeManager;
 import net.rollanddeath.smp.core.modifiers.ModifierManager;
 import net.rollanddeath.smp.core.items.DailyRollManager;
-import net.rollanddeath.smp.core.roles.Role;
 import net.rollanddeath.smp.core.roles.RoleManager;
 import net.rollanddeath.smp.core.roles.RoleType;
 import net.rollanddeath.smp.core.teams.Team;
 import net.rollanddeath.smp.core.teams.TeamManager;
+import org.bukkit.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -24,9 +24,14 @@ import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team.Option;
 import org.bukkit.scoreboard.Team.OptionStatus;
+import io.papermc.paper.scoreboard.numbers.NumberFormat;
 
 import java.time.Duration;
+import java.util.Map;
 import java.util.Set;
+
+import static net.kyori.adventure.text.format.NamedTextColor.*;
+import static java.util.Map.entry;
 
 public class ScoreboardManager implements Listener {
 
@@ -37,6 +42,25 @@ public class ScoreboardManager implements Listener {
     private final RoleManager roleManager;
     private final ModifierManager modifierManager;
     private DailyRollManager dailyRollManager;
+
+    private static final Map<NamedTextColor, ChatColor> COLOR_MAP = Map.ofEntries(
+        entry(BLACK, ChatColor.BLACK),
+        entry(DARK_BLUE, ChatColor.DARK_BLUE),
+        entry(DARK_GREEN, ChatColor.DARK_GREEN),
+        entry(DARK_AQUA, ChatColor.DARK_AQUA),
+        entry(DARK_RED, ChatColor.DARK_RED),
+        entry(DARK_PURPLE, ChatColor.DARK_PURPLE),
+        entry(GOLD, ChatColor.GOLD),
+        entry(GRAY, ChatColor.GRAY),
+        entry(DARK_GRAY, ChatColor.DARK_GRAY),
+        entry(BLUE, ChatColor.BLUE),
+        entry(GREEN, ChatColor.GREEN),
+        entry(AQUA, ChatColor.AQUA),
+        entry(RED, ChatColor.RED),
+        entry(LIGHT_PURPLE, ChatColor.LIGHT_PURPLE),
+        entry(YELLOW, ChatColor.YELLOW),
+        entry(WHITE, ChatColor.WHITE)
+    );
 
     public ScoreboardManager(RollAndDeathSMP plugin) {
         this.plugin = plugin;
@@ -85,6 +109,8 @@ public class ScoreboardManager implements Listener {
             obj.setDisplaySlot(DisplaySlot.SIDEBAR);
         }
 
+        obj.numberFormat(NumberFormat.blank());
+
         // Clear existing scores (inefficient but simple for now)
         // Better way is to use Teams for lines to avoid flickering, but for now let's just set scores
         // Actually, resetting scores every second causes flickering.
@@ -108,7 +134,7 @@ public class ScoreboardManager implements Listener {
         
         // Team
         Team team = teamManager.getTeam(player.getUniqueId());
-        setScore(obj, "Equipo: " + (team != null ? team.getName() : "Ninguno"), 10);
+        setScore(obj, formatTeamLine(team), 10);
         
         // Role
         RoleType role = roleManager.getPlayerRole(player);
@@ -168,5 +194,21 @@ public class ScoreboardManager implements Listener {
             dailyRollManager = plugin.getDailyRollManager();
         }
         return dailyRollManager;
+    }
+
+    private String formatTeamLine(Team team) {
+        if (team == null) {
+            return "Equipo: Ninguno";
+        }
+        ChatColor color = toChatColor(team.getColor());
+        String coloredName = (color != null ? color.toString() : ChatColor.AQUA.toString()) + team.getName();
+        return ChatColor.GRAY + "Equipo: " + coloredName;
+    }
+
+    private ChatColor toChatColor(NamedTextColor color) {
+        if (color == null) {
+            return null;
+        }
+        return COLOR_MAP.getOrDefault(color, ChatColor.WHITE);
     }
 }

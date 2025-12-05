@@ -167,103 +167,104 @@ export const mobs = [
     { name: "Shulker Mímico", desc: "Parece un bloque de piedra. Ataca al minarlo.", danger: "⭐⭐⭐⭐", rarity: "epico" },
     { name: "Jinete de Araña Elite", desc: "Esqueleto Wither montado en Araña de Cueva.", danger: "⭐⭐⭐⭐", rarity: "epico" },
     { name: "Evoker Loco", desc: "Spawnea Vexes infinitos hasta que muere.", danger: "⭐⭐⭐⭐", rarity: "epico" },
-    
-    // --- LEGENDARIO / MÍTICO ---
-    { name: "Caballero del Apocalipsis", desc: "Wither Skeleton en caballo. Full Netherite.", danger: "⭐⭐⭐⭐⭐", rarity: "legendario" },
-    { name: "Leviatán", desc: "Guardián Anciano gigante en ríos profundos.", danger: "⭐⭐⭐⭐⭐", rarity: "legendario" },
-    { name: "Rey Rata", desc: "Silverfish gigante que invoca hordas infinitas.", danger: "⭐⭐⭐⭐⭐", rarity: "mitico" },
-    { name: "El Warden Despierto", desc: "Warden que puede salir de la Ancient City de noche.", danger: "⭐⭐⭐⭐⭐⭐", rarity: "mitico" },
-    { name: "Dragón Alpha", desc: "Ender Dragon con 3 cabezas y aliento tóxico.", danger: "⭐⭐⭐⭐⭐⭐", rarity: "mitico" },
-    { name: "El Segador", desc: "Esqueleto gigante con guadaña. Mata de 1 golpe.", danger: "⭐⭐⭐⭐⭐", rarity: "legendario" },
-    { name: "Rey Slime", desc: "Slime masivo. Al morir se divide en 50 slimes normales.", danger: "⭐⭐⭐⭐⭐", rarity: "legendario" },
 ];
 
+export const wikiAdvancedEntries = [
+    {
+        id: "toolsmithing",
+        title: "Mesa de Herrero Avanzada",
+        icon: "🛠️",
+        content: [
+            {
+                subtitle: "Descripción",
+                text: "La Toolsmithing Table permite aplicar trims a herramientas y duplicar plantillas especiales. Su interfaz es casi idéntica a una mesa de herrero vanilla.",
+                image: "https://imgur.com/DVL9fys.png",
+                imageAlt: "Receta de Toolsmithing Table"
+            },
+            {
+                subtitle: "Receta",
+                text: "Coloca 2 lingotes de cobre en la fila superior y 4 tablones de madera debajo para craftear la mesa.",
+                recipeImage: "https://imgur.com/DVL9fys.png",
+                recipeAlt: "Receta de la mesa"
+            },
+            {
+                subtitle: "Plantillas Disponibles",
+                trims: [
+                    { name: "Linear", image: "https://i.postimg.cc/28MdcMM7/xItrOqb.png", structures: "Ruinas y Minas", chance: "7.6% / 5.6%" },
+                    { name: "Tracks", image: "https://i.postimg.cc/ncCY1pRL/RxjzI7J.png", structures: "Puesto Saqueador / Mansión", chance: "37.5% / 50%" },
+                    { name: "Charge", image: "https://i.postimg.cc/T2kJmpcS/LpdAQ3g.png", structures: "Ancient City", chance: "5%" },
+                    { name: "Frost", image: "https://i.postimg.cc/5yk5MR01/xNVu2Qn.png", structures: "Igloo", chance: "40%" }
+                ]
+            },
+            {
+                subtitle: "Duplicación",
+                text: "Duplica cualquier plantilla rodeándola con 7 diamantes y el bloque base correspondiente dentro de la mesa.",
+                gif: "https://imgur.com/fMgLznI.gif",
+                gifAlt: "Duplicación de plantillas"
+            }
+        ],
+        citation: "https://modrinth.com/datapack/tool-trims"
+    },
+    {
+        id: "glamour",
+        title: "Sistema Glamour",
+        icon: "🎨",
+        content: [
+            {
+                subtitle: "Mesa de Pintura",
+                text: "La Painting Table se fabrica con tablones, un bowl y un brush. Sirve para crear y colorear lienzos.",
+                recipeImage: "https://cdn.modrinth.com/data/cached_images/89c3a9530d370b0088ba455a172cde5751d852a8.png",
+                recipeAlt: "Receta de Painting Table"
+            },
+            {
+                subtitle: "Lienzos",
+                text: "Craftea lienzos con palos y una alfombra. El color de la alfombra define el color base del canvas.",
+                recipeImage: "https://cdn.modrinth.com/data/cached_images/35412102562cdf234735dd9b1499c20bef7443ad.png",
+                recipeAlt: "Receta de canvas"
+            },
+            {
+                subtitle: "Mesa Glamour",
+                text: "Combina glowstone, un Creaking Heart, diamantes y cualquier alfombra para desbloquear la Glamour Table.",
+                recipeImage: "https://cdn.modrinth.com/data/cached_images/7b3c5a40b959bb45870668efeee054db8e5c3818.png",
+                recipeAlt: "Receta de Glamour Table"
+            },
+            {
+                subtitle: "Preparar la Herramienta",
+                text: "Antes de pintar, prepara tu herramienta con un ojo de ender y glowstone en una mesa de herrero para aplicar el contorno base.",
+                recipeImage: "https://cdn.modrinth.com/data/cached_images/a93140f0f3a3acefb7b8f62e5952eb8c4e9c487f.png",
+                recipeAlt: "Preparación previa"
+            },
+            {
+                subtitle: "Pinceles",
+                text: "Tiñe un brush con tintes en la mesa de crafteo para obtener pinceles de color personalizados.",
+                recipeImage: "https://cdn.modrinth.com/data/cached_images/28a524a0ba89bb5d83ad615c5eb5df55e3c3297e.png",
+                recipeAlt: "Receta de pinceles"
+            },
+            {
+                subtitle: "Cómo Pintar",
+                text: "Coloca el lienzo o herramienta en su mesa. Usa tintes o pinceles para pintar píxel a píxel. Con slime ball borras y con mano vacía retiras el ítem.",
+                gif: "https://cdn.modrinth.com/data/cached_images/89db7cc73d64b88c419d6c275fe0643b693cb5c3.gif",
+                gifAlt: "Proceso de pintura"
+            },
+            {
+                subtitle: "Eliminar Glamour",
+                text: "Para revertir la textura, coloca la herramienta en la mesa Glamour y haz clic con una esponja húmeda.",
+                text2: "Herramientas compatibles: todas las herramientas principales, espadas y mazas."
+            },
+            {
+                subtitle: "Herramienta Externa",
+                text: "La web Texture Helper Tool ayuda a generar comandos o plantillas paint-by-number para replicar texturas exactas.",
+                link: { label: "Texture Helper Tool", url: "https://dqwertyc.github.io/glamour-table/" }
+            }
+        ],
+        citation: "https://modrinth.com/mod/glamour"
+    }
+];
 export const items = [
-    // --- COMÚN ---
-    { 
-        name: "Venda Curativa", 
-        type: "Consumible", 
-        desc: "Cura 2 corazones. Tarda 3s en usarse.", 
-        rarity: "comun",
-        acquisition: "Crafting",
-        recipe: {
-            type: "shapeless",
-            ingredients: ["Paper", "White Wool"],
-            result: "Venda Curativa"
-        }
-    },
-    { 
-        name: "Piedra de Afilar", 
-        type: "Material", 
-        desc: "Repara items un 10% sin yunque.", 
-        rarity: "comun",
-        acquisition: "Crafting",
-        recipe: {
-            type: "shapeless",
-            ingredients: ["Stone", "Flint"],
-            result: "Piedra de Afilar"
-        }
-    },
-    { 
-        name: "Pan Mohoso", 
-        type: "Comida", 
-        desc: "Restaura mucho hambre pero da Nausea.", 
-        rarity: "comun",
-        acquisition: "Crafting",
-        recipe: {
-            type: "shapeless",
-            ingredients: ["Bread", "Brown Mushroom"],
-            result: "Pan Mohoso"
-        }
-    },
-    { 
-        name: "Antorcha Eterna", 
-        type: "Utilidad", 
-        desc: "No se apaga con el evento 'Sombra Persistente'.", 
-        rarity: "comun",
-        acquisition: "Crafting",
-        recipe: {
-            type: "shapeless",
-            ingredients: ["Torch", "Glowstone Dust"],
-            result: "Antorcha Eterna"
-        }
-    },
-    { 
-        name: "Palo Afilado", 
-        type: "Arma", 
-        desc: "Daño de espada de madera, pero ataca muy rápido.", 
-        rarity: "comun",
-        acquisition: "Crafting",
-        recipe: {
-            type: "shaped",
-            grid: [
-                "Flint", null, null,
-                "Stick", null, null,
-                null, null, null
-            ],
-            result: "Palo Afilado"
-        }
-    },
-    { 
-        name: "Botas de Cuero Reforzadas", 
-        type: "Armadura", 
-        desc: "Evitan daño por caída leve (3 bloques).", 
-        rarity: "comun",
-        acquisition: "Crafting",
-        recipe: {
-            type: "shaped",
-            grid: [
-                "Iron Ingot", null, "Iron Ingot",
-                "Leather Boots", null, "Leather Boots",
-                null, null, null
-            ],
-            result: "Botas de Cuero Reforzadas"
-        }
-    },
-    { 
-        name: "Sopa Misteriosa", 
-        type: "Consumible", 
-        desc: "Efecto aleatorio (bueno o malo) por 10s.", 
+    {
+        name: "Sopa Misteriosa",
+        type: "Consumible",
+        desc: "Efecto aleatorio (bueno o malo) por 10s.",
         rarity: "comun",
         acquisition: "Crafting",
         recipe: {
@@ -272,14 +273,14 @@ export const items = [
             result: "Sopa Misteriosa"
         }
     },
-    
+
     // --- RARO ---
     { name: "Botas de Hermes", type: "Armadura", desc: "Doble salto. Se rompen muy rápido.", rarity: "raro", acquisition: "Drop: Zombie Veloz (6%)" },
     { name: "Poción de Olvido", type: "Consumible", desc: "Elimina el agro de los mobs cercanos.", rarity: "raro", acquisition: "Drop: Bruja del Pantano" },
-    { 
-        name: "Escudo de Espinas", 
-        type: "Escudo", 
-        desc: "Devuelve 100% del daño. Baja durabilidad.", 
+    {
+        name: "Escudo de Espinas",
+        type: "Escudo",
+        desc: "Devuelve 100% del daño. Baja durabilidad.",
         rarity: "raro",
         acquisition: "Crafting",
         recipe: {
@@ -288,10 +289,10 @@ export const items = [
             result: "Escudo de Espinas"
         }
     },
-    { 
-        name: "Arco de Hueso", 
-        type: "Arma", 
-        desc: "Dispara flechas torcidas pero hace más daño.", 
+    {
+        name: "Arco de Hueso",
+        type: "Arma",
+        desc: "Dispara flechas torcidas pero hace más daño.",
         rarity: "raro",
         acquisition: "Crafting",
         recipe: {
@@ -304,10 +305,10 @@ export const items = [
             result: "Arco de Hueso"
         }
     },
-    { 
-        name: "Pico de Vidrio", 
-        type: "Herramienta", 
-        desc: "Mina instantáneo pero tiene 10 usos.", 
+    {
+        name: "Pico de Vidrio",
+        type: "Herramienta",
+        desc: "Mina instantáneo pero tiene 10 usos.",
         rarity: "raro",
         acquisition: "Crafting",
         recipe: {
@@ -321,10 +322,10 @@ export const items = [
         }
     },
     { name: "Imán de XP", type: "Amuleto", desc: "Atrae experiencia desde 20 bloques.", rarity: "raro", acquisition: "Drop: Slime de Magma" },
-    { 
-        name: "Mochila Pequeña", 
-        type: "Utilidad", 
-        desc: "Una mochila pequeña para llevar más objetos (9 slots).", 
+    {
+        name: "Mochila Pequeña",
+        type: "Utilidad",
+        desc: "Una mochila pequeña para llevar más objetos (9 slots).",
         rarity: "raro",
         acquisition: "Crafting",
         recipe: {
@@ -337,10 +338,10 @@ export const items = [
             result: "Mochila Pequeña"
         }
     },
-    { 
-        name: "Gancho de Agarre", 
-        type: "Utilidad", 
-        desc: "Te permite escalar paredes verticales.", 
+    {
+        name: "Gancho de Agarre",
+        type: "Utilidad",
+        desc: "Te permite escalar paredes verticales.",
         rarity: "raro",
         acquisition: "Crafting",
         recipe: {
@@ -353,16 +354,15 @@ export const items = [
             result: "Gancho de Agarre"
         }
     },
-    
+
     // --- ÉPICO ---
     { name: "Pico de la Codicia", type: "Herramienta", desc: "Fortuna X, pero te quita vida al picar.", rarity: "epico", acquisition: "Drop: Zombie Minero (1.5%)" },
     { name: "Manzana de la Discordia", type: "Consumible", desc: "Fuerza IV (1 min), luego Veneno II (1 min).", rarity: "epico", acquisition: "Drop: Bruja (3%)" },
-
     { name: "Tridente de Poseidón", type: "Arma", desc: "Invoca rayos sin tormenta. Riptide fuera del agua.", rarity: "epico", acquisition: "Drop: Leviatán / Ahogado" },
-    { 
-        name: "Alas Blindadas", 
-        type: "Armadura", 
-        desc: "Elytras que dan protección como pechera de hierro.", 
+    {
+        name: "Alas Blindadas",
+        type: "Armadura",
+        desc: "Elytras que dan protección como pechera de hierro.",
         rarity: "epico",
         acquisition: "Crafting",
         recipe: {
@@ -375,10 +375,10 @@ export const items = [
             result: "Alas Blindadas"
         }
     },
-    { 
-        name: "Capa de Invisibilidad", 
-        type: "Armadura", 
-        desc: "Te hace invisible a mobs si no te mueves.", 
+    {
+        name: "Capa de Invisibilidad",
+        type: "Armadura",
+        desc: "Te hace invisible a mobs si no te mueves.",
         rarity: "epico",
         acquisition: "Crafting",
         recipe: {
@@ -393,13 +393,13 @@ export const items = [
     },
     { name: "Martillo de Guerra", type: "Arma", desc: "Daño de área masivo, recarga muy lenta.", rarity: "epico", acquisition: "Drop: Golem Corrupto" },
     { name: "Tótem de Regeneración", type: "Reliquia", desc: "Cura a todos los aliados en 10 bloques.", rarity: "epico", acquisition: "Cofres de Dungeon / Roll" },
-    
+
     // --- LEGENDARIO / MÍTICO ---
     { name: "Tótem del Azar", type: "Reliquia", desc: "Te salva de morir + efecto random.", rarity: "legendario", acquisition: "Roll Diario (Muy Raro)" },
-    { 
-        name: "Orbe de Resurrección", 
-        type: "Consumible", 
-        desc: "Revive a un compañero. Costo: 1 Vida propia.", 
+    {
+        name: "Orbe de Resurrección",
+        type: "Consumible",
+        desc: "Revive a un compañero. Costo: 1 Vida propia.",
         rarity: "legendario",
         acquisition: "Crafting (Costo: 1 Vida)",
         recipe: {
@@ -415,10 +415,10 @@ export const items = [
     },
     { name: "Espada Vampírica", type: "Arma", desc: "Roba vida, quema al sol.", rarity: "legendario", acquisition: "Drop: Wither Skeleton (0.2%)" },
     { name: "Pico Destructor de Mundos", type: "Herramienta", desc: "Mina 3x3 bloques (Tunnel bore).", rarity: "legendario", acquisition: "Evento Especial" },
-    { 
-        name: "Casco de la Visión Verdadera", 
-        type: "Armadura", 
-        desc: "Ves mobs invisibles y ores a través de paredes.", 
+    {
+        name: "Casco de la Visión Verdadera",
+        type: "Armadura",
+        desc: "Ves mobs invisibles y ores a través de paredes.",
         rarity: "legendario",
         acquisition: "Crafting",
         recipe: {
@@ -432,10 +432,10 @@ export const items = [
         }
     },
     { name: "Corazón de Notch", type: "Legendario", desc: "+1 Vida Extra permanente. Drop único.", rarity: "mitico", acquisition: "Drop: Warden Despierto" },
-    { 
-        name: "Contrato de Alma", 
-        type: "Consumible", 
-        desc: "Ban 24h a cambio de revivir a otro.", 
+    {
+        name: "Contrato de Alma",
+        type: "Consumible",
+        desc: "Ban 24h a cambio de revivir a otro.",
         rarity: "mitico",
         acquisition: "Crafting (Costo: Ban 24h)",
         recipe: {
@@ -452,7 +452,7 @@ export const items = [
     { name: "Llamada del Vacío", type: "Trampa", desc: "Crea agujero negro temporal.", rarity: "mitico", acquisition: "Drop: The Stalker" },
     { name: "Huevo de Dragón Real", type: "Mascota", desc: "Invoca un Dragón bebé que ataca enemigos.", rarity: "mitico", acquisition: "Drop: Dragón Alpha" },
     { name: "La Mano de Dios", type: "Admin Item", desc: "Elimina un evento permanente de la lista. Un solo uso.", rarity: "mitico", acquisition: "Admin Only" },
-    
+
     // --- VANILLA (ROLL DIARIO) ---
     { name: "Pan (x5)", type: "Material", desc: "Comida básica.", rarity: "comun", acquisition: "Roll Diario" },
     { name: "Lingote de Hierro (x3)", type: "Material", desc: "Material de crafteo.", rarity: "comun", acquisition: "Roll Diario" },
@@ -461,7 +461,7 @@ export const items = [
     { name: "Fragmento de Netherite", type: "Material", desc: "Material antiguo.", rarity: "epico", acquisition: "Roll Diario / Minería" },
     { name: "Totem de la Inmortalidad", type: "Consumible", desc: "Evita la muerte una vez.", rarity: "epico", acquisition: "Roll Diario / Evokers" },
     { name: "Lingote de Netherite", type: "Material", desc: "El metal más fuerte.", rarity: "legendario", acquisition: "Roll Diario / Crafting" },
-    { name: "Manzana de Notch", type: "Consumible", desc: "Efectos poderosos de regeneración y resistencia.", rarity: "legendario", acquisition: "Roll Diario" },
+    { name: "Manzana de Notch", type: "Consumible", desc: "Efectos poderosos de regeneración y resistencia.", rarity: "legendario", acquisition: "Roll Diario" }
 ];
 
 export const serverRules = [

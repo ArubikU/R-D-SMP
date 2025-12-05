@@ -11,9 +11,15 @@ import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public class GrapplingHook extends CustomItem {
+
+    private static final long COOLDOWN_MS = 3000L;
+    private final Map<UUID, Long> cooldowns = new HashMap<>();
 
     public GrapplingHook(RollAndDeathSMP plugin) {
         super(plugin, CustomItemType.GRAPPLING_HOOK);
@@ -39,6 +45,13 @@ public class GrapplingHook extends CustomItem {
         }
 
         if (event.getState() == PlayerFishEvent.State.REEL_IN || event.getState() == PlayerFishEvent.State.IN_GROUND || event.getState() == PlayerFishEvent.State.CAUGHT_ENTITY) {
+            long now = System.currentTimeMillis();
+            long nextAllowed = cooldowns.getOrDefault(player.getUniqueId(), 0L);
+            if (now < nextAllowed) {
+                return;
+            }
+
+            cooldowns.put(player.getUniqueId(), now + COOLDOWN_MS);
             Location hookLoc = event.getHook().getLocation();
             Location playerLoc = player.getLocation();
             

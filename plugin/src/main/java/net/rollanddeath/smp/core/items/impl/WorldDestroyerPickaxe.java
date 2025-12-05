@@ -1,11 +1,13 @@
 package net.rollanddeath.smp.core.items.impl;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.rollanddeath.smp.RollAndDeathSMP;
 import net.rollanddeath.smp.core.items.CustomItem;
 import net.rollanddeath.smp.core.items.CustomItemType;
+import net.rollanddeath.smp.core.protection.ProtectionManager;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -36,6 +38,12 @@ public class WorldDestroyerPickaxe extends CustomItem {
         if (!isItem(item)) return;
 
         Block block = event.getBlock();
+        ProtectionManager protection = plugin.getProtectionManager();
+        if (protection != null && !protection.canAccess(player, block)) {
+            event.setCancelled(true);
+            player.sendMessage(Component.text("Ese bloque está protegido.", NamedTextColor.RED));
+            return;
+        }
         
         int glassCount = 0;
         boolean fragileGlassActive = plugin.getModifierManager().isActive("Cristal Frágil");
@@ -51,6 +59,9 @@ public class WorldDestroyerPickaxe extends CustomItem {
                     if (x == 0 && y == 0 && z == 0) continue;
                     Block relative = block.getRelative(x, y, z);
                     if (relative.getType() != Material.BEDROCK && relative.getType() != Material.AIR) {
+                        if (protection != null && protection.isProtected(relative) && !protection.canAccess(player, relative)) {
+                            continue;
+                        }
                         if (relative.getType().name().contains("GLASS")) {
                             glassCount++;
                         }

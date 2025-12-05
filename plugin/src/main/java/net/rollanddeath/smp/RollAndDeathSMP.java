@@ -25,6 +25,7 @@ import net.rollanddeath.smp.core.mobs.MobCommand;
 import net.rollanddeath.smp.core.items.impl.*;
 import net.rollanddeath.smp.core.mobs.impl.*;
 import net.rollanddeath.smp.core.game.GameManager;
+import net.rollanddeath.smp.core.game.PlayerHudManager;
 import net.rollanddeath.smp.core.game.ScoreboardManager;
 import net.rollanddeath.smp.core.game.WebStatusManager;
 import net.rollanddeath.smp.core.game.AnnounceManager;
@@ -35,8 +36,10 @@ import net.rollanddeath.smp.core.commands.DailyCommand;
 import net.rollanddeath.smp.core.commands.MenuCommand;
 import net.rollanddeath.smp.core.combat.CombatLogManager;
 import net.rollanddeath.smp.core.combat.ReanimationManager;
+import net.rollanddeath.smp.integration.discord.DiscordWebhookService;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.command.PluginCommand;
+import org.bukkit.configuration.ConfigurationSection;
 
 public final class RollAndDeathSMP extends JavaPlugin {
 
@@ -55,6 +58,8 @@ public final class RollAndDeathSMP extends JavaPlugin {
     private AnnounceManager announceManager;
     private ReanimationManager reanimationManager;
     private CombatLogManager combatLogManager;
+    private DiscordWebhookService discordService;
+    private PlayerHudManager playerHudManager;
 
     @Override
     public void onEnable() {
@@ -68,6 +73,11 @@ public final class RollAndDeathSMP extends JavaPlugin {
         this.protectionManager = new ProtectionManager(this, teamManager);
         this.reanimationManager = new ReanimationManager(this, lifeManager);
         this.combatLogManager = new CombatLogManager(this, reanimationManager);
+
+        ConfigurationSection discordSection = getConfig().getConfigurationSection("discord");
+        boolean discordEnabled = discordSection != null && discordSection.getBoolean("enabled", false);
+        String webhookUrl = discordSection != null ? discordSection.getString("webhook_url") : null;
+        this.discordService = new DiscordWebhookService(this, teamManager, webhookUrl, discordEnabled);
         
         // Start War Tracker
         new WarTrackerTask(teamManager).runTaskTimer(this, 100L, 60L);
@@ -83,6 +93,9 @@ public final class RollAndDeathSMP extends JavaPlugin {
         // Initialize UI/Web
         this.webStatusManager = new WebStatusManager(this);
         getServer().getPluginManager().registerEvents(new ScoreboardManager(this), this);
+        this.playerHudManager = new PlayerHudManager(reanimationManager, 5);
+        getServer().getPluginManager().registerEvents(playerHudManager, this);
+        playerHudManager.runTaskTimer(this, 40L, 5L);
 
         // Register Modifiers
         modifierManager.registerModifier(new ToxicSunModifier(this));
@@ -314,10 +327,10 @@ public final class RollAndDeathSMP extends JavaPlugin {
         }
 
         // Register Listeners
-        getServer().getPluginManager().registerEvents(new PlayerDeathListener(this, lifeManager), this);
+        getServer().getPluginManager().registerEvents(new PlayerDeathListener(this, lifeManager, discordService), this);
         getServer().getPluginManager().registerEvents(new ProtectionListener(protectionManager), this);
         getServer().getPluginManager().registerEvents(new TeamListener(teamManager), this);
-        getServer().getPluginManager().registerEvents(new ChatListener(teamManager, roleManager), this);
+        getServer().getPluginManager().registerEvents(new ChatListener(teamManager, roleManager, discordService), this);
 
         // Register Commands
         TeamCommand teamCommand = new TeamCommand(teamManager);
@@ -370,6 +383,10 @@ public final class RollAndDeathSMP extends JavaPlugin {
         }
         getServer().getPluginManager().registerEvents(menuCmd, this);
 
+        if (discordService != null && discordService.isEnabled()) {
+            discordService.sendServerStatus(true);
+        }
+
         getLogger().info("RollAndDeath SMP Plugin has been enabled!");
         getLogger().info("Protocolo Diciembre iniciado...");
     }
@@ -382,6 +399,15 @@ public final class RollAndDeathSMP extends JavaPlugin {
         }
         if (announceManager != null) {
             announceManager.stop();
+        }
+        if (playerHudManager != null) {
+            playerHudManager.cancel();
+        }
+        if (reanimationManager != null) {
+            reanimationManager.shutdown();
+        }
+        if (discordService != null && discordService.isEnabled()) {
+            discordService.sendServerStatus(false);
         }
         getLogger().info("RollAndDeath SMP Plugin has been disabled!");
     }
@@ -440,5 +466,9 @@ public final class RollAndDeathSMP extends JavaPlugin {
 
     public WebStatusManager getWebStatusManager() {
         return webStatusManager;
+    }
+
+    public DiscordWebhookService getDiscordService() {
+        return discordService;
     }
 }

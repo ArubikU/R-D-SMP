@@ -83,6 +83,10 @@ public class ModifierManager {
             if (mod != null) {
                 plugin.getLogger().info("Modificador desactivado: " + name);
                 Bukkit.broadcast(Component.text("Evento finalizado: " + mod.getName(), NamedTextColor.GREEN));
+                var service = plugin.getDiscordService();
+                if (service != null && service.isEnabled()) {
+                    service.sendEventAnnouncement("Evento finalizado", "El evento " + mod.getName() + " ha concluido.", NamedTextColor.GREEN);
+                }
             } else {
                 plugin.getLogger().info("Modificador desconocido eliminado de la lista de activos: " + name);
             }
@@ -199,6 +203,11 @@ public class ModifierManager {
         Sound sound = getTypeSound(type);
         for (Player p : Bukkit.getOnlinePlayers()) {
             p.playSound(p.getLocation(), sound, 1f, 1f);
+        }
+
+        var service = plugin.getDiscordService();
+        if (service != null && service.isEnabled()) {
+            service.sendEventAnnouncement(getTypeDisplayName(type) + " - " + mod.getName(), mod.getDescription(), typeColor);
         }
     }
 

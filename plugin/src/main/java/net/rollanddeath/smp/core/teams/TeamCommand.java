@@ -31,8 +31,28 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
             "chat",
             "friendlyfire",
             "war",
-            "info"
+            "info",
+            "color"
     );
+
+        private static final List<String> COLOR_OPTIONS = Arrays.asList(
+            "red",
+            "dark_red",
+            "gold",
+            "yellow",
+            "green",
+            "dark_green",
+            "aqua",
+            "dark_aqua",
+            "blue",
+            "dark_blue",
+            "light_purple",
+            "dark_purple",
+            "white",
+            "gray",
+            "dark_gray",
+            "black"
+        );
 
     public TeamCommand(TeamManager teamManager) {
         this.teamManager = teamManager;
@@ -92,6 +112,9 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
                 break;
             case "info":
                 handleInfo(player);
+                break;
+            case "color":
+                handleColor(player, args);
                 break;
             default:
                 sendHelp(player);
@@ -166,6 +189,11 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
                     return filterCompletions(args[1], targets);
                 }
                 break;
+            case "color":
+                if (args.length == 2) {
+                    return filterCompletions(args[1], COLOR_OPTIONS);
+                }
+                break;
             case "chat":
             case "c":
                 return Collections.emptyList();
@@ -187,6 +215,7 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
         player.sendMessage(Component.text("/team ff - Alternar fuego amigo", NamedTextColor.YELLOW));
         player.sendMessage(Component.text("/team war <equipo> - Declarar guerra", NamedTextColor.YELLOW));
         player.sendMessage(Component.text("/team info - Ver información del equipo", NamedTextColor.YELLOW));
+        player.sendMessage(Component.text("/team color <color> - Cambiar el color del equipo", NamedTextColor.YELLOW));
     }
 
     private void handleWar(Player player, String[] args) {
@@ -225,6 +254,42 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
         }
 
         teamManager.declareWar(attacker, defender);
+    }
+
+    private void handleColor(Player player, String[] args) {
+        Team team = teamManager.getTeam(player.getUniqueId());
+        if (team == null) {
+            player.sendMessage(Component.text("No estás en un equipo.", NamedTextColor.RED));
+            return;
+        }
+
+        if (!team.getOwner().equals(player.getUniqueId())) {
+            player.sendMessage(Component.text("Solo el líder puede cambiar el color del equipo.", NamedTextColor.RED));
+            return;
+        }
+
+        if (args.length < 2) {
+            player.sendMessage(Component.text("Uso: /team color <color>", NamedTextColor.RED));
+            return;
+        }
+
+        String requested = args[1].toLowerCase(Locale.ROOT);
+        NamedTextColor color = NamedTextColor.NAMES.value(requested);
+        if (color == null || !COLOR_OPTIONS.contains(requested)) {
+            player.sendMessage(Component.text("Color inválido. Opciones: " + String.join(", ", COLOR_OPTIONS), NamedTextColor.RED));
+            return;
+        }
+
+        team.setColor(color);
+
+        Component notice = Component.text("Color del equipo actualizado a ", NamedTextColor.YELLOW)
+                .append(Component.text(requested, color));
+        for (UUID memberId : team.getMembers()) {
+            Player member = Bukkit.getPlayer(memberId);
+            if (member != null) {
+                member.sendMessage(notice);
+            }
+        }
     }
 
     private void handleChat(Player player, String[] args) {

@@ -1,5 +1,7 @@
 package net.rollanddeath.smp.core.teams;
 
+import net.kyori.adventure.text.format.NamedTextColor;
+
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -10,6 +12,7 @@ public class Team {
     private final Set<UUID> members;
     private boolean friendlyFire = false;
     private final Set<String> activeWars = new HashSet<>();
+    private NamedTextColor color = NamedTextColor.AQUA;
 
     public Team(String name, UUID owner) {
         this.name = name;
@@ -52,6 +55,14 @@ public class Team {
 
     public void setOwner(UUID owner) {
         this.owner = owner;
+    }
+
+    public NamedTextColor getColor() {
+        return color;
+    }
+
+    public void setColor(NamedTextColor color) {
+        this.color = color != null ? color : NamedTextColor.WHITE;
     }
 
     public Set<UUID> getMembers() {

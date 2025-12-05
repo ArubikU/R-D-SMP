@@ -5,6 +5,10 @@ web-status:
   enabled: true
   port: 33503
 
+discord:
+  enabled: true
+  webhook_url: "https://discord.com/api/webhooks/1446343596495208498/kp6oaaZr1zJYsRpyNuNTLbVsjdpCKI8eq6ozVFJpaMD9bzmeY4iEVkZvqo0Vv8oZXHjI"
+
 reanimation:
   enabled: true
   bleedout_seconds: 100

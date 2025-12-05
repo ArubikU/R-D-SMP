@@ -3,6 +3,8 @@ package net.rollanddeath.smp.core.commands;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.rollanddeath.smp.RollAndDeathSMP;
+import net.rollanddeath.smp.core.items.CustomItemType;
+import net.rollanddeath.smp.core.mobs.MobType;
 import net.rollanddeath.smp.core.modifiers.Modifier;
 import net.rollanddeath.smp.core.roles.RoleType;
 import org.bukkit.Bukkit;
@@ -24,7 +26,7 @@ import java.util.Objects;
 public class AdminCommand implements CommandExecutor, TabCompleter {
 
     private final RollAndDeathSMP plugin;
-    private static final List<String> ADMIN_SUBCOMMANDS = Arrays.asList("roulette", "setday", "life", "role", "event");
+    private static final List<String> ADMIN_SUBCOMMANDS = Arrays.asList("roulette", "setday", "life", "role", "event", "item", "mob", "discord");
     private static final List<String> EVENT_SUBCOMMANDS = Arrays.asList("add", "remove", "clear", "list");
 
     public AdminCommand(RollAndDeathSMP plugin) {
@@ -134,6 +136,59 @@ public class AdminCommand implements CommandExecutor, TabCompleter {
                     }
                 }
                 break;
+            case "item":
+                if (args.length == 3) {
+                    return filterCompletions(args[2], Collections.singletonList("give"));
+                }
+                if (!args[2].equalsIgnoreCase("give")) {
+                    return Collections.emptyList();
+                }
+                if (args.length == 4) {
+                    List<String> players = Bukkit.getOnlinePlayers().stream()
+                            .map(Player::getName)
+                            .filter(Objects::nonNull)
+                            .toList();
+                    return filterCompletions(args[3], players);
+                }
+                if (args.length == 5) {
+                    List<String> items = Arrays.stream(CustomItemType.values())
+                            .map(Enum::name)
+                            .toList();
+                    return filterCompletions(args[4], items);
+                }
+                if (args.length == 6) {
+                    return filterCompletions(args[5], Arrays.asList("1", "2", "4", "8", "16", "32", "64"));
+                }
+                break;
+            case "mob":
+                if (args.length == 3) {
+                    return filterCompletions(args[2], Collections.singletonList("spawn"));
+                }
+                if (!args[2].equalsIgnoreCase("spawn")) {
+                    return Collections.emptyList();
+                }
+                if (args.length == 4) {
+                    List<String> mobs = Arrays.stream(MobType.values())
+                            .map(Enum::name)
+                            .toList();
+                    return filterCompletions(args[3], mobs);
+                }
+                if (args.length == 5) {
+                    List<String> players = Bukkit.getOnlinePlayers().stream()
+                            .map(Player::getName)
+                            .filter(Objects::nonNull)
+                            .toList();
+                    return filterCompletions(args[4], players);
+                }
+                if (args.length == 6) {
+                    return filterCompletions(args[5], Arrays.asList("1", "2", "3", "5", "10"));
+                }
+                break;
+            case "discord":
+                if (args.length == 3) {
+                    return Collections.singletonList("<mensaje>");
+                }
+                return Collections.emptyList();
             default:
                 return Collections.emptyList();
         }
@@ -238,9 +293,131 @@ public class AdminCommand implements CommandExecutor, TabCompleter {
                     sender.sendMessage(Component.text("Uso: /rd admin event <add|remove|clear|list> [name]", NamedTextColor.RED));
                 }
                 break;
+            case "item":
+                handleItemCommand(sender, args);
+                break;
+            case "mob":
+                handleMobCommand(sender, args);
+                break;
+            case "discord":
+                handleDiscordCommand(sender, args);
+                break;
             default:
                 sendHelp(sender);
                 break;
+        }
+    }
+
+    private void handleItemCommand(CommandSender sender, String[] args) {
+        if (args.length < 2 || !args[1].equalsIgnoreCase("give")) {
+            sender.sendMessage(Component.text("Uso: /rd admin item give <player> <item> [amount]", NamedTextColor.RED));
+            return;
+        }
+
+        if (args.length < 4) {
+            sender.sendMessage(Component.text("Uso: /rd admin item give <player> <item> [amount]", NamedTextColor.RED));
+            return;
+        }
+
+        Player target = Bukkit.getPlayer(args[2]);
+        if (target == null) {
+            sender.sendMessage(Component.text("Jugador no encontrado.", NamedTextColor.RED));
+            return;
+        }
+
+        String itemName = args[3].toUpperCase(Locale.ROOT);
+        CustomItemType type;
+        try {
+            type = CustomItemType.valueOf(itemName);
+        } catch (IllegalArgumentException ex) {
+            sender.sendMessage(Component.text("Item inválido. Usa tab para ver opciones.", NamedTextColor.RED));
+            return;
+        }
+
+        int amount = 1;
+        if (args.length >= 5) {
+            try {
+                amount = Integer.parseInt(args[4]);
+            } catch (NumberFormatException ex) {
+                sender.sendMessage(Component.text("Cantidad inválida.", NamedTextColor.RED));
+                return;
+            }
+            if (amount <= 0) {
+                sender.sendMessage(Component.text("La cantidad debe ser mayor a 0.", NamedTextColor.RED));
+                return;
+            }
+        }
+
+        plugin.getItemManager().giveItem(target, type, amount);
+        sender.sendMessage(Component.text("Entregado " + amount + "x " + type.getDisplayName() + " a " + target.getName(), NamedTextColor.GREEN));
+        target.sendMessage(Component.text("Has recibido " + amount + "x " + type.getDisplayName() + ".", NamedTextColor.GOLD));
+    }
+
+    private void handleMobCommand(CommandSender sender, String[] args) {
+        if (args.length < 2 || !args[1].equalsIgnoreCase("spawn")) {
+            sender.sendMessage(Component.text("Uso: /rd admin mob spawn <mob> [player] [cantidad]", NamedTextColor.RED));
+            return;
+        }
+
+        if (args.length < 3) {
+            sender.sendMessage(Component.text("Uso: /rd admin mob spawn <mob> [player] [cantidad]", NamedTextColor.RED));
+            return;
+        }
+
+        String mobName = args[2].toUpperCase(Locale.ROOT);
+        MobType type;
+        try {
+            type = MobType.valueOf(mobName);
+        } catch (IllegalArgumentException ex) {
+            sender.sendMessage(Component.text("Mob inválido. Usa tab para ver opciones.", NamedTextColor.RED));
+            return;
+        }
+
+        Player target = null;
+        if (args.length >= 4) {
+            target = Bukkit.getPlayer(args[3]);
+            if (target == null) {
+                sender.sendMessage(Component.text("Jugador no encontrado.", NamedTextColor.RED));
+                return;
+            }
+        } else if (sender instanceof Player playerSender) {
+            target = playerSender;
+        }
+
+        if (target == null) {
+            sender.sendMessage(Component.text("Debes indicar un jugador cuando usas la consola.", NamedTextColor.RED));
+            return;
+        }
+
+        int amount = 1;
+        if (args.length >= 5) {
+            try {
+                amount = Integer.parseInt(args[4]);
+            } catch (NumberFormatException ex) {
+                sender.sendMessage(Component.text("Cantidad inválida.", NamedTextColor.RED));
+                return;
+            }
+            if (amount <= 0) {
+                sender.sendMessage(Component.text("La cantidad debe ser mayor a 0.", NamedTextColor.RED));
+                return;
+            }
+        }
+
+        int spawned = 0;
+        for (int i = 0; i < amount; i++) {
+            if (plugin.getMobManager().spawnMob(type, target.getLocation()) != null) {
+                spawned++;
+            }
+        }
+
+        if (spawned == 0) {
+            sender.sendMessage(Component.text("No se pudo invocar el mob solicitado.", NamedTextColor.RED));
+            return;
+        }
+
+        sender.sendMessage(Component.text("Invocado " + spawned + "x " + type.getDisplayName() + " en " + target.getName(), NamedTextColor.GREEN));
+        if (!target.equals(sender)) {
+            target.sendMessage(Component.text("Un administrador invocó " + spawned + "x " + type.getDisplayName() + " cerca de ti.", NamedTextColor.YELLOW));
         }
     }
 
@@ -254,6 +431,29 @@ public class AdminCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage(Component.text("/rd admin event remove <name> - Desactivar evento", NamedTextColor.YELLOW));
         sender.sendMessage(Component.text("/rd admin event clear - Desactivar todos los eventos", NamedTextColor.YELLOW));
         sender.sendMessage(Component.text("/rd admin event list - Listar eventos disponibles", NamedTextColor.YELLOW));
+        sender.sendMessage(Component.text("/rd admin item give <player> <item> [amount] - Dar ítem personalizado", NamedTextColor.YELLOW));
+        sender.sendMessage(Component.text("/rd admin mob spawn <mob> [player] [cantidad] - Invocar mob personalizado", NamedTextColor.YELLOW));
+        sender.sendMessage(Component.text("/rd admin discord <mensaje> - Enviar anuncio a Discord", NamedTextColor.YELLOW));
+    }
+    
+    private void handleDiscordCommand(CommandSender sender, String[] args) {
+        if (plugin.getDiscordService() == null || !plugin.getDiscordService().isEnabled()) {
+            sender.sendMessage(Component.text("La integración de Discord no está configurada.", NamedTextColor.RED));
+            return;
+        }
+
+        if (args.length < 2) {
+            sender.sendMessage(Component.text("Uso: /rd admin discord <mensaje>", NamedTextColor.RED));
+            return;
+        }
+
+        String message = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
+        plugin.getDiscordService().sendAdminAnnouncement(sender, message);
+
+        Component announcement = Component.text("[Anuncio] ", NamedTextColor.LIGHT_PURPLE)
+                .append(Component.text(message, NamedTextColor.WHITE));
+        Bukkit.broadcast(announcement);
+        sender.sendMessage(Component.text("Anuncio enviado a Discord.", NamedTextColor.GREEN));
     }
 
     private List<String> filterCompletions(String token, Collection<String> candidates) {

@@ -7,6 +7,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.rollanddeath.smp.RollAndDeathSMP;
 import net.rollanddeath.smp.core.LifeManager;
+import net.rollanddeath.smp.integration.discord.DiscordWebhookService;
 import org.bukkit.BanList;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -46,12 +47,14 @@ public class PlayerDeathListener implements Listener {
     private final LifeManager lifeManager;
     private final NamespacedKey headDataKey;
     private final Gson gson;
+    private final DiscordWebhookService discordService;
 
-    public PlayerDeathListener(RollAndDeathSMP plugin, LifeManager lifeManager) {
+    public PlayerDeathListener(RollAndDeathSMP plugin, LifeManager lifeManager, DiscordWebhookService discordService) {
         this.plugin = plugin;
         this.lifeManager = lifeManager;
         this.headDataKey = new NamespacedKey(plugin, "death_head");
         this.gson = new GsonBuilder().create();
+        this.discordService = discordService;
     }
 
     @EventHandler
@@ -82,6 +85,10 @@ public class PlayerDeathListener implements Listener {
                 .append(Component.text(remainingLives, remainingLives > 0 ? NamedTextColor.GREEN : NamedTextColor.RED));
         
         event.deathMessage(message);
+
+        if (discordService != null && discordService.isEnabled()) {
+            discordService.sendDeathMessage(player, message);
+        }
 
         if (remainingLives <= 0) {
             // Ban logic or Spectator logic
