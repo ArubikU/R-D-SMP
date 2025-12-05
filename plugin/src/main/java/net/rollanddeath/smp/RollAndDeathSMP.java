@@ -33,6 +33,8 @@ import net.rollanddeath.smp.core.commands.AdminCommand;
 import net.rollanddeath.smp.core.items.DailyRollManager;
 import net.rollanddeath.smp.core.commands.DailyCommand;
 import net.rollanddeath.smp.core.commands.MenuCommand;
+import net.rollanddeath.smp.core.combat.CombatLogManager;
+import net.rollanddeath.smp.core.combat.ReanimationManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.command.PluginCommand;
 
@@ -51,6 +53,8 @@ public final class RollAndDeathSMP extends JavaPlugin {
     private DailyRollManager dailyRollManager;
     private WebStatusManager webStatusManager;
     private AnnounceManager announceManager;
+    private ReanimationManager reanimationManager;
+    private CombatLogManager combatLogManager;
 
     @Override
     public void onEnable() {
@@ -62,6 +66,8 @@ public final class RollAndDeathSMP extends JavaPlugin {
         this.modifierManager = new ModifierManager(this);
         this.teamManager = new TeamManager(this);
         this.protectionManager = new ProtectionManager(this, teamManager);
+        this.reanimationManager = new ReanimationManager(this, lifeManager);
+        this.combatLogManager = new CombatLogManager(this, reanimationManager);
         
         // Start War Tracker
         new WarTrackerTask(teamManager).runTaskTimer(this, 100L, 60L);
@@ -302,6 +308,10 @@ public final class RollAndDeathSMP extends JavaPlugin {
         recipeManager.registerRecipes();
         getServer().getPluginManager().registerEvents(lootManager, this);
         getServer().getPluginManager().registerEvents(new CraftingListener(this), this);
+        getServer().getPluginManager().registerEvents(reanimationManager, this);
+        if (combatLogManager.isEnabled()) {
+            getServer().getPluginManager().registerEvents(combatLogManager, this);
+        }
 
         // Register Listeners
         getServer().getPluginManager().registerEvents(new PlayerDeathListener(this, lifeManager), this);
@@ -398,6 +408,10 @@ public final class RollAndDeathSMP extends JavaPlugin {
 
     public MobManager getMobManager() {
         return mobManager;
+    }
+
+    public ReanimationManager getReanimationManager() {
+        return reanimationManager;
     }
 
     public ItemManager getItemManager() {

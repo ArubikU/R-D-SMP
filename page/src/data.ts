@@ -514,6 +514,28 @@ export const tutorials = [
         ]
     },
     {
+        id: "combat_log",
+        title: "Sistema Combat Log",
+        icon: "⏱️",
+        content: [
+            { subtitle: "Marcado en Combate", text: "Golpear o recibir daño te marca durante el tiempo configurado. El temporizador se reinicia con cada interacción de combate." },
+            { subtitle: "Penalización", text: "Si te desconectas mientras sigues marcado, el sistema te mata automáticamente al volver o inmediatamente si el servidor detecta la salida." },
+            { subtitle: "Avisos", text: "Recibirás un mensaje al entrar y salir del estado de combate para que puedas actuar con claridad." },
+            { subtitle: "Configuración", text: "Ajusta la sección 'combat-log' del config.yml para definir duración, avisos y si deseas castigos adicionales." }
+        ]
+    },
+    {
+        id: "reanimation",
+        title: "Reanimación Cooperativa",
+        icon: "💉",
+        content: [
+            { subtitle: "Estado Downed", text: "Al llegar a 0 corazones sin permadeath activo entras en estado de incapacitado con un temporizador de desangrado." },
+            { subtitle: "Canal de Reanimación", text: "Un compañero cercano puede iniciar la reanimación (agachado si se requiere). Otros jugadores pueden unirse en cualquier momento." },
+            { subtitle: "Velocidad Compartida", text: "Cada rescatador extra reduce en 20% el tiempo restante del canal, acelerando la recuperación." },
+            { subtitle: "Interrupciones y Arrastre", text: "Si nadie mantiene el canal, sangras hasta morir. Opcionalmente se puede arrastrar al aliado antes de curarlo si la configuración lo permite." }
+        ]
+    },
+    {
         id: "daily_roll",
         title: "Roll Diario",
         icon: "🎲",

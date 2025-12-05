@@ -4,3 +4,17 @@
 web-status:
   enabled: true
   port: 33503
+
+reanimation:
+  enabled: true
+  bleedout_seconds: 100
+  revive_channel_seconds: 15
+  damage_time_penalty_seconds: 10
+  carry_enabled: true
+  sneak_required: true
+  revived_health: 10.0
+
+deathmatch:
+  combatlog_enabled: true
+  combat_cooldown_seconds: 20
+  broadcast_on_kill: true

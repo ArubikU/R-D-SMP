@@ -27,6 +27,8 @@ import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class WebStatusManager {
 
@@ -34,6 +36,7 @@ public class WebStatusManager {
     private final Gson gson;
     private HttpServer server;
     private String cachedJson = "{}";
+    private ExecutorService executor;
 
     public WebStatusManager(RollAndDeathSMP plugin) {
         this.plugin = plugin;
@@ -53,7 +56,9 @@ public class WebStatusManager {
                         os.write(response);
                     }
                 });
-                server.setExecutor(null);
+                int threads = Math.max(2, plugin.getConfig().getInt("web-status.threads", 8));
+                executor = Executors.newFixedThreadPool(threads);
+                server.setExecutor(executor);
                 server.start();
                 plugin.getLogger().info("Web Status Server started on " + host + ":" + port);
             } catch (IOException e) {
@@ -67,6 +72,10 @@ public class WebStatusManager {
     public void stop() {
         if (server != null) {
             server.stop(0);
+        }
+        if (executor != null) {
+            executor.shutdownNow();
+            executor = null;
         }
     }
 
