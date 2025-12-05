@@ -15,6 +15,9 @@ import net.rollanddeath.smp.core.teams.Team;
 import net.rollanddeath.smp.core.teams.TeamManager;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -117,13 +120,24 @@ public class WebStatusManager {
             playerObj.addProperty("online", p.isOnline());
             
             if (p.isOnline()) {
-                playerObj.addProperty("lives", lifeManager.getLives(p.getPlayer()));
-                
-                Team team = teamManager.getTeam(p.getUniqueId());
-                playerObj.addProperty("team", team != null ? team.getName() : null);
-                
-                RoleType role = roleManager.getPlayerRole(p.getPlayer());
-                playerObj.addProperty("role", role != null ? role.getName() : null);
+                Player online = p.getPlayer();
+                if (online != null) {
+                    int lives = lifeManager.getLives(online);
+                    playerObj.addProperty("lives", lives);
+                    playerObj.addProperty("lives_remaining", lives);
+
+                    double health = online.getHealth();
+                    playerObj.addProperty("health", health);
+                    AttributeInstance maxHealthAttr = online.getAttribute(Attribute.GENERIC_MAX_HEALTH);
+                    double maxHealth = maxHealthAttr != null ? maxHealthAttr.getValue() : online.getMaxHealth();
+                    playerObj.addProperty("max_health", maxHealth);
+
+                    Team team = teamManager.getTeam(p.getUniqueId());
+                    playerObj.addProperty("team", team != null ? team.getName() : null);
+
+                    RoleType role = roleManager.getPlayerRole(online);
+                    playerObj.addProperty("role", role != null ? role.getName() : null);
+                }
             } else {
                 playerObj.addProperty("lives", "?");
             }

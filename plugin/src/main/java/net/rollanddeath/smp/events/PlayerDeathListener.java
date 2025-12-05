@@ -1,33 +1,64 @@
 package net.rollanddeath.smp.events;
 
-import net.rollanddeath.smp.RollAndDeathSMP;
-import net.rollanddeath.smp.core.LifeManager;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import net.rollanddeath.smp.RollAndDeathSMP;
+import net.rollanddeath.smp.core.LifeManager;
 import org.bukkit.BanList;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.block.Block;
+import org.bukkit.block.Skull;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
+
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.UUID;
 
 public class PlayerDeathListener implements Listener {
 
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm").withLocale(new Locale("es", "ES"));
+
     private final RollAndDeathSMP plugin;
     private final LifeManager lifeManager;
+    private final NamespacedKey headDataKey;
+    private final Gson gson;
 
     public PlayerDeathListener(RollAndDeathSMP plugin, LifeManager lifeManager) {
         this.plugin = plugin;
         this.lifeManager = lifeManager;
+        this.headDataKey = new NamespacedKey(plugin, "death_head");
+        this.gson = new GsonBuilder().create();
     }
 
     @EventHandler
     @SuppressWarnings("deprecation")
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player player = event.getEntity();
+        addDeathHeadDrop(event, player);
         
         // Check Permadeath (Day 31+)
         if (plugin.getGameManager().isPermadeathActive()) {
@@ -61,6 +92,12 @@ public class PlayerDeathListener implements Listener {
         }
     }
 
+    private void addDeathHeadDrop(PlayerDeathEvent event, Player victim) {
+        HeadData data = createHeadData(event, victim);
+        ItemStack head = buildHeadItem(data);
+        event.getDrops().add(head);
+    }
+
     @EventHandler
     public void onPlayerRespawn(PlayerRespawnEvent event) {
         Player player = event.getPlayer();
@@ -84,4 +121,172 @@ public class PlayerDeathListener implements Listener {
             player.sendMessage(Component.text("Sigues en el Limbo. Espera a ser revivido.", NamedTextColor.GRAY));
         }
     }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onHeadPlace(BlockPlaceEvent event) {
+        ItemStack item = event.getItemInHand();
+        if (item.getType() != Material.PLAYER_HEAD && item.getType() != Material.PLAYER_WALL_HEAD) {
+            return;
+        }
+
+        SkullMeta meta = item.hasItemMeta() && item.getItemMeta() instanceof SkullMeta skullMeta ? skullMeta : null;
+        if (meta == null) {
+            return;
+        }
+        PersistentDataContainer itemContainer = meta.getPersistentDataContainer();
+        if (!itemContainer.has(headDataKey, PersistentDataType.STRING)) {
+            return;
+        }
+
+        Block block = event.getBlockPlaced();
+        if (!(block.getState() instanceof Skull skull)) {
+            return;
+        }
+
+        String json = itemContainer.get(headDataKey, PersistentDataType.STRING);
+        if (json == null) {
+            return;
+        }
+
+        skull.getPersistentDataContainer().set(headDataKey, PersistentDataType.STRING, json);
+        skull.update(true, false);
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onHeadBreak(BlockBreakEvent event) {
+        Block block = event.getBlock();
+        if (block.getType() != Material.PLAYER_HEAD && block.getType() != Material.PLAYER_WALL_HEAD) {
+            return;
+        }
+
+        if (!(block.getState() instanceof Skull skull)) {
+            return;
+        }
+
+        PersistentDataContainer container = skull.getPersistentDataContainer();
+        if (!container.has(headDataKey, PersistentDataType.STRING)) {
+            return;
+        }
+
+        String json = container.get(headDataKey, PersistentDataType.STRING);
+        if (json == null) {
+            return;
+        }
+
+        HeadData data = gson.fromJson(json, HeadData.class);
+        if (data == null) {
+            return;
+        }
+
+        event.setDropItems(false);
+        block.getWorld().dropItemNaturally(block.getLocation(), buildHeadItem(data));
+    }
+
+    private HeadData createHeadData(PlayerDeathEvent event, Player victim) {
+        Player killer = victim.getKiller();
+        EntityDamageEvent cause = victim.getLastDamageCause();
+
+        String causeText = cause != null ? formatCause(cause, killer) : "Desconocida";
+        String killerName = killer != null ? killer.getName() : null;
+        UUID killerId = killer != null ? killer.getUniqueId() : null;
+        String weaponName = killer != null ? describeWeapon(killer.getInventory().getItemInMainHand()) : null;
+
+        return new HeadData(
+                victim.getUniqueId(),
+                victim.getName(),
+                killerId,
+                killerName,
+                weaponName,
+                causeText,
+                System.currentTimeMillis()
+        );
+    }
+
+    private ItemStack buildHeadItem(HeadData data) {
+        ItemStack head = new ItemStack(Material.PLAYER_HEAD);
+        SkullMeta meta = (SkullMeta) head.getItemMeta();
+
+        OfflinePlayer owner = Bukkit.getOfflinePlayer(data.victimId());
+        meta.setOwningPlayer(owner);
+        meta.displayName(Component.text("Cabeza de " + data.victimName(), NamedTextColor.RED));
+
+        List<Component> lore = new ArrayList<>();
+        lore.add(Component.text("Causa: " + data.cause(), NamedTextColor.GRAY));
+        if (data.killerName() != null) {
+            lore.add(Component.text("Asesino: " + data.killerName(), NamedTextColor.DARK_RED));
+        }
+        if (data.weaponName() != null) {
+            lore.add(Component.text("Arma: " + data.weaponName(), NamedTextColor.DARK_RED));
+        }
+        lore.add(Component.text("Fecha: " + formatTimestamp(data.timestamp()), NamedTextColor.DARK_GRAY));
+        meta.lore(lore);
+
+        meta.getPersistentDataContainer().set(headDataKey, PersistentDataType.STRING, gson.toJson(data));
+        head.setItemMeta(meta);
+        return head;
+    }
+
+    private String formatTimestamp(long millis) {
+        LocalDateTime time = LocalDateTime.ofInstant(Instant.ofEpochMilli(millis), ZoneId.systemDefault());
+        return DATE_FORMATTER.format(time);
+    }
+
+    private String formatCause(EntityDamageEvent event, Player killer) {
+        EntityDamageEvent.DamageCause cause = event.getCause();
+        return switch (cause) {
+            case ENTITY_ATTACK, ENTITY_SWEEP_ATTACK -> killer != null ? "Asesinado cuerpo a cuerpo" : "Ataque cuerpo a cuerpo";
+            case PROJECTILE -> killer != null ? "Asesinado a distancia" : "Impacto a distancia";
+            case FALL -> "Caída fatal";
+            case FIRE -> "Ardió";
+            case FIRE_TICK -> "Quemado";
+            case MELTING -> "Derretido";
+            case LAVA -> "Ahogado en lava";
+            case DROWNING -> "Ahogado";
+            case SUFFOCATION -> "Asfixiado";
+            case VOID -> "Cayó al vacío";
+            case ENTITY_EXPLOSION, BLOCK_EXPLOSION -> "Explosión";
+            case MAGIC -> "Magia";
+            case POISON -> "Envenenado";
+            case WITHER -> "Marchitado";
+            case CONTACT -> "Daño de contacto";
+            case CRAMMING -> "Aplastado";
+            case FALLING_BLOCK -> "Aplastado por bloque";
+            case THORNS -> "Devolución";
+            case DRAGON_BREATH -> "Aliento de dragón";
+            case HOT_FLOOR -> "Bloques ardientes";
+            case FLY_INTO_WALL -> "Impacto cinético";
+            case LIGHTNING -> "Electrocutado";
+            case SUICIDE -> "Se quitó la vida";
+            case STARVATION -> "Murió de hambre";
+            case FREEZE -> "Congelado";
+            case SONIC_BOOM -> "Explosión sónica";
+            case WORLD_BORDER -> "Límite del mundo";
+            case DRYOUT -> "Desecado";
+            case CUSTOM -> "Causa especial";
+            default -> capitalize(cause.name().replace('_', ' ').toLowerCase(Locale.ROOT));
+        };
+    }
+
+    private String describeWeapon(ItemStack weapon) {
+        if (weapon == null || weapon.getType() == Material.AIR) {
+            return "Puños";
+        }
+        if (weapon.hasItemMeta() && weapon.getItemMeta().hasDisplayName()) {
+            Component display = weapon.getItemMeta().displayName();
+            if (display != null) {
+                return PlainTextComponentSerializer.plainText().serialize(display);
+            }
+        }
+        String materialName = weapon.getType().name().toLowerCase(Locale.ROOT).replace('_', ' ');
+        return capitalize(materialName);
+    }
+
+    private String capitalize(String text) {
+        if (text.isEmpty()) {
+            return text;
+        }
+        return Character.toUpperCase(text.charAt(0)) + text.substring(1);
+    }
+
+    private record HeadData(UUID victimId, String victimName, UUID killerId, String killerName, String weaponName, String cause, long timestamp) {}
 }
