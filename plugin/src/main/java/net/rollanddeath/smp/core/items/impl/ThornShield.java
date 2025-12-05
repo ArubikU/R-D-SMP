@@ -5,6 +5,11 @@ import net.rollanddeath.smp.core.items.CustomItem;
 import net.rollanddeath.smp.core.items.CustomItemType;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -36,5 +41,21 @@ public class ThornShield extends CustomItem {
             item.setItemMeta(meta);
         }
         return item;
+    }
+
+    @EventHandler
+    public void onBlock(EntityDamageByEntityEvent event) {
+        if (!(event.getEntity() instanceof Player player)) return;
+        if (!player.isBlocking()) return;
+
+        ItemStack main = player.getInventory().getItemInMainHand();
+        ItemStack off = player.getInventory().getItemInOffHand();
+        if (!(isItem(main) || isItem(off))) return;
+
+        Entity damager = event.getDamager();
+        if (damager instanceof LivingEntity living) {
+            living.damage(event.getDamage() * 0.75); // Reflect half the damage back
+            living.setNoDamageTicks(0); // Reset no damage ticks to ensure damage is applied
+        }
     }
 }

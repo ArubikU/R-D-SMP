@@ -1,11 +1,14 @@
 package net.rollanddeath.smp.core.game;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.rollanddeath.smp.core.combat.ReanimationManager;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -21,6 +24,7 @@ import java.util.UUID;
 public class PlayerHudManager extends BukkitRunnable implements Listener {
 
     private static final double TICKS_PER_SECOND = 20.0D;
+    private static final Component BAR = Component.text(" | ", NamedTextColor.DARK_GRAY);
 
     private static final Direction[] DIRECTIONS = new Direction[] {
         new Direction("Sur", "S"),
@@ -77,10 +81,12 @@ public class PlayerHudManager extends BukkitRunnable implements Listener {
     }
 
     private Component buildHud(Player player) {
-        Direction direction = resolveDirection(player.getLocation().getYaw());
-        Component compass = Component.text("Rumbo: ", NamedTextColor.GRAY)
-            .append(Component.text(direction.fullName(), NamedTextColor.AQUA))
-            .append(Component.text(" (" + direction.shortName() + ")", NamedTextColor.DARK_AQUA));
+        boolean hasCompass = hasCompassEquipped(player);
+        Component compass = null;
+        if (hasCompass) {
+            Direction direction = resolveDirection(player.getLocation().getYaw());
+            compass = buildCompass(direction);
+        }
 
         if (player.isGliding()) {
             double speed = computeSpeed(player);
@@ -88,14 +94,63 @@ public class PlayerHudManager extends BukkitRunnable implements Listener {
                 String.format(Locale.ROOT, "Velocidad: %.1f m/s", speed),
                 NamedTextColor.GOLD
             );
-            return Component.text()
-                .append(speedComponent)
-                .append(Component.text(" | ", NamedTextColor.DARK_GRAY))
-                .append(compass)
-                .build();
+            if (compass != null) {
+                return Component.text()
+                    .append(speedComponent)
+                    .append(BAR)
+                    .append(compass)
+                    .build();
+            }
+            return speedComponent;
         }
 
         return compass;
+    }
+
+    private boolean hasCompassEquipped(Player player) {
+        Material main = player.getInventory().getItemInMainHand().getType();
+        Material off = player.getInventory().getItemInOffHand().getType();
+        return isCompass(main) || isCompass(off);
+    }
+
+    private boolean isCompass(Material material) {
+        return material == Material.COMPASS || material == Material.RECOVERY_COMPASS;
+    }
+
+    private Direction directionAtOffset(Direction base, int offset) {
+        int index = indexOf(base);
+        int target = Math.floorMod(index + offset, DIRECTIONS.length);
+        return DIRECTIONS[target];
+    }
+
+    private int indexOf(Direction direction) {
+        for (int i = 0; i < DIRECTIONS.length; i++) {
+            if (DIRECTIONS[i] == direction) {
+                return i;
+            }
+        }
+        return 0;
+    }
+
+    private Component buildCompass(Direction direction) {
+        Direction left = directionAtOffset(direction, 1);
+        Direction right = directionAtOffset(direction, -1);
+
+        TextComponent.Builder builder = Component.text()
+            .append(Component.text(left.shortName(), NamedTextColor.DARK_AQUA));
+
+        for (int i = 0; i < 3; i++) {
+            builder.append(BAR);
+        }
+
+        builder.append(Component.text(direction.shortName(), NamedTextColor.AQUA).decorate(TextDecoration.BOLD));
+
+        for (int i = 0; i < 3; i++) {
+            builder.append(BAR);
+        }
+
+        builder.append(Component.text(right.shortName(), NamedTextColor.DARK_AQUA));
+        return builder.build();
     }
 
     private double computeSpeed(Player player) {

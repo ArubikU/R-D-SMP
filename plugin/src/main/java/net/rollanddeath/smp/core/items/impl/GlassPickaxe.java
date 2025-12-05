@@ -20,6 +20,15 @@ public class GlassPickaxe extends CustomItem {
 
     public GlassPickaxe(RollAndDeathSMP plugin) {
         super(plugin, CustomItemType.GLASS_PICKAXE);
+        // Keep haste refreshed while holding so insta-mine stays reliable.
+        org.bukkit.Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+            for (Player player : org.bukkit.Bukkit.getOnlinePlayers()) {
+                ItemStack main = player.getInventory().getItemInMainHand();
+                if (isItem(main)) {
+                    player.addPotionEffect(new PotionEffect(PotionEffectType.HASTE, 40, 255, false, false, false));
+                }
+            }
+        }, 20L, 20L);
     }
 
     @Override

@@ -37,6 +37,7 @@ export const dailyEvents = [
     { name: "Maldición de Ícaro", type: "Maldición", desc: "Si subes por encima de Y=150, empiezas a quemarte.", icon: "☀️" },
     { name: "Fuego Fatuo", type: "Maldición", desc: "El fuego azul (soul fire) mata instantáneamente.", icon: "🔥" },
     { name: "Cristal Frágil", type: "Maldición", desc: "Romper cristal causa explosión pequeña.", icon: "🪟" },
+    { name: "Sin Leche", type: "Maldición", desc: "No puedes beber leche ni limpiar efectos.", icon: "🥛" },
 
     // --- BENDICIONES (BLESSINGS) ---
     { name: "Corazón de Titán", type: "Bendición", desc: "+2 Corazones de vida máxima permanentes.", icon: "❤️" },
@@ -261,6 +262,72 @@ export const wikiAdvancedEntries = [
     }
 ];
 export const items = [
+    // --- COMÚN ---
+    {
+        name: "Piedra de Afilar",
+        type: "Utilidad",
+        desc: "Repara un ítem en yunque sin gastar XP.",
+        rarity: "comun",
+        acquisition: "Crafting",
+        recipe: {
+            type: "shapeless",
+            ingredients: ["Stone", "Flint"],
+            result: "Piedra de Afilar"
+        }
+    },
+    {
+        name: "Palo Afilado",
+        type: "Arma",
+        desc: "+1.5 de daño, starter.",
+        rarity: "comun",
+        acquisition: "Crafting",
+        recipe: {
+            type: "shaped",
+            grid: [
+                "Flint", null, null,
+                "Stick", null, null,
+                null, null, null
+            ],
+            result: "Palo Afilado"
+        }
+    },
+    {
+        name: "Antorcha Eterna",
+        type: "Utilidad",
+        desc: "No se apaga jamás.",
+        rarity: "comun",
+        acquisition: "Crafting",
+        recipe: {
+            type: "shapeless",
+            ingredients: ["Torch", "Glowstone Dust"],
+            result: "Antorcha Eterna"
+        }
+    },
+    {
+        name: "Pan Mohoso",
+        type: "Consumible",
+        desc: "Comida dudosa, puede dar efectos negativos.",
+        rarity: "comun",
+        acquisition: "Crafting",
+        recipe: {
+            type: "shapeless",
+            ingredients: ["Bread", "Brown Mushroom"],
+            result: "Pan Mohoso"
+        }
+    },
+    {
+        name: "Venda Curativa",
+        type: "Consumible",
+        desc: "Cura un poco al aplicarla.",
+        rarity: "comun",
+        acquisition: "Crafting",
+        recipe: {
+            type: "shapeless",
+            ingredients: ["Paper", "White Wool"],
+            result: "Venda Curativa"
+        }
+    },
+
     {
         name: "Sopa Misteriosa",
         type: "Consumible",
@@ -275,6 +342,22 @@ export const items = [
     },
 
     // --- RARO ---
+    {
+        name: "Botas de Cuero Reforzadas",
+        type: "Armadura",
+        desc: "Botas de cuero con planchas de hierro, más durables.",
+        rarity: "raro",
+        acquisition: "Crafting",
+        recipe: {
+            type: "shaped",
+            grid: [
+                "Iron Ingot", null, "Iron Ingot",
+                "Leather Boots", null, "Leather Boots",
+                null, null, null
+            ],
+            result: "Botas de Cuero Reforzadas"
+        }
+    },
     { name: "Botas de Hermes", type: "Armadura", desc: "Doble salto. Se rompen muy rápido.", rarity: "raro", acquisition: "Drop: Zombie Veloz (6%)" },
     { name: "Poción de Olvido", type: "Consumible", desc: "Elimina el agro de los mobs cercanos.", rarity: "raro", acquisition: "Drop: Bruja del Pantano" },
     {

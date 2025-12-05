@@ -6,7 +6,11 @@ import net.rollanddeath.smp.core.items.CustomItemType;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
+import org.bukkit.inventory.AnvilInventory;
 
 import java.util.List;
 
@@ -31,16 +35,44 @@ public class SharpeningStone extends CustomItem {
         ItemStack first = event.getInventory().getItem(0);
         ItemStack second = event.getInventory().getItem(1);
 
-        if (first != null && second != null && isItem(second)) {
-            // Logic to repair item would go here, but Anvil API is tricky.
-            // For simplicity, let's say it just fully repairs the item if it's damageable.
-            if (first.getType().getMaxDurability() > 0) {
-                ItemStack result = first.clone();
-                org.bukkit.inventory.meta.Damageable meta = (org.bukkit.inventory.meta.Damageable) result.getItemMeta();
-                meta.setDamage(0);
-                result.setItemMeta(meta);
-                event.setResult(result);
-            }
+        if (first != null && second != null && isItem(second) && first.getItemMeta() instanceof Damageable damageable) {
+            ItemStack result = first.clone();
+            Damageable meta = (Damageable) result.getItemMeta();
+            meta.setDamage(0);
+            result.setItemMeta(meta);
+            event.setResult(result);
+            event.getInventory().setRepairCost(0); // allow take without XP
         }
+    }
+
+    @EventHandler
+    public void onResultTake(InventoryClickEvent event) {
+        if (!(event.getInventory() instanceof AnvilInventory anvil)) return;
+        if (event.getSlotType() != InventoryType.SlotType.RESULT) return;
+
+        ItemStack first = anvil.getItem(0);
+        ItemStack second = anvil.getItem(1);
+        ItemStack result = event.getCurrentItem();
+
+        if (first == null || second == null || result == null) return;
+        if (!isItem(second)) return;
+        if (!(first.getItemMeta() instanceof Damageable)) return;
+
+        // Consume one sharpening stone and refresh repaired item to prevent ghost results.
+        anvil.setRepairCost(0);
+        if (second.getAmount() <= 1) {
+            anvil.setItem(1, null);
+        } else {
+            ItemStack copy = second.clone();
+            copy.setAmount(second.getAmount() - 1);
+            anvil.setItem(1, copy);
+        }
+
+        // Ensure the output is fully repaired and placed in cursor.
+        ItemStack repaired = first.clone();
+        Damageable meta = (Damageable) repaired.getItemMeta();
+        meta.setDamage(0);
+        repaired.setItemMeta(meta);
+        event.setCurrentItem(repaired);
     }
 }

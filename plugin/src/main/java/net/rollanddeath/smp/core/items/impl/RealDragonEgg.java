@@ -44,6 +44,9 @@ public class RealDragonEgg extends CustomItem {
         dragon.customName(MiniMessage.miniMessage().deserialize("<dark_purple>Dragón Bebé de " + player.getName()));
         dragon.setCustomNameVisible(true);
         dragon.setSize(3);
+        dragon.setShouldBurnInDay(false);
+        dragon.setFireTicks(0);
+        dragon.setRemoveWhenFarAway(false);
         // AI to follow player and attack enemies is complex without NMS or advanced API.
         // For now, it's just a friendly phantom (maybe?). 
         // Vanilla phantoms attack players. We need to target monsters.

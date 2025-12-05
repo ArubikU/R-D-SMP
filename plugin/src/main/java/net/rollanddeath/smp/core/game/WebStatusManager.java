@@ -80,8 +80,8 @@ public class WebStatusManager {
     }
 
     private void startUpdateTask() {
-        // Update every 30 seconds
-        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, this::updateStatus, 20L, 600L);
+        // Update every ~2 seconds for faster web sync
+        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, this::updateStatus, 20L, 40L);
     }
 
     public void updateStatus() {

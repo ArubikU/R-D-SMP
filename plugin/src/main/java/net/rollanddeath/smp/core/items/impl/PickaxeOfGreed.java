@@ -10,8 +10,11 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.Tag;
 
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 public class PickaxeOfGreed extends CustomItem {
 
@@ -40,6 +43,10 @@ public class PickaxeOfGreed extends CustomItem {
 
         if (!isItem(item)) return;
 
+        // Only punish when mining ores to match the item description.
+        Material broken = event.getBlock().getType();
+        if (!isOre(broken)) return;
+
         // Damage player (0.5 hearts)
         if (player.getHealth() > 1) {
             player.damage(1.0);
@@ -48,4 +55,27 @@ public class PickaxeOfGreed extends CustomItem {
             player.damage(100.0); // Kill them
         }
     }
+    
+    private static final Set<Material> ORE_MATERIALS = buildOreSet();
+
+    private static Set<Material> buildOreSet() {
+        EnumSet<Material> ores = EnumSet.noneOf(Material.class);
+        ores.add(Material.ANCIENT_DEBRIS);
+        ores.addAll(Tag.COAL_ORES.getValues());
+        ores.addAll(Tag.COPPER_ORES.getValues());
+        ores.addAll(Tag.DIAMOND_ORES.getValues());
+        ores.addAll(Tag.EMERALD_ORES.getValues());
+        ores.addAll(Tag.GOLD_ORES.getValues());
+        ores.addAll(Tag.IRON_ORES.getValues());
+        ores.addAll(Tag.LAPIS_ORES.getValues());
+        ores.addAll(Tag.REDSTONE_ORES.getValues());
+        ores.add(Material.NETHER_GOLD_ORE);
+        ores.add(Material.NETHER_QUARTZ_ORE);
+        return ores;
+    }
+
+    private static boolean isOre(Material type) {
+        return ORE_MATERIALS.contains(type);
+    }
+
 }

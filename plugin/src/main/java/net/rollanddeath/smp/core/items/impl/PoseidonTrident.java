@@ -11,6 +11,8 @@ import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 import java.util.List;
 
@@ -69,12 +71,18 @@ public class PoseidonTrident extends CustomItem {
         if (!isItem(item)) return;
         
         Player player = event.getPlayer();
-        if (!player.isInWater() && !player.isRiptiding()) {
-            // Simulate Riptide
-            Vector direction = player.getLocation().getDirection();
-            player.setVelocity(direction.multiply(3));
-            player.setRiptiding(true); // This might not work if not in water/rain in vanilla logic, but API might allow it.
-            // If setRiptiding doesn't work visually or logically without water, we just launch them.
+        if (!player.isInWater()) {
+            // Simulate a dry-riptide dash without locking the player in the riptide state
+            Vector direction = player.getLocation().getDirection().normalize();
+            player.setVelocity(direction.multiply(2.8));
+            player.setCooldown(Material.TRIDENT, 20); // prevent spam and avoids stuck attack cooldowns
+
+            // Grant brief slow-fall and dolphin's grace to smooth landing and feel closer to riptide.
+            player.addPotionEffect(new PotionEffect(PotionEffectType.DOLPHINS_GRACE, 30, 0, false, false, false));
+            player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, 30, 0, false, false, false));
+
+            // Ensure any lingering riptide flag is cleared shortly after use.
+            plugin.getServer().getScheduler().runTaskLater(plugin, () -> player.setRiptiding(false), 10L);
         }
     }
 }

@@ -7,6 +7,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
+import org.bukkit.block.Block;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -43,9 +44,13 @@ public class VoidCall extends CustomItem {
 
         Player player = event.getPlayer();
         event.setCancelled(true);
+        if (item.getAmount() <= 0) {
+            return;
+        }
         item.setAmount(item.getAmount() - 1);
 
-        Location loc = player.getTargetBlock(null, 50).getLocation().add(0, 1, 0);
+        Block target = player.getTargetBlockExact(50);
+        Location loc = (target != null ? target.getLocation() : player.getEyeLocation().add(player.getLocation().getDirection().multiply(8))).add(0, 1, 0);
         
         new BukkitRunnable() {
             int ticks = 0;

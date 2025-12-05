@@ -66,11 +66,11 @@ public final class DiscordWebhookService {
         NamedTextColor teamColor = team != null ? team.getColor() : null;
         String teamTag = formatTeamTag(team);
         String content = PlainTextComponentSerializer.plainText().serialize(message);
-        String username = player.getName();
+        String username = playerDisplayName(player);
         if (!teamTag.isEmpty()) {
             username = username + " " + teamTag;
         }
-        String avatar = playerAvatar(player.getUniqueId());
+        String avatar = playerAvatar(player);
         String json = JsonBuilder.create()
                 .username(username)
                 .avatar(avatar)
@@ -87,8 +87,8 @@ public final class DiscordWebhookService {
         }
         Team team = teamManager.getTeam(victim.getUniqueId());
         NamedTextColor teamColor = team != null ? team.getColor() : null;
-        String avatar = playerAvatar(victim.getUniqueId());
-        String username = victim.getName();
+        String avatar = playerAvatar(victim);
+        String username = playerDisplayName(victim);
         if (!formatTeamTag(team).isEmpty()) {
             username += " " + formatTeamTag(team);
         }
@@ -134,12 +134,54 @@ public final class DiscordWebhookService {
         }
         String json = JsonBuilder.create()
             .username("Anuncio")
-            .avatar(sender instanceof Player player ? playerAvatar(player.getUniqueId()) : DEFAULT_AVATAR)
+            .avatar(sender instanceof Player player ? playerAvatar(player) : DEFAULT_AVATAR)
             .embedTitle("Anuncio de " + name)
             .embedDescription(message)
                 .embedColor(0xFAA61A)
                 .timestamp(Instant.now())
                 .build();
+        post(json);
+    }
+
+    public void sendPlayerJoin(Player player) {
+        if (!enabled || player == null) {
+            return;
+        }
+        Team team = teamManager.getTeam(player.getUniqueId());
+        String teamTag = formatTeamTag(team);
+        String username = playerDisplayName(player);
+        if (!teamTag.isEmpty()) {
+            username += " " + teamTag;
+        }
+        String json = JsonBuilder.create()
+            .username(username)
+            .avatar(playerAvatar(player))
+            .embedTitle("Se unió al servidor")
+            .embedDescription(username + " está en línea")
+            .embedColor(0x57F287)
+            .timestamp(Instant.now())
+            .build();
+        post(json);
+    }
+
+    public void sendPlayerQuit(Player player) {
+        if (!enabled || player == null) {
+            return;
+        }
+        Team team = teamManager.getTeam(player.getUniqueId());
+        String teamTag = formatTeamTag(team);
+        String username = playerDisplayName(player);
+        if (!teamTag.isEmpty()) {
+            username += " " + teamTag;
+        }
+        String json = JsonBuilder.create()
+            .username(username)
+            .avatar(playerAvatar(player))
+            .embedTitle("Salió del servidor")
+            .embedDescription(username + " se desconectó")
+            .embedColor(0xED4245)
+            .timestamp(Instant.now())
+            .build();
         post(json);
     }
 
@@ -165,11 +207,19 @@ public final class DiscordWebhookService {
         return value == null || value.trim().isEmpty();
     }
 
-    private static String playerAvatar(UUID uuid) {
-        if (uuid == null) {
+    private static String playerAvatar(Player player) {
+        if (player == null) {
             return DEFAULT_AVATAR;
         }
-        return "https://mc-heads.net/avatar/" + uuid.toString() + "/128";
+        String name = player.getName();
+        if (name != null && !name.isBlank()) {
+            return "https://mc-heads.net/avatar/" + name + "/128";
+        }
+        UUID uuid = player.getUniqueId();
+        if (uuid != null) {
+            return "https://mc-heads.net/avatar/" + uuid.toString() + "/128";
+        }
+        return DEFAULT_AVATAR;
     }
 
     private static String formatTeamTag(Team team) {
@@ -184,6 +234,20 @@ public final class DiscordWebhookService {
             return 0x5865F2; // Discord blurple default
         }
         return color.value();
+    }
+
+    private static String playerDisplayName(Player player) {
+        if (player == null) {
+            return "Jugador";
+        }
+        Component display = player.displayName();
+        String plain = display != null
+            ? PlainTextComponentSerializer.plainText().serialize(display)
+            : player.getName();
+        if (plain == null || plain.isBlank()) {
+            plain = player.getName();
+        }
+        return plain != null ? plain : "Jugador";
     }
 
     private static String escape(String raw) {

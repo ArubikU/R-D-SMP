@@ -36,3 +36,6 @@ commands:
       description: Abre el menú principal del servidor
       usage: /menu
       aliases: [info, help]
+    eventos:
+      description: Muestra los eventos activos con descripción
+      usage: /eventos

@@ -207,8 +207,26 @@ public class ReanimationManager implements Listener {
             return;
         }
 
+        UUID carrierId = downed.getCarrierId();
+        if (carrierId != null) {
+            if (carrierId.equals(rescuer.getUniqueId())) {
+                if (rescuer.isSneaking()) {
+                    dropCarriedPlayer(rescuer, target, downed);
+                    return;
+                }
+                chargeThrow(rescuer, downed);
+            } else {
+                rescuer.sendMessage(Component.text("No puedes reanimarlo mientras está siendo cargado.", NamedTextColor.RED));
+            }
+            return;
+        }
+
         if (settings.carryEnabled && !rescuer.isSneaking()) {
-            toggleCarry(rescuer, target, downed);
+            if (!rescuer.getPassengers().isEmpty()) {
+                rescuer.sendMessage(Component.text("Ya estás cargando a alguien.", NamedTextColor.RED));
+                return;
+            }
+            startCarrying(rescuer, target, downed);
             return;
         }
 
@@ -233,13 +251,17 @@ public class ReanimationManager implements Listener {
             return;
         }
 
-        CarrierCharge charge = carrierCharges.computeIfAbsent(player.getUniqueId(), id -> new CarrierCharge(downed.getTargetId(), tickCounter));
-        charge.updateTarget(downed.getTargetId());
-        charge.markInteract(tickCounter);
+        chargeThrow(player, downed);
 
         event.setCancelled(true);
         event.setUseInteractedBlock(org.bukkit.event.Event.Result.DENY);
         event.setUseItemInHand(org.bukkit.event.Event.Result.DENY);
+    }
+
+    private void chargeThrow(Player carrier, DownedPlayer downed) {
+        CarrierCharge charge = carrierCharges.computeIfAbsent(carrier.getUniqueId(), id -> new CarrierCharge(downed.getTargetId(), tickCounter));
+        charge.updateTarget(downed.getTargetId());
+        charge.markInteract(tickCounter);
     }
 
     private boolean shouldDownPlayer(Player player) {
@@ -285,20 +307,6 @@ public class ReanimationManager implements Listener {
         }
 
         downed.beginRevive(rescuer, target, settings.reviveChannelSeconds * 20, settings.sneakRequired);
-    }
-
-    private void toggleCarry(Player rescuer, Player target, DownedPlayer downed) {
-        if (target.isInsideVehicle()) {
-            dropCarriedPlayer(rescuer, target, downed);
-            return;
-        }
-
-        if (!rescuer.getPassengers().isEmpty()) {
-            rescuer.sendMessage(Component.text("Ya estás cargando a alguien.", NamedTextColor.RED));
-            return;
-        }
-
-        startCarrying(rescuer, target, downed);
     }
 
     private void finishRevive(Player target, Player rescuer, DownedPlayer downed) {
@@ -829,7 +837,7 @@ public class ReanimationManager implements Listener {
 
     private static final class CarrierCharge {
         private static final int MAX_CHARGE_TICKS = 60;
-        private static final int RELEASE_IDLE_TICKS = 3;
+        private static final int RELEASE_IDLE_TICKS = 10;
 
         private UUID targetId;
         private long lastInteractTick;
@@ -854,13 +862,13 @@ public class ReanimationManager implements Listener {
         }
 
         private void tick(long currentTick) {
-            if (currentTick - lastInteractTick <= 1) {
+            if (currentTick - lastInteractTick <= RELEASE_IDLE_TICKS) {
                 chargeTicks = Math.min(MAX_CHARGE_TICKS, chargeTicks + 1);
             }
         }
 
         private boolean isCharging(long currentTick) {
-            return currentTick - lastInteractTick <= 1 && chargeTicks > 0;
+            return currentTick - lastInteractTick <= RELEASE_IDLE_TICKS && chargeTicks > 0;
         }
 
         private boolean shouldRelease(long currentTick) {

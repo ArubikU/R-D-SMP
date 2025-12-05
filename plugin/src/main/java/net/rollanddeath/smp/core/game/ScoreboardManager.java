@@ -161,9 +161,15 @@ public class ScoreboardManager implements Listener {
         if (events.isEmpty()) {
             setScore(obj, "- Ninguno", score--);
         } else {
+            int shown = 0;
             for (String event : events) {
                 if (score <= 0) break;
                 setScore(obj, "- " + event, score--);
+                shown++;
+            }
+            int remaining = events.size() - shown;
+            if (remaining > 0 && score >= 0) {
+                setScore(obj, "+" + remaining + " más", score--);
             }
         }
     }

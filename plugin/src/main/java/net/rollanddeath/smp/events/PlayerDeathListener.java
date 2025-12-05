@@ -24,6 +24,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
@@ -35,8 +36,10 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.UUID;
 
 public class PlayerDeathListener implements Listener {
@@ -48,6 +51,7 @@ public class PlayerDeathListener implements Listener {
     private final NamespacedKey headDataKey;
     private final Gson gson;
     private final DiscordWebhookService discordService;
+    private final Set<UUID> recentDeaths = new HashSet<>();
 
     public PlayerDeathListener(RollAndDeathSMP plugin, LifeManager lifeManager, DiscordWebhookService discordService) {
         this.plugin = plugin;
@@ -61,6 +65,11 @@ public class PlayerDeathListener implements Listener {
     @SuppressWarnings("deprecation")
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player player = event.getEntity();
+        UUID uuid = player.getUniqueId();
+        if (!recentDeaths.add(uuid)) {
+            return;
+        }
+        Bukkit.getScheduler().runTaskLater(plugin, () -> recentDeaths.remove(uuid), 20L);
         addDeathHeadDrop(event, player);
         
         // Check Permadeath (Day 31+)
@@ -126,6 +135,18 @@ public class PlayerDeathListener implements Listener {
         if (lifeManager.isEliminated(player)) {
             player.setGameMode(GameMode.SPECTATOR);
             player.sendMessage(Component.text("Sigues en el Limbo. Espera a ser revivido.", NamedTextColor.GRAY));
+        }
+
+        if (discordService != null && discordService.isEnabled()) {
+            discordService.sendPlayerJoin(player);
+        }
+    }
+
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        Player player = event.getPlayer();
+        if (discordService != null && discordService.isEnabled()) {
+            discordService.sendPlayerQuit(player);
         }
     }
 

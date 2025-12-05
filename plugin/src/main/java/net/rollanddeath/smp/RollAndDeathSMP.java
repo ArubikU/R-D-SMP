@@ -34,6 +34,7 @@ import net.rollanddeath.smp.core.commands.AdminCommand;
 import net.rollanddeath.smp.core.items.DailyRollManager;
 import net.rollanddeath.smp.core.commands.DailyCommand;
 import net.rollanddeath.smp.core.commands.MenuCommand;
+import net.rollanddeath.smp.core.commands.EventMenuCommand;
 import net.rollanddeath.smp.core.combat.CombatLogManager;
 import net.rollanddeath.smp.core.combat.ReanimationManager;
 import net.rollanddeath.smp.integration.discord.DiscordWebhookService;
@@ -382,6 +383,14 @@ public final class RollAndDeathSMP extends JavaPlugin {
             menuCommand.setTabCompleter(menuCmd);
         }
         getServer().getPluginManager().registerEvents(menuCmd, this);
+
+        EventMenuCommand eventMenu = new EventMenuCommand(this);
+        PluginCommand eventosCmd = getCommand("eventos");
+        if (eventosCmd != null) {
+            eventosCmd.setExecutor(eventMenu);
+            eventosCmd.setTabCompleter(eventMenu);
+        }
+        getServer().getPluginManager().registerEvents(eventMenu, this);
 
         if (discordService != null && discordService.isEnabled()) {
             discordService.sendServerStatus(true);
