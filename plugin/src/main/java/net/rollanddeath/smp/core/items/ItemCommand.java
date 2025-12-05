@@ -5,10 +5,19 @@ import net.rollanddeath.smp.RollAndDeathSMP;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-public class ItemCommand implements CommandExecutor {
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+
+public class ItemCommand implements CommandExecutor, TabCompleter {
 
     private final RollAndDeathSMP plugin;
 
@@ -61,5 +70,61 @@ public class ItemCommand implements CommandExecutor {
         }
 
         return true;
+    }
+
+    @Override
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
+        if (!sender.hasPermission("rollanddeath.admin")) {
+            return Collections.emptyList();
+        }
+
+        if (args.length == 0) {
+            return Collections.singletonList("give");
+        }
+
+        if (args.length == 1) {
+            return filterCompletions(args[0], Collections.singletonList("give"));
+        }
+
+        if (!args[0].equalsIgnoreCase("give")) {
+            return Collections.emptyList();
+        }
+
+        if (args.length == 2) {
+            List<String> players = plugin.getServer().getOnlinePlayers().stream()
+                    .map(Player::getName)
+                    .filter(Objects::nonNull)
+                    .toList();
+            return filterCompletions(args[1], players);
+        }
+
+        if (args.length == 3) {
+            List<String> items = Arrays.stream(CustomItemType.values())
+                    .map(Enum::name)
+                    .toList();
+            return filterCompletions(args[2], items);
+        }
+
+        if (args.length == 4) {
+            return filterCompletions(args[3], Arrays.asList("1", "2", "4", "8", "16", "32", "64"));
+        }
+
+        return Collections.emptyList();
+    }
+
+    private List<String> filterCompletions(String token, Collection<String> candidates) {
+        if (candidates.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        String prefix = token.toLowerCase(Locale.ROOT);
+        List<String> matches = new ArrayList<>();
+        for (String option : candidates) {
+            if (option != null && option.toLowerCase(Locale.ROOT).startsWith(prefix)) {
+                matches.add(option);
+            }
+        }
+        matches.sort(String.CASE_INSENSITIVE_ORDER);
+        return matches;
     }
 }

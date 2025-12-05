@@ -32,7 +32,9 @@ import net.rollanddeath.smp.core.items.CraftingListener;
 import net.rollanddeath.smp.core.commands.AdminCommand;
 import net.rollanddeath.smp.core.items.DailyRollManager;
 import net.rollanddeath.smp.core.commands.DailyCommand;
+import net.rollanddeath.smp.core.commands.MenuCommand;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.command.PluginCommand;
 
 public final class RollAndDeathSMP extends JavaPlugin {
 
@@ -308,15 +310,54 @@ public final class RollAndDeathSMP extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new ChatListener(teamManager, roleManager), this);
 
         // Register Commands
-        getCommand("team").setExecutor(new TeamCommand(teamManager));
-        getCommand("role").setExecutor(new RoleCommand(this));
-        getCommand("mob").setExecutor(new MobCommand(this));
-        getCommand("item").setExecutor(new ItemCommand(this));
-        getCommand("rd").setExecutor(new AdminCommand(this));
-        getCommand("daily").setExecutor(new DailyCommand(dailyRollManager));
-        
-        net.rollanddeath.smp.core.commands.MenuCommand menuCmd = new net.rollanddeath.smp.core.commands.MenuCommand(this);
-        getCommand("menu").setExecutor(menuCmd);
+        TeamCommand teamCommand = new TeamCommand(teamManager);
+        PluginCommand teamCmd = getCommand("team");
+        if (teamCmd != null) {
+            teamCmd.setExecutor(teamCommand);
+            teamCmd.setTabCompleter(teamCommand);
+        }
+
+        RoleCommand roleCommand = new RoleCommand(this);
+        PluginCommand roleCmd = getCommand("role");
+        if (roleCmd != null) {
+            roleCmd.setExecutor(roleCommand);
+            roleCmd.setTabCompleter(roleCommand);
+        }
+
+        MobCommand mobCommand = new MobCommand(this);
+        PluginCommand mobCmd = getCommand("mob");
+        if (mobCmd != null) {
+            mobCmd.setExecutor(mobCommand);
+            mobCmd.setTabCompleter(mobCommand);
+        }
+
+        ItemCommand itemCommand = new ItemCommand(this);
+        PluginCommand itemCmd = getCommand("item");
+        if (itemCmd != null) {
+            itemCmd.setExecutor(itemCommand);
+            itemCmd.setTabCompleter(itemCommand);
+        }
+
+        AdminCommand adminCommand = new AdminCommand(this);
+        PluginCommand rdCmd = getCommand("rd");
+        if (rdCmd != null) {
+            rdCmd.setExecutor(adminCommand);
+            rdCmd.setTabCompleter(adminCommand);
+        }
+
+        DailyCommand dailyCommand = new DailyCommand(dailyRollManager);
+        PluginCommand dailyCmd = getCommand("daily");
+        if (dailyCmd != null) {
+            dailyCmd.setExecutor(dailyCommand);
+            dailyCmd.setTabCompleter(dailyCommand);
+        }
+
+        MenuCommand menuCmd = new MenuCommand(this);
+        PluginCommand menuCommand = getCommand("menu");
+        if (menuCommand != null) {
+            menuCommand.setExecutor(menuCmd);
+            menuCommand.setTabCompleter(menuCmd);
+        }
         getServer().getPluginManager().registerEvents(menuCmd, this);
 
         getLogger().info("RollAndDeath SMP Plugin has been enabled!");

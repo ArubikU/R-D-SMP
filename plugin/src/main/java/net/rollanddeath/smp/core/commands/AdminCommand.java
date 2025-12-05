@@ -9,14 +9,23 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
 
-public class AdminCommand implements CommandExecutor {
+public class AdminCommand implements CommandExecutor, TabCompleter {
 
     private final RollAndDeathSMP plugin;
+    private static final List<String> ADMIN_SUBCOMMANDS = Arrays.asList("roulette", "setday", "life", "role", "event");
+    private static final List<String> EVENT_SUBCOMMANDS = Arrays.asList("add", "remove", "clear", "list");
 
     public AdminCommand(RollAndDeathSMP plugin) {
         this.plugin = plugin;
@@ -35,6 +44,101 @@ public class AdminCommand implements CommandExecutor {
         
         sender.sendMessage(Component.text("RollAndDeath SMP Plugin v1.0", NamedTextColor.GOLD));
         return true;
+    }
+
+    @Override
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
+        if (args.length == 0) {
+            return Collections.singletonList("admin");
+        }
+
+        if (args.length == 1) {
+            return filterCompletions(args[0], Collections.singletonList("admin"));
+        }
+
+        if (!args[0].equalsIgnoreCase("admin")) {
+            return Collections.emptyList();
+        }
+
+        if (!sender.hasPermission("rd.admin")) {
+            return Collections.emptyList();
+        }
+
+        if (args.length == 2) {
+            return filterCompletions(args[1], ADMIN_SUBCOMMANDS);
+        }
+
+        String sub = args[1].toLowerCase(Locale.ROOT);
+        switch (sub) {
+            case "roulette":
+                if (args.length == 3) {
+                    return filterCompletions(args[2], Collections.singletonList("spin"));
+                }
+                break;
+            case "setday":
+                return Collections.emptyList();
+            case "life":
+                if (args.length == 3) {
+                    return filterCompletions(args[2], Collections.singletonList("set"));
+                } else if (args.length >= 4) {
+                    if (!args[2].equalsIgnoreCase("set")) {
+                        return Collections.emptyList();
+                    }
+                    if (args.length == 4) {
+                        List<String> players = Bukkit.getOnlinePlayers().stream()
+                                .map(Player::getName)
+                                .filter(Objects::nonNull)
+                                .toList();
+                        return filterCompletions(args[3], players);
+                    }
+                    if (args.length == 5) {
+                        return filterCompletions(args[4], Arrays.asList("1", "2", "3", "4", "5", "10"));
+                    }
+                }
+                break;
+            case "role":
+                if (args.length == 3) {
+                    return filterCompletions(args[2], Collections.singletonList("set"));
+                } else if (args.length >= 4) {
+                    if (!args[2].equalsIgnoreCase("set")) {
+                        return Collections.emptyList();
+                    }
+                    if (args.length == 4) {
+                        List<String> players = Bukkit.getOnlinePlayers().stream()
+                                .map(Player::getName)
+                                .filter(Objects::nonNull)
+                                .toList();
+                        return filterCompletions(args[3], players);
+                    }
+                    if (args.length == 5) {
+                        List<String> roles = Arrays.stream(RoleType.values())
+                                .map(Enum::name)
+                                .toList();
+                        return filterCompletions(args[4], roles);
+                    }
+                }
+                break;
+            case "event":
+                if (args.length == 3) {
+                    return filterCompletions(args[2], EVENT_SUBCOMMANDS);
+                }
+                if (args.length >= 4) {
+                    String action = args[2].toLowerCase(Locale.ROOT);
+                    if (action.equals("add")) {
+                        List<String> modifiers = new ArrayList<>(plugin.getModifierManager().getRegisteredModifierNames());
+                        return filterCompletions(args[3], modifiers);
+                    }
+                    if (action.equals("remove")) {
+                        List<String> active = new ArrayList<>(plugin.getModifierManager().getActiveModifiers());
+                        return filterCompletions(args[3], active);
+                    }
+                }
+                break;
+            default:
+                return Collections.emptyList();
+        }
+
+        return Collections.emptyList();
     }
 
     private void handleAdmin(CommandSender sender, String[] args) {
@@ -150,5 +254,21 @@ public class AdminCommand implements CommandExecutor {
         sender.sendMessage(Component.text("/rd admin event remove <name> - Desactivar evento", NamedTextColor.YELLOW));
         sender.sendMessage(Component.text("/rd admin event clear - Desactivar todos los eventos", NamedTextColor.YELLOW));
         sender.sendMessage(Component.text("/rd admin event list - Listar eventos disponibles", NamedTextColor.YELLOW));
+    }
+
+    private List<String> filterCompletions(String token, Collection<String> candidates) {
+        if (candidates.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        String prefix = token.toLowerCase(Locale.ROOT);
+        List<String> matches = new ArrayList<>();
+        for (String option : candidates) {
+            if (option != null && option.toLowerCase(Locale.ROOT).startsWith(prefix)) {
+                matches.add(option);
+            }
+        }
+        matches.sort(String.CASE_INSENSITIVE_ORDER);
+        return matches;
     }
 }

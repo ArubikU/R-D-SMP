@@ -41,7 +41,7 @@ export const ActiveModifiers: React.FC = () => {
                 const response = await fetch('https://v0-retroproxy.vercel.app/api/proxy?url=http://151.245.32.130:25587/status');
                 if (!response.ok) throw new Error('Error al conectar con el servidor');
                 const data = await response.json();
-                setStatus(data);
+                setStatus(data.data);
             } catch (err) {
                 console.error(err);
                 setError('No se pudo obtener el estado del servidor.');

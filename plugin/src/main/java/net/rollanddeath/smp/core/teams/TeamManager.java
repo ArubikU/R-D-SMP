@@ -5,7 +5,9 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.UUID;
 
@@ -98,6 +100,10 @@ public class TeamManager {
 
     public Team getTeam(String name) {
         return teamsByName.get(name);
+    }
+    
+    public Collection<String> getTeamNames() {
+        return new HashSet<>(teamsByName.keySet());
     }
     
     public boolean areAllMembersOffline(Team team) {

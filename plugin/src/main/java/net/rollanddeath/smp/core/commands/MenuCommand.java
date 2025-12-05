@@ -11,6 +11,7 @@ import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -21,9 +22,10 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-public class MenuCommand implements CommandExecutor, Listener {
+public class MenuCommand implements CommandExecutor, Listener, TabCompleter {
 
     private final RollAndDeathSMP plugin;
     private final Component GUI_TITLE = Component.text("Menú Roll & Death", NamedTextColor.DARK_RED);
@@ -40,6 +42,11 @@ public class MenuCommand implements CommandExecutor, Listener {
         }
         openMenu(player);
         return true;
+    }
+
+    @Override
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
+        return Collections.emptyList();
     }
 
     private void openMenu(Player player) {

@@ -6,14 +6,33 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
 import java.util.UUID;
 
-public class TeamCommand implements CommandExecutor {
+public class TeamCommand implements CommandExecutor, TabCompleter {
 
     private final TeamManager teamManager;
+    private static final List<String> BASE_SUBCOMMANDS = Arrays.asList(
+            "create",
+            "invite",
+            "accept",
+            "leave",
+            "kick",
+            "chat",
+            "friendlyfire",
+            "war",
+            "info"
+    );
 
     public TeamCommand(TeamManager teamManager) {
         this.teamManager = teamManager;
@@ -80,6 +99,81 @@ public class TeamCommand implements CommandExecutor {
         }
 
         return true;
+    }
+
+    @Override
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
+        if (!(sender instanceof Player player)) {
+            return Collections.emptyList();
+        }
+
+        if (alias.equalsIgnoreCase("tc")) {
+            return Collections.emptyList();
+        }
+
+        if (args.length == 0) {
+            return new ArrayList<>(BASE_SUBCOMMANDS);
+        }
+
+        if (args.length == 1) {
+            return filterCompletions(args[0], BASE_SUBCOMMANDS);
+        }
+
+        String sub = args[0].toLowerCase(Locale.ROOT);
+        switch (sub) {
+            case "invite":
+                if (args.length == 2) {
+                    Team team = teamManager.getTeam(player.getUniqueId());
+                    if (team == null || !team.getOwner().equals(player.getUniqueId()) || team.getMembers().size() >= 4) {
+                        return Collections.emptyList();
+                    }
+
+                    List<String> candidates = Bukkit.getOnlinePlayers().stream()
+                            .filter(p -> !p.getUniqueId().equals(player.getUniqueId()))
+                            .filter(p -> teamManager.getTeam(p.getUniqueId()) == null)
+                            .map(Player::getName)
+                            .filter(Objects::nonNull)
+                            .toList();
+                    return filterCompletions(args[1], candidates);
+                }
+                break;
+            case "kick":
+                if (args.length == 2) {
+                    Team team = teamManager.getTeam(player.getUniqueId());
+                    if (team == null || !team.getOwner().equals(player.getUniqueId())) {
+                        return Collections.emptyList();
+                    }
+
+                    List<String> members = team.getMembers().stream()
+                            .map(uuid -> Bukkit.getOfflinePlayer(uuid).getName())
+                            .filter(Objects::nonNull)
+                            .filter(name -> !name.equalsIgnoreCase(player.getName()))
+                            .toList();
+                    return filterCompletions(args[1], members);
+                }
+                break;
+            case "war":
+                if (args.length == 2) {
+                    Team team = teamManager.getTeam(player.getUniqueId());
+                    if (team == null || !team.getOwner().equals(player.getUniqueId())) {
+                        return Collections.emptyList();
+                    }
+
+                    List<String> targets = teamManager.getTeamNames().stream()
+                            .filter(name -> !name.equalsIgnoreCase(team.getName()))
+                            .filter(name -> !team.isAtWarWith(name))
+                            .toList();
+                    return filterCompletions(args[1], targets);
+                }
+                break;
+            case "chat":
+            case "c":
+                return Collections.emptyList();
+            default:
+                break;
+        }
+
+        return Collections.emptyList();
     }
 
     private void sendHelp(Player player) {
@@ -342,5 +436,23 @@ public class TeamCommand implements CommandExecutor {
             String memberName = Bukkit.getOfflinePlayer(memberId).getName();
             player.sendMessage(Component.text("- " + (memberName != null ? memberName : "Desconocido"), NamedTextColor.WHITE));
         }
+    }
+
+    private List<String> filterCompletions(String token, Collection<String> candidates) {
+        if (token.isEmpty()) {
+            List<String> all = new ArrayList<>(candidates);
+            all.sort(String.CASE_INSENSITIVE_ORDER);
+            return all;
+        }
+
+        List<String> matches = new ArrayList<>();
+        String lower = token.toLowerCase(Locale.ROOT);
+        for (String option : candidates) {
+            if (option != null && option.toLowerCase(Locale.ROOT).startsWith(lower)) {
+                matches.add(option);
+            }
+        }
+        matches.sort(String.CASE_INSENSITIVE_ORDER);
+        return matches;
     }
 }
