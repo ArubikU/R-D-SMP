@@ -55,12 +55,8 @@ export const ActiveModifiers: React.FC = () => {
         return () => clearInterval(interval);
     }, []);
 
-    if (loading) return <div className="text-center text-gray-400 py-12">Cargando estado del servidor...</div>;
-    if (error) return <div className="text-center text-red-400 py-12">{error}</div>;
-    if (!status) return <div className="text-center text-gray-500 py-12">Sin datos disponibles por el momento.</div>;
-
-    const onlineCount = status.players.filter((p) => p.online).length;
-    const totalPlayers = status.players.length;
+    const onlineCount = status?.players.filter((p) => p.online).length ?? 0;
+    const totalPlayers = status?.players.length ?? 0;
 
     const formatCountdown = (seconds?: number) => {
         if (seconds === undefined || seconds < 0) return '---';
@@ -74,32 +70,37 @@ export const ActiveModifiers: React.FC = () => {
         return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     };
 
-    const statCards = useMemo(() => ([
-        {
-            label: 'Día Actual',
-            value: status.day,
-            accent: 'border-red-600',
-            subtitle: `${status.active_modifiers.length} modificadores activos`,
-        },
-        {
-            label: 'Permadeath',
-            value: status.permadeath ? 'Activo' : 'Inactivo',
-            accent: status.permadeath ? 'border-amber-500' : 'border-zinc-700',
-            subtitle: status.permadeath ? 'Sin segundas oportunidades' : 'Respawn habilitado',
-        },
-        {
-            label: 'Siguiente Evento',
-            value: formatCountdown(status.next_event_seconds),
-            accent: 'border-emerald-600',
-            subtitle: 'Actualizado cada 30s',
-        },
-        {
-            label: 'Jugadores Online',
-            value: `${onlineCount} / ${totalPlayers}`,
-            accent: 'border-blue-600',
-            subtitle: `${onlineCount} conectados ahora mismo`,
-        },
-    ]), [onlineCount, status.active_modifiers.length, status.day, status.next_event_seconds, status.permadeath, totalPlayers]);
+    const statCards = useMemo(() => {
+        if (!status) {
+            return [];
+        }
+        return [
+            {
+                label: 'Día Actual',
+                value: status.day,
+                accent: 'border-red-600',
+                subtitle: `${status.active_modifiers.length} modificadores activos`,
+            },
+            {
+                label: 'Permadeath',
+                value: status.permadeath ? 'Activo' : 'Inactivo',
+                accent: status.permadeath ? 'border-amber-500' : 'border-zinc-700',
+                subtitle: status.permadeath ? 'Sin segundas oportunidades' : 'Respawn habilitado',
+            },
+            {
+                label: 'Siguiente Evento',
+                value: formatCountdown(status.next_event_seconds),
+                accent: 'border-emerald-600',
+                subtitle: 'Actualizado cada 30s',
+            },
+            {
+                label: 'Jugadores Online',
+                value: `${onlineCount} / ${totalPlayers}`,
+                accent: 'border-blue-600',
+                subtitle: `${onlineCount} conectados ahora mismo`,
+            },
+        ];
+    }, [onlineCount, status, totalPlayers]);
 
     const formatHearts = (player: PlayerInfo) => {
         if (!player.online) {
@@ -123,8 +124,12 @@ export const ActiveModifiers: React.FC = () => {
         return player.lives ?? '?';
     };
 
+    if (loading) return <div className="text-center text-gray-400 py-12">Cargando estado del servidor...</div>;
+    if (error) return <div className="text-center text-red-400 py-12">{error}</div>;
+    if (!status) return <div className="text-center text-gray-500 py-12">Sin datos disponibles por el momento.</div>;
+
     // Filter events based on the fetched list
-    const activeEvents = dailyEvents.filter(event => 
+    const activeEvents = dailyEvents.filter(event =>
         status.active_modifiers.includes(event.name)
     );
 
