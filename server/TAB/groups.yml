@@ -1,0 +1,40 @@
+#Owner:
+#  tabprefix: "&0&l[&a&lOwner&0&l] &a"
+#  tagprefix: "&2&lOwner &a"
+Owner:
+  tabprefix: "<gradient:#f7c873:#ff9e64><bold>⨳ OWNER ⨳ </bold></gradient>"
+  tagprefix: "<gradient:#f7c873:#ff9e64><bold>Owner</bold></gradient> "
+
+Admin:
+  tabprefix: "<gradient:#ff9e64:#f76f73><bold>✦ ADMIN ✦ </bold></gradient>"
+  tagprefix: "<gradient:#ff9e64:#f76f73><bold>Admin</bold></gradient> "
+
+Mod:
+  tabprefix: "<gradient:#9ad7db:#7bc1c9><bold>◆ MOD ◆ </bold></gradient>"
+  tagprefix: "<gradient:#9ad7db:#7bc1c9><bold>Mod</bold></gradient> "
+
+Builder:
+  tabprefix: "<gradient:#8ee0a3:#5cc58b><bold>▣ BUILDER ▣ </bold></gradient>"
+  tagprefix: "<gradient:#8ee0a3:#5cc58b><bold>Builder</bold></gradient> "
+
+VIP:
+  tabprefix: "<gradient:#f7c873:#f0e6d2><bold>✧ VIP ✧ </bold></gradient>"
+  tagprefix: "<gradient:#f7c873:#f0e6d2><bold>VIP</bold></gradient> "
+
+Player:
+  tabprefix: "<#9ad7db><bold>•</bold> </#9ad7db>"
+  tagprefix: "<#9ad7db>Jugador </#9ad7db>"
+
+ # default settings for all groups, all groups will take properties from this section unless player's primary group overrides a specific setting
+_DEFAULT_:
+  tabprefix: "%luckperms-prefix%"
+  tagprefix: "%luckperms-prefix%"
+  customtabname: "%player%"
+  tabsuffix: "%luckperms-suffix%"
+  tagsuffix: "%luckperms-suffix%"
+
+per-world:
+  world1:
+    Owner:
+      tabprefix: "&0&l[&a&lOwner&0&l] &a"
+      tagprefix: "&2&lOwner &a"

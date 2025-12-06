@@ -15,6 +15,10 @@ public class NoChatModifier extends Modifier {
 
     @EventHandler
     public void onChat(AsyncChatEvent event) {
+        // Permitir bypass a operadores/admins si el evento queda activo por error.
+        if (event.getPlayer().hasPermission("rd.chat.bypass")) {
+            return;
+        }
         event.setCancelled(true);
         event.getPlayer().sendMessage(MiniMessage.miniMessage().deserialize("<red>El chat está deshabilitado por el evento 'Sin Chat'."));
     }

@@ -9,6 +9,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.enchantment.EnchantItemEvent;
+import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
 import org.bukkit.inventory.ItemStack;
 
 public class BarbarianRole extends Role {
@@ -41,5 +43,21 @@ public class BarbarianRole extends Role {
         if (item == null) return false;
         String name = item.getType().name();
         return name.contains("DIAMOND") || name.contains("NETHERITE");
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onEnchant(PrepareItemEnchantEvent event) {
+        if (event.getEnchanter() instanceof Player player && hasRole(player)) {
+            event.setCancelled(true);
+            player.sendMessage(MiniMessage.miniMessage().deserialize("<red>Los bárbaros no pueden encantar objetos."));
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onEnchant(EnchantItemEvent event) {
+        if (hasRole(event.getEnchanter())) {
+            event.setCancelled(true);
+            event.getEnchanter().sendMessage(MiniMessage.miniMessage().deserialize("<red>Los bárbaros no pueden encantar objetos."));
+        }
     }
 }

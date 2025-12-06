@@ -27,6 +27,9 @@ public class AquaticRole extends Role {
                             player.addPotionEffect(new PotionEffect(PotionEffectType.CONDUIT_POWER, 40, 0, false, false));
                         }
                         player.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING, 40, 0, false, false));
+                        if (!player.isInWaterOrRain()) {
+                            player.damage(1.0);
+                        }
                     }
                 }
             }

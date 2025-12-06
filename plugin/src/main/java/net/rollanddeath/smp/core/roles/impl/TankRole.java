@@ -5,6 +5,8 @@ import net.rollanddeath.smp.core.roles.Role;
 import net.rollanddeath.smp.core.roles.RoleType;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -40,5 +42,15 @@ public class TankRole extends Role {
                 }
             }
         }.runTaskTimer(plugin, 0L, 80L);
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onHunger(FoodLevelChangeEvent event) {
+        if (!(event.getEntity() instanceof Player player)) return;
+        if (!hasRole(player)) return;
+        if (event.getFoodLevel() < player.getFoodLevel()) {
+            int diff = player.getFoodLevel() - event.getFoodLevel();
+            event.setFoodLevel(player.getFoodLevel() - (diff * 3)); // hambre x3
+        }
     }
 }

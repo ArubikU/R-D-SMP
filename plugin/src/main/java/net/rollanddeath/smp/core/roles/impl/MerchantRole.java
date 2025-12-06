@@ -7,6 +7,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -26,7 +27,7 @@ public class MerchantRole extends Role {
             public void run() {
                 for (Player player : plugin.getServer().getOnlinePlayers()) {
                     if (hasRole(player)) {
-                        player.addPotionEffect(new PotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE, 100, 0, false, false));
+                        player.addPotionEffect(new PotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE, 100, 1, false, false));
                     }
                 }
             }
@@ -42,6 +43,25 @@ public class MerchantRole extends Role {
                     event.getDrops().add(new ItemStack(Material.EMERALD));
                 }
             }
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onTarget(EntityTargetLivingEntityEvent event) {
+        if (event.getTarget() instanceof Player target && hasRole(target)) {
+            return; // already targeting merchant
+        }
+        Player nearbyMerchant = null;
+        if (event.getEntity().getWorld() == null) return;
+        for (Player player : event.getEntity().getWorld().getPlayers()) {
+            if (!hasRole(player)) continue;
+            if (player.getLocation().distanceSquared(event.getEntity().getLocation()) <= 144) { // 12 blocks
+                nearbyMerchant = player;
+                break;
+            }
+        }
+        if (nearbyMerchant != null) {
+            event.setTarget(nearbyMerchant);
         }
     }
 }

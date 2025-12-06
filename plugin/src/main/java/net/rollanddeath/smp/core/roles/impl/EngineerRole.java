@@ -24,6 +24,7 @@ public class EngineerRole extends Role {
                     if (hasRole(player)) {
                         player.addPotionEffect(new PotionEffect(PotionEffectType.HASTE, 100, 1, false, false));
                         player.addPotionEffect(new PotionEffect(PotionEffectType.LUCK, 100, 1, false, false));
+                        player.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 100, 0, false, false));
                     }
                 }
             }

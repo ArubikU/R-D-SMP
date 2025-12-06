@@ -2,6 +2,7 @@ package net.rollanddeath.smp.core.commands;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.rollanddeath.smp.RollAndDeathSMP;
 import net.rollanddeath.smp.core.items.CustomItemType;
 import net.rollanddeath.smp.core.mobs.MobType;
@@ -26,7 +27,7 @@ import java.util.Objects;
 public class AdminCommand implements CommandExecutor, TabCompleter {
 
     private final RollAndDeathSMP plugin;
-    private static final List<String> ADMIN_SUBCOMMANDS = Arrays.asList("roulette", "setday", "life", "role", "event", "item", "mob", "discord");
+    private static final List<String> ADMIN_SUBCOMMANDS = Arrays.asList("roulette", "setday", "life", "role", "event", "item", "mob", "discord", "down", "revive", "announce");
     private static final List<String> EVENT_SUBCOMMANDS = Arrays.asList("add", "remove", "clear", "list");
 
     public AdminCommand(RollAndDeathSMP plugin) {
@@ -120,6 +121,16 @@ public class AdminCommand implements CommandExecutor, TabCompleter {
                     }
                 }
                 break;
+            case "down":
+            case "revive":
+                if (args.length == 3) {
+                    List<String> players = Bukkit.getOnlinePlayers().stream()
+                            .map(Player::getName)
+                            .filter(Objects::nonNull)
+                            .toList();
+                    return filterCompletions(args[2], players);
+                }
+                break;
             case "event":
                 if (args.length == 3) {
                     return filterCompletions(args[2], EVENT_SUBCOMMANDS);
@@ -189,6 +200,11 @@ public class AdminCommand implements CommandExecutor, TabCompleter {
                     return Collections.singletonList("<mensaje>");
                 }
                 return Collections.emptyList();
+            case "announce":
+                if (args.length >= 3) {
+                    return Collections.emptyList();
+                }
+                return Collections.singletonList("<mensaje>");
             default:
                 return Collections.emptyList();
         }
@@ -302,9 +318,69 @@ public class AdminCommand implements CommandExecutor, TabCompleter {
             case "discord":
                 handleDiscordCommand(sender, args);
                 break;
+            case "announce":
+                handleAnnounceCommand(sender, args);
+                break;
+            case "down":
+                handleDownCommand(sender, args);
+                break;
+            case "revive":
+                handleReviveCommand(sender, args);
+                break;
             default:
                 sendHelp(sender);
                 break;
+        }
+    }
+
+    private void handleAnnounceCommand(CommandSender sender, String[] args) {
+        if (args.length < 2) {
+            sender.sendMessage(Component.text("Uso: /rd admin announce <mensaje>", NamedTextColor.RED));
+            return;
+        }
+        String raw = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
+        Component msg = MiniMessage.miniMessage().deserialize(raw);
+        Bukkit.broadcast(msg);
+        sender.sendMessage(Component.text("Anuncio enviado.", NamedTextColor.GREEN));
+    }
+
+    private void handleDownCommand(CommandSender sender, String[] args) {
+        if (args.length < 3) {
+            sender.sendMessage(Component.text("Uso: /rd admin down <player>", NamedTextColor.RED));
+            return;
+        }
+
+        Player target = Bukkit.getPlayer(args[2]);
+        if (target == null) {
+            sender.sendMessage(Component.text("Jugador no encontrado.", NamedTextColor.RED));
+            return;
+        }
+
+        boolean success = plugin.getReanimationManager().adminForceDown(target);
+        if (success) {
+            sender.sendMessage(Component.text("Has tumbado a " + target.getName() + ".", NamedTextColor.GOLD));
+        } else {
+            sender.sendMessage(Component.text("No se pudo tumbar (ya está down o inválido).", NamedTextColor.RED));
+        }
+    }
+
+    private void handleReviveCommand(CommandSender sender, String[] args) {
+        if (args.length < 3) {
+            sender.sendMessage(Component.text("Uso: /rd admin revive <player>", NamedTextColor.RED));
+            return;
+        }
+
+        Player target = Bukkit.getPlayer(args[2]);
+        if (target == null) {
+            sender.sendMessage(Component.text("Jugador no encontrado.", NamedTextColor.RED));
+            return;
+        }
+
+        boolean success = plugin.getReanimationManager().adminForceRevive(target);
+        if (success) {
+            sender.sendMessage(Component.text("Has levantado a " + target.getName() + ".", NamedTextColor.GOLD));
+        } else {
+            sender.sendMessage(Component.text("No se pudo levantar (no está down o inválido).", NamedTextColor.RED));
         }
     }
 
@@ -434,6 +510,7 @@ public class AdminCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage(Component.text("/rd admin item give <player> <item> [amount] - Dar ítem personalizado", NamedTextColor.YELLOW));
         sender.sendMessage(Component.text("/rd admin mob spawn <mob> [player] [cantidad] - Invocar mob personalizado", NamedTextColor.YELLOW));
         sender.sendMessage(Component.text("/rd admin discord <mensaje> - Enviar anuncio a Discord", NamedTextColor.YELLOW));
+        sender.sendMessage(Component.text("/rd admin announce <mensaje> - Anuncio global (MiniMessage)", NamedTextColor.YELLOW));
     }
     
     private void handleDiscordCommand(CommandSender sender, String[] args) {

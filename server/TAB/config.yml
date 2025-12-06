@@ -1,0 +1,370 @@
+# https://github.com/NEZNAMY/TAB/wiki/Feature-guide:-Header-&-Footer
+header-footer:
+  enabled: true
+  designs:
+    world-test:
+      display-condition: "%world%=test"
+      header:
+        - "Test header in world 'test'"
+      footer:
+        - "Test footer in world 'test'"
+    default:
+      header:
+        - "<reset>%animation:rdsmp_divider%"
+        - "<reset>%animation:rdsmp_glow%"
+        - "<reset><#9ad7db>Hola <bold>%player%</bold> · <#f0e6d2>%date% %time%"
+        - "<reset><#f0e6d2>Vidas: <#f8d66d>%rdsmp_lives%</#f8d66d> · Rol: <#9ad7db>%rdsmp_role%</#9ad7db>"
+        - "<reset><#f0e6d2>Equipo: <#9ad7db>%rdsmp_team%</#9ad7db> · Fuego amigo: <#f8d66d>%rdsmp_team_friendly_fire%</#f8d66d>"
+        - "<reset><#f0e6d2>Guerras: <#ff8a80>%rdsmp_team_wars_count%</#ff8a80> <gray>(%rdsmp_team_wars%)</gray>"
+        - "<reset><#f0e6d2>Eventos: <#f8d66d>%rdsmp_active_event_1%</#f8d66d>%condition:evt2_inline%%condition:evt3_inline%%condition:evt_more_inline%"
+        - "<reset>%animation:rdsmp_divider%"
+      footer:
+        - "<reset>%animation:rdsmp_divider%"
+        - "<reset><#f0e6d2>Online: <white>%online%</white> · Staff: <white>%staffonline%</white> · TPS: <white>%tps%</white>"
+        - "<reset><#f0e6d2>Ping: <white>%ping%ms</white> · Mem: <white>%memory-used%/%memory-max% MB</white>"
+        - "<reset><#f0e6d2>Combate: <#ff8a80>%rdsmp_combat_status%</#ff8a80> <gray>(%rdsmp_combat_remaining%s vs %rdsmp_combat_opponent%)</gray>"
+        - "<reset><#9ad7db>Eventos activos: <#f8d66d>%rdsmp_active_events%</#f8d66d>"
+        - "<reset><#f0e6d2>Web: <#9ad7db>https://arubiku.github.io/R-D-SMP/</#9ad7db>"
+        - "<reset>%animation:rdsmp_wave%"
+
+# https://github.com/NEZNAMY/TAB/wiki/Feature-guide:-Tablist-name-formatting
+tablist-name-formatting:
+  enabled: true
+  disable-condition: '%world%=disabledworld'
+
+# https://github.com/NEZNAMY/TAB/wiki/Feature-guide:-Nametags
+scoreboard-teams:
+  enabled: true
+  enable-collision: true
+  invisible-nametags: false
+  # https://github.com/NEZNAMY/TAB/wiki/Feature-guide:-Sorting-players-in-tablist
+  sorting-types:
+    - "GROUPS:owner,admin,mod,helper,builder,vip,default"
+    - "PLACEHOLDER_A_TO_Z:%player%"
+  case-sensitive-sorting: true
+  can-see-friendly-invisibles: false
+  disable-condition: '%world%=disabledworld'
+
+# https://github.com/NEZNAMY/TAB/wiki/Feature-guide:-Playerlist-Objective
+playerlist-objective:
+  enabled: true
+  value: "%health%"
+  fancy-value: "&c❤ %health%"
+  title: "HP" # Only visible on Bedrock Edition
+  render-type: INTEGER
+  disable-condition: '%world%=disabledworld'
+
+# https://github.com/NEZNAMY/TAB/wiki/Feature-guide:-Belowname
+belowname-objective:
+  enabled: true
+  value: "%rdsmp_lives%"
+  title: "&6Vidas"
+  fancy-value: "&6❤ %rdsmp_lives%"
+  fancy-value-default: "NPC"
+  disable-condition: '%world%=disabledworld'
+
+# https://github.com/NEZNAMY/TAB/wiki/Feature-guide:-Spectator-fix
+prevent-spectator-effect:
+  enabled: false
+
+# https://github.com/NEZNAMY/TAB/wiki/Feature-guide:-Bossbar
+bossbar:
+  enabled: false
+  toggle-command: /bossbar
+  remember-toggle-choice: false
+  hidden-by-default: false
+  bars:
+    ServerInfo:
+      style: "PROGRESS" # for 1.9+: PROGRESS, NOTCHED_6, NOTCHED_10, NOTCHED_12, NOTCHED_20
+      color: "%animation:barcolors%" # for 1.9+: BLUE, GREEN, PINK, PURPLE, RED, WHITE, YELLOW
+      progress: "100" # in %
+      text: "&fWebsite: &bwww.domain.com"
+
+# https://github.com/NEZNAMY/TAB/wiki/Feature-guide:-Scoreboard
+scoreboard:
+  enabled: true
+  toggle-command: /sb
+  remember-toggle-choice: true
+  hidden-by-default: false
+  use-numbers: true
+  static-number: 0
+  delay-on-join-milliseconds: 200
+  scoreboards:
+    rdsmp:
+      title: "<bold><#f7c873>ROLL · DEATH</#f7c873></bold>"
+      display-condition: '%rdsmp_combat_status%=en_combate'
+      lines:
+        - "<gray>%date%</gray> <#9ad7db>%time%"
+        - "<gray>Próx evento: <#f8d66d>%rdsmp_next_event%</#f8d66d>"
+        - "<gray>Daily: <#f8d66d>%rdsmp_daily_roll_remaining%</#f8d66d> (<#9ad7db>%rdsmp_daily_roll_ready%</#9ad7db>)"
+        - ""
+        - "<#9ad7db>Rol</#9ad7db>: <white>%rdsmp_role%"
+        - "<#9ad7db>Equipo</#9ad7db>: <white>%rdsmp_team%"
+        - "<#9ad7db>Vidas</#9ad7db>: <white>%rdsmp_lives%</white> <gray>(elim: %rdsmp_eliminated%)"
+        - "%condition:sb_evt1%"
+        - "%condition:sb_evt2%"
+        - "%condition:sb_evt3%"
+        - "%condition:sb_evt_more%"
+        - "%condition:sb_last1%"
+        - "%condition:sb_last2%"
+        - "%condition:sb_last3%"
+        - "<#9ad7db>Combate</#9ad7db>: <white>%rdsmp_combat_status%</white> <gray>%rdsmp_combat_remaining%s</gray>"
+        - "<#9ad7db>Vs</#9ad7db>: <white>%rdsmp_combat_opponent%"
+        - ""
+        - "<#9ad7db>Ping</#9ad7db>: <white>%ping%ms"
+        - "<#9ad7db>Online</#9ad7db>: <white>%online%</white> · <#9ad7db>Staff</#9ad7db>: <white>%staffonline%</white>"
+        - "<#9ad7db>Mundo</#9ad7db>: <white>%world%"
+        - "<gray>rollanddeath.example"
+
+    rdsmp_idle:
+      title: "<bold><#9ad7db>R&D Estado</#9ad7db></bold>"
+      display-condition: '%rdsmp_combat_status%!=en_combate'
+      lines:
+        - "<gray>%date%</gray> <#9ad7db>%time%"
+        - "<gray>Próx evento: <#f8d66d>%rdsmp_next_event%</#f8d66d>"
+        - "<gray>Daily: <#f8d66d>%rdsmp_daily_roll_remaining%</#f8d66d> (<#9ad7db>%rdsmp_daily_roll_ready%</#9ad7db>)"
+        - ""
+        - "<#9ad7db>Rol</#9ad7db>: <white>%rdsmp_role%"
+        - "<#9ad7db>Equipo</#9ad7db>: <white>%rdsmp_team%"
+        - "<#9ad7db>Vidas</#9ad7db>: <white>%rdsmp_lives%</white> <gray>(elim: %rdsmp_eliminated%)"
+        - "%condition:sb_evt1%"
+        - "%condition:sb_evt2%"
+        - "%condition:sb_evt3%"
+        - "%condition:sb_evt_more%"
+        - "%condition:sb_last1%"
+        - "%condition:sb_last2%"
+        - "%condition:sb_last3%"
+        - ""
+        - "<#9ad7db>Ping</#9ad7db>: <white>%ping%ms"
+        - "<#9ad7db>Online</#9ad7db>: <white>%online%</white> · <#9ad7db>Staff</#9ad7db>: <white>%staffonline%</white>"
+        - "<#9ad7db>Mundo</#9ad7db>: <white>%world%"
+        - "<gray>rollanddeath.example"
+        - "<gray>https://arubiku.github.io/R-D-SMP/"
+
+# https://github.com/NEZNAMY/TAB/wiki/Feature-guide:-Layout
+layout:
+  enabled: false
+  direction: COLUMNS
+  default-skin: mineskin:37e93c8e12cd426cb28fce31969e0674
+  enable-remaining-players-text: true
+  remaining-players-text: '... and %s more'
+  empty-slot-ping-value: 1000
+  layouts:
+    default:
+      fixed-slots:
+        - '1|&3Website&f:'
+        - '2|&bmyserver.net'
+        - '3|&8&m                       '
+        - '4|&3Name&f:'
+        - '5|&b%player%'
+        - '7|&3Rank&f:'
+        - '8|Rank: %group%'
+        - '10|&3World&f:'
+        - '11|&b%world%'
+        - '13|&3Time&f:'
+        - '14|&b%time%'
+        - '21|&3Teamspeak&f:'
+        - '22|&bts.myserver.net'
+        - '23|&8&m                       '
+        - '41|&3Store&f:'
+        - '42|&bshop.myserver.net'
+        - '43|&8&m                       '
+      groups:
+        staff:
+          condition: permission:tab.staff
+          slots:
+            - 24-40
+        players:
+          slots:
+            - 44-80
+
+# https://github.com/NEZNAMY/TAB/wiki/Feature-guide:-Ping-Spoof
+ping-spoof:
+  enabled: false
+  value: 0
+
+# https://github.com/NEZNAMY/TAB/wiki/Feature-guide:-Global-playerlist
+global-playerlist:
+  enabled: false
+  display-others-as-spectators: false
+  display-vanished-players-as-spectators: true
+  isolate-unlisted-servers: false
+  update-latency: false
+  spy-servers:
+    - spyserver1
+    - spyserver2
+  server-groups:
+    lobbies:
+      - lobby1
+      - lobby2
+    group2:
+      - server1
+      - server2
+
+placeholders:
+  date-format: "dd.MM.yyyy"
+  time-format: "[HH:mm:ss / h:mm a]"
+  time-offset: 0
+  register-tab-expansion: false
+
+# https://github.com/NEZNAMY/TAB/wiki/Feature-guide:-Placeholder-output-replacements
+placeholder-output-replacements:
+  "%essentials_vanished%":
+    "yes": "&7| Vanished"
+    "no": ""
+
+# https://github.com/NEZNAMY/TAB/wiki/Feature-guide:-Conditional-placeholders
+conditions:
+  nick: # use it with %condition:nick%
+    conditions:
+      - "%player%=%essentials_nickname%"
+    yes: "%player%"
+    no: "~%essentials_nickname%"
+  evt2_inline:
+    conditions:
+      - "%rdsmp_active_event_2%="
+    yes: ""
+    no: " <gray>|</gray> <#f8d66d>%rdsmp_active_event_2%</#f8d66d>"
+  evt3_inline:
+    conditions:
+      - "%rdsmp_active_event_3%="
+    yes: ""
+    no: " <gray>|</gray> <#f8d66d>%rdsmp_active_event_3%</#f8d66d>"
+  evt_more_inline:
+    conditions:
+      - "%rdsmp_active_events_count%>3"
+    yes: " <gray>+</gray>"
+    no: ""
+  sb_evt1:
+    conditions:
+      - "%rdsmp_active_event_1%="
+    yes: ""
+    no: "<#9ad7db>Evento</#9ad7db>: <white>%rdsmp_active_event_1%"
+  sb_evt2:
+    conditions:
+      - "%rdsmp_active_event_2%="
+    yes: ""
+    no: "<#9ad7db>Evento+</#9ad7db>: <white>%rdsmp_active_event_2%"
+  sb_evt3:
+    conditions:
+      - "%rdsmp_active_event_3%="
+    yes: ""
+    no: "<#9ad7db>Evento++</#9ad7db>: <white>%rdsmp_active_event_3%"
+  sb_evt_more:
+    conditions:
+      - "%rdsmp_active_events_count%>3"
+    yes: "<#9ad7db>+ más</#9ad7db>: <white>/eventos"
+    no: ""
+  sb_last1:
+    conditions:
+      - "%rdsmp_last_event_1%="
+    yes: ""
+    no: "<#9ad7db>Ult1</#9ad7db>: <white>%rdsmp_last_event_1%"
+  sb_last2:
+    conditions:
+      - "%rdsmp_last_event_2%="
+    yes: ""
+    no: "<#9ad7db>Ult2</#9ad7db>: <white>%rdsmp_last_event_2%"
+  sb_last3:
+    conditions:
+      - "%rdsmp_last_event_3%="
+    yes: ""
+    no: "<#9ad7db>Ult3</#9ad7db>: <white>%rdsmp_last_event_3%"
+
+placeholder-refresh-intervals:
+  default-refresh-interval: 500
+  "%server_uptime%": 1000
+  "%server_tps_1_colored%": 1000
+  "%server_unique_joins%": 5000
+  "%player_health%": 200
+  "%player_ping%": 1000
+  "%vault_prefix%": 1000
+  "%rel_factionsuuid_relation_color%": 1000
+
+# assigning groups by permission nodes instead of taking them from permission plugin
+assign-groups-by-permissions: false
+
+# if the option above is true, all groups are taken based on permissions and the one higher in this list is used as primary
+# Warning! This is not sorting list and has nothing to do with sorting players in tablist!
+primary-group-finding-list:
+  - Owner
+  - Admin
+  - Mod
+  - Helper
+  - default
+
+# Refresh interval (in milliseconds) of:
+# - Permission checks in conditions / sorting
+# - Group retrieving from permission plugin for sorting / per-group properties
+# - Prefix/suffix placeholders taking data from permission plugin
+permission-refresh-interval: 1000
+
+# Unlocks extra console messages
+debug: false
+
+# https://github.com/NEZNAMY/TAB/wiki/MySQL
+mysql:
+  enabled: false
+  host: 127.0.0.1
+  port: 3306
+  database: tab
+  username: user
+  password: password
+  useSSL: true
+
+# https://github.com/NEZNAMY/TAB/wiki/Feature-guide:-Multi-server-support
+proxy-support:
+  enabled: true
+  # Supported types: PLUGIN, REDIS, RABBITMQ
+  type: PLUGIN
+  plugin:
+    # Compatible plugins: RedisBungee
+    # If enabled and compatible plugin is found, hook is enabled to work with proxied players
+    name: RedisBungee
+  redis:
+    url: 'redis://:password@localhost:6379/0'
+  rabbitmq:
+    exchange: 'plugin'
+    url: 'amqp://guest:guest@localhost:5672/%2F'
+
+components:
+  minimessage-support: true
+  disable-shadow-for-heads: true
+
+# Internal value, do not change this
+config-version: 2
+
+########################################################################
+# BUKKIT ONLY - THE FOLLOWING SECTION IS ONLY FOR BACKEND INSTALLATION #
+########################################################################
+
+# https://github.com/NEZNAMY/TAB/wiki/Feature-guide:-Per-world-playerlist
+per-world-playerlist:
+  enabled: false
+  # players with tab.staff will always see all players
+  allow-bypass-permission: false
+  # players in these worlds will always see all players
+  ignore-effect-in-worlds:
+    - ignoredworld
+    - build
+  shared-playerlist-world-groups:
+    lobby:
+      - lobby1
+      - lobby2
+    minigames:
+      - paintball
+      - bedwars
+
+compensate-for-packetevents-bug: false
+
+#####################################################################
+# PROXY ONLY - THE FOLLOWING SECTION IS ONLY FOR PROXY INSTALLATION #
+#####################################################################
+
+# Take permissions and groups from backend server instead of proxy
+use-bukkit-permissions-manager: false
+
+# Sometimes server might be using offline uuids in tablist instead of online, such as disabling waterfall's tablist rewrite option
+# If you experience tablist formatting not working, toggle this option (set it to opposite value)
+# Only affects proxies with online mode enabled
+use-online-uuid-in-tablist: true

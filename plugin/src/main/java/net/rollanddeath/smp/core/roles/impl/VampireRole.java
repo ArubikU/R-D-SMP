@@ -38,7 +38,7 @@ public class VampireRole extends Role {
         boolean isDay = time > 0 && time < 12300;
         boolean isRaining = player.getWorld().hasStorm();
 
-        if (isDay && !isRaining && player.getLocation().getBlock().getLightFromSky() == 15) {
+        if (isDay && !isRaining && player.getLocation().getBlock().getLightFromSky() >= 12) {
             // Burn logic
             ItemStack helmet = player.getInventory().getHelmet();
             if (helmet != null && helmet.getType() != Material.AIR) {
@@ -47,7 +47,7 @@ public class VampireRole extends Role {
                 Block block = player.getLocation().getBlock();
                 block.getWorld().spawnParticle(org.bukkit.Particle.SMOKE, player.getLocation().add(0, 1, 0), 5, 0.2, 0.2, 0.2, 0.01);
                 ItemStack damagedHelmet = helmet.clone();
-                damagedHelmet.damage(1, player);
+                damagedHelmet.damage(3, player);
                 player.getInventory().setHelmet(damagedHelmet);
             } else {
                 player.setFireTicks(60);

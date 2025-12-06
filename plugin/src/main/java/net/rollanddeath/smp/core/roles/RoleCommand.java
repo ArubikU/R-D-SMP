@@ -33,8 +33,19 @@ public class RoleCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        if (args.length < 3) {
-            sender.sendMessage(MiniMessage.miniMessage().deserialize("<red>Uso: /role set <jugador> <rol>"));
+        if (args.length == 0) {
+            sender.sendMessage(MiniMessage.miniMessage().deserialize("<red>Uso: /role set <jugador> <rol> | /role rerollall"));
+            return true;
+        }
+
+        if (args[0].equalsIgnoreCase("rerollall")) {
+            plugin.getRoleManager().rerollAllRoles();
+            sender.sendMessage(MiniMessage.miniMessage().deserialize("<green>Roles reasignados para todos. Próximo reroll en 7 días."));
+            return true;
+        }
+
+        if (args.length < 3 || !args[0].equalsIgnoreCase("set")) {
+            sender.sendMessage(MiniMessage.miniMessage().deserialize("<red>Uso: /role set <jugador> <rol> | /role rerollall"));
             return true;
         }
 
@@ -67,11 +78,11 @@ public class RoleCommand implements CommandExecutor, TabCompleter {
         }
 
         if (args.length == 0) {
-            return Collections.singletonList("set");
+            return Arrays.asList("set", "rerollall");
         }
 
         if (args.length == 1) {
-            return filterCompletions(args[0], Collections.singletonList("set"));
+            return filterCompletions(args[0], Arrays.asList("set", "rerollall"));
         }
 
         if (!args[0].equalsIgnoreCase("set")) {

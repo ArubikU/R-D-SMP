@@ -57,6 +57,7 @@ public class NomadRole extends Role {
         if (lastLoc != null && lastLoc.equals(locString)) {
             player.getPersistentDataContainer().set(nomadDebuffKey, PersistentDataType.BYTE, (byte) 1);
             player.sendMessage(MiniMessage.miniMessage().deserialize("<red>¡Has dormido en la misma cama! Pierdes tu velocidad de Nómada."));
+            player.getWorld().createExplosion(bedLoc, 2.5f, false, false, player);
         } else {
             player.getPersistentDataContainer().set(lastBedKey, PersistentDataType.STRING, locString);
             player.getPersistentDataContainer().remove(nomadDebuffKey);

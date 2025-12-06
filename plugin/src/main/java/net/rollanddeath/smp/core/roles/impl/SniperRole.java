@@ -26,5 +26,10 @@ public class SniperRole extends Role {
                 }
             }
         }
+        if (event.getDamager() instanceof Player player && !(event.getDamager() instanceof Arrow)) {
+            if (hasRole(player)) {
+                event.setDamage(event.getDamage() * 0.5); // -50% melee
+            }
+        }
     }
 }

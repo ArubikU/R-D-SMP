@@ -88,7 +88,7 @@ public class EventMenuCommand implements CommandExecutor, TabCompleter, Listener
         // Recent history section
         List<String> history = new ArrayList<>(modifierManager.getEventHistory());
         Collections.reverse(history);
-        slot = 27;
+        slot = 36;
         int historyShown = 0;
         for (String name : history) {
             if (historyShown >= 18 || slot >= inv.getSize()) break;

@@ -93,6 +93,49 @@ public class ReanimationManager implements Listener {
         return downedPlayers.containsKey(player.getUniqueId());
     }
 
+    /**
+     * Admin helper: force a player into the downed state even sin daño previo.
+     */
+    public boolean adminForceDown(Player player) {
+        if (player == null || player.isDead()) {
+            return false;
+        }
+        if (downedPlayers.containsKey(player.getUniqueId())) {
+            return false;
+        }
+        startDowned(player);
+        return true;
+    }
+
+    /**
+     * Admin helper: levantar instantáneamente al jugador del estado downed.
+     */
+    public boolean adminForceRevive(Player player) {
+        if (player == null || player.isDead()) {
+            return false;
+        }
+        if (!downedPlayers.containsKey(player.getUniqueId())) {
+            return false;
+        }
+
+        DownedPlayer downed = downedPlayers.get(player.getUniqueId());
+        clearDownedState(player, false);
+
+        double maxHealth = player.getMaxHealth();
+        double restore = Math.max(2.0D, Math.min(settings.revivedHealth, maxHealth));
+        player.setHealth(restore);
+        player.setInvulnerable(false);
+        player.removePotionEffect(PotionEffectType.SLOWNESS);
+        player.removePotionEffect(PotionEffectType.WEAKNESS);
+        player.resetTitle();
+        player.sendMessage(Component.text("Has sido levantado por un admin.", NamedTextColor.GOLD));
+        if (downed != null && downed.getCarrierId() != null) {
+            Player carrier = Bukkit.getPlayer(downed.getCarrierId());
+            clearCarrierEffects(carrier);
+        }
+        return true;
+    }
+
     public void markForNaturalDeath(Player player) {
         if (player != null) {
             deathBypass.add(player.getUniqueId());
@@ -710,6 +753,7 @@ public class ReanimationManager implements Listener {
         private int remainingTicks;
         private BukkitTask task;
         private final Set<UUID> rescuers = new HashSet<>();
+        private final Map<UUID, Long> repeatMessageCooldown = new HashMap<>();
 
         private ReviveSession(Player rescuer, Player target, int ticks, boolean sneakRequired) {
             this.targetId = target.getUniqueId();
@@ -817,7 +861,12 @@ public class ReanimationManager implements Listener {
                 return;
             }
             if (rescuers.contains(rescuer.getUniqueId())) {
-                rescuer.sendMessage(Component.text("Ya estás ayudando con la reanimación.", NamedTextColor.YELLOW));
+                long now = System.currentTimeMillis();
+                long last = repeatMessageCooldown.getOrDefault(rescuer.getUniqueId(), 0L);
+                if (now - last > 2000L) { // throttle duplicate spam to once per 2s
+                    rescuer.sendMessage(Component.text("Ya estás ayudando con la reanimación.", NamedTextColor.YELLOW));
+                    repeatMessageCooldown.put(rescuer.getUniqueId(), now);
+                }
                 return;
             }
             if (requireSneak && !rescuer.isSneaking()) {

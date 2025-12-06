@@ -8,6 +8,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -65,6 +66,18 @@ public class ThiefRole extends Role {
                     thief.sendMessage(MiniMessage.miniMessage().deserialize("<red>No pudiste robar nada."));
                 }
             }
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onHit(EntityDamageEvent event) {
+        if (!(event.getEntity() instanceof Player player)) return;
+        if (!hasRole(player)) return;
+        ItemStack hand = player.getInventory().getItemInMainHand();
+        if (hand.getType() != Material.AIR) {
+            player.getWorld().dropItemNaturally(player.getLocation(), hand.clone());
+            player.getInventory().setItemInMainHand(null);
+            player.sendMessage(MiniMessage.miniMessage().deserialize("<red>¡Has soltado tu objeto al recibir el golpe!"));
         }
     }
 }

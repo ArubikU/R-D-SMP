@@ -1,0 +1,138 @@
+MyAnimation1:
+  change-interval: 100
+  texts:
+    - '&d-&3--------------'
+    - '&3-&d-&3-------------'
+    - '&3--&d-&3------------'
+    - '&3---&d-&3-----------'
+    - '&3----&d-&3----------'
+    - '&3-----&d-&3---------'
+    - '&3------&d-&3--------'
+    - '&3-------&d-&3-------'
+    - '&3--------&d-&3------'
+    - '&3---------&d-&3-----'
+    - '&3----------&d-&3----'
+    - '&3-----------&d-&3---'
+    - '&3------------&d-&3--'
+    - '&3-------------&d-&3-'
+    - '&3--------------&d-'
+    - '&3-------------&d-&3-'
+    - '&3------------&d-&3--'
+    - '&3-----------&d-&3---'
+    - '&3----------&d-&3----'
+    - '&3---------&d-&3-----'
+    - '&3--------&d-&3------'
+    - '&3-------&d-&3-------'
+    - '&3------&d-&3--------'
+    - '&3-----&d-&3---------'
+    - '&3----&d-&3----------'
+    - '&3---&d-&3-----------'
+    - '&3--&d-&3------------'
+    - '&3-&d-&3-------------'
+    - '&d-&3--------------'
+ServerName:
+  change-interval: 300
+  texts:
+  - '&c&lServerName'
+  - '&c&n&lServerName'
+  - '&b&lServerName'
+  - '&b&l&nServerName'
+  - '&e&lServerName'
+  - '&e&n&lServerName'
+web:
+  change-interval: 200
+  texts:
+  - '&ewww.domain.com'
+  - '&ewww.domain.com'
+  - '&ewww.domain.com'
+  - '&ewww.domain.com'
+  - '&ewww.domain.com'
+  - '&ewww.domain.com'
+  - '&6w&eww.domain.com'
+  - '&ew&6w&ew.domain.com'
+  - '&eww&6w&e.domain.com'
+  - '&ewww&6.&edomain.com'
+  - '&ewww.&6d&eomain.com'
+  - '&ewww.d&6o&emain.com'
+  - '&ewww.do&6m&eain.com'
+  - '&ewww.dom&6a&ein.com'
+  - '&ewww.doma&6i&en.com'
+  - '&ewww.domai&6n&e.com'
+  - '&ewww.domain&6.&ecom'
+  - '&ewww.domain.&6c&eom'
+  - '&ewww.domain.c&6o&em'
+  - '&ewww.domain.co&6m'
+  - '&ewww.domain.com'
+  - '&ewww.domain.com'
+  - '&ewww.domain.com'
+  - '&ewww.domain.com'
+  - '&ewww.domain.com'
+  - '&ewww.domain.com'
+vote:
+  change-interval: 1000
+  texts:
+  - '&avote.domain.com'
+  - '&a&nvote.domain.com'
+  - '&5vote.domain.com'
+  - '&5&nvote.domain.com'
+Welcome:
+  change-interval: 400
+  texts:
+  - '&7&lW_'
+  - '&7&lW_'
+  - '&7&lWe_'
+  - '&7&lWel_'
+  - '&7&lWelc_'
+  - '&7&lWelco_'
+  - '&7&lWelcom_'
+  - '&7&lWelcome_'
+  - '&7&lWelcome_'
+  - '&7&lWelcome_'
+  - '&7&lWelcome_'
+  - '&7&lWelcom_'
+  - '&7&lWelco_'
+  - '&7&lWelc_'
+  - '&7&lWel_'
+  - '&7&lWe_'
+  - '&7&lW_'
+  - '&7&lW_'
+time:
+  change-interval: 3000
+  texts:
+    - '&7Time &b%time%'
+    - '&7Date &b%date%'
+barcolors:
+  change-interval: 1000
+  texts:
+    - RED
+    - BLUE
+    - GREEN
+    - YELLOW
+
+# R&D themed animations
+rdsmp_wave:
+  change-interval: 150
+  texts:
+    - '<#f7c873>~ <#9ad7db>~ <#0f1a26>~'
+    - '<#9ad7db>~ <#f7c873>~ <#0f1a26>~'
+    - '<#0f1a26>~ <#9ad7db>~ <#f7c873>~'
+    - '<#0f1a26>~ <#f7c873>~ <#9ad7db>~'
+    - '<#9ad7db>~ <#0f1a26>~ <#f7c873>~'
+    - '<#f7c873>~ <#0f1a26>~ <#9ad7db>~'
+
+rdsmp_glow:
+  change-interval: 120
+  texts:
+    - '<#f7c873><bold>R</bold><#9ad7db>·<#f0e6d2>D</#f0e6d2>'
+    - '<#f7c873><bold>RO</bold><#9ad7db>·<#f0e6d2>DE</#f0e6d2>'
+    - '<#f7c873><bold>ROLL</bold><#9ad7db>·<#f0e6d2>DEA</#f0e6d2>'
+    - '<#f7c873><bold>ROLL</bold><#9ad7db>·<#f0e6d2>DEATH</#f0e6d2>'
+    - '<#9ad7db><bold>ROLL</bold><#f7c873>·<#f0e6d2>DEATH</#f0e6d2>'
+    - '<#f0e6d2><bold>ROLL</bold><#9ad7db>·<#f7c873>DEATH</#f7c873>'
+
+rdsmp_divider:
+  change-interval: 300
+  texts:
+    - '<#0f1a26>&m-------------------------------------------'
+    - '<#142538>&m-------------------------------------------'
+    - '<#0f1a26>&m-------------------------------------------'

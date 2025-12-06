@@ -5,6 +5,7 @@ import net.rollanddeath.smp.core.modifiers.Modifier;
 import net.rollanddeath.smp.core.modifiers.ModifierType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityShootBowEvent;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.entity.Player;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -42,9 +43,19 @@ public class MagicArcherModifier extends Modifier {
 
     @EventHandler
     public void onBowShoot(EntityShootBowEvent event) {
-        if (event.getEntity() instanceof Player) {
-            event.setConsumeItem(false);
-            // Optional: Update inventory to sync client? Usually not needed for setConsumeItem(false)
+        if (!(event.getEntity() instanceof Player player)) return;
+        event.setConsumeItem(false);
+
+        // Si la flecha venía del inventario, devuelve la misma flecha/tipo.
+        PlayerInventory inv = player.getInventory();
+        ItemStack shot = event.getConsumable();
+        if (shot != null) {
+            ItemStack refund = shot.clone();
+            refund.setAmount(1);
+            inv.addItem(refund);
+        } else {
+            inv.addItem(new ItemStack(Material.ARROW, 1));
         }
     }
+
 }

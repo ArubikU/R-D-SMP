@@ -9,6 +9,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Random;
 
@@ -23,6 +24,22 @@ public class ChaoticRole extends Role {
 
     public ChaoticRole(RollAndDeathSMP plugin) {
         super(plugin, RoleType.CHAOTIC);
+    }
+
+    @Override
+    public void onEnable() {
+        super.onEnable();
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                for (Player player : plugin.getServer().getOnlinePlayers()) {
+                    if (hasRole(player)) {
+                        PotionEffectType type = effects[random.nextInt(effects.length)];
+                        player.addPotionEffect(new PotionEffect(type, 200, 0));
+                    }
+                }
+            }
+        }.runTaskTimer(plugin, 0L, 12000L); // cada 10 minutos
     }
 
     @EventHandler

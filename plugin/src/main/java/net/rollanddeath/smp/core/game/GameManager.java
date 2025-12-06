@@ -126,6 +126,8 @@ public class GameManager {
     }
 
     private void triggerScheduledEvent() {
+        // Reschedule first to avoid repeated triggers while spinRoulette() runs
+        markEventExecuted();
         plugin.getModifierManager().spinRoulette();
     }
 }

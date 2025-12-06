@@ -3,6 +3,7 @@ package net.rollanddeath.smp.core.teams;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Collection;
@@ -10,6 +11,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.UUID;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class TeamManager {
 
@@ -113,5 +117,77 @@ public class TeamManager {
             }
         }
         return true;
+    }
+
+    public void loadFromConfig(ConfigurationSection section) {
+        teamsByName.clear();
+        playerTeams.clear();
+        pendingInvites.clear();
+
+        if (section == null) return;
+
+        for (String name : section.getKeys(false)) {
+            ConfigurationSection teamSec = section.getConfigurationSection(name);
+            if (teamSec == null) continue;
+
+            String ownerStr = teamSec.getString("owner");
+            if (ownerStr == null) continue;
+
+            UUID owner;
+            try {
+                owner = UUID.fromString(ownerStr);
+            } catch (IllegalArgumentException ex) {
+                continue;
+            }
+
+            Team team = new Team(name, owner);
+            team.setFriendlyFire(teamSec.getBoolean("friendly_fire", false));
+
+            String colorName = teamSec.getString("color");
+            if (colorName != null) {
+                NamedTextColor parsed = NamedTextColor.NAMES.value(colorName);
+                if (parsed != null) {
+                    team.setColor(parsed);
+                }
+            }
+
+            for (String memberStr : teamSec.getStringList("members")) {
+                try {
+                    team.addMember(UUID.fromString(memberStr));
+                } catch (IllegalArgumentException ignored) {
+                }
+            }
+
+            for (String war : teamSec.getStringList("wars")) {
+                team.addWar(war);
+            }
+
+            // Ensure owner is recorded as member
+            team.addMember(owner);
+
+            teamsByName.put(name, team);
+            for (UUID member : team.getMembers()) {
+                playerTeams.put(member, team);
+            }
+        }
+    }
+
+    public void saveToConfig(ConfigurationSection section) {
+        if (section == null) return;
+
+        for (String key : new HashSet<>(section.getKeys(false))) {
+            section.set(key, null);
+        }
+
+        for (Team team : teamsByName.values()) {
+            ConfigurationSection teamSec = section.createSection(team.getName());
+            teamSec.set("owner", team.getOwner().toString());
+            teamSec.set("members", team.getMembers().stream().map(UUID::toString).collect(Collectors.toList()));
+            teamSec.set("friendly_fire", team.isFriendlyFire());
+            teamSec.set("wars", new ArrayList<>(team.getActiveWars()));
+
+            String colorKey = NamedTextColor.NAMES.key(team.getColor()).asString();
+            teamSec.set("color", colorKey);
+        }
     }
 }

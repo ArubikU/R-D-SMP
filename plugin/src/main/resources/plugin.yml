@@ -4,6 +4,7 @@ main: net.rollanddeath.smp.RollAndDeathSMP
 api-version: 1.20
 authors: [Copilot]
 description: Core plugin for RollAndDeath SMP
+softdepend: [PlaceholderAPI]
 commands:
   rd:
     description: Main command for the plugin
@@ -18,7 +19,7 @@ commands:
     usage: /tc <message>
   role:
     description: Manage roles
-    usage: /role set <player> <role>
+    usage: /role set <player> <role> | /role rerollall
     permission: rd.admin.roles
   mob:
     description: Manage custom mobs
@@ -36,6 +37,6 @@ commands:
       description: Abre el menú principal del servidor
       usage: /menu
       aliases: [info, help]
-    eventos:
-      description: Muestra los eventos activos con descripción
-      usage: /eventos
+  eventos:
+    description: Muestra los eventos activos con descripción
+    usage: /eventos

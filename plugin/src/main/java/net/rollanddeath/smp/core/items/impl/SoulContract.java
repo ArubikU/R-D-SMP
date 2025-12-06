@@ -83,6 +83,12 @@ public class SoulContract extends CustomItem {
 
         // Execute revive on main thread
         Bukkit.getScheduler().runTask(plugin, () -> {
+            Player onlineTarget = target.getPlayer();
+            if (onlineTarget != null && !plugin.getLifeManager().isEliminated(onlineTarget)) {
+                player.sendMessage(Component.text("Ese jugador no está muerto/eliminado.", NamedTextColor.RED));
+                return;
+            }
+
             // Consume item
             ItemStack hand = player.getInventory().getItemInMainHand();
             boolean consumed = false;

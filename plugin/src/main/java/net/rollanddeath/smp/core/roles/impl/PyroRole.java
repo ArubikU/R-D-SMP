@@ -6,6 +6,7 @@ import net.rollanddeath.smp.core.roles.RoleType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -25,6 +26,9 @@ public class PyroRole extends Role {
                 for (Player player : plugin.getServer().getOnlinePlayers()) {
                     if (hasRole(player)) {
                         player.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 100, 0, false, false));
+                        if (player.isInWaterOrRain()) {
+                            player.damage(1.0);
+                        }
                     }
                 }
             }

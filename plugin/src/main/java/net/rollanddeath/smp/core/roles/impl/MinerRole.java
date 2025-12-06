@@ -25,6 +25,8 @@ public class MinerRole extends Role {
                         player.addPotionEffect(new PotionEffect(PotionEffectType.HASTE, 100, 1, false, false)); // Haste II
                         if (player.getLocation().getY() < 0) {
                             player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 240, 0, false, false));
+                        } else if (player.getWorld().getTime() < 12000) {
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 40, 0, false, false));
                         }
                     }
                 }

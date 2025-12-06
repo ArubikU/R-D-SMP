@@ -25,8 +25,8 @@ import net.rollanddeath.smp.core.mobs.MobCommand;
 import net.rollanddeath.smp.core.items.impl.*;
 import net.rollanddeath.smp.core.mobs.impl.*;
 import net.rollanddeath.smp.core.game.GameManager;
+import net.rollanddeath.smp.core.game.KillPointsManager;
 import net.rollanddeath.smp.core.game.PlayerHudManager;
-import net.rollanddeath.smp.core.game.ScoreboardManager;
 import net.rollanddeath.smp.core.game.WebStatusManager;
 import net.rollanddeath.smp.core.game.AnnounceManager;
 import net.rollanddeath.smp.core.items.CraftingListener;
@@ -38,6 +38,7 @@ import net.rollanddeath.smp.core.commands.EventMenuCommand;
 import net.rollanddeath.smp.core.combat.CombatLogManager;
 import net.rollanddeath.smp.core.combat.ReanimationManager;
 import net.rollanddeath.smp.integration.discord.DiscordWebhookService;
+import net.rollanddeath.smp.integration.PlaceholderHook;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.ConfigurationSection;
@@ -54,6 +55,7 @@ public final class RollAndDeathSMP extends JavaPlugin {
     private RecipeManager recipeManager;
     private LootManager lootManager;
     private GameManager gameManager;
+    private KillPointsManager killPointsManager;
     private DailyRollManager dailyRollManager;
     private WebStatusManager webStatusManager;
     private AnnounceManager announceManager;
@@ -71,6 +73,7 @@ public final class RollAndDeathSMP extends JavaPlugin {
         this.lifeManager = new LifeManager(this);
         this.modifierManager = new ModifierManager(this);
         this.teamManager = new TeamManager(this);
+        teamManager.loadFromConfig(getConfig().getConfigurationSection("teams"));
         this.protectionManager = new ProtectionManager(this, teamManager);
         this.reanimationManager = new ReanimationManager(this, lifeManager);
         this.combatLogManager = new CombatLogManager(this, reanimationManager);
@@ -89,11 +92,11 @@ public final class RollAndDeathSMP extends JavaPlugin {
         this.recipeManager = new RecipeManager(this);
         this.lootManager = new LootManager(this);
         this.gameManager = new GameManager(this);
+        this.killPointsManager = new KillPointsManager(this);
         this.announceManager = new AnnounceManager(this);
 
         // Initialize UI/Web
         this.webStatusManager = new WebStatusManager(this);
-        getServer().getPluginManager().registerEvents(new ScoreboardManager(this), this);
         this.playerHudManager = new PlayerHudManager(reanimationManager, 5);
         getServer().getPluginManager().registerEvents(playerHudManager, this);
         playerHudManager.runTaskTimer(this, 40L, 5L);
@@ -328,10 +331,11 @@ public final class RollAndDeathSMP extends JavaPlugin {
         }
 
         // Register Listeners
-        getServer().getPluginManager().registerEvents(new PlayerDeathListener(this, lifeManager, discordService), this);
+        getServer().getPluginManager().registerEvents(new PlayerDeathListener(this, lifeManager, discordService, killPointsManager), this);
         getServer().getPluginManager().registerEvents(new ProtectionListener(protectionManager), this);
         getServer().getPluginManager().registerEvents(new TeamListener(teamManager), this);
         getServer().getPluginManager().registerEvents(new ChatListener(teamManager, roleManager, discordService), this);
+        getServer().getPluginManager().registerEvents(roleManager, this);
 
         // Register Commands
         TeamCommand teamCommand = new TeamCommand(teamManager);
@@ -396,6 +400,13 @@ public final class RollAndDeathSMP extends JavaPlugin {
             discordService.sendServerStatus(true);
         }
 
+        if (getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+            new PlaceholderHook(this).register();
+            getLogger().info("PlaceholderAPI hook registrado.");
+        } else {
+            getLogger().info("PlaceholderAPI no encontrado; los placeholders se desactivan.");
+        }
+
         getLogger().info("RollAndDeath SMP Plugin has been enabled!");
         getLogger().info("Protocolo Diciembre iniciado...");
     }
@@ -409,11 +420,19 @@ public final class RollAndDeathSMP extends JavaPlugin {
         if (announceManager != null) {
             announceManager.stop();
         }
+        if (killPointsManager != null) {
+            killPointsManager.shutdown();
+        }
         if (playerHudManager != null) {
             playerHudManager.cancel();
         }
         if (reanimationManager != null) {
             reanimationManager.shutdown();
+        }
+        if (teamManager != null) {
+            getConfig().set("teams", null);
+            teamManager.saveToConfig(getConfig().createSection("teams"));
+            saveConfig();
         }
         if (discordService != null && discordService.isEnabled()) {
             discordService.sendServerStatus(false);
@@ -469,6 +488,10 @@ public final class RollAndDeathSMP extends JavaPlugin {
         return announceManager;
     }
 
+    public KillPointsManager getKillPointsManager() {
+        return killPointsManager;
+    }
+
     public DailyRollManager getDailyRollManager() {
         return dailyRollManager;
     }
@@ -479,5 +502,9 @@ public final class RollAndDeathSMP extends JavaPlugin {
 
     public DiscordWebhookService getDiscordService() {
         return discordService;
+    }
+
+    public CombatLogManager getCombatLogManager() {
+        return combatLogManager;
     }
 }

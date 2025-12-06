@@ -7,6 +7,7 @@ import net.rollanddeath.smp.core.roles.RoleType;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -57,6 +58,15 @@ public class MidasRole extends Role {
                     amount -= current;
                 }
             }
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onNaturalRegen(EntityRegainHealthEvent event) {
+        if (!(event.getEntity() instanceof Player player)) return;
+        if (!hasRole(player)) return;
+        if (event.getRegainReason() == EntityRegainHealthEvent.RegainReason.SATIATED) {
+            event.setCancelled(true); // sin regeneración natural
         }
     }
 

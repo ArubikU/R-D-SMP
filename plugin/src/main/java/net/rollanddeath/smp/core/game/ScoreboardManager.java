@@ -163,7 +163,7 @@ public class ScoreboardManager implements Listener {
         } else {
             int shown = 0;
             for (String event : events) {
-                if (score <= 0) break;
+                if (score <= 1) break;
                 setScore(obj, "- " + event, score--);
                 shown++;
             }

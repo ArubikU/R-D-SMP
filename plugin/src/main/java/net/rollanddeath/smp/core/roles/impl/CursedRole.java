@@ -24,7 +24,7 @@ public class CursedRole extends Role {
             public void run() {
                 for (Player player : plugin.getServer().getOnlinePlayers()) {
                     if (hasRole(player)) {
-                        player.addPotionEffect(new PotionEffect(PotionEffectType.UNLUCK, 100, 1, false, false));
+                        player.addPotionEffect(new PotionEffect(PotionEffectType.UNLUCK, 100, 4, false, false));
                     }
                 }
             }

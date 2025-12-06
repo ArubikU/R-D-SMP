@@ -1,5 +1,6 @@
 package net.rollanddeath.smp.core.roles.impl;
 
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.rollanddeath.smp.RollAndDeathSMP;
 import net.rollanddeath.smp.core.roles.Role;
 import net.rollanddeath.smp.core.roles.RoleType;
@@ -7,6 +8,9 @@ import org.bukkit.block.Biome;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -43,5 +47,18 @@ public class DruidRole extends Role {
                 }
             }
         }.runTaskTimer(plugin, 0L, 60L);
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onEquip(InventoryClickEvent event) {
+        if (!(event.getWhoClicked() instanceof Player player)) return;
+        if (!hasRole(player)) return;
+        if (event.getSlotType() != InventoryType.SlotType.ARMOR) return;
+        if (event.getCursor() == null) return;
+        String name = event.getCursor().getType().name();
+        if (name.contains("IRON") || name.contains("GOLD") || name.contains("CHAIN") || name.contains("NETHERITE")) {
+            event.setCancelled(true);
+            player.sendMessage(MiniMessage.miniMessage().deserialize("<red>Los druidas no usan armadura de metal."));
+        }
     }
 }

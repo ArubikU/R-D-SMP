@@ -8,6 +8,7 @@ import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.rollanddeath.smp.RollAndDeathSMP;
 import net.rollanddeath.smp.core.LifeManager;
 import net.rollanddeath.smp.integration.discord.DiscordWebhookService;
+import net.rollanddeath.smp.core.game.KillPointsManager;
 import org.bukkit.BanList;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -51,26 +52,35 @@ public class PlayerDeathListener implements Listener {
     private final NamespacedKey headDataKey;
     private final Gson gson;
     private final DiscordWebhookService discordService;
+    private final KillPointsManager killPointsManager;
     private final Set<UUID> recentDeaths = new HashSet<>();
 
-    public PlayerDeathListener(RollAndDeathSMP plugin, LifeManager lifeManager, DiscordWebhookService discordService) {
+    public PlayerDeathListener(RollAndDeathSMP plugin, LifeManager lifeManager, DiscordWebhookService discordService, KillPointsManager killPointsManager) {
         this.plugin = plugin;
         this.lifeManager = lifeManager;
         this.headDataKey = new NamespacedKey(plugin, "death_head");
         this.gson = new GsonBuilder().create();
         this.discordService = discordService;
+        this.killPointsManager = killPointsManager;
     }
 
     @EventHandler
     @SuppressWarnings("deprecation")
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player player = event.getEntity();
+        Player killer = player.getKiller();
         UUID uuid = player.getUniqueId();
         if (!recentDeaths.add(uuid)) {
             return;
         }
         Bukkit.getScheduler().runTaskLater(plugin, () -> recentDeaths.remove(uuid), 20L);
         addDeathHeadDrop(event, player);
+
+        // Kill points for player-versus-player
+        if (killer != null && !killer.getUniqueId().equals(player.getUniqueId()) && killPointsManager != null) {
+            int total = killPointsManager.addKill(killer.getUniqueId());
+            killer.sendMessage(Component.text("Killpoints: +1 (" + total + ")", NamedTextColor.GOLD));
+        }
         
         // Check Permadeath (Day 31+)
         if (plugin.getGameManager().isPermadeathActive()) {
@@ -126,6 +136,10 @@ public class PlayerDeathListener implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
+        Component joinMsg = Component.text("➕ ", NamedTextColor.GREEN)
+            .append(Component.text(player.getName(), NamedTextColor.YELLOW))
+            .append(Component.text(" se unió al servidor.", NamedTextColor.GRAY));
+        event.joinMessage(joinMsg);
         // Initialize lives if new
         lifeManager.getLives(player);
         
@@ -145,6 +159,10 @@ public class PlayerDeathListener implements Listener {
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
+        Component quitMsg = Component.text("➖ ", NamedTextColor.RED)
+                .append(Component.text(player.getName(), NamedTextColor.YELLOW))
+                .append(Component.text(" salió del servidor.", NamedTextColor.GRAY));
+        event.quitMessage(quitMsg);
         if (discordService != null && discordService.isEnabled()) {
             discordService.sendPlayerQuit(player);
         }

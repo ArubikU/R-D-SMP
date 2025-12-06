@@ -22,7 +22,7 @@ public class AlchemistRole extends Role {
                 if (old != null && old.getDuration() > 20) {
                     if (event.getCause() == EntityPotionEffectEvent.Cause.POTION_DRINK || event.getCause() == EntityPotionEffectEvent.Cause.POTION_SPLASH) {
                          event.setCancelled(true);
-                         player.addPotionEffect(new PotionEffect(old.getType(), old.getDuration() * 2, old.getAmplifier(), old.isAmbient(), old.hasParticles(), old.hasIcon()));
+                         player.addPotionEffect(new PotionEffect(old.getType(), old.getDuration() * 3, old.getAmplifier(), old.isAmbient(), old.hasParticles(), old.hasIcon()));
                     }
                 }
             }

@@ -52,27 +52,21 @@ public class ChanceTotem extends CustomItem {
         if (!(event.getEntity() instanceof Player)) return;
         Player player = (Player) event.getEntity();
         
+        // Detecta el tótem en las manos; el evento se dispara antes de que vanilla lo consuma.
         ItemStack main = player.getInventory().getItemInMainHand();
         ItemStack off = player.getInventory().getItemInOffHand();
-        
-        boolean isChanceTotem = false;
 
-        // Minecraft priority: Main Hand > Off Hand
-        if (main.getType() == Material.TOTEM_OF_UNDYING) {
-            if (isItem(main)) {
-                isChanceTotem = true;
-            }
-        } else if (off.getType() == Material.TOTEM_OF_UNDYING) {
-            if (isItem(off)) {
-                isChanceTotem = true;
-            }
+        ItemStack resurrectionItem = null;
+        if (main.getType() == Material.TOTEM_OF_UNDYING && isItem(main)) {
+            resurrectionItem = main;
+        } else if (off.getType() == Material.TOTEM_OF_UNDYING && isItem(off)) {
+            resurrectionItem = off;
         }
-        
-        if (isChanceTotem) {
-            // Vanilla handles the resurrection part (consuming totem)
-            // We just add the random effect
+
+        if (resurrectionItem != null) {
+            // Vanilla maneja la resurrección; aquí aplicamos el efecto aleatorio más largo para que se note.
             PotionEffectType type = effects[random.nextInt(effects.length)];
-            player.addPotionEffect(new PotionEffect(type, 20 * 30, 1));
+            player.addPotionEffect(new PotionEffect(type, 20 * 60, 1));
             player.sendMessage(MiniMessage.miniMessage().deserialize("<yellow>¡El Tótem del Azar te ha dado " + type.getKey().getKey() + "!"));
         }
     }

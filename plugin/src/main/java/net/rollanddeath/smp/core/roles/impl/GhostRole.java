@@ -27,11 +27,11 @@ public class GhostRole extends Role {
             public void run() {
                 for (Player player : plugin.getServer().getOnlinePlayers()) {
                     if (hasRole(player)) {
-                        if (player.getAttribute(Attribute.MAX_HEALTH).getValue() != 14.0) {
-                            player.getAttribute(Attribute.MAX_HEALTH).setBaseValue(14.0); // 7 hearts
+                            if (player.getAttribute(Attribute.MAX_HEALTH).getValue() != 10.0) {
+                                player.getAttribute(Attribute.MAX_HEALTH).setBaseValue(10.0); // 5 hearts
                         }
                     } else {
-                         if (player.getAttribute(Attribute.MAX_HEALTH).getValue() == 14.0 && 
+                             if (player.getAttribute(Attribute.MAX_HEALTH).getValue() == 10.0 && 
                             plugin.getRoleManager().getPlayerRole(player) != RoleType.GHOST) {
                             player.getAttribute(Attribute.MAX_HEALTH).setBaseValue(20.0);
                         }

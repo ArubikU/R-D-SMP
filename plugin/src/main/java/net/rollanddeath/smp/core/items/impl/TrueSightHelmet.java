@@ -7,7 +7,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Tag;
-import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -17,6 +17,9 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.util.Transformation;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -30,7 +33,7 @@ public class TrueSightHelmet extends CustomItem {
 
     private static final int RADIUS = 12;
     private static final int MAX_MARKERS = 64;
-    private final Map<UUID, List<ArmorStand>> oreMarkers = new HashMap<>();
+    private final Map<UUID, List<Entity>> oreMarkers = new HashMap<>();
     private final Map<UUID, Location> lastScan = new HashMap<>();
 
     public TrueSightHelmet(RollAndDeathSMP plugin) {
@@ -63,7 +66,7 @@ public class TrueSightHelmet extends CustomItem {
     private void rescanOres(Player player, Location center) {
         clearMarkers(player);
 
-        List<ArmorStand> markers = new ArrayList<>();
+        List<Entity> markers = new ArrayList<>();
         int marked = 0;
         for (int x = -RADIUS; x <= RADIUS && marked < MAX_MARKERS; x++) {
             for (int y = -RADIUS; y <= RADIUS && marked < MAX_MARKERS; y++) {
@@ -72,17 +75,15 @@ public class TrueSightHelmet extends CustomItem {
                     if (!isOre(type)) continue;
 
                     Location spot = center.clone().add(x + 0.5, y + 0.2, z + 0.5);
-                    ArmorStand stand = center.getWorld().spawn(spot, ArmorStand.class, as -> {
-                        as.setInvisible(true);
-                        as.setMarker(true);
-                        as.setGravity(false);
-                        as.setInvulnerable(true);
-                        as.setCollidable(false);
-                        as.setCustomNameVisible(false);
-                        as.setSmall(true);
-                        as.setGlowing(true);
+                    BlockDisplay display = center.getWorld().spawn(spot, BlockDisplay.class, bd -> {
+                        bd.setBlock(Material.LIGHT_BLUE_STAINED_GLASS.createBlockData());
+                        bd.setGlowing(true);
+                        bd.setInvulnerable(true);
+                        bd.setGravity(false);
+                        bd.setPersistent(true);
+                        bd.setTransformation(new Transformation(new Vector3f(-0.25f, -0.25f, -0.25f), new Quaternionf(), new Vector3f(0.5f, 0.5f, 0.5f), new Quaternionf()));
                     });
-                    markers.add(stand);
+                    markers.add(display);
                     marked++;
                 }
             }
@@ -94,7 +95,7 @@ public class TrueSightHelmet extends CustomItem {
     }
 
     private void clearMarkers(Player player) {
-        List<ArmorStand> list = oreMarkers.remove(player.getUniqueId());
+        List<Entity> list = oreMarkers.remove(player.getUniqueId());
         if (list != null) {
             list.forEach(Entity::remove);
         }
@@ -109,7 +110,7 @@ public class TrueSightHelmet extends CustomItem {
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
         if (!oreMarkers.containsKey(event.getPlayer().getUniqueId())) return;
-        List<ArmorStand> list = oreMarkers.get(event.getPlayer().getUniqueId());
+        List<Entity> list = oreMarkers.get(event.getPlayer().getUniqueId());
         if (list == null) return;
         list.removeIf(as -> {
             if (as.getLocation().getBlock().equals(event.getBlock())) {
