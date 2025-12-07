@@ -46,7 +46,7 @@ public class AttributeWeaponItem extends CustomItem {
         if (meta != null) {
             if (damageBonus != 0.0) {
                 meta.addAttributeModifier(
-                        Attribute.GENERIC_ATTACK_DAMAGE,
+                        Attribute.ATTACK_DAMAGE,
                         new AttributeModifier(new NamespacedKey(plugin, type.name().toLowerCase(Locale.ROOT) + "_damage"),
                                 damageBonus,
                                 AttributeModifier.Operation.ADD_NUMBER,
@@ -55,7 +55,7 @@ public class AttributeWeaponItem extends CustomItem {
             }
             if (speedBonus != 0.0) {
                 meta.addAttributeModifier(
-                        Attribute.GENERIC_ATTACK_SPEED,
+                        Attribute.ATTACK_SPEED,
                         new AttributeModifier(new NamespacedKey(plugin, type.name().toLowerCase(Locale.ROOT) + "_speed"),
                                 speedBonus,
                                 AttributeModifier.Operation.ADD_NUMBER,
@@ -64,7 +64,7 @@ public class AttributeWeaponItem extends CustomItem {
             }
             if (knockbackResistBonus != 0.0) {
                 meta.addAttributeModifier(
-                        Attribute.GENERIC_KNOCKBACK_RESISTANCE,
+                        Attribute.KNOCKBACK_RESISTANCE,
                         new AttributeModifier(new NamespacedKey(plugin, type.name().toLowerCase(Locale.ROOT) + "_kb"),
                                 knockbackResistBonus,
                                 AttributeModifier.Operation.ADD_NUMBER,

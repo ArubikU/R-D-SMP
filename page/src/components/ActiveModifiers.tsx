@@ -20,7 +20,7 @@ interface ServerStatus {
     permadeath: boolean;
     active_modifiers: string[];
     active_day_rules?: { day: number; name: string; description: string }[];
-    active_mobs?: string[];
+    active_mobs?: { id: string; name: string; boss: boolean }[];
     active_mob_count?: number;
     last_mob_day?: number;
     next_event_seconds?: number;
@@ -222,8 +222,16 @@ export const ActiveModifiers: React.FC = () => {
                 {activeMobs.length > 0 ? (
                     <div className="flex flex-wrap gap-2">
                         {activeMobs.map((mob) => (
-                            <span key={mob} className="bg-purple-900/30 border border-purple-700/60 px-3 py-1 rounded text-sm text-purple-200 font-mono">
-                                {mob.replace(/_/g, ' ')}
+                            <span 
+                                key={mob.id} 
+                                className={`px-3 py-1 rounded text-sm font-mono border ${
+                                    mob.boss 
+                                    ? 'bg-red-950/50 border-red-600 text-red-200 animate-pulse' 
+                                    : 'bg-purple-900/30 border-purple-700/60 text-purple-200'
+                                }`}
+                            >
+                                {mob.boss && <span className="mr-1">☠️</span>}
+                                {mob.name}
                             </span>
                         ))}
                     </div>

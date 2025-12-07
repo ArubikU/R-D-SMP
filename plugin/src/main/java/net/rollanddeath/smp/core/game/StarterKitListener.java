@@ -55,7 +55,7 @@ public class StarterKitListener implements Listener {
         ItemStack item = new ItemStack(type);
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
-            meta.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 2, true);
+            meta.addEnchant(Enchantment.PROTECTION, 2, true);
             item.setItemMeta(meta);
         }
         return item;
@@ -65,7 +65,7 @@ public class StarterKitListener implements Listener {
         ItemStack item = new ItemStack(Material.IRON_SWORD);
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
-            meta.addEnchant(Enchantment.DAMAGE_ALL, 2, true);
+            meta.addEnchant(Enchantment.SHARPNESS, 2, true);
             item.setItemMeta(meta);
         }
         return item;

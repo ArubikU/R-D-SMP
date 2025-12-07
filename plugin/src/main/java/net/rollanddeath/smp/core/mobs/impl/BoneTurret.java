@@ -28,7 +28,11 @@ public class BoneTurret extends CustomMob {
     protected void applyEquipment(LivingEntity entity) {
         if (entity.getEquipment() != null) {
             entity.getEquipment().setHelmet(new ItemStack(Material.DIAMOND_HELMET));
-            entity.getEquipment().setItemInMainHand(new ItemStack(Material.BOW));
+            
+            ItemStack crossbow = new ItemStack(Material.CROSSBOW);
+            crossbow.addEnchantment(org.bukkit.enchantments.Enchantment.QUICK_CHARGE, 4);
+            entity.getEquipment().setItemInMainHand(crossbow);
+            entity.getEquipment().setItemInOffHand(new ItemStack(Material.ARROW));
         }
     }
 }

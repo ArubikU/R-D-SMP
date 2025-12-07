@@ -42,4 +42,10 @@ public enum MobType {
     public String getDisplayName() {
         return displayName;
     }
+
+    public boolean isBoss() {
+        return this == APOCALYPSE_KNIGHT || this == LEVIATHAN || this == RAT_KING ||
+               this == AWAKENED_WARDEN || this == ALPHA_DRAGON || this == THE_REAPER ||
+               this == SLIME_KING || this == BANSHEE || this == VOID_WALKER;
+    }
 }

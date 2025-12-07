@@ -49,7 +49,7 @@ public class AttributeArmorItem extends CustomItem {
         if (meta != null) {
             if (armorBonus != 0.0) {
                 meta.addAttributeModifier(
-                        Attribute.GENERIC_ARMOR,
+                        Attribute.ARMOR,
                         new AttributeModifier(new NamespacedKey(plugin, type.name().toLowerCase(Locale.ROOT) + "_armor"),
                                 armorBonus,
                                 AttributeModifier.Operation.ADD_NUMBER,
@@ -58,7 +58,7 @@ public class AttributeArmorItem extends CustomItem {
             }
             if (toughnessBonus != 0.0) {
                 meta.addAttributeModifier(
-                        Attribute.GENERIC_ARMOR_TOUGHNESS,
+                        Attribute.ARMOR_TOUGHNESS,
                         new AttributeModifier(new NamespacedKey(plugin, type.name().toLowerCase(Locale.ROOT) + "_toughness"),
                                 toughnessBonus,
                                 AttributeModifier.Operation.ADD_NUMBER,
@@ -67,7 +67,7 @@ public class AttributeArmorItem extends CustomItem {
             }
             if (knockbackResistBonus != 0.0) {
                 meta.addAttributeModifier(
-                        Attribute.GENERIC_KNOCKBACK_RESISTANCE,
+                        Attribute.KNOCKBACK_RESISTANCE,
                         new AttributeModifier(new NamespacedKey(plugin, type.name().toLowerCase(Locale.ROOT) + "_kb"),
                                 knockbackResistBonus,
                                 AttributeModifier.Operation.ADD_NUMBER,

@@ -24,7 +24,6 @@ import net.rollanddeath.smp.core.items.LootManager;
 import net.rollanddeath.smp.core.mobs.MobManager;
 import net.rollanddeath.smp.core.mobs.DailyMobRotationManager;
 import net.rollanddeath.smp.core.mobs.MobCommand;
-import net.rollanddeath.smp.core.mobs.ScheduledMobManager;
 import net.rollanddeath.smp.core.items.impl.*;
 import net.rollanddeath.smp.core.items.impl.AttributeArmorItem;
 import net.rollanddeath.smp.core.items.impl.AttributeWeaponItem;
@@ -50,6 +49,8 @@ import net.rollanddeath.smp.core.combat.CombatLogManager;
 import net.rollanddeath.smp.core.combat.ReanimationManager;
 import net.rollanddeath.smp.integration.discord.DiscordWebhookService;
 import net.rollanddeath.smp.integration.PlaceholderHook;
+import net.rollanddeath.smp.core.items.CustomItemType;
+import net.rollanddeath.smp.core.roles.RoleType;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.ConfigurationSection;
@@ -74,7 +75,6 @@ public final class RollAndDeathSMP extends JavaPlugin {
     private RoleManager roleManager;
     private MobManager mobManager;
     private DailyMobRotationManager dailyMobRotationManager;
-    private ScheduledMobManager scheduledMobManager;
     private ItemManager itemManager;
     private RecipeManager recipeManager;
     private LootManager lootManager;
@@ -117,8 +117,6 @@ public final class RollAndDeathSMP extends JavaPlugin {
         this.roleManager = new RoleManager(this);
         this.mobManager = new MobManager(this);
         this.dailyMobRotationManager = new DailyMobRotationManager(this);
-        this.scheduledMobManager = new ScheduledMobManager(this);
-        this.itemManager = new ItemManager(this);
         this.recipeManager = new RecipeManager(this);
         this.lootManager = new LootManager(this);
         this.gameManager = new GameManager(this);
@@ -132,7 +130,11 @@ public final class RollAndDeathSMP extends JavaPlugin {
         getServer().getPluginManager().registerEvents(playerHudManager, this);
         getServer().getPluginManager().registerEvents(new StarterKitListener(this), this);
         getServer().getPluginManager().registerEvents(new SoftLockListener(this), this);
-        getServer().getPluginManager().registerEvents(new DayRuleListener(dayRuleManager), this);
+        getServer().getPluginManager().registerEvents(new DayRuleListener(this), this);
+        getServer().getPluginManager().registerEvents(new net.rollanddeath.smp.core.mobs.MobSpawnListener(this), this);
+        getServer().getPluginManager().registerEvents(new net.rollanddeath.smp.core.mobs.BossDeathListener(this), this);
+        getServer().getPluginManager().registerEvents(new net.rollanddeath.smp.core.game.EndBattleListener(this), this);
+        getServer().getPluginManager().registerEvents(new net.rollanddeath.smp.core.game.EndCrystalListener(this), this);
         playerHudManager.runTaskTimer(this, 40L, 5L);
 
         ArmorRestrictionTask armorRestrictionTask = new ArmorRestrictionTask(this);
@@ -363,28 +365,28 @@ public final class RollAndDeathSMP extends JavaPlugin {
             List.of(new PotionEffect(PotionEffectType.REGENERATION, 20 * 10, 1), new PotionEffect(PotionEffectType.ABSORPTION, 20 * 30, 0)),
             Collections.emptyList(), List.of("Click derecho: Regeneración II + Absorción I"), Sound.ITEM_HONEY_BOTTLE_DRINK, 1.1f));
         itemManager.registerItem(new RoleCurioItem(this, CustomItemType.VAMPIRE_VIAL, RoleType.VAMPIRE, Material.GLASS_BOTTLE,
-            List.of(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 20 * 30, 0), new PotionEffect(PotionEffectType.NIGHT_VISION, 20 * 45, 0)),
+            List.of(new PotionEffect(PotionEffectType.STRENGTH, 20 * 30, 0), new PotionEffect(PotionEffectType.NIGHT_VISION, 20 * 45, 0)),
             Collections.emptyList(), List.of("Click derecho: Fuerza I + Visión nocturna"), Sound.ITEM_BOTTLE_FILL_DRAGONBREATH, 0.9f));
         itemManager.registerItem(new RoleCurioItem(this, CustomItemType.GLASS_CANNON_CHARGE, RoleType.GLASS_CANNON, Material.AMETHYST_SHARD,
-            List.of(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 20 * 15, 1), new PotionEffect(PotionEffectType.SLOW, 20 * 15, 0)),
+            List.of(new PotionEffect(PotionEffectType.STRENGTH, 20 * 15, 1), new PotionEffect(PotionEffectType.SLOWNESS, 20 * 15, 0)),
             Collections.emptyList(), List.of("Fuerza II corta, pero te inmoviliza un poco"), Sound.BLOCK_AMETHYST_BLOCK_CHIME, 1.3f));
         itemManager.registerItem(new RoleCurioItem(this, CustomItemType.MIDAS_TALISMAN, RoleType.MIDAS, Material.GOLD_INGOT,
             List.of(new PotionEffect(PotionEffectType.LUCK, 20 * 40, 0), new PotionEffect(PotionEffectType.ABSORPTION, 20 * 30, 0)),
             Collections.emptyList(), List.of("Atrae la fortuna por unos segundos"), Sound.BLOCK_AMETHYST_BLOCK_PLACE, 1.0f));
         itemManager.registerItem(new RoleCurioItem(this, CustomItemType.NOMAD_COMPASS, RoleType.NOMAD, Material.COMPASS,
-            List.of(new PotionEffect(PotionEffectType.SPEED, 20 * 30, 1), new PotionEffect(PotionEffectType.JUMP, 20 * 30, 0)),
+            List.of(new PotionEffect(PotionEffectType.SPEED, 20 * 30, 1), new PotionEffect(PotionEffectType.JUMP_BOOST, 20 * 30, 0)),
             Collections.emptyList(), List.of("Movimiento ligero para seguir viajando"), Sound.ITEM_LODESTONE_COMPASS_LOCK, 1.2f));
         itemManager.registerItem(new RoleCurioItem(this, CustomItemType.TANK_PLATING, RoleType.TANK, Material.IRON_BLOCK,
-            List.of(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 20 * 20, 1), new PotionEffect(PotionEffectType.SLOW, 20 * 20, 0)),
+            List.of(new PotionEffect(PotionEffectType.RESISTANCE, 20 * 20, 1), new PotionEffect(PotionEffectType.SLOWNESS, 20 * 20, 0)),
             Collections.emptyList(), List.of("Armadura extra, te hace más pesado"), Sound.BLOCK_ANVIL_USE, 0.8f));
         itemManager.registerItem(new RoleCurioItem(this, CustomItemType.ASSASSIN_POISON_KIT, RoleType.ASSASSIN, Material.FERMENTED_SPIDER_EYE,
-            List.of(new PotionEffect(PotionEffectType.INVISIBILITY, 20 * 20, 0), new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 20 * 10, 0)),
+            List.of(new PotionEffect(PotionEffectType.INVISIBILITY, 20 * 20, 0), new PotionEffect(PotionEffectType.STRENGTH, 20 * 10, 0)),
             Collections.emptyList(), List.of("Sigilo breve y golpe más fuerte"), Sound.ENTITY_SPIDER_AMBIENT, 1.1f));
         itemManager.registerItem(new RoleCurioItem(this, CustomItemType.ENGINEER_REPAIR_KIT, RoleType.ENGINEER, Material.ANVIL,
-            List.of(new PotionEffect(PotionEffectType.FAST_DIGGING, 20 * 30, 1), new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 20 * 10, 0)),
+            List.of(new PotionEffect(PotionEffectType.HASTE, 20 * 30, 1), new PotionEffect(PotionEffectType.RESISTANCE, 20 * 10, 0)),
             Collections.emptyList(), List.of("Haste II corto para reparar o colocar"), Sound.BLOCK_ANVIL_PLACE, 1.0f));
         itemManager.registerItem(new RoleCurioItem(this, CustomItemType.PYRO_TORCH, RoleType.PYRO, Material.FLINT_AND_STEEL,
-            List.of(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 20 * 45, 0), new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 20 * 15, 0)),
+            List.of(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 20 * 45, 0), new PotionEffect(PotionEffectType.STRENGTH, 20 * 15, 0)),
             Collections.emptyList(), List.of("Inmune al fuego y golpes ardientes"), Sound.ITEM_FLINTANDSTEEL_USE, 1.0f));
         itemManager.registerItem(new RoleCurioItem(this, CustomItemType.CURSED_IDOL, RoleType.CURSED, Material.WITHER_ROSE,
             List.of(new PotionEffect(PotionEffectType.LUCK, 20 * 60, 0), new PotionEffect(PotionEffectType.REGENERATION, 20 * 10, 0)),
@@ -394,10 +396,10 @@ public final class RollAndDeathSMP extends JavaPlugin {
             List.of(new PotionEffect(PotionEffectType.REGENERATION, 20 * 15, 0), new PotionEffect(PotionEffectType.SATURATION, 20 * 5, 0)),
             Collections.emptyList(), List.of("Brotan fuerzas de la tierra"), Sound.BLOCK_GRASS_PLACE, 1.0f));
         itemManager.registerItem(new RoleCurioItem(this, CustomItemType.BERSERKER_MEAD, RoleType.BERSERKER, Material.HONEY_BOTTLE,
-            List.of(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 20 * 25, 1), new PotionEffect(PotionEffectType.HUNGER, 20 * 20, 1)),
+            List.of(new PotionEffect(PotionEffectType.STRENGTH, 20 * 25, 1), new PotionEffect(PotionEffectType.HUNGER, 20 * 20, 1)),
             Collections.emptyList(), List.of("Fuerza brutal a cambio de más hambre"), Sound.ITEM_HONEY_BOTTLE_DRINK, 1.0f));
         itemManager.registerItem(new RoleCurioItem(this, CustomItemType.SNIPER_SCOPE, RoleType.SNIPER, Material.SPYGLASS,
-            List.of(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 20 * 20, 0), new PotionEffect(PotionEffectType.SLOW, 20 * 10, 0)),
+            List.of(new PotionEffect(PotionEffectType.STRENGTH, 20 * 20, 0), new PotionEffect(PotionEffectType.SLOWNESS, 20 * 10, 0)),
             Collections.emptyList(), List.of("Daño de tiro mejorado, te estabiliza"), Sound.ITEM_SPYGLASS_USE, 1.0f));
         itemManager.registerItem(new RoleCurioItem(this, CustomItemType.MERCHANT_LEDGER, RoleType.MERCHANT, Material.BOOK,
             List.of(new PotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE, 20 * 120, 0)),
@@ -409,41 +411,41 @@ public final class RollAndDeathSMP extends JavaPlugin {
             List.of(new PotionEffect(PotionEffectType.WATER_BREATHING, 20 * 60, 0), new PotionEffect(PotionEffectType.DOLPHINS_GRACE, 20 * 20, 0)),
             Collections.emptyList(), List.of("Respira y avanza como pez"), Sound.ENTITY_DOLPHIN_AMBIENT_WATER, 1.0f));
         itemManager.registerItem(new RoleCurioItem(this, CustomItemType.MINER_CHARGE, RoleType.MINER, Material.TNT,
-            List.of(new PotionEffect(PotionEffectType.FAST_DIGGING, 20 * 40, 1), new PotionEffect(PotionEffectType.NIGHT_VISION, 20 * 40, 0)),
+            List.of(new PotionEffect(PotionEffectType.HASTE, 20 * 40, 1), new PotionEffect(PotionEffectType.NIGHT_VISION, 20 * 40, 0)),
             Collections.emptyList(), List.of("Haste II y visión para minar"), Sound.ENTITY_TNT_PRIMED, 1.2f));
         itemManager.registerItem(new RoleCurioItem(this, CustomItemType.TAMER_WHISTLE, RoleType.TAMER, Material.BONE,
-            List.of(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 20 * 20, 0), new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 20 * 20, 0)),
-            Collections.emptyList(), List.of("Llamado alfa: te y tus mascotas se envalentonan"), Sound.ENTITY_WOLF_HOWL, 1.0f));
+            List.of(new PotionEffect(PotionEffectType.RESISTANCE, 20 * 20, 0), new PotionEffect(PotionEffectType.STRENGTH, 20 * 20, 0)),
+            Collections.emptyList(), List.of("Llamado alfa: te y tus mascotas se envalentonan"), Sound.ENTITY_WOLF_AMBIENT, 1.0f));
         itemManager.registerItem(new RoleCurioItem(this, CustomItemType.ALCHEMIST_CATALYST, RoleType.ALCHEMIST, Material.NETHER_WART,
             List.of(new PotionEffect(PotionEffectType.LUCK, 20 * 45, 0), new PotionEffect(PotionEffectType.REGENERATION, 20 * 10, 0)),
             Collections.emptyList(), List.of("Cataliza tu siguiente jugada"), Sound.BLOCK_BREWING_STAND_BREW, 1.1f));
         itemManager.registerItem(new RoleCurioItem(this, CustomItemType.KNIGHT_BANNER, RoleType.KNIGHT, Material.WHITE_BANNER,
-            List.of(new PotionEffect(PotionEffectType.ABSORPTION, 20 * 40, 1), new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 20 * 20, 0)),
+            List.of(new PotionEffect(PotionEffectType.ABSORPTION, 20 * 40, 1), new PotionEffect(PotionEffectType.RESISTANCE, 20 * 20, 0)),
             Collections.emptyList(), List.of("Estandarte de batalla: absorción + resistencia"), Sound.ITEM_SHIELD_BLOCK, 0.9f));
         itemManager.registerItem(new RoleCurioItem(this, CustomItemType.THIEF_LOCKPICKS, RoleType.THIEF, Material.TRIPWIRE_HOOK,
             List.of(new PotionEffect(PotionEffectType.SPEED, 20 * 20, 1), new PotionEffect(PotionEffectType.INVISIBILITY, 20 * 15, 0)),
             Collections.emptyList(), List.of("Movilidad y sigilo corto"), Sound.BLOCK_TRIPWIRE_CLICK_OFF, 1.3f));
         itemManager.registerItem(new RoleCurioItem(this, CustomItemType.GIANT_BRACER, RoleType.GIANT, Material.IRON_TRAPDOOR,
-            List.of(new PotionEffect(PotionEffectType.HEALTH_BOOST, 20 * 45, 1), new PotionEffect(PotionEffectType.SLOW, 20 * 30, 0)),
+            List.of(new PotionEffect(PotionEffectType.HEALTH_BOOST, 20 * 45, 1), new PotionEffect(PotionEffectType.SLOWNESS, 20 * 30, 0)),
             Collections.emptyList(), List.of("Más vida pero te hace pesado"), Sound.ENTITY_IRON_GOLEM_REPAIR, 0.8f));
         itemManager.registerItem(new RoleCurioItem(this, CustomItemType.DWARF_FORGE_HAMMER, RoleType.DWARF, Material.IRON_PICKAXE,
-            List.of(new PotionEffect(PotionEffectType.FAST_DIGGING, 20 * 30, 2), new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 20 * 30, 0)),
+            List.of(new PotionEffect(PotionEffectType.HASTE, 20 * 30, 2), new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 20 * 30, 0)),
             Collections.emptyList(), List.of("Haste III y resistencia al fuego"), Sound.BLOCK_ANVIL_USE, 1.0f));
         itemManager.registerItem(new RoleCurioItem(this, CustomItemType.ILLUSIONIST_MIRROR, RoleType.ILLUSIONIST, Material.GLASS_PANE,
             List.of(new PotionEffect(PotionEffectType.INVISIBILITY, 20 * 20, 0), new PotionEffect(PotionEffectType.SPEED, 20 * 20, 0)),
             Collections.emptyList(), List.of("Te ocultas entre reflejos"), Sound.BLOCK_GLASS_HIT, 1.5f));
         itemManager.registerItem(new RoleCurioItem(this, CustomItemType.BARBARIAN_MEAD, RoleType.BARBARIAN, Material.COOKED_PORKCHOP,
-            List.of(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 20 * 25, 1), new PotionEffect(PotionEffectType.SLOW_DIGGING, 20 * 20, 0)),
+            List.of(new PotionEffect(PotionEffectType.STRENGTH, 20 * 25, 1), new PotionEffect(PotionEffectType.MINING_FATIGUE, 20 * 20, 0)),
             Collections.emptyList(), List.of("Fuerza bruta, poca fineza"), Sound.ENTITY_PLAYER_BURP, 1.0f));
         itemManager.registerItem(new RoleCurioItem(this, CustomItemType.SAGE_SCROLL, RoleType.SAGE, Material.PAPER,
             List.of(new PotionEffect(PotionEffectType.LUCK, 20 * 60, 1), new PotionEffect(PotionEffectType.ABSORPTION, 20 * 20, 0)),
             Collections.emptyList(), List.of("Un impulso de sabiduría y fortuna"), Sound.ITEM_BOOK_PAGE_TURN, 1.2f));
         itemManager.registerItem(new RoleCurioItem(this, CustomItemType.CHAOTIC_SEAL, RoleType.CHAOTIC, Material.ECHO_SHARD,
-            List.of(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 20 * 20, 0), new PotionEffect(PotionEffectType.SPEED, 20 * 20, 0)),
-            List.of(new PotionEffect(PotionEffectType.WEAKNESS, 20 * 20, 0), new PotionEffect(PotionEffectType.SLOW, 20 * 20, 0)),
+            List.of(new PotionEffect(PotionEffectType.STRENGTH, 20 * 20, 0), new PotionEffect(PotionEffectType.SPEED, 20 * 20, 0)),
+            List.of(new PotionEffect(PotionEffectType.WEAKNESS, 20 * 20, 0), new PotionEffect(PotionEffectType.SLOWNESS, 20 * 20, 0)),
             List.of("Efecto caótico: puede ser bueno o malo"), Sound.BLOCK_RESPAWN_ANCHOR_DEPLETE, 0.7f));
         itemManager.registerItem(new RoleCurioItem(this, CustomItemType.GUARDIAN_SIGIL, RoleType.GUARDIAN, Material.SHIELD,
-            List.of(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 20 * 15, 1), new PotionEffect(PotionEffectType.ABSORPTION, 20 * 30, 0)),
+            List.of(new PotionEffect(PotionEffectType.RESISTANCE, 20 * 15, 1), new PotionEffect(PotionEffectType.ABSORPTION, 20 * 30, 0)),
             Collections.emptyList(), List.of("Protección concentrada"), Sound.ITEM_SHIELD_BLOCK, 0.9f));
         itemManager.registerItem(new RoleCurioItem(this, CustomItemType.EXPLORER_COMPASS, RoleType.EXPLORER, Material.MAP,
             List.of(new PotionEffect(PotionEffectType.SPEED, 20 * 40, 1), new PotionEffect(PotionEffectType.NIGHT_VISION, 20 * 40, 0)),
@@ -559,6 +561,14 @@ public final class RollAndDeathSMP extends JavaPlugin {
         }
         getServer().getPluginManager().registerEvents(eventMenu, this);
 
+        net.rollanddeath.smp.core.commands.MobsCommand mobsCmd = new net.rollanddeath.smp.core.commands.MobsCommand(this);
+        getCommand("mobs").setExecutor(mobsCmd);
+        getServer().getPluginManager().registerEvents(mobsCmd, this);
+
+        net.rollanddeath.smp.core.commands.RulesCommand rulesCmd = new net.rollanddeath.smp.core.commands.RulesCommand(this);
+        getCommand("reglas").setExecutor(rulesCmd);
+        getServer().getPluginManager().registerEvents(rulesCmd, this);
+
         if (discordService != null && discordService.isEnabled()) {
             discordService.sendServerStatus(true);
         }
@@ -582,9 +592,6 @@ public final class RollAndDeathSMP extends JavaPlugin {
         }
         if (announceManager != null) {
             announceManager.stop();
-        }
-        if (scheduledMobManager != null) {
-            scheduledMobManager.stop();
         }
         if (killPointsManager != null) {
             killPointsManager.shutdown();

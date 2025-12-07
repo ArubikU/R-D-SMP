@@ -19,23 +19,27 @@ public class CraftingListener implements Listener {
 
     private final RollAndDeathSMP plugin;
 
-    private static final Map<CustomItemType, Integer> MIN_DAY_REQUIREMENTS = Map.of(
-            CustomItemType.STEEL_HELMET, 10,
-            CustomItemType.STEEL_CHESTPLATE, 10,
-            CustomItemType.STEEL_LEGGINGS, 10,
-            CustomItemType.STEEL_BOOTS, 10,
-            CustomItemType.STEEL_SWORD, 10,
-            CustomItemType.OBSIDIAN_HELMET, 20,
-            CustomItemType.OBSIDIAN_CHESTPLATE, 20,
-            CustomItemType.OBSIDIAN_LEGGINGS, 20,
-            CustomItemType.OBSIDIAN_BOOTS, 20,
-            CustomItemType.OBSIDIAN_SWORD, 20,
-            CustomItemType.VOID_HELMET, 30,
-            CustomItemType.VOID_CHESTPLATE, 30,
-            CustomItemType.VOID_LEGGINGS, 30,
-            CustomItemType.VOID_BOOTS, 30,
-            CustomItemType.VOID_SWORD, 30
-    );
+    private static final Map<CustomItemType, Integer> MIN_DAY_REQUIREMENTS;
+
+    static {
+        MIN_DAY_REQUIREMENTS = Map.ofEntries(
+            Map.entry(CustomItemType.STEEL_HELMET, 10),
+            Map.entry(CustomItemType.STEEL_CHESTPLATE, 10),
+            Map.entry(CustomItemType.STEEL_LEGGINGS, 10),
+            Map.entry(CustomItemType.STEEL_BOOTS, 10),
+            Map.entry(CustomItemType.STEEL_SWORD, 10),
+            Map.entry(CustomItemType.OBSIDIAN_HELMET, 20),
+            Map.entry(CustomItemType.OBSIDIAN_CHESTPLATE, 20),
+            Map.entry(CustomItemType.OBSIDIAN_LEGGINGS, 20),
+            Map.entry(CustomItemType.OBSIDIAN_BOOTS, 20),
+            Map.entry(CustomItemType.OBSIDIAN_SWORD, 20),
+            Map.entry(CustomItemType.VOID_HELMET, 30),
+            Map.entry(CustomItemType.VOID_CHESTPLATE, 30),
+            Map.entry(CustomItemType.VOID_LEGGINGS, 30),
+            Map.entry(CustomItemType.VOID_BOOTS, 30),
+            Map.entry(CustomItemType.VOID_SWORD, 30)
+        );
+    }
 
     public CraftingListener(RollAndDeathSMP plugin) {
         this.plugin = plugin;

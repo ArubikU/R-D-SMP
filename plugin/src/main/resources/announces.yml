@@ -15,9 +15,15 @@ announcements:
     interval_seconds: 750
   - message: "<gold>El <green>/daily</green> se reinicia cada 24h. ¡No lo olvides!</gold>"
     interval_seconds: 800
-  - message: "<aqua>Consulta la web del proyecto: <underline>https://arubiku.github.io/R-D-SMP/</underline></aqua>"
+  - message: "<aqua>Consulta la web del proyecto: https://arubiku.github.io/R-D-SMP/</aqua>"
     interval_seconds: 1200
   - message: "<yellow>Si mueres, tus <red>vidas</red> bajan. Consulta tu estado en <green>/menu</green>.</yellow>"
     interval_seconds: 700
   - message: "<gold>¿Equipo listo? Usa <green>/team</green> para gestionar tu clan y fuego amigo.</gold>"
     interval_seconds: 850
+  - message: "<yellow>Usa <green>/mobs</green> para ver qué criaturas especiales acechan hoy.</yellow>"
+    interval_seconds: 650
+  - message: "<aqua>¿Dudas sobre las normas? Consulta <green>/reglas</green> en cualquier momento.</aqua>"
+    interval_seconds: 950
+  - message: "<red>¡Cuidado en el End! Los cristales son más resistentes de lo normal.</red>"
+    interval_seconds: 1100

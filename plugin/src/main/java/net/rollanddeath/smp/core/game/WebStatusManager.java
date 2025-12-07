@@ -137,7 +137,11 @@ public class WebStatusManager {
         JsonArray activeMobs = new JsonArray();
         if (mobRotation != null) {
             for (var mob : mobRotation.getActiveMobs()) {
-                activeMobs.add(mob.name());
+                JsonObject mobObj = new JsonObject();
+                mobObj.addProperty("id", mob.name());
+                mobObj.addProperty("name", mob.getDisplayName());
+                mobObj.addProperty("boss", mob.isBoss());
+                activeMobs.add(mobObj);
             }
             root.addProperty("active_mob_count", mobRotation.getActiveMobs().size());
             root.addProperty("last_mob_day", mobRotation.getLastDay());
