@@ -1201,6 +1201,7 @@ export const items = [
 export const serverRules = [
     { title: "Casco de Rayos X", desc: "El Casco de Visión Verdadera (xray) solo marca bloques a 6 bloques de distancia. Más lejos no muestra nada." },
     { title: "Progresión de Armadura", desc: "Día 1 solo hierro. Día 2 puedes usar 1 pieza de diamante, Día 3 dos, Día 4 tres, Día 5 ya las cuatro. Desde el Día 5 se habilita netherita de forma progresiva: 1 pieza en Día 5, +1 por día hasta Día 8." },
+    { title: "Apertura de Dimensiones", desc: "El Nether se desbloquea el Día 7. El End se desbloquea el Día 14." },
     { title: "Dormir Rápido", desc: "Solo se necesita el 30% de los jugadores conectados durmiendo para saltar la noche." },
     { title: "Buff de Equipos Grandes", desc: "Equipos de 4-5 miembros obtienen 5% menos daño por cada miembro vivo y conectado (hasta 25%). La XP que gana cada uno reparte 5% a cada compañero online." },
     { title: "Cofre de Muerte", desc: "Al morir, tu loot aparece en un cofre en el lugar de la muerte (salvo que esté activo 'Mundo Gigante')." },

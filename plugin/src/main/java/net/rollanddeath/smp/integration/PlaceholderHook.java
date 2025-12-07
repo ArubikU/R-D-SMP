@@ -145,6 +145,8 @@ public class PlaceholderHook extends PlaceholderExpansion {
                 long secs = plugin.getDailyRollManager().getTimeUntilNextRoll(offlinePlayer.getUniqueId()).toSeconds();
                 return String.valueOf(secs);
             }
+            case "day":
+                return String.valueOf(plugin.getGameManager().getCurrentDay());
             default:
                 return null;
         }

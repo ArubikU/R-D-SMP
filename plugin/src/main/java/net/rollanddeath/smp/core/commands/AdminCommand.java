@@ -27,7 +27,7 @@ import java.util.Objects;
 public class AdminCommand implements CommandExecutor, TabCompleter {
 
     private final RollAndDeathSMP plugin;
-    private static final List<String> ADMIN_SUBCOMMANDS = Arrays.asList("roulette", "setday", "life", "role", "event", "item", "mob", "discord", "down", "revive", "announce", "toggle");
+    private static final List<String> ADMIN_SUBCOMMANDS = Arrays.asList("roulette", "setday", "life", "role", "event", "item", "mob", "discord", "down", "revive", "announce", "toggle", "setspawn");
     private static final List<String> EVENT_SUBCOMMANDS = Arrays.asList("add", "remove", "clear", "list");
 
     public AdminCommand(RollAndDeathSMP plugin) {
@@ -251,7 +251,7 @@ public class AdminCommand implements CommandExecutor, TabCompleter {
                 }
                 break;
             case "life":
-                if (args.length >= 3 && args[1].equalsIgnoreCase("set")) {
+                if (args.length >= 4 && args[1].equalsIgnoreCase("set")) {
                     Player target = Bukkit.getPlayer(args[2]);
                     if (target == null) {
                         sender.sendMessage(Component.text("Jugador no encontrado.", NamedTextColor.RED));
@@ -269,7 +269,7 @@ public class AdminCommand implements CommandExecutor, TabCompleter {
                 }
                 break;
             case "role":
-                if (args.length >= 3 && args[1].equalsIgnoreCase("set")) {
+                if (args.length >= 4 && args[1].equalsIgnoreCase("set")) {
                     Player target = Bukkit.getPlayer(args[2]);
                     if (target == null) {
                         sender.sendMessage(Component.text("Jugador no encontrado.", NamedTextColor.RED));
@@ -338,10 +338,24 @@ public class AdminCommand implements CommandExecutor, TabCompleter {
             case "revive":
                 handleReviveCommand(sender, args);
                 break;
+            case "setspawn":
+                handleSetSpawnCommand(sender, args);
+                break;
             default:
                 sendHelp(sender);
                 break;
         }
+    }
+
+    private void handleSetSpawnCommand(CommandSender sender, String[] args) {
+        if (!(sender instanceof Player player)) {
+            sender.sendMessage(Component.text("Este comando solo puede ser usado por jugadores.", NamedTextColor.RED));
+            return;
+        }
+
+        plugin.getConfig().set("spawn_location", player.getLocation());
+        plugin.saveConfig();
+        sender.sendMessage(Component.text("Spawn establecido en tu ubicación actual.", NamedTextColor.GREEN));
     }
 
     private void handleAnnounceCommand(CommandSender sender, String[] args) {
@@ -361,7 +375,7 @@ public class AdminCommand implements CommandExecutor, TabCompleter {
             return;
         }
 
-        Player target = Bukkit.getPlayer(args[2]);
+        Player target = Bukkit.getPlayer(args[1]);
         if (target == null) {
             sender.sendMessage(Component.text("Jugador no encontrado.", NamedTextColor.RED));
             return;
@@ -381,7 +395,8 @@ public class AdminCommand implements CommandExecutor, TabCompleter {
             return;
         }
 
-        Player target = Bukkit.getPlayer(args[2]);
+        String targetName = args[1];
+        Player target = Bukkit.getPlayer(targetName);
         if (target == null) {
             sender.sendMessage(Component.text("Jugador no encontrado.", NamedTextColor.RED));
             return;
@@ -522,6 +537,7 @@ public class AdminCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage(Component.text("/rd admin mob spawn <mob> [player] [cantidad] - Invocar mob personalizado", NamedTextColor.YELLOW));
         sender.sendMessage(Component.text("/rd admin discord <mensaje> - Enviar anuncio a Discord", NamedTextColor.YELLOW));
         sender.sendMessage(Component.text("/rd admin announce <mensaje> - Anuncio global (MiniMessage)", NamedTextColor.YELLOW));
+        sender.sendMessage(Component.text("/rd admin setspawn - Establecer spawn para nuevos jugadores", NamedTextColor.YELLOW));
     }
     
     private void handleDiscordCommand(CommandSender sender, String[] args) {
@@ -555,20 +571,16 @@ public class AdminCommand implements CommandExecutor, TabCompleter {
             return;
         }
 
-        String target = args[2].toLowerCase(Locale.ROOT);
+        String target = args[1].toLowerCase(Locale.ROOT);
+        String flag = args[2].toLowerCase(Locale.ROOT);
         boolean enable;
-        if (args.length >= 3) {
-            String flag = args[3].toLowerCase(Locale.ROOT);
-            if (flag.equals("on")) {
-                enable = true;
-            } else if (flag.equals("off")) {
-                enable = false;
-            } else {
-                sender.sendMessage(Component.text("Debes usar on/off.", NamedTextColor.RED));
-                return;
-            }
+
+        if (flag.equals("on")) {
+            enable = true;
+        } else if (flag.equals("off")) {
+            enable = false;
         } else {
-            sender.sendMessage(Component.text("Debes indicar on/off.", NamedTextColor.RED));
+            sender.sendMessage(Component.text("Debes usar on/off.", NamedTextColor.RED));
             return;
         }
 

@@ -33,6 +33,10 @@ public class StarterKitListener implements Listener {
             return;
         }
 
+        if (plugin.getConfig().contains("spawn_location")) {
+            player.teleport(plugin.getConfig().getLocation("spawn_location"));
+        }
+
         giveKit(player);
         player.getPersistentDataContainer().set(key, PersistentDataType.BYTE, (byte) 1);
         plugin.getConfig().set("starter_kit." + player.getUniqueId(), true);

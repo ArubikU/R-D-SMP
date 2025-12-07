@@ -16,6 +16,9 @@ Formato general: `%rdsmp_<clave>%`. Prefijo fijo: `rdsmp`. Las claves distinguen
 - `%rdsmp_eliminated%`: `si` si esta eliminado, `no` en caso contrario.
 - `%rdsmp_role%`: nombre del rol o `Sin rol`.
 
+## Estado del juego
+- `%rdsmp_day%`: dia actual del evento.
+
 ## Equipos
 - `%rdsmp_team%`: nombre del equipo o `Sin equipo`.
 - `%rdsmp_team_wars_count%`: numero de guerras activas del equipo (0 si no tiene equipo).

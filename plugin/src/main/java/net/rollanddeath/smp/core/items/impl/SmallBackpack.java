@@ -51,6 +51,25 @@ public class SmallBackpack extends CustomItem {
         return List.of("Añade 9 espacios de inventario extra.");
     }
 
+    @Override
+    public ItemStack getItemStack() {
+        ItemStack item = super.getItemStack();
+        item.editMeta(meta -> meta.setMaxStackSize(1));
+        return item;
+    }
+
+    @EventHandler
+    public void onPrepareCraft(org.bukkit.event.inventory.PrepareItemCraftEvent event) {
+        ItemStack result = event.getInventory().getResult();
+        if (isItem(result)) {
+            ItemStack unique = result.clone();
+            unique.editMeta(meta -> {
+                meta.getPersistentDataContainer().set(idKey, PersistentDataType.STRING, UUID.randomUUID().toString());
+            });
+            event.getInventory().setResult(unique);
+        }
+    }
+
     @EventHandler
     public void onInteract(PlayerInteractEvent event) {
         if (!event.getAction().toString().contains("RIGHT")) return;
@@ -59,6 +78,15 @@ public class SmallBackpack extends CustomItem {
 
         event.setCancelled(true);
         Player player = event.getPlayer();
+
+        if (item.getAmount() > 1) {
+            ItemStack drop = item.clone();
+            drop.setAmount(item.getAmount() - 1);
+            item.setAmount(1);
+            player.getWorld().dropItemNaturally(player.getLocation(), drop);
+            player.sendMessage(MINI.deserialize("<red>¡No puedes apilar mochilas! Se han separado."));
+        }
+
         String backpackId = ensureBackpackId(item);
 
         Inventory inv = Bukkit.createInventory(player, 9, title);
@@ -94,6 +122,14 @@ public class SmallBackpack extends CustomItem {
             player.sendMessage(MINI.deserialize("<red>¡Debes sostener la mochila para guardarla!"));
             dropInventoryContents(inv, player);
             return;
+        }
+
+        if (item.getAmount() > 1) {
+            ItemStack drop = item.clone();
+            drop.setAmount(item.getAmount() - 1);
+            item.setAmount(1);
+            player.getWorld().dropItemNaturally(player.getLocation(), drop);
+            player.sendMessage(MINI.deserialize("<red>¡No puedes apilar mochilas! Se han separado."));
         }
 
         try {
