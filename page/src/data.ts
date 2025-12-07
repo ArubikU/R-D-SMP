@@ -107,35 +107,35 @@ export const dailyEvents = [
 ];
 
 export const weeklyRoles = [
-    { name: "El Pacifista", pros: "Regeneración I 5s (se renueva cada 4s).", cons: "No puede infligir daño directo (ataques cancelados).", icon: "🕊️" },
-    { name: "El Vampiro", pros: "Fuerza I 2s + Visión Nocturna 12s de noche/lluvia/sin sol directo.", cons: "Con sol directo: se quema 3s por tick o casco pierde 3 de durabilidad/s.", icon: "🦇" },
-    { name: "Glass Cannon", pros: "Todo el daño que inflige se duplica (x2).", cons: "Daño recibido x2 y vida máxima 3 corazones.", icon: "💥" },
-    { name: "Rey Midas", pros: "Hierro/Cobre recogido se vuelve oro; 10% de piedra/cobble en pepitas.", cons: "Cada 10 min consume 1 pepita/lingote o recibe 2 corazones; sin regeneración natural.", icon: "👑" },
+    { name: "El Pacifista", pros: "Regeneración II 5s (se renueva cada 4s).", cons: "No puede infligir daño directo (ataques cancelados).", icon: "🕊️" },
+    { name: "El Vampiro", pros: "En oscuridad/noche: Fuerza I 2s + Visión Nocturna 12s + Velocidad I; golpes en oscuridad roban 15% del daño como curación.", cons: "Con sol directo: se quema 3s por tick o casco pierde 3 de durabilidad/s.", icon: "🦇" },
+    { name: "Glass Cannon", pros: "Todo el daño que inflige se duplica (x2).", cons: "Daño recibido x2 y vida máxima 5 corazones.", icon: "💥" },
+    { name: "Rey Midas", pros: "Hierro/Cobre recogido se vuelve oro; 10% de piedra/cobble en pepitas; pepitas casi no regeneran, lingotes regeneran más y los bloques dan Regeneración II + hasta +4 corazones temporales (requieren seguir consumiendo bloques).", cons: "Cada 10 min debe consumir oro (bloques, lingotes o pepitas) o recibe 2 corazones; sin regeneración natural.", icon: "👑" },
     { name: "El Nómada", pros: "Velocidad II 2s (refresco cada 1s) mientras no repita cama.", cons: "Dormir 2 veces en la misma cama quita la velocidad y hace explotar la cama.", icon: "⛺" },
     { name: "El Tanque", pros: "Resistencia I y 40 de vida (20 corazones), refresco cada 4s.", cons: "Lentitud II permanente y el hambre se consume x3 más rápido.", icon: "🛡️" },
-    { name: "El Asesino", pros: "Invisibilidad al agacharse; backstab duplica daño si el objetivo mira igual dirección.", cons: "Solo puede usar armadura de cuero.", icon: "🗡️" },
+    { name: "El Asesino", pros: "Invisibilidad al agacharse; backstab duplica daño si el objetivo mira igual dirección.", cons: "Puede usar armadura de hierro o superior.", icon: "🗡️" },
     { name: "El Ingeniero", pros: "Prisa II y Suerte II 5s (se renuevan cada 4s).", cons: "Lentitud I permanente.", icon: "🔧" },
     { name: "El Pirotécnico", pros: "Resistencia al Fuego 5s (cada 4s); golpes prenden 5s.", cons: "Recibe daño al tocar agua o bajo la lluvia.", icon: "🧨" },
     { name: "El Maldito", pros: "50% de probabilidad de que mobs lo ignoren al fijar objetivo.", cons: "Mala Suerte V 5s (renovada cada 4s).", icon: "💀" },
     { name: "El Druida", pros: "En forest/jungle/taiga: Regeneración I + Velocidad I 5s (cada 3s); animales lo siguen (10x5x10).", cons: "No puede usar armadura de metal.", icon: "🌿" },
     { name: "El Berserker", pros: "+10% daño por cada 2 corazones faltantes (acumulativo).", cons: "No puede usar escudos (se retiran del offhand).", icon: "🪓" },
     { name: "El Francotirador", pros: "Flechas a >20 bloques hacen x1.5 daño (aviso al tirador).", cons: "Daño cuerpo a cuerpo reducido 50%.", icon: "🎯" },
-    { name: "El Mercader", pros: "Héroe de la Aldea II 5s (cada 4s); 5% de esmeralda extra al matar mobs.", cons: "Los mobs hostiles lo targetean primero en 12 bloques.", icon: "💰" },
-    { name: "El Fantasma", pros: "Puede abrir puertas (incluye hierro) al agacharse.", cons: "Vida máxima 10 (5 corazones).", icon: "👻" },
+    { name: "El Mercader", pros: "Héroe de la Aldea III + Suerte (refresco 4s); 12% de chance de 1-2 esmeraldas extra al matar mobs; si está cerca, las ofertas de aldeanos son 25% más baratas.", cons: "Los mobs hostiles lo targetean primero en 12 bloques.", icon: "💰" },
+    { name: "El Fantasma", pros: "Puede abrir puertas (incluye hierro) al agacharse; invisibilidad permanente; los mobs solo te detectan 30% de las veces.", cons: "Vida máxima 10 (5 corazones).", icon: "👻" },
     { name: "El Acuático", pros: "Respiración acuática permanente; en agua: Gracia del Delfín I + Poder del Canal I 2s (cada 1s).", cons: "Recibe daño si está fuera de agua o lluvia.", icon: "🧜" },
     { name: "El Minero", pros: "Prisa II 5s (cada 4s); Visión Nocturna 12s bajo Y<0.", cons: "Ceguera en la superficie durante el día.", icon: "⛏️" },
-    { name: "El Domador", pros: "Mascotas infligen x2 daño y reciben x0.5 daño.", cons: "Comparte ~50% del daño recibido con sus mascotas cercanas (12 bloques).", icon: "🐕" },
+    { name: "El Domador", pros: "Mascotas infligen x2 daño y solo reciben 50% del daño; la otra mitad va al dueño. Cada mascota cercana reduce el daño al dueño con rendimiento decreciente hasta 50% total.", cons: "Recibes la mitad del daño que sufran tus mascotas.", icon: "🐕" },
     { name: "El Alquimista", pros: "Pociones bebida/splash triplican su duración manteniendo nivel.", cons: "Efectos negativos también duran x3.", icon: "⚗️" },
-    { name: "El Caballero", pros: "+30% daño con espada.", cons: "-50% daño con arco y no puede usar arcos/crossbows/tridentes.", icon: "⚔️" },
+    { name: "El Caballero", pros: "+30% daño con espada y bloquear reduce 15% extra el daño.", cons: "-50% daño con arco y no puede usar arcos/crossbows/tridentes.", icon: "⚔️" },
     { name: "El Ladrón", pros: "Velocidad II 5s (cada 4s); puede robar un slot al hacer sneak + clic derecho (CD 5 min).", cons: "Suelta el ítem de su mano al recibir daño.", icon: "🦝" },
-    { name: "El Gigante", pros: "Vida máxima 40 (20 corazones); modelo x2 si está disponible.", cons: "Hitbox más grande (fácil de golpear).", icon: "🦍" },
-    { name: "El Enano", pros: "Modelo x0.5 si está disponible.", cons: "Vida máxima 16 (8 corazones) y alcance reducido.", icon: "🐁" },
+    { name: "El Gigante", pros: "Vida máxima 24 (12 corazones); modelo x1.25 si está disponible; 35% resistencia al empuje y reduce 25% el daño de caída causando daño de impacto a cercanos.", cons: "Hitbox más grande (fácil de golpear) y el hambre baja más rápido.", icon: "🦍" },
+    { name: "El Enano", pros: "Modelo x0.75 si está disponible; Velocidad I, Fuerza I, Prisa I y 10% resistencia al empuje.", cons: "Vida máxima 16 (8 corazones), alcance reducido y colocar bloques es más difícil por la altura.", icon: "🐁" },
     { name: "El Ilusionista", pros: "25% de esquivar: cancela golpe e Invisibilidad 3s con partículas.", cons: "No puede comer carne (consumo cancelado).", icon: "🎭" },
-    { name: "El Bárbaro", pros: "+50% daño cuerpo a cuerpo.", cons: "No puede equipar armadura de diamante/netherite ni encantar objetos.", icon: "🍖" },
-    { name: "El Sabio", pros: "Experiencia ganada x2.", cons: "Debilidad I permanente (refrescada cada 4s).", icon: "📚" },
-    { name: "El Caótico", pros: "30% de aplicar debuff random (5s nivel I) al golpear.", cons: "Recibe un efecto negativo aleatorio cada 10 min.", icon: "🎲" },
+    { name: "El Bárbaro", pros: "+50% daño cuerpo a cuerpo.", cons: "No puede usar netherite ni encantar objetos.", icon: "🍖" },
+    { name: "El Sabio", pros: "Experiencia ganada x2 y al ganar XP obtiene Regeneración I 3s.", cons: "Debilidad I permanente (refrescada cada 4s).", icon: "📚" },
+    { name: "El Caótico", pros: "Cada 5 min recibe un buff aleatorio; al golpear tiene 20% de buff propio y 30% de aplicar debuff aleatorio al objetivo (5s nivel I).", cons: "Su caos es impredecible.", icon: "🎲" },
     { name: "El Guardián", pros: "Resistencia I 2s propia; aliados a 5 bloques reciben Resistencia I + Regeneración I 2s (cada 1s).", cons: "Redirige 30% del daño de aliados a 5 bloques hacia sí mismo.", icon: "🏰" },
-    { name: "El Explorador", pros: "Velocidad I 2s (cada 1s) y no pierde hambre al esprintar.", cons: "Última fila del inventario bloqueada y vaciada si la llena.", icon: "🧭" },
+    { name: "El Explorador", pros: "Velocidad II + Resistencia I 2s (cada 1s); 30% menos daño de caída; puede leer coords exactas de mapas del tesoro al clic derecho; no pierde hambre al esprintar.", cons: "Última fila del inventario bloqueada y vaciada si la llena.", icon: "🧭" },
     { name: "El Cocinero", pros: "Al comer: +5 saturación, Regeneración I 5s, Absorción I 60s.", cons: "Si come algo no comestible: Veneno IV 30s; carne cruda aplica Veneno II corto.", icon: "👨‍🍳" },
 ];
 
@@ -667,6 +667,20 @@ export const items = [
                 ],
                 result: "Dado de Loki (-20% suerte)"
             }
+        }
+    },
+    {
+        name: "Loki's Role Dice",
+        type: "Utilidad",
+        desc: "Click derecho: reroll inmediato de rol al azar (no usa cooldown global).",
+        rarity: "epico",
+        acquisition: "Crafting",
+        recipe: {
+            type: "shapeless",
+            ingredients: [
+                "Block of Emerald", "Netherite Scrap", "Echo Shard", "Ghast Tear", "Totem of Undying"
+            ],
+            result: "Loki's Role Dice"
         }
     },
 

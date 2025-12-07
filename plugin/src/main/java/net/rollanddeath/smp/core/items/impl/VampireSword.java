@@ -11,8 +11,14 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 public class VampireSword extends CustomItem {
+
+    private static final long BURN_COOLDOWN_MS = 4000L;
+    private final Map<UUID, Long> lastSunBurn = new HashMap<>();
 
     public VampireSword(RollAndDeathSMP plugin) {
         super(plugin, CustomItemType.VAMPIRE_SWORD);
@@ -36,8 +42,8 @@ public class VampireSword extends CustomItem {
         
         if (!isItem(item)) return;
 
-        // Heal 10% of damage dealt
-        double heal = event.getFinalDamage() * 0.1;
+        // Heal 30% of damage dealt for meaningful sustain
+        double heal = event.getFinalDamage() * 0.3;
         double newHealth = Math.min(player.getAttribute(org.bukkit.attribute.Attribute.MAX_HEALTH).getValue(), player.getHealth() + heal);
         player.setHealth(newHealth);
     }
@@ -50,7 +56,13 @@ public class VampireSword extends CustomItem {
         if (isItem(item)) {
             if (player.getWorld().getTime() < 12300 || player.getWorld().getTime() > 23850) { // Day time
                 if (player.getLocation().getBlock().getLightFromSky() == 15) {
-                    player.setFireTicks(20);
+                    long now = System.currentTimeMillis();
+                    UUID id = player.getUniqueId();
+                    long last = lastSunBurn.getOrDefault(id, 0L);
+                    if (now - last >= BURN_COOLDOWN_MS) {
+                        player.setFireTicks(40); // milder, ticks down while on cooldown
+                        lastSunBurn.put(id, now);
+                    }
                 }
             }
         }

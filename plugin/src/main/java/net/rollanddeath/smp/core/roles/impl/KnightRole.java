@@ -8,6 +8,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -52,6 +53,15 @@ public class KnightRole extends Role {
         if (main == Material.TRIDENT) {
             event.setCancelled(true);
             player.sendMessage(MiniMessage.miniMessage().deserialize("<red>No puedes usar tridentes."));
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onBlockHit(EntityDamageEvent event) {
+        if (!(event.getEntity() instanceof Player player)) return;
+        if (!hasRole(player)) return;
+        if (player.isBlocking()) {
+            event.setDamage(event.getDamage() * 0.85); // 15% mitigation while usando escudo
         }
     }
 }

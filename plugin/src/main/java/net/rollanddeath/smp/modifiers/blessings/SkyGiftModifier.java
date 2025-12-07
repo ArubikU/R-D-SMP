@@ -48,9 +48,15 @@ public class SkyGiftModifier extends Modifier {
         if (world == null) return;
 
         Location spawn = world.getSpawnLocation();
-        // Find highest block at spawn
-        int y = world.getHighestBlockYAt(spawn);
-        Location chestLoc = new Location(world, spawn.getX(), y + 1, spawn.getZ());
+        // Pick random spot within 150 blocks of spawn (uniform in circle)
+        double angle = random.nextDouble() * Math.PI * 2;
+        double radius = 150 * Math.sqrt(random.nextDouble());
+        int dx = (int) Math.round(Math.cos(angle) * radius);
+        int dz = (int) Math.round(Math.sin(angle) * radius);
+
+        Location dropBase = spawn.clone().add(dx, 0, dz);
+        int y = world.getHighestBlockYAt(dropBase);
+        Location chestLoc = new Location(world, dropBase.getX(), y + 1, dropBase.getZ());
         
         chestLoc.getBlock().setType(Material.CHEST);
         if (chestLoc.getBlock().getState() instanceof Chest chest) {
@@ -61,8 +67,27 @@ public class SkyGiftModifier extends Modifier {
             chest.getInventory().addItem(new ItemStack(Material.COOKED_BEEF, 16));
             chest.getInventory().addItem(new ItemStack(Material.EXPERIENCE_BOTTLE, 10));
             
-            Bukkit.broadcast(MiniMessage.miniMessage().deserialize("<green>¡Un regalo del cielo ha caído en el Spawn!"));
+            placeTorches(world, chestLoc);
+
+            int bx = chestLoc.getBlockX();
+            int bz = chestLoc.getBlockZ();
+            Bukkit.broadcast(MiniMessage.miniMessage().deserialize(
+                    "<green>¡Un regalo del cielo ha caído cerca del spawn! Coords: X " + bx + " Z " + bz));
             world.strikeLightningEffect(chestLoc);
+        }
+    }
+
+    private void placeTorches(World world, Location chestLoc) {
+        int[][] offsets = new int[][]{ {1, 0}, {-1, 0}, {0, 1}, {0, -1} };
+        for (int[] off : offsets) {
+            Location torchLoc = chestLoc.clone().add(off[0], 0, off[1]);
+            Location below = torchLoc.clone().add(0, -1, 0);
+            if (!below.getBlock().getType().isSolid()) {
+                continue;
+            }
+            if (torchLoc.getBlock().getType().isAir()) {
+                torchLoc.getBlock().setType(Material.TORCH);
+            }
         }
     }
 }

@@ -7,11 +7,17 @@ import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.type.Door;
+import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
+
+import java.util.concurrent.ThreadLocalRandom;
 
 public class GhostRole extends Role {
 
@@ -30,11 +36,13 @@ public class GhostRole extends Role {
                             if (player.getAttribute(Attribute.MAX_HEALTH).getValue() != 10.0) {
                                 player.getAttribute(Attribute.MAX_HEALTH).setBaseValue(10.0); // 5 hearts
                         }
+                        player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 220, 0, false, false, false));
                     } else {
                              if (player.getAttribute(Attribute.MAX_HEALTH).getValue() == 10.0 && 
                             plugin.getRoleManager().getPlayerRole(player) != RoleType.GHOST) {
                             player.getAttribute(Attribute.MAX_HEALTH).setBaseValue(20.0);
                         }
+                        player.removePotionEffect(PotionEffectType.INVISIBILITY);
                     }
                 }
             }
@@ -56,6 +64,24 @@ public class GhostRole extends Role {
                     }
                 }
             }
+        }
+    }
+
+    @EventHandler
+    public void onTarget(EntityTargetLivingEntityEvent event) {
+        if (!(event.getTarget() instanceof Player player)) {
+            return;
+        }
+        if (!hasRole(player)) {
+            return;
+        }
+        if (!(event.getEntity() instanceof Mob mob)) {
+            return;
+        }
+
+        if (ThreadLocalRandom.current().nextDouble() > 0.3) {
+            event.setCancelled(true);
+            mob.setTarget(null);
         }
     }
 }

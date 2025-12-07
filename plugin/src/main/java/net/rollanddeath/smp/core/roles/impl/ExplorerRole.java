@@ -6,14 +6,19 @@ import net.rollanddeath.smp.core.roles.Role;
 import net.rollanddeath.smp.core.roles.RoleType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.MapMeta;
+import org.bukkit.map.MapView;
+import org.bukkit.event.block.Action;
 
 public class ExplorerRole extends Role {
 
@@ -29,7 +34,8 @@ public class ExplorerRole extends Role {
             public void run() {
                 for (Player player : plugin.getServer().getOnlinePlayers()) {
                     if (hasRole(player)) {
-                        player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 40, 0, false, false));
+                        player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 40, 1, false, false));
+                        player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 40, 0, false, false));
                         PlayerInventory inv = player.getInventory();
                         for (int slot = 27; slot <= 35; slot++) { // restringir última fila
                             ItemStack item = inv.getItem(slot);
@@ -57,6 +63,35 @@ public class ExplorerRole extends Role {
                 event.setCancelled(true);
             }
         }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onFallDamage(EntityDamageEvent event) {
+        if (!(event.getEntity() instanceof Player player)) return;
+        if (!hasRole(player)) return;
+        if (event.getCause() == EntityDamageEvent.DamageCause.FALL) {
+            event.setDamage(event.getDamage() * 0.7); // 30% fall damage reduction
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onMapInspect(PlayerInteractEvent event) {
+        Action action = event.getAction();
+        if (action != Action.RIGHT_CLICK_AIR && action != Action.RIGHT_CLICK_BLOCK) return;
+        if (!(event.getPlayer() instanceof Player player)) return;
+        if (!hasRole(player)) return;
+
+        ItemStack hand = event.getItem();
+        if (hand == null || hand.getType() != Material.FILLED_MAP) return;
+
+        if (!(hand.getItemMeta() instanceof MapMeta meta)) return;
+        MapView view = meta.getMapView();
+        if (view == null) return;
+
+        int x = view.getCenterX();
+        int z = view.getCenterZ();
+        String world = view.getWorld() != null ? view.getWorld().getName() : "desconocido";
+        player.sendMessage(MiniMessage.miniMessage().deserialize("<gold>El mapa marca coords: <white>X: " + x + " Z: " + z + "</white> <gray>(" + world + ")"));
     }
 
     @EventHandler(ignoreCancelled = true)

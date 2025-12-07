@@ -5,10 +5,13 @@ import net.rollanddeath.smp.core.roles.Role;
 import net.rollanddeath.smp.core.roles.RoleType;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Villager;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
+import org.bukkit.event.entity.VillagerAcquireTradeEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.MerchantRecipe;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -27,7 +30,8 @@ public class MerchantRole extends Role {
             public void run() {
                 for (Player player : plugin.getServer().getOnlinePlayers()) {
                     if (hasRole(player)) {
-                        player.addPotionEffect(new PotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE, 100, 1, false, false));
+                        player.addPotionEffect(new PotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE, 140, 2, false, false));
+                        player.addPotionEffect(new PotionEffect(PotionEffectType.LUCK, 140, 0, false, false));
                     }
                 }
             }
@@ -39,8 +43,9 @@ public class MerchantRole extends Role {
         if (event.getEntity().getKiller() != null) {
             Player player = event.getEntity().getKiller();
             if (hasRole(player)) {
-                if (Math.random() < 0.05) { // 5% chance
-                    event.getDrops().add(new ItemStack(Material.EMERALD));
+                if (Math.random() < 0.12) { // 12% chance
+                    int amount = 1 + (int) (Math.random() * 2); // 1-2 emeralds
+                    event.getDrops().add(new ItemStack(Material.EMERALD, amount));
                 }
             }
         }
@@ -63,5 +68,18 @@ public class MerchantRole extends Role {
         if (nearbyMerchant != null) {
             event.setTarget(nearbyMerchant);
         }
+    }
+
+    @EventHandler
+    public void onVillagerTradeRefresh(VillagerAcquireTradeEvent event) {
+        Villager villager = event.getEntity();
+        boolean hasNearbyMerchant = villager.getWorld().getPlayers().stream()
+                .anyMatch(player -> hasRole(player) && player.getLocation().distanceSquared(villager.getLocation()) <= 144);
+        if (!hasNearbyMerchant) return;
+
+        MerchantRecipe recipe = event.getRecipe();
+        float adjusted = Math.max(0.05f, recipe.getPriceMultiplier() * 0.75f);
+        recipe.setPriceMultiplier(adjusted);
+        event.setRecipe(recipe);
     }
 }

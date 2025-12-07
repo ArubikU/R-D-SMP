@@ -389,6 +389,8 @@ public class RecipeManager {
                 Material.MAP, Material.FEATHER, Material.SWEET_BERRIES);
         addShapeless(CustomItemType.COOK_SPICE_BLEND, "cook_spice_blend",
                 Material.BOWL, Material.CARROT, Material.POTATO, Material.BEETROOT);
+
+        registerLokiRoleDice();
     }
 
     private void addShapeless(CustomItemType type, String key, Material... ingredients) {
@@ -431,4 +433,18 @@ public class RecipeManager {
         cursedRecipe.addIngredient(Material.MAGMA_CREAM);
         plugin.getServer().addRecipe(cursedRecipe);
     }
+
+        private void registerLokiRoleDice() {
+                var item = plugin.getItemManager().getItem(CustomItemType.LOKI_ROLE_DICE);
+                if (item == null) return;
+
+                ItemStack dice = item.getItemStack();
+                ShapelessRecipe recipe = new ShapelessRecipe(new NamespacedKey(plugin, "loki_role_dice"), dice);
+                recipe.addIngredient(Material.EMERALD_BLOCK);
+                recipe.addIngredient(Material.NETHERITE_SCRAP);
+                recipe.addIngredient(Material.ECHO_SHARD);
+                recipe.addIngredient(Material.GHAST_TEAR);
+                recipe.addIngredient(Material.TOTEM_OF_UNDYING);
+                plugin.getServer().addRecipe(recipe);
+        }
 }

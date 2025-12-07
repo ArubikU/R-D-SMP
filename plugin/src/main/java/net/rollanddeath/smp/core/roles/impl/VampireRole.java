@@ -7,6 +7,8 @@ import net.rollanddeath.smp.core.roles.RoleType;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -37,6 +39,8 @@ public class VampireRole extends Role {
         long time = player.getWorld().getTime();
         boolean isDay = time > 0 && time < 12300;
         boolean isRaining = player.getWorld().hasStorm();
+        int light = player.getLocation().getBlock().getLightLevel();
+        boolean inDarkness = light <= 7;
 
         if (isDay && !isRaining && player.getLocation().getBlock().getLightFromSky() >= 12) {
             // Burn logic
@@ -56,6 +60,25 @@ public class VampireRole extends Role {
             // Night or indoors -> Buffs
             player.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, 40, 0, false, false));
             player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 240, 0, false, false));
+            if (inDarkness) {
+                player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 60, 0, false, false));
+            }
         }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onHit(EntityDamageByEntityEvent event) {
+        if (!(event.getDamager() instanceof Player player)) return;
+        if (!hasRole(player)) return;
+        if (!(event.getEntity() instanceof org.bukkit.entity.LivingEntity)) return;
+
+        long time = player.getWorld().getTime();
+        boolean isNight = time >= 13000 || time < 1000;
+        boolean dark = player.getLocation().getBlock().getLightLevel() <= 7;
+        if (!isNight && !dark) return;
+
+        double heal = event.getDamage() * 0.15;
+        double maxHealth = player.getAttribute(org.bukkit.attribute.Attribute.MAX_HEALTH).getValue();
+        player.setHealth(Math.min(maxHealth, player.getHealth() + heal));
     }
 }

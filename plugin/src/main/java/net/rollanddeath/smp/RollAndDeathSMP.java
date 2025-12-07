@@ -477,6 +477,7 @@ public final class RollAndDeathSMP extends JavaPlugin {
 
         this.dailyRollManager = new DailyRollManager(this, itemManager);
         itemManager.registerItem(new LokiDice(this, dailyRollManager));
+        itemManager.registerItem(new LokiRoleDice(this, roleManager));
         this.dailyMobRotationManager.refreshForDay(this.gameManager.getCurrentDay());
 
         // Register Recipes & Loot

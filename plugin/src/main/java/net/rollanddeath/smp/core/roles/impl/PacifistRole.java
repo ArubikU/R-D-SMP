@@ -25,7 +25,7 @@ public class PacifistRole extends Role {
             public void run() {
                 for (Player player : plugin.getServer().getOnlinePlayers()) {
                     if (hasRole(player)) {
-                        player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 100, 0, false, false));
+                        player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 100, 1, false, false));
                     }
                 }
             }

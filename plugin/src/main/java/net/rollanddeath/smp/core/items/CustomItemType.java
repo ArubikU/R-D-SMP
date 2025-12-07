@@ -35,6 +35,7 @@ public enum CustomItemType {
     HAND_OF_GOD("La Mano de Dios", 710030),
     LIFE_GAPPLE("Manzana de Vida", 710032),
     LOKI_DICE("Dado de Loki", 710033),
+    LOKI_ROLE_DICE("Loki's Role Dice", 710033),
     PACIFIST_BALM("Bálsamo Pacifista"),
     VAMPIRE_VIAL("Vial de Sangre"),
     GLASS_CANNON_CHARGE("Carga de Cristal"),

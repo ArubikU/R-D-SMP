@@ -59,6 +59,7 @@ public class PlayerDeathListener implements Listener {
     private final KillPointsManager killPointsManager;
     private final ModifierManager modifierManager;
     private final Set<UUID> recentDeaths = new HashSet<>();
+    private static final boolean DEATH_CHEST_ENABLED = false;
 
     public PlayerDeathListener(RollAndDeathSMP plugin, LifeManager lifeManager, DiscordWebhookService discordService, KillPointsManager killPointsManager, ModifierManager modifierManager) {
         this.plugin = plugin;
@@ -132,16 +133,54 @@ public class PlayerDeathListener implements Listener {
     }
 
     private void dropDeathChest(PlayerDeathEvent event) {
+        if (!DEATH_CHEST_ENABLED) {
+            return; // Use vanilla drops; avoids buggy chest logic
+        }
+
         if (modifierManager != null && modifierManager.isActive("Mundo Gigante")) {
             return;
         }
 
         var drops = event.getDrops();
+        Player victim = event.getEntity();
+        HeadData headData = createHeadData(event, victim);
+
+        // Remove the auto-added head from drops so we can control placement without duplicating.
+        drops.removeIf(item -> item.getType() == Material.PLAYER_HEAD || item.getType() == Material.PLAYER_WALL_HEAD);
+
+        // Combat log can leave drops vacia; fallback to player's inventory to avoid losing items.
+        if (drops.isEmpty() && plugin.getCombatLogManager() != null &&
+                plugin.getCombatLogManager().getRemainingCombatSeconds(victim.getUniqueId()) > 0) {
+            var inv = victim.getInventory();
+            // Main inventory
+            for (var item : inv.getStorageContents()) {
+                if (item != null && item.getType() != Material.AIR) {
+                    drops.add(item);
+                }
+            }
+            // Armor
+            for (var item : inv.getArmorContents()) {
+                if (item != null && item.getType() != Material.AIR) {
+                    drops.add(item);
+                }
+            }
+            // Offhand / extra
+            for (var item : inv.getExtraContents()) {
+                if (item != null && item.getType() != Material.AIR) {
+                    drops.add(item);
+                }
+            }
+
+            inv.clear();
+            inv.setArmorContents(new ItemStack[inv.getArmorContents().length]);
+            inv.setExtraContents(new ItemStack[inv.getExtraContents().length]);
+        }
+
         if (drops.isEmpty()) {
             return;
         }
 
-        var loc = event.getEntity().getLocation();
+        var loc = victim.getLocation();
         var world = loc.getWorld();
         if (world == null) return;
 
@@ -162,6 +201,30 @@ public class PlayerDeathListener implements Listener {
             }
             chest.update();
             drops.clear();
+
+            placeHeadAboveChest(chestBlock, headData);
+        }
+    }
+
+    private void placeHeadAboveChest(Block chestBlock, HeadData headData) {
+        if (headData == null) {
+            return;
+        }
+        Block headBlock = chestBlock.getRelative(0, 1, 0);
+        if (!headBlock.getType().isAir()) {
+            // If ocupado, dropea la cabeza como item en vez de perderla.
+            ItemStack headItem = buildHeadItem(headData);
+            chestBlock.getWorld().dropItemNaturally(chestBlock.getLocation().add(0.5, 1, 0.5), headItem);
+            return;
+        }
+
+        headBlock.setType(Material.PLAYER_HEAD);
+        if (headBlock.getState() instanceof Skull skull) {
+            skull.getPersistentDataContainer().set(headDataKey, PersistentDataType.STRING, gson.toJson(headData));
+            OfflinePlayer owner = Bukkit.getOfflinePlayer(headData.victimId());
+            skull.setOwningPlayer(owner);
+            skull.customName(Component.text("Cabeza de " + headData.victimName(), NamedTextColor.RED));
+            skull.update(true, false);
         }
     }
 

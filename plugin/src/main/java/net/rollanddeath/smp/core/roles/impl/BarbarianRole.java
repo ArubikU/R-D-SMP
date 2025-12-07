@@ -33,7 +33,7 @@ public class BarbarianRole extends Role {
                 ItemStack item = event.getCursor();
                 if (isForbiddenArmor(item)) {
                     event.setCancelled(true);
-                    player.sendMessage(MiniMessage.miniMessage().deserialize("<red>¡Los bárbaros no usan armaduras brillantes!"));
+                    player.sendMessage(MiniMessage.miniMessage().deserialize("<red>¡Los bárbaros no usan armaduras de netherite!"));
                 }
             }
         }
@@ -42,7 +42,7 @@ public class BarbarianRole extends Role {
     private boolean isForbiddenArmor(ItemStack item) {
         if (item == null) return false;
         String name = item.getType().name();
-        return name.contains("DIAMOND") || name.contains("NETHERITE");
+        return name.contains("NETHERITE");
     }
 
     @EventHandler(ignoreCancelled = true)

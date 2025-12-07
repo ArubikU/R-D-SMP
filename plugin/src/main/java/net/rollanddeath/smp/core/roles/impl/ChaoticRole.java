@@ -16,10 +16,16 @@ import java.util.Random;
 public class ChaoticRole extends Role {
 
     private final Random random = new Random();
-    private final PotionEffectType[] effects = {
-            PotionEffectType.POISON, PotionEffectType.SLOWNESS, PotionEffectType.WEAKNESS,
-            PotionEffectType.BLINDNESS, PotionEffectType.NAUSEA, PotionEffectType.WITHER,
-            PotionEffectType.LEVITATION
+    private final PotionEffectType[] negativeEffects = {
+        PotionEffectType.POISON, PotionEffectType.SLOWNESS, PotionEffectType.WEAKNESS,
+        PotionEffectType.BLINDNESS, PotionEffectType.NAUSEA, PotionEffectType.WITHER,
+        PotionEffectType.LEVITATION
+    };
+
+    private final PotionEffectType[] positiveEffects = {
+        PotionEffectType.SPEED, PotionEffectType.STRENGTH, PotionEffectType.JUMP_BOOST,
+        PotionEffectType.REGENERATION, PotionEffectType.FAST_DIGGING, PotionEffectType.DAMAGE_RESISTANCE,
+        PotionEffectType.ABSORPTION
     };
 
     public ChaoticRole(RollAndDeathSMP plugin) {
@@ -34,20 +40,24 @@ public class ChaoticRole extends Role {
             public void run() {
                 for (Player player : plugin.getServer().getOnlinePlayers()) {
                     if (hasRole(player)) {
-                        PotionEffectType type = effects[random.nextInt(effects.length)];
-                        player.addPotionEffect(new PotionEffect(type, 200, 0));
+                        PotionEffectType type = positiveEffects[random.nextInt(positiveEffects.length)];
+                        player.addPotionEffect(new PotionEffect(type, 400, 0));
                     }
                 }
             }
-        }.runTaskTimer(plugin, 0L, 12000L); // cada 10 minutos
+        }.runTaskTimer(plugin, 0L, 6000L); // cada 5 minutos un buff aleatorio
     }
 
     @EventHandler
     public void onAttack(EntityDamageByEntityEvent event) {
         if (event.getDamager() instanceof Player player && hasRole(player)) {
             if (event.getEntity() instanceof LivingEntity target) {
-                if (random.nextDouble() < 0.3) { // 30% chance
-                    PotionEffectType type = effects[random.nextInt(effects.length)];
+                double roll = random.nextDouble();
+                if (roll < 0.2) {
+                    PotionEffectType type = positiveEffects[random.nextInt(positiveEffects.length)];
+                    player.addPotionEffect(new PotionEffect(type, 100, 0));
+                } else if (roll < 0.5) {
+                    PotionEffectType type = negativeEffects[random.nextInt(negativeEffects.length)];
                     target.addPotionEffect(new PotionEffect(type, 100, 0));
                 }
             }

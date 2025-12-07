@@ -24,13 +24,13 @@ public class GlassCannonRole extends Role {
             public void run() {
                 for (Player player : plugin.getServer().getOnlinePlayers()) {
                     if (hasRole(player)) {
-                        if (player.getAttribute(Attribute.MAX_HEALTH).getBaseValue() != 6.0) {
-                            player.getAttribute(Attribute.MAX_HEALTH).setBaseValue(6.0); // 3 hearts
-                            if (player.getHealth() > 6.0) {
-                                player.setHealth(6.0);
+                        if (player.getAttribute(Attribute.MAX_HEALTH).getBaseValue() != 10.0) {
+                            player.getAttribute(Attribute.MAX_HEALTH).setBaseValue(10.0); // 5 hearts
+                            if (player.getHealth() > 10.0) {
+                                player.setHealth(10.0);
                             }
                         }
-                    } else if (player.getAttribute(Attribute.MAX_HEALTH).getBaseValue() == 6.0 &&
+                    } else if (player.getAttribute(Attribute.MAX_HEALTH).getBaseValue() == 10.0 &&
                             plugin.getRoleManager().getPlayerRole(player) != RoleType.GLASS_CANNON) {
                         player.getAttribute(Attribute.MAX_HEALTH).setBaseValue(20.0);
                     }

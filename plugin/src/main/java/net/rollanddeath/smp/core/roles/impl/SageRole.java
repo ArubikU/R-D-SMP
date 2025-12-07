@@ -34,6 +34,7 @@ public class SageRole extends Role {
     public void onExp(PlayerExpChangeEvent event) {
         if (hasRole(event.getPlayer())) {
             event.setAmount(event.getAmount() * 2);
+            event.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 60, 0, false, false));
         }
     }
 }

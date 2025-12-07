@@ -14,6 +14,7 @@ public class DayRuleManager {
 
     private final RollAndDeathSMP plugin;
     private final List<DayRule> rules;
+    private static final int BASE_SLEEP_PERCENTAGE = 30;
 
     public DayRuleManager(RollAndDeathSMP plugin) {
         this.plugin = plugin;
@@ -89,8 +90,8 @@ public class DayRuleManager {
     public void refreshForDay(int day) {
         List<DayRule> active = getActiveRules(day);
         
-        // Reset default sleep percentage
-        plugin.getServer().getWorlds().forEach(world -> world.setGameRule(GameRule.PLAYERS_SLEEPING_PERCENTAGE, 100));
+        // Reset default sleep percentage (baseline 30%) unless a day rule overrides it.
+        plugin.getServer().getWorlds().forEach(world -> world.setGameRule(GameRule.PLAYERS_SLEEPING_PERCENTAGE, BASE_SLEEP_PERCENTAGE));
 
         if (!active.isEmpty()) {
             for (DayRule rule : active) {

@@ -5,6 +5,9 @@ import net.rollanddeath.smp.RollAndDeathSMP;
 import net.rollanddeath.smp.core.roles.Role;
 import net.rollanddeath.smp.core.roles.RoleType;
 import org.bukkit.Material;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
@@ -12,7 +15,14 @@ import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
 public class MidasRole extends Role {
+
+    private static final UUID BONUS_HEALTH_MODIFIER_ID = UUID.fromString("b2c7483c-742c-4e16-9c7f-6c6a9c5db8f0");
+    private final Map<UUID, Integer> bonusHearts = new HashMap<>();
 
     public MidasRole(RollAndDeathSMP plugin) {
         super(plugin, RoleType.MIDAS);
@@ -34,30 +44,88 @@ public class MidasRole extends Role {
     }
 
     private void consumeGold(Player player) {
-        if (player.getInventory().contains(Material.GOLD_NUGGET)) {
-            removeItem(player, Material.GOLD_NUGGET, 1);
-            player.sendMessage(MiniMessage.miniMessage().deserialize("<yellow>Has consumido 1 Pepita de Oro para sobrevivir."));
-        } else if (player.getInventory().contains(Material.GOLD_INGOT)) {
-            removeItem(player, Material.GOLD_INGOT, 1);
-            player.sendMessage(MiniMessage.miniMessage().deserialize("<yellow>Has consumido 1 Lingote de Oro para sobrevivir."));
+        UUID uuid = player.getUniqueId();
+        int currentBonusHearts = bonusHearts.getOrDefault(uuid, 0);
+        boolean consumedBlock = false;
+        boolean consumedAny = false;
+        int regenDuration = 0;
+        int regenAmplifier = 0;
+
+        if (removeItem(player, Material.GOLD_BLOCK, 1)) {
+            consumedAny = true;
+            consumedBlock = true;
+            currentBonusHearts = Math.min(4, currentBonusHearts + 1);
+            regenDuration = 160; // 8s
+            regenAmplifier = 1; // Regen II
+            player.sendMessage(MiniMessage.miniMessage().deserialize("<yellow>Has consumido 1 Bloque de Oro. Salud extra: " + currentBonusHearts + " ❤"));
         } else {
+            // Si no comió bloque en este ciclo, pierde los corazones extra
+            currentBonusHearts = 0;
+        }
+
+        if (!consumedBlock) {
+            if (removeItem(player, Material.GOLD_NUGGET, 1)) {
+                consumedAny = true;
+                regenDuration = 40; // 2s casi nada
+                regenAmplifier = 0; // Regen I
+                player.sendMessage(MiniMessage.miniMessage().deserialize("<yellow>Has consumido 1 Pepita de Oro para sobrevivir."));
+            } else if (removeItem(player, Material.GOLD_INGOT, 1)) {
+                consumedAny = true;
+                regenDuration = 120; // 6s un poco más
+                regenAmplifier = 0; // Regen I
+                player.sendMessage(MiniMessage.miniMessage().deserialize("<yellow>Has consumido 1 Lingote de Oro para sobrevivir."));
+            }
+        }
+
+        if (consumedAny && regenDuration > 0) {
+            player.addPotionEffect(new org.bukkit.potion.PotionEffect(org.bukkit.potion.PotionEffectType.REGENERATION, regenDuration, regenAmplifier, false, false));
+        } else if (!consumedAny) {
             player.damage(4.0);
             player.sendMessage(MiniMessage.miniMessage().deserialize("<red>¡Necesitas oro para vivir! Te debilitas..."));
         }
+
+        bonusHearts.put(uuid, currentBonusHearts);
+        applyBonusHearts(player, currentBonusHearts);
     }
 
-    private void removeItem(Player player, Material type, int amount) {
+    private boolean removeItem(Player player, Material type, int amount) {
         for (ItemStack item : player.getInventory().getContents()) {
-            if (item != null && item.getType() == type) {
-                int current = item.getAmount();
-                if (current >= amount) {
-                    item.setAmount(current - amount);
-                    return;
-                } else {
-                    item.setAmount(0);
-                    amount -= current;
-                }
+            if (item == null || item.getType() != type) continue;
+            int current = item.getAmount();
+            if (current >= amount) {
+                item.setAmount(current - amount);
+                return true;
+            } else {
+                item.setAmount(0);
+                amount -= current;
             }
+        }
+        return false;
+    }
+
+    private void applyBonusHearts(Player player, int hearts) {
+        AttributeInstance instance = player.getAttribute(Attribute.GENERIC_MAX_HEALTH);
+        if (instance == null) return;
+
+        // Clear previous modifier
+        AttributeModifier existing = instance.getModifier(BONUS_HEALTH_MODIFIER_ID);
+        if (existing != null) {
+            instance.removeModifier(existing);
+        }
+
+        if (hearts > 0) {
+            AttributeModifier bonus = new AttributeModifier(
+                    BONUS_HEALTH_MODIFIER_ID,
+                    "midas_gold_bonus_hearts",
+                    hearts * 2.0,
+                    AttributeModifier.Operation.ADD_NUMBER
+            );
+            instance.addModifier(bonus);
+        }
+
+        double newMax = instance.getValue();
+        if (player.getHealth() > newMax) {
+            player.setHealth(newMax);
         }
     }
 

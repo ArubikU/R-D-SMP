@@ -11,8 +11,11 @@ import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import com.google.common.collect.Multimap;
+
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class AttributeWeaponItem extends CustomItem {
 
@@ -44,6 +47,14 @@ public class AttributeWeaponItem extends CustomItem {
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
+            // Preserve vanilla attribute modifiers and then add our bonuses
+            Multimap<Attribute, AttributeModifier> defaults = meta.getAttributeModifiers();
+            if (defaults != null) {
+                for (Map.Entry<Attribute, AttributeModifier> entry : defaults.entries()) {
+                    meta.addAttributeModifier(entry.getKey(), entry.getValue());
+                }
+            }
+
             if (damageBonus != 0.0) {
                 meta.addAttributeModifier(
                         Attribute.ATTACK_DAMAGE,
