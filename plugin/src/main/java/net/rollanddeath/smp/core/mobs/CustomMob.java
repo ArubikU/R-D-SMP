@@ -21,6 +21,10 @@ public abstract class CustomMob implements Listener {
         this.entityType = entityType;
     }
 
+    public MobType getType() {
+        return type;
+    }
+
     public EntityType getEntityType() {
         return entityType;
     }

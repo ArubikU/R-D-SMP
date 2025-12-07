@@ -105,6 +105,7 @@ public final class RollAndDeathSMP extends JavaPlugin {
         this.protectionManager = new ProtectionManager(this, teamManager);
         this.reanimationManager = new ReanimationManager(this, lifeManager);
         this.combatLogManager = new CombatLogManager(this, reanimationManager, teamManager);
+        this.gameManager = new GameManager(this);
 
         ConfigurationSection discordSection = getConfig().getConfigurationSection("discord");
         boolean discordEnabled = discordSection != null && discordSection.getBoolean("enabled", false);
@@ -116,10 +117,10 @@ public final class RollAndDeathSMP extends JavaPlugin {
 
         this.roleManager = new RoleManager(this);
         this.mobManager = new MobManager(this);
+        this.itemManager = new ItemManager(this);
         this.dailyMobRotationManager = new DailyMobRotationManager(this);
         this.recipeManager = new RecipeManager(this);
         this.lootManager = new LootManager(this);
-        this.gameManager = new GameManager(this);
         this.dayRuleManager = new DayRuleManager(this);
         this.killPointsManager = new KillPointsManager(this);
         this.announceManager = new AnnounceManager(this);

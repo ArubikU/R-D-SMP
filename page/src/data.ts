@@ -1333,5 +1333,16 @@ export const tutorials = [
             { subtitle: "Progresión de gear sin enchants", text: "Día 10: Set + Espada de Acero (atributos base). Día 20: Set + Espada Obsidiana (más dureza). Día 30: Set + Espada del Vacío (armadura extra y resistencia al knockback). Recetas bloqueadas hasta su día y también disponibles en la KillStore desde esa fecha." },
             { subtitle: "Notas", text: "El saldo es por jugador y persiste entre reinicios. Los admins pueden cortar el sistema temporalmente sin perder tus puntos." }
         ]
+    },
+    {
+        id: "starter_kit",
+        title: "Kit Inicial",
+        icon: "📦",
+        content: [
+            { subtitle: "Armadura", text: "Set completo de Hierro con Protección II." },
+            { subtitle: "Armas", text: "Espada de Hierro con Afilado II." },
+            { subtitle: "Suministros", text: "64 Panes para empezar tu aventura." },
+            { subtitle: "Bonus", text: "2 Recompensas del Roll Diario gratis al entrar por primera vez." }
+        ]
     }
 ];

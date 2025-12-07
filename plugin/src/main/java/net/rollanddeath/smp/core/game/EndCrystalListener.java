@@ -23,7 +23,7 @@ public class EndCrystalListener implements Listener {
 
     @EventHandler
     public void onCrystalDamage(EntityDamageByEntityEvent event) {
-        if (event.getEntityType() != EntityType.ENDER_CRYSTAL) return;
+        if (event.getEntityType() != EntityType.END_CRYSTAL) return;
         
         Entity crystal = event.getEntity();
         if (!(crystal instanceof EnderCrystal)) return;

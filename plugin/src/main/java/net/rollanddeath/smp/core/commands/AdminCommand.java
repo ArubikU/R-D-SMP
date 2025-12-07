@@ -356,7 +356,7 @@ public class AdminCommand implements CommandExecutor, TabCompleter {
     }
 
     private void handleDownCommand(CommandSender sender, String[] args) {
-        if (args.length < 3) {
+        if (args.length < 2) {
             sender.sendMessage(Component.text("Uso: /rd admin down <player>", NamedTextColor.RED));
             return;
         }
@@ -376,7 +376,7 @@ public class AdminCommand implements CommandExecutor, TabCompleter {
     }
 
     private void handleReviveCommand(CommandSender sender, String[] args) {
-        if (args.length < 3) {
+        if (args.length < 2) {
             sender.sendMessage(Component.text("Uso: /rd admin revive <player>", NamedTextColor.RED));
             return;
         }
@@ -557,7 +557,7 @@ public class AdminCommand implements CommandExecutor, TabCompleter {
 
         String target = args[2].toLowerCase(Locale.ROOT);
         boolean enable;
-        if (args.length >= 4) {
+        if (args.length >= 3) {
             String flag = args[3].toLowerCase(Locale.ROOT);
             if (flag.equals("on")) {
                 enable = true;

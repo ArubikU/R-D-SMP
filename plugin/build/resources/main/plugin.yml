@@ -43,3 +43,9 @@ commands:
   eventos:
     description: Muestra los eventos activos con descripción
     usage: /eventos
+  mobs:
+    description: Muestra los mobs especiales activos
+    usage: /mobs
+  reglas:
+    description: Muestra las reglas del servidor
+    usage: /reglas

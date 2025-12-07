@@ -254,7 +254,6 @@ public class RecipeManager {
         legRecipe.setIngredient('D', Material.DIAMOND_BLOCK);
         legRecipe.setIngredient('N', Material.NETHERITE_SCRAP);
         legRecipe.setIngredient('O', Material.OBSIDIAN);
-        legRecipe.setIngredient('S', Material.SMITHING_TABLE);
         plugin.getServer().addRecipe(legRecipe);
 
         ItemStack boots = plugin.getItemManager().getItem(CustomItemType.OBSIDIAN_BOOTS).getItemStack();

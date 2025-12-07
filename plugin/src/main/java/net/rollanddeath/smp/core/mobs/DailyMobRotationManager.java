@@ -83,6 +83,10 @@ public class DailyMobRotationManager {
         return new ArrayList<>(activeMobs);
     }
 
+    public int getLastDay() {
+        return lastDay;
+    }
+
     public MobType getReplacement(EntityType vanillaType) {
         List<MobType> candidates = new ArrayList<>();
         

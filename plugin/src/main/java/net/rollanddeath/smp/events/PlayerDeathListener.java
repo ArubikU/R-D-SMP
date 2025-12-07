@@ -158,7 +158,7 @@ public class PlayerDeathListener implements Listener {
             chest.customName(Component.text("Restos de " + event.getEntity().getName(), NamedTextColor.RED));
             for (ItemStack item : new ArrayList<>(drops)) {
                 Map<Integer, ItemStack> leftover = chest.getBlockInventory().addItem(item);
-                leftover.values().forEach(stack -> world.dropItemNaturally(chestBlock.getLocation().add(0.5, 1, 0.5), stack));
+                leftover.values().forEach(stack -> world.dropItemNaturally(chest.getLocation().add(0.5, 1, 0.5), stack));
             }
             chest.update();
             drops.clear();
