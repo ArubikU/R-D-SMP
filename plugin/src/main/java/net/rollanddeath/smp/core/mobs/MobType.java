@@ -29,7 +29,9 @@ public enum MobType {
     AWAKENED_WARDEN("El Warden Despierto"),
     ALPHA_DRAGON("Dragón Alpha"),
     THE_REAPER("El Segador"),
-    SLIME_KING("Rey Slime");
+    SLIME_KING("Rey Slime"),
+    BANSHEE("Banshee"),
+    VOID_WALKER("Caminante del Vacío");
 
     private final String displayName;
 

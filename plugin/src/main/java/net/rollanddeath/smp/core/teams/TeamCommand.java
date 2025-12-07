@@ -2,26 +2,37 @@ package net.rollanddeath.smp.core.teams;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.rollanddeath.smp.RollAndDeathSMP;
+import net.rollanddeath.smp.core.combat.CombatLogManager;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
 public class TeamCommand implements CommandExecutor, TabCompleter {
 
-    private final TeamManager teamManager;
+        private final RollAndDeathSMP plugin;
+        private final TeamManager teamManager;
+        private final CombatLogManager combatLogManager;
+        private final Map<UUID, BukkitTask> homeWarmups = new HashMap<>();
+        private final Map<UUID, Long> homeCooldowns = new HashMap<>();
     private static final List<String> BASE_SUBCOMMANDS = Arrays.asList(
             "create",
             "invite",
@@ -29,10 +40,13 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
             "leave",
             "kick",
             "chat",
+            "togglechat",
             "friendlyfire",
             "war",
             "info",
-            "color"
+            "color",
+            "home",
+            "sethome"
     );
 
         private static final List<String> COLOR_OPTIONS = Arrays.asList(
@@ -54,8 +68,10 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
             "black"
         );
 
-    public TeamCommand(TeamManager teamManager) {
+    public TeamCommand(RollAndDeathSMP plugin, TeamManager teamManager) {
+        this.plugin = plugin;
         this.teamManager = teamManager;
+        this.combatLogManager = plugin.getCombatLogManager();
     }
 
     @Override
@@ -72,7 +88,7 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
             }
             // Treat all args as chat message
             String message = String.join(" ", args);
-            sendTeamMessage(player, message);
+            teamManager.sendTeamMessage(player, message);
             return true;
         }
 
@@ -103,6 +119,9 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
             case "c":
                 handleChat(player, args);
                 break;
+            case "togglechat":
+                handleToggleChat(player);
+                break;
             case "friendlyfire":
             case "ff":
                 handleFriendlyFire(player);
@@ -115,6 +134,12 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
                 break;
             case "color":
                 handleColor(player, args);
+                break;
+            case "home":
+                handleHome(player);
+                break;
+            case "sethome":
+                handleSetHome(player);
                 break;
             default:
                 sendHelp(player);
@@ -212,10 +237,13 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
         player.sendMessage(Component.text("/team leave - Salir del equipo", NamedTextColor.YELLOW));
         player.sendMessage(Component.text("/team kick <jugador> - Expulsar miembro (Solo líder)", NamedTextColor.YELLOW));
         player.sendMessage(Component.text("/team chat <msg> - Chat de equipo", NamedTextColor.YELLOW));
+        player.sendMessage(Component.text("/team togglechat - Alterna que todo tu chat vaya al team", NamedTextColor.YELLOW));
         player.sendMessage(Component.text("/team ff - Alternar fuego amigo", NamedTextColor.YELLOW));
         player.sendMessage(Component.text("/team war <equipo> - Declarar guerra", NamedTextColor.YELLOW));
         player.sendMessage(Component.text("/team info - Ver información del equipo", NamedTextColor.YELLOW));
         player.sendMessage(Component.text("/team color <color> - Cambiar el color del equipo", NamedTextColor.YELLOW));
+        player.sendMessage(Component.text("/team sethome - Establecer home del equipo (líder)", NamedTextColor.YELLOW));
+        player.sendMessage(Component.text("/team home - Volver al home del equipo", NamedTextColor.YELLOW));
     }
 
     private void handleWar(Player player, String[] args) {
@@ -298,26 +326,7 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
             return;
         }
         String message = String.join(" ", java.util.Arrays.copyOfRange(args, 1, args.length));
-        sendTeamMessage(player, message);
-    }
-
-    private void sendTeamMessage(Player player, String message) {
-        Team team = teamManager.getTeam(player.getUniqueId());
-        if (team == null) {
-            player.sendMessage(Component.text("No estás en un equipo.", NamedTextColor.RED));
-            return;
-        }
-
-        Component chatFormat = Component.text("[TeamChat] ", NamedTextColor.AQUA)
-                .append(Component.text(player.getName() + ": ", NamedTextColor.WHITE))
-                .append(Component.text(message, NamedTextColor.GRAY));
-
-        for (UUID memberId : team.getMembers()) {
-            Player member = Bukkit.getPlayer(memberId);
-            if (member != null) {
-                member.sendMessage(chatFormat);
-            }
-        }
+        teamManager.sendTeamMessage(player, message);
     }
 
     private void handleFriendlyFire(Player player) {
@@ -437,15 +446,17 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
         }
 
         teamManager.removeMember(player.getUniqueId());
-        player.sendMessage(Component.text("Has salido del equipo.", NamedTextColor.GREEN));
-    }
-
-    private void handleKick(Player player, String[] args) {
-        if (args.length < 2) {
-            player.sendMessage(Component.text("Uso: /team kick <jugador>", NamedTextColor.RED));
-            return;
+        // The following block is duplicated and has been removed.
+        // String ownerName = Bukkit.getOfflinePlayer(team.getOwner()).getName();
+        // player.sendMessage(Component.text("Líder: " + (ownerName != null ? ownerName : "Desconocido"), NamedTextColor.YELLOW));
+        // player.sendMessage(Component.text("Miembros (" + team.getMembers().size() + "/4):", NamedTextColor.YELLOW));
+        // for (UUID memberId : team.getMembers()) {
+        //     String memberName = Bukkit.getOfflinePlayer(memberId).getName();
+        //     player.sendMessage(Component.text("- " + (memberName != null ? memberName : "Desconocido"), NamedTextColor.WHITE));
+        // }
         }
 
+    private void handleKick(Player player, String[] args) {
         Team team = teamManager.getTeam(player.getUniqueId());
         if (team == null) {
             player.sendMessage(Component.text("No estás en un equipo.", NamedTextColor.RED));
@@ -453,36 +464,42 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
         }
 
         if (!team.getOwner().equals(player.getUniqueId())) {
-            player.sendMessage(Component.text("Solo el líder puede expulsar.", NamedTextColor.RED));
+            player.sendMessage(Component.text("Solo el líder puede expulsar miembros.", NamedTextColor.RED));
+            return;
+        }
+
+        if (args.length < 2) {
+            player.sendMessage(Component.text("Uso: /team kick <jugador>", NamedTextColor.RED));
             return;
         }
 
         String targetName = args[1];
-        UUID targetUUID = null;
+        OfflinePlayer target = Bukkit.getOfflinePlayer(targetName);
+        UUID targetId = target.getUniqueId();
+
+        if (!team.getMembers().contains(targetId)) {
+            player.sendMessage(Component.text("Ese jugador no es miembro de tu equipo.", NamedTextColor.RED));
+            return;
+        }
+
+        if (targetId.equals(team.getOwner())) {
+            player.sendMessage(Component.text("No puedes expulsar al líder.", NamedTextColor.RED));
+            return;
+        }
+
+        teamManager.removeMember(targetId);
+        player.sendMessage(Component.text("Has expulsado a " + targetName + " del equipo.", NamedTextColor.GREEN));
+
+        Player onlineTarget = Bukkit.getPlayer(targetId);
+        if (onlineTarget != null) {
+            onlineTarget.sendMessage(Component.text("Has sido expulsado del equipo " + team.getName() + ".", NamedTextColor.RED));
+        }
+
         for (UUID memberId : team.getMembers()) {
-            String name = Bukkit.getOfflinePlayer(memberId).getName();
-            if (name != null && name.equalsIgnoreCase(targetName)) {
-                targetUUID = memberId;
-                break;
+            Player member = Bukkit.getPlayer(memberId);
+            if (member != null && !memberId.equals(player.getUniqueId())) {
+                member.sendMessage(Component.text(targetName + " ha sido expulsado del equipo.", NamedTextColor.YELLOW));
             }
-        }
-
-        if (targetUUID == null) {
-            player.sendMessage(Component.text("Jugador no encontrado en tu equipo.", NamedTextColor.RED));
-            return;
-        }
-
-        if (targetUUID.equals(player.getUniqueId())) {
-            player.sendMessage(Component.text("No puedes expulsarte a ti mismo. Usa /team leave.", NamedTextColor.RED));
-            return;
-        }
-
-        teamManager.removeMember(targetUUID);
-        player.sendMessage(Component.text("Jugador expulsado.", NamedTextColor.GREEN));
-        
-        Player target = Bukkit.getPlayer(targetUUID);
-        if (target != null) {
-            target.sendMessage(Component.text("Has sido expulsado del equipo.", NamedTextColor.RED));
         }
     }
 
@@ -494,12 +511,121 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
         }
 
         player.sendMessage(Component.text("--- Equipo: " + team.getName() + " ---", NamedTextColor.GOLD));
-        String ownerName = Bukkit.getOfflinePlayer(team.getOwner()).getName();
-        player.sendMessage(Component.text("Líder: " + (ownerName != null ? ownerName : "Desconocido"), NamedTextColor.YELLOW));
-        player.sendMessage(Component.text("Miembros (" + team.getMembers().size() + "/4):", NamedTextColor.YELLOW));
-        for (UUID memberId : team.getMembers()) {
-            String memberName = Bukkit.getOfflinePlayer(memberId).getName();
-            player.sendMessage(Component.text("- " + (memberName != null ? memberName : "Desconocido"), NamedTextColor.WHITE));
+            String ownerName = Bukkit.getOfflinePlayer(team.getOwner()).getName();
+            player.sendMessage(Component.text("Líder: " + (ownerName != null ? ownerName : "Desconocido"), NamedTextColor.YELLOW));
+            player.sendMessage(Component.text("Miembros (" + team.getMembers().size() + "/4):", NamedTextColor.YELLOW));
+            for (UUID memberId : team.getMembers()) {
+                String memberName = Bukkit.getOfflinePlayer(memberId).getName();
+                player.sendMessage(Component.text("- " + (memberName != null ? memberName : "Desconocido"), NamedTextColor.WHITE));
+            }
+        }
+
+    private void handleSetHome(Player player) {
+        Team team = teamManager.getTeam(player.getUniqueId());
+        if (team == null) {
+            player.sendMessage(Component.text("No estás en un equipo.", NamedTextColor.RED));
+            return;
+        }
+
+        if (!team.getOwner().equals(player.getUniqueId())) {
+            player.sendMessage(Component.text("Solo el líder puede establecer el home.", NamedTextColor.RED));
+            return;
+        }
+
+        Location loc = player.getLocation();
+        team.setHome(loc);
+        player.sendMessage(Component.text("Home del equipo establecido en tu posición.", NamedTextColor.GREEN));
+    }
+
+    private void handleHome(Player player) {
+        Team team = teamManager.getTeam(player.getUniqueId());
+        if (team == null) {
+            player.sendMessage(Component.text("No estás en un equipo.", NamedTextColor.RED));
+            return;
+        }
+
+        Location home = team.getHome();
+        if (home == null) {
+            player.sendMessage(Component.text("Tu equipo no tiene un home establecido.", NamedTextColor.RED));
+            return;
+        }
+
+        if (combatLogManager != null && combatLogManager.isEnabled()) {
+            int remaining = combatLogManager.getRemainingCombatSeconds(player.getUniqueId());
+            if (remaining > 0) {
+                player.sendMessage(Component.text("No puedes usar /team home en combate. Espera " + remaining + "s.", NamedTextColor.RED));
+                return;
+            }
+        }
+
+        long now = System.currentTimeMillis();
+        long lastUse = homeCooldowns.getOrDefault(player.getUniqueId(), 0L);
+        if (now - lastUse < 20000) {
+            long waitMs = 20000 - (now - lastUse);
+            long waitSec = (long) Math.ceil(waitMs / 1000.0);
+            player.sendMessage(Component.text("Cooldown: espera " + waitSec + "s para usar /team home otra vez.", NamedTextColor.RED));
+            return;
+        }
+
+        // Cancel any existing warmup
+        BukkitTask existing = homeWarmups.remove(player.getUniqueId());
+        if (existing != null) {
+            existing.cancel();
+        }
+
+        Location start = player.getLocation().clone();
+        player.sendMessage(Component.text("Mantente quieto 5s para teletransportarte al home...", NamedTextColor.YELLOW));
+
+        BukkitTask task = plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+            homeWarmups.remove(player.getUniqueId());
+
+            if (!player.isOnline()) return;
+
+            if (combatLogManager != null && combatLogManager.isEnabled()) {
+                int remaining = combatLogManager.getRemainingCombatSeconds(player.getUniqueId());
+                if (remaining > 0) {
+                    player.sendMessage(Component.text("Cancelado: entraste en combate.", NamedTextColor.RED));
+                    return;
+                }
+            }
+
+            Location current = player.getLocation();
+            if (!sameBlockPos(start, current)) {
+                player.sendMessage(Component.text("Te moviste. Vuelve a intentarlo y quédate quieto 5s.", NamedTextColor.RED));
+                return;
+            }
+
+            if (home.getWorld() == null) {
+                player.sendMessage(Component.text("El home del equipo es inválido (mundo no encontrado).", NamedTextColor.RED));
+                return;
+            }
+
+            player.teleport(home);
+            player.sendMessage(Component.text("Teletransportado al home del equipo.", NamedTextColor.GREEN));
+            homeCooldowns.put(player.getUniqueId(), System.currentTimeMillis());
+        }, 100L); // 5s warmup
+
+        homeWarmups.put(player.getUniqueId(), task);
+    }
+
+    private boolean sameBlockPos(Location a, Location b) {
+        if (a.getWorld() == null || b.getWorld() == null) return false;
+        if (!a.getWorld().equals(b.getWorld())) return false;
+        return a.getBlockX() == b.getBlockX() && a.getBlockY() == b.getBlockY() && a.getBlockZ() == b.getBlockZ();
+    }
+
+    private void handleToggleChat(Player player) {
+        Team team = teamManager.getTeam(player.getUniqueId());
+        if (team == null) {
+            player.sendMessage(Component.text("No estás en un equipo.", NamedTextColor.RED));
+            return;
+        }
+
+        boolean enabled = teamManager.toggleTeamChat(player.getUniqueId());
+        if (enabled) {
+            player.sendMessage(Component.text("Chat de equipo automático ACTIVADO. Tus mensajes van al team.", NamedTextColor.GREEN));
+        } else {
+            player.sendMessage(Component.text("Chat de equipo automático DESACTIVADO.", NamedTextColor.YELLOW));
         }
     }
 

@@ -3,6 +3,7 @@ package net.rollanddeath.smp.events;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.rollanddeath.smp.core.roles.RoleManager;
 import net.rollanddeath.smp.core.roles.RoleType;
 import net.rollanddeath.smp.core.teams.Team;
@@ -25,6 +26,14 @@ public class ChatListener implements Listener {
 
     @EventHandler
     public void onChat(AsyncChatEvent event) {
+        Team teamForSender = teamManager.getTeam(event.getPlayer().getUniqueId());
+        if (teamManager.isTeamChatToggled(event.getPlayer().getUniqueId()) && teamForSender != null) {
+            String plain = PlainTextComponentSerializer.plainText().serialize(event.message());
+            teamManager.sendTeamMessage(event.getPlayer(), plain);
+            event.setCancelled(true);
+            return;
+        }
+
         event.renderer((source, sourceDisplayName, message, viewer) -> {
             Component formatted = Component.empty();
 

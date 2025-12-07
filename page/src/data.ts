@@ -95,7 +95,6 @@ export const dailyEvents = [
     { name: "Terremoto", type: "Caos", desc: "La pantalla tiembla cada cierto tiempo.", icon: "📉" },
     { name: "Susurros", type: "Caos", desc: "Sonidos de cueva aleatorios para todos.", icon: "👻" },
     { name: "Gallinas Explosivas", type: "Caos", desc: "Las gallinas explotan si te acercas.", icon: "🐔" },
-    { name: "Bloques Random", type: "Caos", desc: "Los drops de bloques están aleatorizados.", icon: "🎲" },
     { name: "Sin Armadura", type: "Caos", desc: "No se puede equipar pecheras.", icon: "👕" },
     { name: "Guerra de Nieve", type: "Caos", desc: "Las bolas de nieve hacen 2 corazones de daño.", icon: "⛄" },
     { name: "Pisos de Lava", type: "Caos", desc: "La lava fluye tan rápido como el agua.", icon: "🌋" },
@@ -149,7 +148,7 @@ export const mobs = [
     { name: "Zombie Minero", desc: "Lleva casco y pico. Rompe puertas rápido.", danger: "⭐", rarity: "comun" },
     { name: "Esqueleto Vagabundo", desc: "Usa espada en lugar de arco. Corre rápido.", danger: "⭐", rarity: "comun" },
     { name: "Creeper Húmedo", desc: "No explota, pero deja un charco de agua persistente.", danger: "⭐", rarity: "comun" },
-    
+
     // --- RARO ---
     { name: "Esqueleto Blindado", desc: "Esqueleto con armadura completa de hierro.", danger: "⭐⭐", rarity: "raro" },
     { name: "Zombie Veloz", desc: "Zombie con Velocidad II. Muy molesto.", danger: "⭐⭐", rarity: "raro" },
@@ -159,15 +158,26 @@ export const mobs = [
     { name: "Creeper de Hielo", desc: "Explosión congela el área y aplica lentitud.", danger: "⭐⭐", rarity: "raro" },
     { name: "Fantasma Gigante", desc: "Phantom x3 tamaño. Puede agarrar jugadores.", danger: "⭐⭐⭐", rarity: "raro" },
     { name: "Bruja del Pantano", desc: "Lanza pociones de nivel II. Spawnea slimes.", danger: "⭐⭐", rarity: "raro" },
-    
+
     // --- ÉPICO ---
-    { name: "El Acechador", desc: "Creeper invisible. Hace sonido de estática. Ceguera.", danger: "⭐⭐⭐⭐", rarity: "epico" },
-    { name: "Torreta de Hueso", desc: "Esqueleto inmóvil. Rango 100 bloques. Perforante.", danger: "⭐⭐⭐⭐", rarity: "epico" },
+    { name: "El Acechador", desc: "Creeper invisible. Hace sonido de estática y aplica Ceguera.", danger: "⭐⭐⭐⭐", rarity: "epico" },
+    { name: "Torreta de Hueso", desc: "Esqueleto inmóvil con arco perforante de largo alcance.", danger: "⭐⭐⭐⭐", rarity: "epico" },
     { name: "Sombra", desc: "Enderman que no se teletransporta pero corre supersónico.", danger: "⭐⭐⭐⭐", rarity: "epico" },
-    { name: "Blaze Azul", desc: "Dispara fuego azul (Soul Fire). Daño x2.", danger: "⭐⭐⭐⭐", rarity: "epico" },
+    { name: "Blaze Azul", desc: "Dispara fuego azul (Soul Fire) con daño x2.", danger: "⭐⭐⭐⭐", rarity: "epico" },
     { name: "Shulker Mímico", desc: "Parece un bloque de piedra. Ataca al minarlo.", danger: "⭐⭐⭐⭐", rarity: "epico" },
     { name: "Jinete de Araña Elite", desc: "Esqueleto Wither montado en Araña de Cueva.", danger: "⭐⭐⭐⭐", rarity: "epico" },
     { name: "Evoker Loco", desc: "Spawnea Vexes infinitos hasta que muere.", danger: "⭐⭐⭐⭐", rarity: "epico" },
+
+    // --- LEGENDARIO / PERMADEATH ---
+    { name: "Caballero del Apocalipsis", desc: "Jinete con armadura netherite y espada letal.", danger: "⭐⭐⭐⭐⭐", rarity: "legendario" },
+    { name: "Leviatán", desc: "Bestia acuática gigante; controla el agua a su alrededor.", danger: "⭐⭐⭐⭐⭐", rarity: "legendario" },
+    { name: "Rey Rata", desc: "Manda oleadas de ratas; invoca refuerzos al ser golpeado.", danger: "⭐⭐⭐⭐⭐", rarity: "legendario" },
+    { name: "El Warden Despierto", desc: "Versión agresiva del Warden, detección y daño aumentados.", danger: "⭐⭐⭐⭐⭐", rarity: "legendario" },
+    { name: "Dragón Alpha", desc: "Mini jefe volador con aliento potenciado.", danger: "⭐⭐⭐⭐⭐", rarity: "legendario" },
+    { name: "El Segador", desc: "Entidad oscura con guadaña; aplica Wither y ceguera.", danger: "⭐⭐⭐⭐⭐", rarity: "legendario" },
+    { name: "Rey Slime", desc: "Slime gigante con mucha vida; deja minions al dividirse.", danger: "⭐⭐⭐⭐", rarity: "legendario" },
+    { name: "Banshee", desc: "Vex potenciada que grita y golpea fuerte.", danger: "⭐⭐⭐⭐", rarity: "legendario" },
+    { name: "Caminante del Vacío", desc: "Wither Skeleton con set netherite y daño brutal.", danger: "⭐⭐⭐⭐⭐", rarity: "legendario" },
 ];
 
 export const wikiAdvancedEntries = [
@@ -358,6 +368,86 @@ export const items = [
             result: "Botas de Cuero Reforzadas"
         }
     },
+    {
+        name: "Casco de Acero",
+        type: "Armadura",
+        desc: "Defensa nivel netherite (+1 armadura, +2 dureza). Desbloqueo Día 10.",
+        rarity: "raro",
+        acquisition: "Crafting / KillStore Día 10",
+        recipe: {
+            type: "shaped",
+            grid: [
+                "Block of Iron", "Blast Furnace", "Block of Iron",
+                "Chain", null, "Chain",
+                "Iron Ingot", null, "Iron Ingot"
+            ],
+            result: "Casco de Acero"
+        }
+    },
+    {
+        name: "Pechera de Acero",
+        type: "Armadura",
+        desc: "Defensa nivel netherite (+2 armadura, +3 dureza). Desbloqueo Día 10.",
+        rarity: "raro",
+        acquisition: "Crafting / KillStore Día 10",
+        recipe: {
+            type: "shaped",
+            grid: [
+                "Block of Iron", "Blast Furnace", "Block of Iron",
+                "Block of Iron", "Chainmail Chestplate", "Block of Iron",
+                "Block of Iron", "Iron Ingot", "Block of Iron"
+            ],
+            result: "Pechera de Acero"
+        }
+    },
+    {
+        name: "Grebas de Acero",
+        type: "Armadura",
+        desc: "Defensa nivel netherite (+2 armadura, +3 dureza). Desbloqueo Día 10.",
+        rarity: "raro",
+        acquisition: "Crafting / KillStore Día 10",
+        recipe: {
+            type: "shaped",
+            grid: [
+                "Block of Iron", "Blast Furnace", "Block of Iron",
+                "Chain", null, "Chain",
+                "Block of Iron", "Iron Ingot", "Block of Iron"
+            ],
+            result: "Grebas de Acero"
+        }
+    },
+    {
+        name: "Botas de Acero",
+        type: "Armadura",
+        desc: "Defensa nivel netherite (+1 armadura, +2 dureza). Desbloqueo Día 10.",
+        rarity: "raro",
+        acquisition: "Crafting / KillStore Día 10",
+        recipe: {
+            type: "shaped",
+            grid: [
+                "Chain", null, "Chain",
+                "Block of Iron", "Blast Furnace", "Block of Iron",
+                "Iron Ingot", null, "Iron Ingot"
+            ],
+            result: "Botas de Acero"
+        }
+    },
+    {
+        name: "Espada de Acero",
+        type: "Arma",
+        desc: "Daño nivel netherite (+3 daño, +0.1 velocidad). Desbloqueo Día 10.",
+        rarity: "raro",
+        acquisition: "Crafting / KillStore Día 10",
+        recipe: {
+            type: "shaped",
+            grid: [
+                null, "Block of Iron", null,
+                null, "Blast Furnace", null,
+                null, "Iron Ingot", null
+            ],
+            result: "Espada de Acero"
+        }
+    },
     { name: "Botas de Hermes", type: "Armadura", desc: "Doble salto. Se rompen muy rápido.", rarity: "raro", acquisition: "Drop: Zombie Veloz (6%)" },
     { name: "Poción de Olvido", type: "Consumible", desc: "Elimina el agro de los mobs cercanos.", rarity: "raro", acquisition: "Drop: Bruja del Pantano" },
     {
@@ -474,8 +564,111 @@ export const items = [
             result: "Capa de Invisibilidad"
         }
     },
+    {
+        name: "Casco Obsidiana",
+        type: "Armadura",
+        desc: "Superior a netherite (+2 armadura, +3 dureza, +0.02 KB). Desbloqueo Día 20.",
+        rarity: "epico",
+        acquisition: "Crafting / KillStore Día 20",
+        recipe: {
+            type: "shaped",
+            grid: [
+                "Diamond Block", "Netherite Scrap", "Diamond Block",
+                "Obsidian", "Smithing Table", "Obsidian",
+                null, null, null
+            ],
+            result: "Casco Obsidiana"
+        }
+    },
+    {
+        name: "Pechera Obsidiana",
+        type: "Armadura",
+        desc: "Superior a netherite (+3 armadura, +4 dureza, +0.02 KB). Desbloqueo Día 20.",
+        rarity: "epico",
+        acquisition: "Crafting / KillStore Día 20",
+        recipe: {
+            type: "shaped",
+            grid: [
+                "Diamond Block", "Netherite Scrap", "Diamond Block",
+                "Obsidian", "Smithing Table", "Obsidian",
+                "Diamond Block", "Obsidian", "Diamond Block"
+            ],
+            result: "Pechera Obsidiana"
+        }
+    },
+    {
+        name: "Grebas Obsidiana",
+        type: "Armadura",
+        desc: "Superior a netherite (+3 armadura, +4 dureza, +0.02 KB). Desbloqueo Día 20.",
+        rarity: "epico",
+        acquisition: "Crafting / KillStore Día 20",
+        recipe: {
+            type: "shaped",
+            grid: [
+                "Diamond Block", "Netherite Scrap", "Diamond Block",
+                "Obsidian", null, "Obsidian",
+                "Diamond Block", "Obsidian", "Diamond Block"
+            ],
+            result: "Grebas Obsidiana"
+        }
+    },
+    {
+        name: "Botas Obsidiana",
+        type: "Armadura",
+        desc: "Superior a netherite (+2 armadura, +2.5 dureza, +0.02 KB). Desbloqueo Día 20.",
+        rarity: "epico",
+        acquisition: "Crafting / KillStore Día 20",
+        recipe: {
+            type: "shaped",
+            grid: [
+                "Obsidian", null, "Obsidian",
+                "Diamond Block", "Netherite Scrap", "Diamond Block",
+                "Obsidian", null, "Obsidian"
+            ],
+            result: "Botas Obsidiana"
+        }
+    },
+    {
+        name: "Espada Obsidiana",
+        type: "Arma",
+        desc: "Superior a netherite (+4 daño, +0.1 velocidad). Desbloqueo Día 20.",
+        rarity: "epico",
+        acquisition: "Crafting (upgrade) / KillStore Día 20",
+        recipe: {
+            type: "shaped",
+            grid: [
+                null, "Obsidian", null,
+                null, "Diamond Sword", null,
+                null, "Netherite Scrap", null
+            ],
+            result: "Espada Obsidiana"
+        }
+    },
     { name: "Martillo de Guerra", type: "Arma", desc: "Daño de área masivo, recarga muy lenta.", rarity: "epico", acquisition: "Drop: Golem Corrupto" },
     { name: "Tótem de Regeneración", type: "Reliquia", desc: "Cura a todos los aliados en 10 bloques.", rarity: "epico", acquisition: "Cofres de Dungeon / Roll" },
+    {
+        name: "Dado de Loki",
+        type: "Utilidad",
+        desc: "Lanza un roll diario instantáneo sin gastar tu cooldown. Lleva suerte +20% o -20% según la receta usada.",
+        rarity: "epico",
+        acquisition: "Crafting (2 recetas)",
+        recipe: {
+            type: "shapeless",
+            ingredients: [
+                "Block of Emerald", "Nether Star", "Totem of Undying", "Netherite Ingot", "Enchanted Golden Apple",
+                "Dragon's Breath", "Echo Shard", "Ghast Tear", "End Crystal"
+            ],
+            result: "Dado de Loki (+20% suerte)",
+            alt: {
+                type: "shapeless",
+                ingredients: [
+                    "Block of Emerald", "Wither Rose", "Fermented Spider Eye", "Poisonous Potato", "Rotten Flesh",
+                    "Spider Eye", "Soul Soil", "Soul Torch", "Magma Cream"
+                ],
+                result: "Dado de Loki (-20% suerte)"
+            }
+        }
+    },
 
     // --- LEGENDARIO / MÍTICO ---
     { name: "Tótem del Azar", type: "Reliquia", desc: "Te salva de morir + efecto random.", rarity: "legendario", acquisition: "Roll Diario (Muy Raro)" },
@@ -514,6 +707,102 @@ export const items = [
             result: "Casco de la Visión Verdadera"
         }
     },
+    {
+        name: "Manzana de Vida",
+        type: "Consumible",
+        desc: "Otorga +1 vida en el sistema de vidas al comerla, además de los efectos de la manzana encantada.",
+        rarity: "legendario",
+        acquisition: "Crafting",
+        recipe: {
+            type: "shaped",
+            grid: [
+                "Player Head", "Totem of Undying", "Player Head",
+                "Totem of Undying", "Enchanted Golden Apple", "Totem of Undying",
+                "Player Head", "Totem of Undying", "Player Head"
+            ],
+            result: "Manzana de Vida"
+        }
+    },
+    {
+        name: "Casco del Vacío",
+        type: "Armadura",
+        desc: "Tope de línea (+3 armadura, +3 dureza, +0.05 KB). Desbloqueo Día 30.",
+        rarity: "legendario",
+        acquisition: "Crafting / KillStore Día 30",
+        recipe: {
+            type: "shaped",
+            grid: [
+                "Crying Obsidian", "Netherite Ingot", "Crying Obsidian",
+                "Echo Shard", "End Crystal", "Echo Shard",
+                null, null, null
+            ],
+            result: "Casco del Vacío"
+        }
+    },
+    {
+        name: "Pechera del Vacío",
+        type: "Armadura",
+        desc: "Tope de línea (+4 armadura, +4 dureza, +0.05 KB). Desbloqueo Día 30.",
+        rarity: "legendario",
+        acquisition: "Crafting / KillStore Día 30",
+        recipe: {
+            type: "shaped",
+            grid: [
+                "Crying Obsidian", "Netherite Ingot", "Crying Obsidian",
+                "Echo Shard", "End Crystal", "Echo Shard",
+                "Crying Obsidian", "Netherite Ingot", "Crying Obsidian"
+            ],
+            result: "Pechera del Vacío"
+        }
+    },
+    {
+        name: "Grebas del Vacío",
+        type: "Armadura",
+        desc: "Tope de línea (+3.5 armadura, +3 dureza, +0.05 KB). Desbloqueo Día 30.",
+        rarity: "legendario",
+        acquisition: "Crafting / KillStore Día 30",
+        recipe: {
+            type: "shaped",
+            grid: [
+                "Crying Obsidian", "Netherite Ingot", "Crying Obsidian",
+                "Echo Shard", null, "Echo Shard",
+                "Crying Obsidian", "Netherite Ingot", "Crying Obsidian"
+            ],
+            result: "Grebas del Vacío"
+        }
+    },
+    {
+        name: "Botas del Vacío",
+        type: "Armadura",
+        desc: "Tope de línea (+2 armadura, +2 dureza, +0.05 KB). Desbloqueo Día 30.",
+        rarity: "legendario",
+        acquisition: "Crafting / KillStore Día 30",
+        recipe: {
+            type: "shaped",
+            grid: [
+                "Echo Shard", null, "Echo Shard",
+                "Crying Obsidian", "Netherite Ingot", "Crying Obsidian",
+                "Netherite Ingot", null, "Netherite Ingot"
+            ],
+            result: "Botas del Vacío"
+        }
+    },
+    {
+        name: "Espada del Vacío",
+        type: "Arma",
+        desc: "Tope de línea (+5 daño, +0.05 velocidad, +0.1 KB res). Desbloqueo Día 30.",
+        rarity: "legendario",
+        acquisition: "Crafting (upgrade) / KillStore Día 30",
+        recipe: {
+            type: "shaped",
+            grid: [
+                null, "Crying Obsidian", null,
+                "Netherite Sword", "Echo Shard", null,
+                null, "End Crystal", null
+            ],
+            result: "Espada del Vacío"
+        }
+    },
     { name: "Corazón de Notch", type: "Legendario", desc: "+1 Vida Extra permanente. Drop único.", rarity: "mitico", acquisition: "Drop: Warden Despierto" },
     {
         name: "Contrato de Alma",
@@ -536,6 +825,368 @@ export const items = [
     { name: "Huevo de Dragón Real", type: "Mascota", desc: "Invoca un Dragón bebé que ataca enemigos.", rarity: "mitico", acquisition: "Drop: Dragón Alpha" },
     { name: "La Mano de Dios", type: "Admin Item", desc: "Elimina un evento permanente de la lista. Un solo uso.", rarity: "mitico", acquisition: "Admin Only" },
 
+    // --- ÍTEMS DE ROL (SOLO SU ROL PUEDE CRAFTEAR/USAR) ---
+    {
+        name: "Bálsamo Pacifista",
+        type: "Consumible de Rol",
+        desc: "Regeneración II 10s + Absorción I 30s. Solo El Pacifista.",
+        rarity: "raro",
+        acquisition: "Crafting (rol Pacifista)",
+        recipe: {
+            type: "shapeless",
+            ingredients: ["Honey Bottle", "Ghast Tear", "Milk Bucket"],
+            result: "Bálsamo Pacifista"
+        }
+    },
+    {
+        name: "Vial de Sangre",
+        type: "Consumible de Rol",
+        desc: "Fuerza I 30s + Visión Nocturna 45s. Solo El Vampiro.",
+        rarity: "raro",
+        acquisition: "Crafting (rol Vampiro)",
+        recipe: {
+            type: "shapeless",
+            ingredients: ["Glass Bottle", "Fermented Spider Eye", "Nether Wart", "Redstone"],
+            result: "Vial de Sangre"
+        }
+    },
+    {
+        name: "Carga de Cristal",
+        type: "Consumible de Rol",
+        desc: "Fuerza II 15s + Lentitud corta. Solo Glass Cannon.",
+        rarity: "raro",
+        acquisition: "Crafting (rol Glass Cannon)",
+        recipe: {
+            type: "shapeless",
+            ingredients: ["Amethyst Shard", "TNT", "Glowstone Dust"],
+            result: "Carga de Cristal"
+        }
+    },
+    {
+        name: "Talismán Dorado",
+        type: "Consumible de Rol",
+        desc: "Suerte 40s + Absorción I 30s. Solo Rey Midas.",
+        rarity: "raro",
+        acquisition: "Crafting (rol Rey Midas)",
+        recipe: {
+            type: "shapeless",
+            ingredients: ["Block of Gold", "Copper Ingot", "Emerald"],
+            result: "Talismán Dorado"
+        }
+    },
+    {
+        name: "Brújula Errante",
+        type: "Consumible de Rol",
+        desc: "Velocidad II + Salto I por 30s. Solo El Nómada.",
+        rarity: "raro",
+        acquisition: "Crafting (rol Nómada)",
+        recipe: {
+            type: "shapeless",
+            ingredients: ["Compass", "Phantom Membrane", "Rabbit Foot"],
+            result: "Brújula Errante"
+        }
+    },
+    {
+        name: "Placa Reforzada",
+        type: "Consumible de Rol",
+        desc: "Resistencia II 20s + Lentitud. Solo El Tanque.",
+        rarity: "raro",
+        acquisition: "Crafting (rol Tanque)",
+        recipe: {
+            type: "shapeless",
+            ingredients: ["Block of Iron", "Shield", "Turtle Helmet"],
+            result: "Placa Reforzada"
+        }
+    },
+    {
+        name: "Kit de Veneno",
+        type: "Consumible de Rol",
+        desc: "Invisibilidad 20s + Fuerza I 10s. Solo El Asesino.",
+        rarity: "raro",
+        acquisition: "Crafting (rol Asesino)",
+        recipe: {
+            type: "shapeless",
+            ingredients: ["Fermented Spider Eye", "Arrow", "Black Dye"],
+            result: "Kit de Veneno"
+        }
+    },
+    {
+        name: "Kit de Reparación",
+        type: "Consumible de Rol",
+        desc: "Prisa II 30s + Resistencia I 10s. Solo El Ingeniero.",
+        rarity: "raro",
+        acquisition: "Crafting (rol Ingeniero)",
+        recipe: {
+            type: "shapeless",
+            ingredients: ["Redstone", "Iron Ingot", "Anvil"],
+            result: "Kit de Reparación"
+        }
+    },
+    {
+        name: "Mechero Potenciado",
+        type: "Consumible de Rol",
+        desc: "Resistencia al Fuego 45s + Fuerza I 15s. Solo El Pirotécnico.",
+        rarity: "raro",
+        acquisition: "Crafting (rol Pirotécnico)",
+        recipe: {
+            type: "shapeless",
+            ingredients: ["Flint and Steel", "Blaze Powder", "Magma Cream"],
+            result: "Mechero Potenciado"
+        }
+    },
+    {
+        name: "Ídolo Torcido",
+        type: "Consumible de Rol",
+        desc: "50/50: Suerte + Regeneración o Debilidad + Veneno. Solo El Maldito.",
+        rarity: "raro",
+        acquisition: "Crafting (rol Maldito)",
+        recipe: {
+            type: "shapeless",
+            ingredients: ["Wither Rose", "Ender Pearl", "Rotten Flesh"],
+            result: "Ídolo Torcido"
+        }
+    },
+    {
+        name: "Semilla Ancestral",
+        type: "Consumible de Rol",
+        desc: "Regeneración I 15s + Saturación corta. Solo El Druida.",
+        rarity: "raro",
+        acquisition: "Crafting (rol Druida)",
+        recipe: {
+            type: "shapeless",
+            ingredients: ["Moss Block", "Wheat Seeds", "Bone Meal"],
+            result: "Semilla Ancestral"
+        }
+    },
+    {
+        name: "Hidromiel Rabiosa",
+        type: "Consumible de Rol",
+        desc: "Fuerza II 25s + Hambre. Solo El Berserker.",
+        rarity: "raro",
+        acquisition: "Crafting (rol Berserker)",
+        recipe: {
+            type: "shapeless",
+            ingredients: ["Honey Bottle", "Blaze Powder", "Cooked Beef"],
+            result: "Hidromiel Rabiosa"
+        }
+    },
+    {
+        name: "Mira Improvisada",
+        type: "Consumible de Rol",
+        desc: "Daño de disparo mejorado + ligera Lentitud. Solo El Francotirador.",
+        rarity: "raro",
+        acquisition: "Crafting (rol Francotirador)",
+        recipe: {
+            type: "shapeless",
+            ingredients: ["Spyglass", "Feather", "String"],
+            result: "Mira Improvisada"
+        }
+    },
+    {
+        name: "Libro de Tratos",
+        type: "Consumible de Rol",
+        desc: "Héroe de la Aldea 120s. Solo El Mercader.",
+        rarity: "raro",
+        acquisition: "Crafting (rol Mercader)",
+        recipe: {
+            type: "shapeless",
+            ingredients: ["Book", "Emerald", "Gold Ingot"],
+            result: "Libro de Tratos"
+        }
+    },
+    {
+        name: "Velo Etéreo",
+        type: "Consumible de Rol",
+        desc: "Invisibilidad 25s + Debilidad. Solo El Fantasma.",
+        rarity: "raro",
+        acquisition: "Crafting (rol Fantasma)",
+        recipe: {
+            type: "shapeless",
+            ingredients: ["White Stained Glass Pane", "Phantom Membrane", "Snowball"],
+            result: "Velo Etéreo"
+        }
+    },
+    {
+        name: "Branquias de Coral",
+        type: "Consumible de Rol",
+        desc: "Respiración acuática 60s + Gracia del Delfín. Solo El Acuático.",
+        rarity: "raro",
+        acquisition: "Crafting (rol Acuático)",
+        recipe: {
+            type: "shapeless",
+            ingredients: ["Prismarine Shard", "Kelp", "Tropical Fish"],
+            result: "Branquias de Coral"
+        }
+    },
+    {
+        name: "Carga de Túnel",
+        type: "Consumible de Rol",
+        desc: "Prisa II 40s + Visión Nocturna. Solo El Minero.",
+        rarity: "raro",
+        acquisition: "Crafting (rol Minero)",
+        recipe: {
+            type: "shapeless",
+            ingredients: ["TNT", "Iron Pickaxe", "Torch"],
+            result: "Carga de Túnel"
+        }
+    },
+    {
+        name: "Silbato Alfa",
+        type: "Consumible de Rol",
+        desc: "Resistencia I + Fuerza I 20s. Solo El Domador.",
+        rarity: "raro",
+        acquisition: "Crafting (rol Domador)",
+        recipe: {
+            type: "shapeless",
+            ingredients: ["Bone", "Lead", "Cooked Chicken"],
+            result: "Silbato Alfa"
+        }
+    },
+    {
+        name: "Catalizador Alquímico",
+        type: "Consumible de Rol",
+        desc: "Suerte 45s + Regeneración corta. Solo El Alquimista.",
+        rarity: "raro",
+        acquisition: "Crafting (rol Alquimista)",
+        recipe: {
+            type: "shapeless",
+            ingredients: ["Nether Wart", "Redstone", "Glowstone Dust"],
+            result: "Catalizador Alquímico"
+        }
+    },
+    {
+        name: "Estandarte de Orden",
+        type: "Consumible de Rol",
+        desc: "Absorción II 40s + Resistencia I. Solo El Caballero.",
+        rarity: "raro",
+        acquisition: "Crafting (rol Caballero)",
+        recipe: {
+            type: "shapeless",
+            ingredients: ["White Banner", "Iron Sword", "Shield"],
+            result: "Estandarte de Orden"
+        }
+    },
+    {
+        name: "Juego de Ganzúas",
+        type: "Consumible de Rol",
+        desc: "Velocidad II 20s + Invisibilidad 15s. Solo El Ladrón.",
+        rarity: "raro",
+        acquisition: "Crafting (rol Ladrón)",
+        recipe: {
+            type: "shapeless",
+            ingredients: ["Tripwire Hook", "Iron Nugget", "Ender Pearl"],
+            result: "Juego de Ganzúas"
+        }
+    },
+    {
+        name: "Bracera Colosal",
+        type: "Consumible de Rol",
+        desc: "Health Boost II 45s + Lentitud. Solo El Gigante.",
+        rarity: "raro",
+        acquisition: "Crafting (rol Gigante)",
+        recipe: {
+            type: "shapeless",
+            ingredients: ["Block of Iron", "Leather", "Beetroot Soup"],
+            result: "Bracera Colosal"
+        }
+    },
+    {
+        name: "Martillo de Forja",
+        type: "Consumible de Rol",
+        desc: "Prisa III 30s + Resistencia al Fuego. Solo El Enano.",
+        rarity: "raro",
+        acquisition: "Crafting (rol Enano)",
+        recipe: {
+            type: "shapeless",
+            ingredients: ["Iron Pickaxe", "Coal", "Anvil"],
+            result: "Martillo de Forja"
+        }
+    },
+    {
+        name: "Espejo Fatuo",
+        type: "Consumible de Rol",
+        desc: "Invisibilidad 20s + Velocidad. Solo El Ilusionista.",
+        rarity: "raro",
+        acquisition: "Crafting (rol Ilusionista)",
+        recipe: {
+            type: "shapeless",
+            ingredients: ["Glass Pane", "Lapis Lazuli", "Ender Pearl"],
+            result: "Espejo Fatuo"
+        }
+    },
+    {
+        name: "Hidromiel Bárbara",
+        type: "Consumible de Rol",
+        desc: "Fuerza II 25s + Fatiga de Minería. Solo El Bárbaro.",
+        rarity: "raro",
+        acquisition: "Crafting (rol Bárbaro)",
+        recipe: {
+            type: "shapeless",
+            ingredients: ["Cooked Porkchop", "Honey Bottle", "Blaze Powder"],
+            result: "Hidromiel Bárbara"
+        }
+    },
+    {
+        name: "Pergamino del Sabio",
+        type: "Consumible de Rol",
+        desc: "Suerte II 60s + Absorción. Solo El Sabio.",
+        rarity: "raro",
+        acquisition: "Crafting (rol Sabio)",
+        recipe: {
+            type: "shapeless",
+            ingredients: ["Paper", "Lapis Lazuli", "Amethyst Shard"],
+            result: "Pergamino del Sabio"
+        }
+    },
+    {
+        name: "Sello del Caos",
+        type: "Consumible de Rol",
+        desc: "Efecto aleatorio: fuerza/velocidad o debilidad/lentitud. Solo El Caótico.",
+        rarity: "raro",
+        acquisition: "Crafting (rol Caótico)",
+        recipe: {
+            type: "shapeless",
+            ingredients: ["Echo Shard", "Redstone", "Gunpowder"],
+            result: "Sello del Caos"
+        }
+    },
+    {
+        name: "Sígilo de Guardia",
+        type: "Consumible de Rol",
+        desc: "Resistencia II 15s + Absorción 30s. Solo El Guardián.",
+        rarity: "raro",
+        acquisition: "Crafting (rol Guardián)",
+        recipe: {
+            type: "shapeless",
+            ingredients: ["Shield", "Iron Ingot", "Heart of the Sea"],
+            result: "Sígilo de Guardia"
+        }
+    },
+    {
+        name: "Brújula de Ruta",
+        type: "Consumible de Rol",
+        desc: "Velocidad II 40s + Visión Nocturna. Solo El Explorador.",
+        rarity: "raro",
+        acquisition: "Crafting (rol Explorador)",
+        recipe: {
+            type: "shapeless",
+            ingredients: ["Map", "Feather", "Sweet Berries"],
+            result: "Brújula de Ruta"
+        }
+    },
+    {
+        name: "Mezcla de Especias",
+        type: "Consumible de Rol",
+        desc: "Saturación + Regeneración corta. Solo El Cocinero.",
+        rarity: "raro",
+        acquisition: "Crafting (rol Cocinero)",
+        recipe: {
+            type: "shapeless",
+            ingredients: ["Bowl", "Carrot", "Potato", "Beetroot"],
+            result: "Mezcla de Especias"
+        }
+    },
+
     // --- VANILLA (ROLL DIARIO) ---
     { name: "Pan (x5)", type: "Material", desc: "Comida básica.", rarity: "comun", acquisition: "Roll Diario" },
     { name: "Lingote de Hierro (x3)", type: "Material", desc: "Material de crafteo.", rarity: "comun", acquisition: "Roll Diario" },
@@ -548,14 +1199,54 @@ export const items = [
 ];
 
 export const serverRules = [
+    { title: "Casco de Rayos X", desc: "El Casco de Visión Verdadera (xray) solo marca bloques a 6 bloques de distancia. Más lejos no muestra nada." },
+    { title: "Progresión de Armadura", desc: "Día 1 solo hierro. Día 2 puedes usar 1 pieza de diamante, Día 3 dos, Día 4 tres, Día 5 ya las cuatro. Desde el Día 5 se habilita netherita de forma progresiva: 1 pieza en Día 5, +1 por día hasta Día 8." },
+    { title: "Dormir Rápido", desc: "Solo se necesita el 30% de los jugadores conectados durmiendo para saltar la noche." },
+    { title: "Buff de Equipos Grandes", desc: "Equipos de 4-5 miembros obtienen 5% menos daño por cada miembro vivo y conectado (hasta 25%). La XP que gana cada uno reparte 5% a cada compañero online." },
+    { title: "Cofre de Muerte", desc: "Al morir, tu loot aparece en un cofre en el lugar de la muerte (salvo que esté activo 'Mundo Gigante')." },
     { title: "Vida y Muerte", desc: "Empiezas con 3 vidas. Al llegar a 0, eres espectador hasta que alguien te reviva. El día 31 es PERMADEATH." },
     { title: "Acumulación", desc: "Los efectos de la ruleta NO se reinician. Se acumulan. Adáptate o muere." },
     { title: "Griefing Táctico", desc: "El griefing está permitido SOLO si hay guerra declarada o evento de 'Purga'. Bases desconectadas son seguras." },
     { title: "Fair Play", desc: "Cero hacks (X-Ray, KillAura, etc). Uso de bugs está prohibido salvo que la ruleta lo permita." },
     { title: "Respeto", desc: "El toxicidad extrema o ataques personales resultan en ban directo sin gastar vidas." },
-    { title: "Alianzas", desc: "Equipos de máximo 4 personas. Las traiciones están permitidas, pero tienen consecuencias sociales." },
+    { title: "Alianzas", desc: "Equipos de máximo 5 personas. Las traiciones están permitidas, pero tienen consecuencias sociales." },
     { title: "Stream Sniping", desc: "Prohibido. Usar información de streams para matar es ban." },
     { title: "Eventos", desc: "La asistencia a la 'Hora de la Ruleta' (00:00 server time) es obligatoria si estás online." },
+];
+
+// Reglas fijas por día (1-31)
+export const dayRules = [
+    { day: 1, name: "Calma Inicial", desc: "Inicio sin cambios adicionales." },
+    { day: 2, name: "Golpes Más Fuertes I", desc: "+2% daño de mobs hostiles." },
+    { day: 3, name: "Golpes Más Fuertes II", desc: "+2% daño de mobs hostiles." },
+    { day: 4, name: "Golpes Más Fuertes III", desc: "+2% daño de mobs hostiles." },
+    { day: 5, name: "Toque de Queda Suave", desc: "60% de jugadores para saltar la noche." },
+    { day: 6, name: "Golpes Más Fuertes IV", desc: "+2% daño de mobs hostiles." },
+    { day: 7, name: "Golpes Más Fuertes V", desc: "+2% daño de mobs hostiles." },
+    { day: 8, name: "Golpes Más Fuertes VI", desc: "+2% daño de mobs hostiles." },
+    { day: 9, name: "Golpes Más Fuertes VII", desc: "+2% daño de mobs hostiles." },
+    { day: 10, name: "Noche en Serio", desc: "100% para dormir y arañas con 1-2 efectos." },
+    { day: 11, name: "Golpes Más Fuertes VIII", desc: "+2% daño de mobs hostiles." },
+    { day: 12, name: "Patrullas Dobles", desc: "Aparece un mob extra por spawn hostil." },
+    { day: 13, name: "Golpes Más Fuertes IX", desc: "+2% daño de mobs hostiles." },
+    { day: 14, name: "Loot Racionado I", desc: "Sin loot de Blaze, Bruja, Enderman y Ghast." },
+    { day: 15, name: "No se Duerme", desc: "Dormir deja de saltar la noche." },
+    { day: 16, name: "Golpes Más Fuertes X", desc: "+2% daño de mobs hostiles." },
+    { day: 17, name: "Arañas Potenciadas II", desc: "Arañas con 2-3 efectos." },
+    { day: 18, name: "Loot Racionado II", desc: "Sin loot de Wither Skeleton, Guardian, Magma Cube y Drowned." },
+    { day: 19, name: "Ravagers Codiciosos I", desc: "3% de probabilidad de tótem en Ravager." },
+    { day: 20, name: "Patrullas Triples", desc: "Se suma otro mob extra por spawn hostil." },
+    { day: 21, name: "Golpes Más Fuertes XI", desc: "+2% daño de mobs hostiles." },
+    { day: 22, name: "Golpes Más Fuertes XII", desc: "+2% daño de mobs hostiles." },
+    { day: 23, name: "Ravagers Codiciosos II", desc: "6% de probabilidad de tótem en Ravager." },
+    { day: 24, name: "Arañas Potenciadas III", desc: "Arañas con 3 efectos garantizados." },
+    { day: 25, name: "Golpes Más Fuertes XIII", desc: "+2% daño de mobs hostiles." },
+    { day: 26, name: "Loot Racionado III", desc: "Sin loot de Piglin Zombie, Slime ni Golem de Hierro." },
+    { day: 27, name: "Golpes Más Fuertes XIV", desc: "+2% daño de mobs hostiles." },
+    { day: 28, name: "Ravagers Codiciosos III", desc: "8% de probabilidad de tótem en Ravager." },
+    { day: 29, name: "Golpes Más Fuertes XV", desc: "+2% daño de mobs hostiles." },
+    { day: 30, name: "Insomnio Total", desc: "Dormir bloqueado por completo." },
+    { day: 31, name: "Golpes Más Fuertes XVI", desc: "+2% daño de mobs hostiles." },
 ];
 
 // --- CONFIGURACIÓN MANUAL ---
@@ -570,7 +1261,7 @@ export const tutorials = [
         title: "Sistema de Equipos",
         icon: "🛡️",
         content: [
-            { subtitle: "Creación y Gestión", text: "Usa /team create <nombre> para fundar tu equipo. Invita jugadores con /team invite <jugador>. El límite es de 4 jugadores por equipo." },
+            { subtitle: "Creación y Gestión", text: "Usa /team create <nombre> para fundar tu equipo. Invita jugadores con /team invite <jugador>. El límite es de 5 jugadores por equipo." },
             { subtitle: "Fuego Amigo", text: "Por defecto, no puedes dañar a tus compañeros de equipo. Esto evita accidentes con espadas o arcos durante peleas." },
             { subtitle: "Chat de Equipo", text: "Usa /team chat para alternar entre el chat global y el chat privado de tu equipo." },
             { subtitle: "Abandonar", text: "Si deseas salir, usa /team leave. Si eres el líder, el equipo se disolverá si no pasas el liderazgo antes." }
@@ -626,6 +1317,18 @@ export const tutorials = [
             { subtitle: "Comando", text: "Usa /daily una vez cada 24 horas para obtener una recompensa aleatoria." },
             { subtitle: "Probabilidades", text: "65% Común, 20% Raro, 12% Épico, 3% Legendario." },
             { subtitle: "Premios", text: "Puedes obtener desde materiales básicos (Pan, Hierro) hasta objetos Legendarios únicos o Netherite. ¡Prueba tu suerte!" }
+        ]
+    },
+    {
+        id: "killpoints",
+        title: "Killpoints y KillStore",
+        icon: "💀",
+        content: [
+            { subtitle: "Cómo se consiguen", text: "Cada baja de jugador otorga 1 killpoint si el sistema está activo (Semana 2)." },
+            { subtitle: "Consulta y uso", text: "Abre la tienda con /killstore para ver tu saldo y comprar. (Semana 3)." },
+            { subtitle: "Catálogo destacado", text: "Totem 8kp, Manzana Encantada 5kp, Manzana de Vida 12kp, Orbe de Resurrección 18kp, Corazón de Notch 22kp. También packs vanilla (perlas, cohetes, flechas, lingote de netherita)." },
+            { subtitle: "Progresión de gear sin enchants", text: "Día 10: Set + Espada de Acero (atributos base). Día 20: Set + Espada Obsidiana (más dureza). Día 30: Set + Espada del Vacío (armadura extra y resistencia al knockback). Recetas bloqueadas hasta su día y también disponibles en la KillStore desde esa fecha." },
+            { subtitle: "Notas", text: "El saldo es por jugador y persiste entre reinicios. Los admins pueden cortar el sistema temporalmente sin perder tus puntos." }
         ]
     }
 ];

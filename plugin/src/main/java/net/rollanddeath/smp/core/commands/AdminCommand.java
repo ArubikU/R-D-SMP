@@ -27,7 +27,7 @@ import java.util.Objects;
 public class AdminCommand implements CommandExecutor, TabCompleter {
 
     private final RollAndDeathSMP plugin;
-    private static final List<String> ADMIN_SUBCOMMANDS = Arrays.asList("roulette", "setday", "life", "role", "event", "item", "mob", "discord", "down", "revive", "announce");
+    private static final List<String> ADMIN_SUBCOMMANDS = Arrays.asList("roulette", "setday", "life", "role", "event", "item", "mob", "discord", "down", "revive", "announce", "toggle");
     private static final List<String> EVENT_SUBCOMMANDS = Arrays.asList("add", "remove", "clear", "list");
 
     public AdminCommand(RollAndDeathSMP plugin) {
@@ -169,6 +169,14 @@ public class AdminCommand implements CommandExecutor, TabCompleter {
                 }
                 if (args.length == 6) {
                     return filterCompletions(args[5], Arrays.asList("1", "2", "4", "8", "16", "32", "64"));
+                }
+                break;
+            case "toggle":
+                if (args.length == 3) {
+                    return filterCompletions(args[2], Arrays.asList("killpoints", "killstore", "pvp"));
+                }
+                if (args.length == 4) {
+                    return filterCompletions(args[3], Arrays.asList("on", "off"));
                 }
                 break;
             case "mob":
@@ -320,6 +328,9 @@ public class AdminCommand implements CommandExecutor, TabCompleter {
                 break;
             case "announce":
                 handleAnnounceCommand(sender, args);
+                break;
+            case "toggle":
+                handleToggleCommand(sender, args);
                 break;
             case "down":
                 handleDownCommand(sender, args);
@@ -531,6 +542,51 @@ public class AdminCommand implements CommandExecutor, TabCompleter {
                 .append(Component.text(message, NamedTextColor.WHITE));
         Bukkit.broadcast(announcement);
         sender.sendMessage(Component.text("Anuncio enviado a Discord.", NamedTextColor.GREEN));
+    }
+
+    private void handleToggleCommand(CommandSender sender, String[] args) {
+        if (args.length < 3) {
+            sender.sendMessage(Component.text("Uso: /rd admin toggle <killpoints|killstore|pvp> <on|off>", NamedTextColor.RED));
+            return;
+        }
+
+        if (plugin.getKillPointsManager() == null) {
+            sender.sendMessage(Component.text("KillPointsManager no disponible.", NamedTextColor.RED));
+            return;
+        }
+
+        String target = args[2].toLowerCase(Locale.ROOT);
+        boolean enable;
+        if (args.length >= 4) {
+            String flag = args[3].toLowerCase(Locale.ROOT);
+            if (flag.equals("on")) {
+                enable = true;
+            } else if (flag.equals("off")) {
+                enable = false;
+            } else {
+                sender.sendMessage(Component.text("Debes usar on/off.", NamedTextColor.RED));
+                return;
+            }
+        } else {
+            sender.sendMessage(Component.text("Debes indicar on/off.", NamedTextColor.RED));
+            return;
+        }
+
+        switch (target) {
+            case "killpoints" -> {
+                plugin.getKillPointsManager().setKillPointsEnabled(enable);
+                sender.sendMessage(Component.text("Killpoints " + (enable ? "activados" : "desactivados"), NamedTextColor.GREEN));
+            }
+            case "killstore" -> {
+                plugin.getKillPointsManager().setKillStoreEnabled(enable);
+                sender.sendMessage(Component.text("Kill Store " + (enable ? "activada" : "desactivada"), NamedTextColor.GREEN));
+            }
+            case "pvp" -> {
+                plugin.getKillPointsManager().setPvpEnabled(enable);
+                sender.sendMessage(Component.text("PvP " + (enable ? "activado" : "desactivado"), NamedTextColor.GREEN));
+            }
+            default -> sender.sendMessage(Component.text("Opción desconocida. Usa killpoints/killstore/pvp.", NamedTextColor.RED));
+        }
     }
 
     private List<String> filterCompletions(String token, Collection<String> candidates) {

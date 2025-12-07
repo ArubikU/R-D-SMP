@@ -3,6 +3,7 @@ package net.rollanddeath.smp.core.items;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.rollanddeath.smp.RollAndDeathSMP;
+import net.rollanddeath.smp.core.roles.RoleType;
 import org.bukkit.NamespacedKey;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
@@ -56,6 +57,11 @@ public abstract class CustomItem implements Listener {
     protected abstract ItemStack createBaseItem();
     
     protected abstract List<String> getLore();
+
+    /** Rol requerido para usar/craftear el ítem. Por defecto ninguno. */
+    public RoleType getRequiredRoleType() {
+        return null;
+    }
     
     protected boolean isItem(ItemStack item) {
         if (item == null || !item.hasItemMeta()) return false;

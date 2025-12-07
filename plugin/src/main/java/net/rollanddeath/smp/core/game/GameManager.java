@@ -13,6 +13,10 @@ import java.time.ZoneId;
 
 public class GameManager {
 
+    private static final int NETHER_UNLOCK_DAY = 7;
+    private static final int END_UNLOCK_DAY = 14;
+    private static final int PERMADEATH_DAY = 31;
+
     private final RollAndDeathSMP plugin;
     private int currentDay = 0;
     private LocalDate lastCheckDate;
@@ -62,10 +66,18 @@ public class GameManager {
         scheduleNextEvent();
         plugin.saveConfig();
 
+        if (plugin.getDailyMobRotationManager() != null) {
+            plugin.getDailyMobRotationManager().refreshForDay(day);
+        }
+
+        if (plugin.getDayRuleManager() != null) {
+            plugin.getDayRuleManager().refreshForDay(day);
+        }
+
         Bukkit.broadcast(Component.text("¡El Día " + day + " ha comenzado!", NamedTextColor.GOLD));
         
         // Check for Day 31 (Permadeath)
-        if (day >= 31) {
+        if (day >= PERMADEATH_DAY) {
             Bukkit.broadcast(Component.text("⚠ ¡ATENCIÓN! SE HA ALCANZADO EL DÍA 31.", NamedTextColor.DARK_RED));
             Bukkit.broadcast(Component.text("LA MUERTE PERMANENTE ESTÁ ACTIVA.", NamedTextColor.RED));
             // Logic for permadeath is handled in PlayerDeathListener checking this value
@@ -77,7 +89,27 @@ public class GameManager {
     }
 
     public boolean isPermadeathActive() {
-        return currentDay >= 31;
+        return currentDay >= PERMADEATH_DAY;
+    }
+
+    public int getPermadeathDay() {
+        return PERMADEATH_DAY;
+    }
+
+    public boolean isNetherUnlocked() {
+        return currentDay >= NETHER_UNLOCK_DAY;
+    }
+
+    public int getNetherUnlockDay() {
+        return NETHER_UNLOCK_DAY;
+    }
+
+    public boolean isEndUnlocked() {
+        return currentDay >= END_UNLOCK_DAY;
+    }
+
+    public int getEndUnlockDay() {
+        return END_UNLOCK_DAY;
     }
 
     public Instant getNextEventTime() {

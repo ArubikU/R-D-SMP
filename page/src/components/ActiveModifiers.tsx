@@ -19,6 +19,10 @@ interface ServerStatus {
     day: number;
     permadeath: boolean;
     active_modifiers: string[];
+    active_day_rules?: { day: number; name: string; description: string }[];
+    active_mobs?: string[];
+    active_mob_count?: number;
+    last_mob_day?: number;
     next_event_seconds?: number;
     next_event_time?: number;
     daily_roll_odds?: {
@@ -99,12 +103,18 @@ export const ActiveModifiers: React.FC = () => {
                 accent: 'border-blue-600',
                 subtitle: `${onlineCount} conectados ahora mismo`,
             },
+            {
+                label: 'Mobs Activos',
+                value: status.active_mob_count ?? (status.active_mobs?.length ?? 0),
+                accent: 'border-purple-600',
+                subtitle: status.last_mob_day ? `Hasta el día ${status.last_mob_day}` : 'Rotación diaria',
+            },
         ];
     }, [onlineCount, status, totalPlayers]);
 
     const formatHearts = (player: PlayerInfo) => {
         if (!player.online) {
-            return 'Fuera de línea';
+            return 'Offline';
         }
         if (player.health === undefined || player.max_health === undefined) {
             return 'Sin datos';
@@ -124,6 +134,22 @@ export const ActiveModifiers: React.FC = () => {
         return player.lives ?? '?';
     };
 
+    const livesNumber = (player: PlayerInfo) => {
+        const val = formatLivesRemaining(player);
+        if (typeof val === 'number') return val;
+        const parsed = Number(val);
+        return isNaN(parsed) ? null : parsed;
+    };
+
+    const cardLifeAccent = (player: PlayerInfo) => {
+        const lives = livesNumber(player);
+        if (lives === null) return 'border border-zinc-700';
+        if (lives <= 0) return 'border-4 border-rose-700 bg-gradient-to-br from-black via-rose-950 to-black shadow-[0_0_24px_rgba(220,38,38,0.45)]';
+        if (lives <= 1) return 'border-2 border-red-600 shadow-[0_0_16px_rgba(248,113,113,0.35)]';
+        if (lives <= 2) return 'border-2 border-orange-500';
+        return 'border border-zinc-700';
+    };
+
     if (loading) return <div className="text-center text-gray-400 py-12">Cargando estado del servidor...</div>;
     if (error) return <div className="text-center text-red-400 py-12">{error}</div>;
     if (!status) return <div className="text-center text-gray-500 py-12">Sin datos disponibles por el momento.</div>;
@@ -132,6 +158,8 @@ export const ActiveModifiers: React.FC = () => {
     const activeEvents = dailyEvents.filter(event =>
         status.active_modifiers.includes(event.name)
     );
+
+    const activeMobs = status.active_mobs ?? [];
 
     return (
         <div className="animate-in fade-in duration-500 space-y-12">
@@ -163,12 +191,55 @@ export const ActiveModifiers: React.FC = () => {
                 )}
             </div>
 
+            {/* Reglas Diarias Activas */}
+            {status.active_day_rules && (
+                <div>
+                    <SectionTitle>Reglas del Día</SectionTitle>
+                    {status.active_day_rules.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                            {status.active_day_rules.map((rule) => (
+                                <div key={rule.day} className="border border-red-800/60 bg-red-950/30 p-3">
+                                    <div className="flex items-center justify-between text-sm text-red-300 mb-1">
+                                        <span className="font-bold">Día {rule.day}</span>
+                                        <span className="text-xs uppercase tracking-wider text-red-200">Regla</span>
+                                    </div>
+                                    <h4 className="text-white font-semibold text-lg leading-tight">{rule.name}</h4>
+                                    <p className="text-gray-300 text-sm mt-1 leading-snug">{rule.description}</p>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="text-center py-8 text-gray-500 border border-dashed border-gray-800 rounded">
+                            Sin reglas especiales activas aún.
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* Active Mobs */}
+            <div>
+                <SectionTitle>Mobs Activos</SectionTitle>
+                {activeMobs.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                        {activeMobs.map((mob) => (
+                            <span key={mob} className="bg-purple-900/30 border border-purple-700/60 px-3 py-1 rounded text-sm text-purple-200 font-mono">
+                                {mob.replace(/_/g, ' ')}
+                            </span>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="text-center py-8 text-gray-500 border border-dashed border-gray-800 rounded">
+                        Sin mobs especiales activos todavía.
+                    </div>
+                )}
+            </div>
+
             {/* Player List */}
             <div>
                 <SectionTitle>Jugadores</SectionTitle>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {status.players.map((player) => (
-                        <div key={player.uuid} className={`p-4 border ${player.online ? 'bg-zinc-900 border-green-900/50' : 'bg-zinc-950 border-zinc-800 opacity-70'} flex items-center gap-4`}>
+                        <div key={player.uuid} className={`p-4 ${cardLifeAccent(player)} ${player.online ? 'bg-zinc-900' : 'bg-zinc-950'} flex items-center gap-4`}>
                             <img 
                                 src={`https://mc-heads.net/avatar/${player.name}/50`} 
                                 alt={player.name} 

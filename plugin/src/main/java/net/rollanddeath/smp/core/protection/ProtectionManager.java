@@ -41,20 +41,16 @@ public class ProtectionManager {
     public boolean isProtected(Block block) {
         if (isPurgeActive) return false;
         if (!(block.getState() instanceof TileState)) return false;
-        
-        TileState state = (TileState) block.getState();
-        if (state.getPersistentDataContainer().has(ownerKey, PersistentDataType.STRING)) {
-            return true;
+
+        String owner = getOwnerUUID(block);
+        if (owner == null) return false;
+
+        if (isOrphanedOwner(owner)) {
+            clearProtection(block);
+            return false;
         }
 
-        // Check double chest other half
-        Block otherHalf = getOtherHalf(block);
-        if (otherHalf != null) {
-            TileState otherState = (TileState) otherHalf.getState();
-            return otherState.getPersistentDataContainer().has(ownerKey, PersistentDataType.STRING);
-        }
-
-        return false;
+        return true;
     }
 
     public boolean canAccess(Player player, Block block) {
@@ -133,6 +129,36 @@ public class ProtectionManager {
             }
         }
         return null;
+    }
+
+    private boolean isOrphanedOwner(String ownerUUIDString) {
+        try {
+            UUID ownerUUID = UUID.fromString(ownerUUIDString);
+            return teamManager.getTeam(ownerUUID) == null;
+        } catch (IllegalArgumentException ex) {
+            return true;
+        }
+    }
+
+    private void clearProtection(Block block) {
+        if (!(block.getState() instanceof TileState)) return;
+
+        TileState state = (TileState) block.getState();
+        PersistentDataContainer container = state.getPersistentDataContainer();
+        if (container.has(ownerKey, PersistentDataType.STRING)) {
+            container.remove(ownerKey);
+            state.update();
+        }
+
+        Block otherHalf = getOtherHalf(block);
+        if (otherHalf != null && otherHalf.getState() instanceof TileState) {
+            TileState otherState = (TileState) otherHalf.getState();
+            PersistentDataContainer otherContainer = otherState.getPersistentDataContainer();
+            if (otherContainer.has(ownerKey, PersistentDataType.STRING)) {
+                otherContainer.remove(ownerKey);
+                otherState.update();
+            }
+        }
     }
 
     private Block getOtherHalf(Block block) {

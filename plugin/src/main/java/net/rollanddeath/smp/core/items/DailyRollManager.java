@@ -138,17 +138,24 @@ public class DailyRollManager {
     }
 
     private ItemStack rollItem() {
-        int roll = random.nextInt(100); // 0-99
+        return rollFromNumber(random.nextDouble() * 100);
+    }
 
-        if (roll < 65) { // 0-64 (65%)
-            return commonItems.get(random.nextInt(commonItems.size())).clone();
-        } else if (roll < 85) { // 65-84 (20%)
-            return rareItems.get(random.nextInt(rareItems.size())).clone();
-        } else if (roll < 97) { // 85-96 (12%)
-            return epicItems.get(random.nextInt(epicItems.size())).clone();
-        } else { // 97-99 (3%)
-            return legendaryItems.get(random.nextInt(legendaryItems.size())).clone();
-        }
+    /**
+     * Devuelve un ítem aleatorio sin aplicar cooldown ni efectos colaterales.
+     */
+    public ItemStack rollRewardDirect() {
+        return rollItem();
+    }
+
+    /**
+     * Aplica un modificador de suerte (+0.2 = 20% mejor, -0.2 = 20% peor).
+     */
+    public ItemStack rollItemWithLuck(double luckModifier) {
+        double factor = 1.0 + luckModifier;
+        factor = Math.max(0.1, Math.min(2.0, factor));
+        double adjustedRoll = random.nextDouble() * 100 * factor;
+        return rollFromNumber(adjustedRoll);
     }
 
     private NamedTextColor getRarityColor(ItemStack item) {
@@ -208,5 +215,17 @@ public class DailyRollManager {
 
     private boolean isLegendary(ItemStack item) {
         return containsSimilar(legendaryItems, item);
+    }
+
+    private ItemStack rollFromNumber(double roll) {
+        if (roll < 65) { // 0-64 (65%)
+            return commonItems.get(random.nextInt(commonItems.size())).clone();
+        } else if (roll < 85) { // 65-84 (20%)
+            return rareItems.get(random.nextInt(rareItems.size())).clone();
+        } else if (roll < 97) { // 85-96 (12%)
+            return epicItems.get(random.nextInt(epicItems.size())).clone();
+        } else { // 97-99 (3%)
+            return legendaryItems.get(random.nextInt(legendaryItems.size())).clone();
+        }
     }
 }

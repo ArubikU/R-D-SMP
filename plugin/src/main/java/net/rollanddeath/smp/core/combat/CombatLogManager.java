@@ -3,6 +3,7 @@ package net.rollanddeath.smp.core.combat;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.rollanddeath.smp.RollAndDeathSMP;
+import net.rollanddeath.smp.core.teams.TeamManager;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
@@ -29,14 +30,16 @@ public class CombatLogManager implements Listener {
 
     private final RollAndDeathSMP plugin;
     private final ReanimationManager reanimationManager;
+    private final TeamManager teamManager;
     private final Settings settings;
     private final Map<UUID, CombatTag> combatTags = new HashMap<>();
     private final Map<UUID, BossBar> bossBars = new HashMap<>();
     private BukkitTask bossBarTask;
 
-    public CombatLogManager(RollAndDeathSMP plugin, ReanimationManager reanimationManager) {
+    public CombatLogManager(RollAndDeathSMP plugin, ReanimationManager reanimationManager, TeamManager teamManager) {
         this.plugin = plugin;
         this.reanimationManager = reanimationManager;
+        this.teamManager = teamManager;
         this.settings = new Settings(plugin.getConfig().getConfigurationSection("deathmatch"));
         if (settings.combatLogEnabled) {
             startBossBarTask();
@@ -58,6 +61,20 @@ public class CombatLogManager implements Listener {
 
         if (victim == null || attacker == null) {
             return;
+        }
+
+        var kp = plugin.getKillPointsManager();
+        if (kp != null && !kp.isPvpEnabled()) {
+            event.setCancelled(true);
+            attacker.sendMessage(Component.text("El PvP está desactivado por ahora.", NamedTextColor.RED));
+            return;
+        }
+        if (teamManager != null) {
+            var victimTeam = teamManager.getTeam(victim.getUniqueId());
+            var attackerTeam = teamManager.getTeam(attacker.getUniqueId());
+            if (victimTeam != null && victimTeam.equals(attackerTeam)) {
+                return; // same-team hits do not trigger combat log
+            }
         }
         if (attacker.equals(victim)) {
             return;

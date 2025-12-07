@@ -31,7 +31,7 @@ import java.util.UUID;
 
 public class TrueSightHelmet extends CustomItem {
 
-    private static final int RADIUS = 12;
+    private static final int RADIUS = 6;
     private static final int MAX_MARKERS = 64;
     private final Map<UUID, List<Entity>> oreMarkers = new HashMap<>();
     private final Map<UUID, Location> lastScan = new HashMap<>();
@@ -135,7 +135,6 @@ public class TrueSightHelmet extends CustomItem {
 
     private static Set<Material> buildOreSet() {
         EnumSet<Material> ores = EnumSet.noneOf(Material.class);
-        ores.add(Material.ANCIENT_DEBRIS);
         ores.addAll(Tag.COAL_ORES.getValues());
         ores.addAll(Tag.COPPER_ORES.getValues());
         ores.addAll(Tag.DIAMOND_ORES.getValues());

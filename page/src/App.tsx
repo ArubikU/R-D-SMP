@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { dailyEvents, weeklyRoles, mobs, items, serverRules, tutorials, wikiAdvancedEntries } from './data';
+import { dailyEvents, weeklyRoles, mobs, items, serverRules, tutorials, wikiAdvancedEntries, dayRules } from './data';
 import { NavButton } from './components/ui/NavButton';
 import { SectionTitle } from './components/ui/SectionTitle';
 import { EventCard } from './components/EventCard';
@@ -232,6 +232,23 @@ function App() {
                                     </div>
                                 </div>
                             ))}
+                        </div>
+
+                        <div className="mt-12">
+                            <SectionTitle>Progresión de Dificultad (Días 1-31)</SectionTitle>
+                            <p className="text-gray-400 mb-4">Reglas fijas que se activan automáticamente según el día, sin ruleta ni suerte.</p>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {dayRules.map((rule) => (
+                                    <div key={rule.day} className="bg-zinc-900/70 border border-red-800/50 p-4">
+                                        <div className="flex items-center justify-between text-sm text-red-300 mb-2">
+                                            <span className="font-bold">Día {rule.day}</span>
+                                            <span className="text-xs uppercase tracking-wider">Regla fija</span>
+                                        </div>
+                                        <h4 className="text-white text-xl font-semibold leading-tight">{rule.name}</h4>
+                                        <p className="text-gray-300 text-sm mt-1 leading-snug">{rule.desc}</p>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     </div>
                 );

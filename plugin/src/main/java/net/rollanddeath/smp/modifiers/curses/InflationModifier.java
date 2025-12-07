@@ -96,9 +96,11 @@ public class InflationModifier extends Modifier {
     private void multiplyRecipeCost(MerchantRecipe recipe) {
         List<ItemStack> ingredients = recipe.getIngredients();
         for (ItemStack ingredient : ingredients) {
-            int newAmount = ingredient.getAmount() * 3;
-            if (newAmount > 64) newAmount = 64; // Cap at 64
-            ingredient.setAmount(newAmount);
+            if (ingredient != null && ingredient.getType() == org.bukkit.Material.EMERALD) {
+                int newAmount = ingredient.getAmount() * 3;
+                if (newAmount > 64) newAmount = 64; // Cap at 64
+                ingredient.setAmount(newAmount);
+            }
         }
         recipe.setIngredients(ingredients);
     }
@@ -106,8 +108,10 @@ public class InflationModifier extends Modifier {
     private void divideRecipeCost(MerchantRecipe recipe) {
         List<ItemStack> ingredients = recipe.getIngredients();
         for (ItemStack ingredient : ingredients) {
-            int newAmount = Math.max(1, ingredient.getAmount() / 3);
-            ingredient.setAmount(newAmount);
+            if (ingredient != null && ingredient.getType() == org.bukkit.Material.EMERALD) {
+                int newAmount = Math.max(1, ingredient.getAmount() / 3);
+                ingredient.setAmount(newAmount);
+            }
         }
         recipe.setIngredients(ingredients);
     }

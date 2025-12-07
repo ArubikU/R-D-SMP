@@ -17,6 +17,9 @@ public class KillPointsManager {
     private final RollAndDeathSMP plugin;
     private final File dataFile;
     private final Map<UUID, Integer> points = new HashMap<>();
+    private boolean killPointsEnabled = true;
+    private boolean killStoreEnabled = true;
+    private boolean pvpEnabled = true;
 
     public KillPointsManager(RollAndDeathSMP plugin) {
         this.plugin = plugin;
@@ -30,6 +33,36 @@ public class KillPointsManager {
         points.put(playerId, newValue);
         save();
         return newValue;
+    }
+
+    public boolean isKillPointsEnabled() {
+        return killPointsEnabled;
+    }
+
+    public void setKillPointsEnabled(boolean enabled) {
+        this.killPointsEnabled = enabled;
+        plugin.getConfig().set("killpoints.enabled", enabled);
+        plugin.saveConfig();
+    }
+
+    public boolean isKillStoreEnabled() {
+        return killStoreEnabled;
+    }
+
+    public void setKillStoreEnabled(boolean enabled) {
+        this.killStoreEnabled = enabled;
+        plugin.getConfig().set("killstore.enabled", enabled);
+        plugin.saveConfig();
+    }
+
+    public boolean isPvpEnabled() {
+        return pvpEnabled;
+    }
+
+    public void setPvpEnabled(boolean enabled) {
+        this.pvpEnabled = enabled;
+        plugin.getConfig().set("pvp.enabled", enabled);
+        plugin.saveConfig();
     }
 
     public int getPoints(UUID playerId) {
@@ -59,6 +92,10 @@ public class KillPointsManager {
                 // skip bad entries
             }
         }
+
+        killPointsEnabled = plugin.getConfig().getBoolean("killpoints.enabled", true);
+        killStoreEnabled = plugin.getConfig().getBoolean("killstore.enabled", true);
+        pvpEnabled = plugin.getConfig().getBoolean("pvp.enabled", true);
     }
 
     private void save() {

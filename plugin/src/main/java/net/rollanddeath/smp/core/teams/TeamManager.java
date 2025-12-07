@@ -3,13 +3,17 @@ package net.rollanddeath.smp.core.teams;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +25,7 @@ public class TeamManager {
     private final Map<String, Team> teamsByName = new HashMap<>();
     private final Map<UUID, Team> playerTeams = new HashMap<>();
     private final Map<UUID, String> pendingInvites = new HashMap<>();
+    private final Set<UUID> teamChatToggles = new HashSet<>();
 
     public TeamManager(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -53,7 +58,7 @@ public class TeamManager {
         Team team = teamsByName.get(teamName);
         if (team == null) return false;
         if (playerTeams.containsKey(player)) return false;
-        if (team.getMembers().size() >= 4) return false; // Max 4 members
+        if (team.getMembers().size() >= 5) return false; // Max 5 members
 
         team.addMember(player);
         playerTeams.put(player, team);
@@ -162,6 +167,20 @@ public class TeamManager {
                 team.addWar(war);
             }
 
+            ConfigurationSection homeSec = teamSec.getConfigurationSection("home");
+            if (homeSec != null) {
+                String worldName = homeSec.getString("world");
+                World world = worldName != null ? plugin.getServer().getWorld(worldName) : null;
+                if (world != null) {
+                    double x = homeSec.getDouble("x");
+                    double y = homeSec.getDouble("y");
+                    double z = homeSec.getDouble("z");
+                    float yaw = (float) homeSec.getDouble("yaw", 0.0);
+                    float pitch = (float) homeSec.getDouble("pitch", 0.0);
+                    team.setHome(new Location(world, x, y, z, yaw, pitch));
+                }
+            }
+
             // Ensure owner is recorded as member
             team.addMember(owner);
 
@@ -186,8 +205,51 @@ public class TeamManager {
             teamSec.set("friendly_fire", team.isFriendlyFire());
             teamSec.set("wars", new ArrayList<>(team.getActiveWars()));
 
-            String colorKey = NamedTextColor.NAMES.key(team.getColor()).asString();
+            String colorKey = NamedTextColor.NAMES.key(team.getColor());
             teamSec.set("color", colorKey);
+
+            Location home = team.getHome();
+            if (home != null && home.getWorld() != null) {
+                ConfigurationSection homeSec = teamSec.createSection("home");
+                homeSec.set("world", home.getWorld().getName());
+                homeSec.set("x", home.getX());
+                homeSec.set("y", home.getY());
+                homeSec.set("z", home.getZ());
+                homeSec.set("yaw", home.getYaw());
+                homeSec.set("pitch", home.getPitch());
+            }
+        }
+    }
+
+    public boolean toggleTeamChat(UUID playerId) {
+        if (teamChatToggles.contains(playerId)) {
+            teamChatToggles.remove(playerId);
+            return false;
+        }
+        teamChatToggles.add(playerId);
+        return true;
+    }
+
+    public boolean isTeamChatToggled(UUID playerId) {
+        return teamChatToggles.contains(playerId);
+    }
+
+    public void sendTeamMessage(Player sender, String message) {
+        Team team = getTeam(sender.getUniqueId());
+        if (team == null) {
+            sender.sendMessage(Component.text("No estás en un equipo.", NamedTextColor.RED));
+            return;
+        }
+
+        Component chatFormat = Component.text("[TeamChat] ", NamedTextColor.AQUA)
+                .append(Component.text(sender.getName() + ": ", NamedTextColor.WHITE))
+                .append(Component.text(message, NamedTextColor.GRAY));
+
+        for (UUID memberId : team.getMembers()) {
+            Player member = Bukkit.getPlayer(memberId);
+            if (member != null) {
+                member.sendMessage(chatFormat);
+            }
         }
     }
 }

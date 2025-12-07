@@ -9,6 +9,9 @@ import net.rollanddeath.smp.RollAndDeathSMP;
 import net.rollanddeath.smp.core.LifeManager;
 import net.rollanddeath.smp.integration.discord.DiscordWebhookService;
 import net.rollanddeath.smp.core.game.KillPointsManager;
+import net.rollanddeath.smp.core.modifiers.ModifierManager;
+import org.bukkit.block.Chest;
+import org.bukkit.block.data.type.Chest.Type;
 import org.bukkit.BanList;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -53,15 +56,17 @@ public class PlayerDeathListener implements Listener {
     private final Gson gson;
     private final DiscordWebhookService discordService;
     private final KillPointsManager killPointsManager;
+    private final ModifierManager modifierManager;
     private final Set<UUID> recentDeaths = new HashSet<>();
 
-    public PlayerDeathListener(RollAndDeathSMP plugin, LifeManager lifeManager, DiscordWebhookService discordService, KillPointsManager killPointsManager) {
+    public PlayerDeathListener(RollAndDeathSMP plugin, LifeManager lifeManager, DiscordWebhookService discordService, KillPointsManager killPointsManager, ModifierManager modifierManager) {
         this.plugin = plugin;
         this.lifeManager = lifeManager;
         this.headDataKey = new NamespacedKey(plugin, "death_head");
         this.gson = new GsonBuilder().create();
         this.discordService = discordService;
         this.killPointsManager = killPointsManager;
+        this.modifierManager = modifierManager;
     }
 
     @EventHandler
@@ -75,9 +80,10 @@ public class PlayerDeathListener implements Listener {
         }
         Bukkit.getScheduler().runTaskLater(plugin, () -> recentDeaths.remove(uuid), 20L);
         addDeathHeadDrop(event, player);
+        dropDeathChest(event);
 
         // Kill points for player-versus-player
-        if (killer != null && !killer.getUniqueId().equals(player.getUniqueId()) && killPointsManager != null) {
+        if (killer != null && !killer.getUniqueId().equals(player.getUniqueId()) && killPointsManager != null && killPointsManager.isKillPointsEnabled()) {
             int total = killPointsManager.addKill(killer.getUniqueId());
             killer.sendMessage(Component.text("Killpoints: +1 (" + total + ")", NamedTextColor.GOLD));
         }
@@ -122,6 +128,40 @@ public class PlayerDeathListener implements Listener {
         HeadData data = createHeadData(event, victim);
         ItemStack head = buildHeadItem(data);
         event.getDrops().add(head);
+    }
+
+    private void dropDeathChest(PlayerDeathEvent event) {
+        if (modifierManager != null && modifierManager.isActive("Mundo Gigante")) {
+            return;
+        }
+
+        var drops = event.getDrops();
+        if (drops.isEmpty()) {
+            return;
+        }
+
+        var loc = event.getEntity().getLocation();
+        var world = loc.getWorld();
+        if (world == null) return;
+
+        Block chestBlock = loc.getBlock();
+        if (!chestBlock.getType().isAir()) {
+            chestBlock = loc.clone().add(0, 1, 0).getBlock();
+            if (!chestBlock.getType().isAir()) {
+                return; // fallback to vanilla drops
+            }
+        }
+
+        chestBlock.setType(Material.CHEST);
+        if (chestBlock.getState() instanceof Chest chest) {
+            chest.customName(Component.text("Restos de " + event.getEntity().getName(), NamedTextColor.RED));
+            for (ItemStack item : new ArrayList<>(drops)) {
+                Map<Integer, ItemStack> leftover = chest.getBlockInventory().addItem(item);
+                leftover.values().forEach(stack -> world.dropItemNaturally(chestBlock.getLocation().add(0.5, 1, 0.5), stack));
+            }
+            chest.update();
+            drops.clear();
+        }
     }
 
     @EventHandler

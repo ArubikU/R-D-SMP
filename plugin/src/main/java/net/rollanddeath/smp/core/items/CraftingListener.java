@@ -1,8 +1,10 @@
 package net.rollanddeath.smp.core.items;
 
-import net.rollanddeath.smp.RollAndDeathSMP;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.rollanddeath.smp.RollAndDeathSMP;
+import net.rollanddeath.smp.core.roles.RoleManager;
+import net.rollanddeath.smp.core.roles.RoleType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -11,10 +13,29 @@ import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Date;
+import java.util.Map;
 
 public class CraftingListener implements Listener {
 
     private final RollAndDeathSMP plugin;
+
+    private static final Map<CustomItemType, Integer> MIN_DAY_REQUIREMENTS = Map.of(
+            CustomItemType.STEEL_HELMET, 10,
+            CustomItemType.STEEL_CHESTPLATE, 10,
+            CustomItemType.STEEL_LEGGINGS, 10,
+            CustomItemType.STEEL_BOOTS, 10,
+            CustomItemType.STEEL_SWORD, 10,
+            CustomItemType.OBSIDIAN_HELMET, 20,
+            CustomItemType.OBSIDIAN_CHESTPLATE, 20,
+            CustomItemType.OBSIDIAN_LEGGINGS, 20,
+            CustomItemType.OBSIDIAN_BOOTS, 20,
+            CustomItemType.OBSIDIAN_SWORD, 20,
+            CustomItemType.VOID_HELMET, 30,
+            CustomItemType.VOID_CHESTPLATE, 30,
+            CustomItemType.VOID_LEGGINGS, 30,
+            CustomItemType.VOID_BOOTS, 30,
+            CustomItemType.VOID_SWORD, 30
+    );
 
     public CraftingListener(RollAndDeathSMP plugin) {
         this.plugin = plugin;
@@ -29,6 +50,23 @@ public class CraftingListener implements Listener {
         if (item == null) return;
 
         Player player = (Player) event.getView().getPlayer();
+        RoleManager roleManager = plugin.getRoleManager();
+
+        int currentDay = Math.max(1, plugin.getGameManager() != null ? plugin.getGameManager().getCurrentDay() : 1);
+        Integer minDay = MIN_DAY_REQUIREMENTS.get(item.getType());
+        if (minDay != null && currentDay < minDay) {
+            event.getInventory().setResult(null);
+            player.sendMessage(Component.text("Disponible para craftear desde el día " + minDay + ". Día actual: " + currentDay + ", usa la KillStore si ya está abierta.", NamedTextColor.RED));
+            return;
+        }
+
+        RoleType requiredRole = item.getRequiredRoleType();
+        RoleType playerRole = roleManager != null ? roleManager.getPlayerRole(player) : null;
+        if (requiredRole != null && requiredRole != playerRole) {
+            event.getInventory().setResult(null);
+            player.sendMessage(Component.text("Solo el rol " + requiredRole.getName() + " puede craftear este ítem.", NamedTextColor.RED));
+            return;
+        }
 
         if (item.getType() == CustomItemType.RESURRECTION_ORB) {
             player.sendMessage(Component.text("⚠ ADVERTENCIA: Craftear este ítem te costará 1 VIDA.", NamedTextColor.RED));
@@ -46,6 +84,23 @@ public class CraftingListener implements Listener {
         if (item == null) return;
 
         Player player = (Player) event.getWhoClicked();
+        RoleManager roleManager = plugin.getRoleManager();
+
+        int currentDay = Math.max(1, plugin.getGameManager() != null ? plugin.getGameManager().getCurrentDay() : 1);
+        Integer minDay = MIN_DAY_REQUIREMENTS.get(item.getType());
+        if (minDay != null && currentDay < minDay) {
+            event.setCancelled(true);
+            player.sendMessage(Component.text("Aún no puedes craftear este ítem. Día mínimo: " + minDay, NamedTextColor.RED));
+            return;
+        }
+
+        RoleType requiredRole = item.getRequiredRoleType();
+        RoleType playerRole = roleManager != null ? roleManager.getPlayerRole(player) : null;
+        if (requiredRole != null && requiredRole != playerRole) {
+            event.setCancelled(true);
+            player.sendMessage(Component.text("Este crafteo requiere el rol " + requiredRole.getName() + ".", NamedTextColor.RED));
+            return;
+        }
 
         if (item.getType() == CustomItemType.RESURRECTION_ORB) {
             int lives = plugin.getLifeManager().getLives(player);

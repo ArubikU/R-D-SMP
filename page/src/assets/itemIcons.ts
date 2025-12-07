@@ -26,6 +26,7 @@ export const itemIconMap: Record<string, string> = {
     "Espada Vampírica": "https://arubiku.github.io/R-D-SMP/icons/items/vampire_sword.png",
     "Pico Destructor de Mundos": "https://arubiku.github.io/R-D-SMP/icons/items/world_destroyer_pickaxe.png",
     "Casco de la Visión Verdadera": "https://arubiku.github.io/R-D-SMP/icons/items/truth_vision_helmet.png",
+    "Manzana de Vida": "https://arubiku.github.io/R-D-SMP/icons/items/notch_hearth.png",
     "Corazón de Notch": "https://arubiku.github.io/R-D-SMP/icons/items/notch_hearth.png",
     "Contrato de Alma": "https://arubiku.github.io/R-D-SMP/icons/items/soul_contract.png",
     "Llamada del Vacío": "https://arubiku.github.io/R-D-SMP/icons/items/void_call.png",

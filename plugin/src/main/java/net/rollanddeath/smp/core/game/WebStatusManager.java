@@ -11,6 +11,8 @@ import net.rollanddeath.smp.core.items.DailyRollManager;
 import net.rollanddeath.smp.core.modifiers.ModifierManager;
 import net.rollanddeath.smp.core.roles.RoleManager;
 import net.rollanddeath.smp.core.roles.RoleType;
+import net.rollanddeath.smp.core.rules.DayRule;
+import net.rollanddeath.smp.core.rules.DayRuleManager;
 import net.rollanddeath.smp.core.teams.Team;
 import net.rollanddeath.smp.core.teams.TeamManager;
 import org.bukkit.Bukkit;
@@ -91,10 +93,17 @@ public class WebStatusManager {
         TeamManager teamManager = plugin.getTeamManager();
         RoleManager roleManager = plugin.getRoleManager();
         DailyRollManager dailyRollManager = plugin.getDailyRollManager();
+        var mobRotation = plugin.getDailyMobRotationManager();
+        DayRuleManager dayRuleManager = plugin.getDayRuleManager();
 
         JsonObject root = new JsonObject();
         root.addProperty("day", gameManager.getCurrentDay());
         root.addProperty("permadeath", gameManager.isPermadeathActive());
+        root.addProperty("permadeath_day", gameManager.getPermadeathDay());
+        root.addProperty("nether_unlocked", gameManager.isNetherUnlocked());
+        root.addProperty("nether_unlock_day", gameManager.getNetherUnlockDay());
+        root.addProperty("end_unlocked", gameManager.isEndUnlocked());
+        root.addProperty("end_unlock_day", gameManager.getEndUnlockDay());
         Instant nextEvent = gameManager.getNextEventTime();
         Duration untilNext = gameManager.getTimeUntilNextEvent();
         root.addProperty("next_event_time", nextEvent.toEpochMilli());
@@ -112,6 +121,28 @@ public class WebStatusManager {
             modifiers.add(mod);
         }
         root.add("active_modifiers", modifiers);
+
+        JsonArray activeDayRules = new JsonArray();
+        if (dayRuleManager != null) {
+            for (DayRule rule : dayRuleManager.getActiveRules(gameManager.getCurrentDay())) {
+                JsonObject obj = new JsonObject();
+                obj.addProperty("day", rule.getDay());
+                obj.addProperty("name", rule.getName());
+                obj.addProperty("description", rule.getDescription());
+                activeDayRules.add(obj);
+            }
+        }
+        root.add("active_day_rules", activeDayRules);
+
+        JsonArray activeMobs = new JsonArray();
+        if (mobRotation != null) {
+            for (var mob : mobRotation.getActiveMobs()) {
+                activeMobs.add(mob.name());
+            }
+            root.addProperty("active_mob_count", mobRotation.getActiveMobs().size());
+            root.addProperty("last_mob_day", mobRotation.getLastDay());
+        }
+        root.add("active_mobs", activeMobs);
 
         JsonArray history = new JsonArray();
         for (String mod : modifierManager.getEventHistory()) {
@@ -149,7 +180,9 @@ public class WebStatusManager {
                     playerObj.addProperty("role", role != null ? role.getName() : null);
                 }
             } else {
-                playerObj.addProperty("lives", "?");
+                int storedLives = lifeManager.getStoredLives(p.getUniqueId());
+                playerObj.addProperty("lives", storedLives);
+                playerObj.addProperty("lives_remaining", storedLives);
             }
 
             Duration rollRemaining = dailyRollManager.getTimeUntilNextRoll(p.getUniqueId());

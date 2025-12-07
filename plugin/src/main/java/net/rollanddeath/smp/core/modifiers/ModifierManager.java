@@ -24,6 +24,8 @@ public class ModifierManager {
     private final Set<String> activeModifiers = new HashSet<>();
     private final List<String> eventHistory = new ArrayList<>();
     private final Random random = new Random();
+    private int lastRouletteDay = -1;
+    private boolean spinning = false;
 
     public ModifierManager(RollAndDeathSMP plugin) {
         this.plugin = plugin;
@@ -36,15 +38,21 @@ public class ModifierManager {
             activeModifiers.addAll(savedActive);
         }
 
+        // Cleanup removed modifiers
+        activeModifiers.remove("Bloques Random");
+
         List<String> savedHistory = plugin.getConfig().getStringList("game.event_history");
         if (savedHistory != null) {
             eventHistory.addAll(savedHistory);
         }
+
+        lastRouletteDay = plugin.getConfig().getInt("game.last_modifier_day", -1);
     }
 
     private void persistModifierState() {
         plugin.getConfig().set("game.active_modifiers", new ArrayList<>(activeModifiers));
         plugin.getConfig().set("game.event_history", new ArrayList<>(eventHistory));
+        plugin.getConfig().set("game.last_modifier_day", lastRouletteDay);
         plugin.saveConfig();
     }
 
@@ -138,8 +146,21 @@ public class ModifierManager {
     }
 
     public void spinRoulette() {
+        int today = plugin.getGameManager().getCurrentDay();
+        if (today <= lastRouletteDay) {
+            Bukkit.broadcast(Component.text("La ruleta ya se giró hoy.", NamedTextColor.YELLOW));
+            return;
+        }
+
+        if (spinning) {
+            Bukkit.broadcast(Component.text("La ruleta sigue girando...", NamedTextColor.GRAY));
+            return;
+        }
+
         List<Modifier> available = new ArrayList<>(registeredModifiers.values());
         if (available.isEmpty()) return;
+
+        spinning = true;
 
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
@@ -166,8 +187,12 @@ public class ModifierManager {
                 Bukkit.getScheduler().runTask(plugin, () -> {
                     Modifier selected = startRandomModifier();
                     if (selected != null) {
+                        lastRouletteDay = today;
+                        persistModifierState();
                         plugin.getGameManager().markEventExecuted();
                     }
+
+                    spinning = false;
 
                     for (Player p : Bukkit.getOnlinePlayers()) {
                         p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f);
@@ -175,6 +200,7 @@ public class ModifierManager {
                 });
 
             } catch (InterruptedException e) {
+                spinning = false;
                 e.printStackTrace();
             }
         });

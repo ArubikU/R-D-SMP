@@ -1,6 +1,7 @@
 package net.rollanddeath.smp.core.teams;
 
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Location;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -13,6 +14,7 @@ public class Team {
     private boolean friendlyFire = false;
     private final Set<String> activeWars = new HashSet<>();
     private NamedTextColor color = NamedTextColor.AQUA;
+    private Location home;
 
     public Team(String name, UUID owner) {
         this.name = name;
@@ -79,5 +81,13 @@ public class Team {
 
     public boolean isMember(UUID player) {
         return members.contains(player);
+    }
+
+    public Location getHome() {
+        return home;
+    }
+
+    public void setHome(Location home) {
+        this.home = home;
     }
 }
