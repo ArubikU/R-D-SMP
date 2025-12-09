@@ -28,7 +28,7 @@ public class DayRuleManager {
         rules.add(new DayRule(3, "Golpes Más Fuertes II", "+2% daño de mobs hostiles.", RuleType.MOB_DAMAGE_BOOST, 0.02));
         rules.add(new DayRule(4, "Golpes Más Fuertes III", "+2% daño de mobs hostiles.", RuleType.MOB_DAMAGE_BOOST, 0.02));
         rules.add(new DayRule(5, "Golpes Más Fuertes IV", "+2% daño de mobs hostiles.", RuleType.MOB_DAMAGE_BOOST, 0.02));
-        rules.add(new DayRule(6, "Loot Racionado I", "Sin loot de Blaze, Bruja, Enderman y Ghast.", RuleType.LOOT_RESTRICTION));
+        rules.add(new DayRule(6, "Patrullas Triples", "Se suma otro mob extra por spawn hostil.", RuleType.TRIPLE_MOB_SPAWN, 2.0));
         rules.add(new DayRule(7, "Golpes Más Fuertes V", "+2% daño de mobs hostiles.", RuleType.MOB_DAMAGE_BOOST, 0.02));
         rules.add(new DayRule(8, "Golpes Más Fuertes VI", "+2% daño de mobs hostiles.", RuleType.MOB_DAMAGE_BOOST, 0.02));
         rules.add(new DayRule(9, "Golpes Más Fuertes VII", "+2% daño de mobs hostiles.", RuleType.MOB_DAMAGE_BOOST, 0.02));
@@ -43,7 +43,7 @@ public class DayRuleManager {
         rules.add(new DayRule(17, "Arañas Potenciadas II", "Arañas con 2-3 efectos.", RuleType.SPIDER_BUFF, 2.0));
         rules.add(new DayRule(18, "Loot Racionado II", "Sin loot de Wither Skeleton, Guardian, Magma Cube y Drowned.", RuleType.LOOT_RESTRICTION));
         rules.add(new DayRule(19, "Ravagers Codiciosos I", "3% de probabilidad de tótem en Ravager.", RuleType.RAVAGER_BUFF, 0.03));
-        rules.add(new DayRule(20, "Patrullas Triples", "Se suma otro mob extra por spawn hostil.", RuleType.TRIPLE_MOB_SPAWN, 2.0));
+        rules.add(new DayRule(20, "Loot Racionado I", "Sin loot de Blaze, Bruja, Enderman y Ghast.", RuleType.LOOT_RESTRICTION));
         rules.add(new DayRule(21, "Golpes Más Fuertes XI", "+2% daño de mobs hostiles.", RuleType.MOB_DAMAGE_BOOST, 0.02));
         rules.add(new DayRule(22, "Golpes Más Fuertes XII", "+2% daño de mobs hostiles.", RuleType.MOB_DAMAGE_BOOST, 0.02));
         rules.add(new DayRule(23, "Ravagers Codiciosos II", "6% de probabilidad de tótem en Ravager.", RuleType.RAVAGER_BUFF, 0.06));
@@ -109,7 +109,7 @@ public class DayRuleManager {
     public Set<EntityType> getRestrictedMobs(int day) {
         Set<EntityType> restricted = new HashSet<>();
         if (isRuleActive(day, RuleType.LOOT_RESTRICTION)) {
-            if (day == 6) {
+            if (day == 20) {
                 restricted.addAll(Arrays.asList(EntityType.BLAZE, EntityType.WITCH, EntityType.ENDERMAN, EntityType.GHAST));
             } else if (day == 18) {
                 restricted.addAll(Arrays.asList(EntityType.WITHER_SKELETON, EntityType.GUARDIAN, EntityType.MAGMA_CUBE, EntityType.DROWNED));

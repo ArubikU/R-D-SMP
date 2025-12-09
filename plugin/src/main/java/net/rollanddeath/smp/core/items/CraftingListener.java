@@ -10,6 +10,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
+import org.bukkit.inventory.Recipe;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Keyed;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Date;
@@ -20,6 +23,7 @@ public class CraftingListener implements Listener {
     private final RollAndDeathSMP plugin;
 
     private static final Map<CustomItemType, Integer> MIN_DAY_REQUIREMENTS;
+    private static final Map<String, CustomItemType> RECIPE_KEY_MAP;
 
     static {
         MIN_DAY_REQUIREMENTS = Map.ofEntries(
@@ -39,6 +43,26 @@ public class CraftingListener implements Listener {
             Map.entry(CustomItemType.VOID_BOOTS, 30),
             Map.entry(CustomItemType.VOID_SWORD, 30)
         );
+
+        RECIPE_KEY_MAP = Map.ofEntries(
+            Map.entry("steel_helmet", CustomItemType.STEEL_HELMET),
+            Map.entry("steel_chestplate", CustomItemType.STEEL_CHESTPLATE),
+            Map.entry("steel_leggings", CustomItemType.STEEL_LEGGINGS),
+            Map.entry("steel_boots", CustomItemType.STEEL_BOOTS),
+            Map.entry("steel_sword", CustomItemType.STEEL_SWORD),
+
+            Map.entry("obsidian_helmet", CustomItemType.OBSIDIAN_HELMET),
+            Map.entry("obsidian_chestplate", CustomItemType.OBSIDIAN_CHESTPLATE),
+            Map.entry("obsidian_leggings", CustomItemType.OBSIDIAN_LEGGINGS),
+            Map.entry("obsidian_boots", CustomItemType.OBSIDIAN_BOOTS),
+            Map.entry("obsidian_sword", CustomItemType.OBSIDIAN_SWORD),
+
+            Map.entry("void_helmet", CustomItemType.VOID_HELMET),
+            Map.entry("void_chestplate", CustomItemType.VOID_CHESTPLATE),
+            Map.entry("void_leggings", CustomItemType.VOID_LEGGINGS),
+            Map.entry("void_boots", CustomItemType.VOID_BOOTS),
+            Map.entry("void_sword", CustomItemType.VOID_SWORD)
+        );
     }
 
     public CraftingListener(RollAndDeathSMP plugin) {
@@ -48,9 +72,11 @@ public class CraftingListener implements Listener {
     @EventHandler
     public void onPrepareCraft(PrepareItemCraftEvent event) {
         if (event.getRecipe() == null) return;
-        ItemStack result = event.getRecipe().getResult();
-        
-        CustomItem item = getCustomItemFromStack(result);
+        Recipe recipe = event.getRecipe();
+        ItemStack result = recipe.getResult();
+
+        CustomItemType type = resolveType(recipe, result);
+        CustomItem item = type != null ? plugin.getItemManager().getItem(type) : getCustomItemFromStack(result);
         if (item == null) return;
 
         Player player = (Player) event.getView().getPlayer();
@@ -82,9 +108,11 @@ public class CraftingListener implements Listener {
     @EventHandler
     public void onCraft(CraftItemEvent event) {
         if (event.getRecipe() == null) return;
-        ItemStack result = event.getRecipe().getResult();
-        
-        CustomItem item = getCustomItemFromStack(result);
+        Recipe recipe = event.getRecipe();
+        ItemStack result = recipe.getResult();
+
+        CustomItemType type = resolveType(recipe, result);
+        CustomItem item = type != null ? plugin.getItemManager().getItem(type) : getCustomItemFromStack(result);
         if (item == null) return;
 
         Player player = (Player) event.getWhoClicked();
@@ -138,5 +166,17 @@ public class CraftingListener implements Listener {
             }
         }
         return null;
+    }
+
+    private CustomItemType resolveType(Recipe recipe, ItemStack result) {
+        NamespacedKey key = (recipe instanceof Keyed keyed) ? keyed.getKey() : null;
+        if (key != null) {
+            CustomItemType byKey = RECIPE_KEY_MAP.get(key.getKey());
+            if (byKey != null) {
+                return byKey;
+            }
+        }
+        CustomItem match = getCustomItemFromStack(result);
+        return match != null ? match.getType() : null;
     }
 }

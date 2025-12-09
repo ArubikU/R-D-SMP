@@ -4,8 +4,8 @@ import net.rollanddeath.smp.RollAndDeathSMP;
 import net.rollanddeath.smp.core.roles.Role;
 import net.rollanddeath.smp.core.roles.RoleType;
 import org.bukkit.Material;
+import org.bukkit.entity.AbstractVillager;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Villager;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
@@ -72,9 +72,9 @@ public class MerchantRole extends Role {
 
     @EventHandler
     public void onVillagerTradeRefresh(VillagerAcquireTradeEvent event) {
-        Villager villager = event.getEntity();
+        AbstractVillager villager = event.getEntity();
         boolean hasNearbyMerchant = villager.getWorld().getPlayers().stream()
-                .anyMatch(player -> hasRole(player) && player.getLocation().distanceSquared(villager.getLocation()) <= 144);
+            .anyMatch(player -> hasRole(player) && player.getLocation().distanceSquared(villager.getLocation()) <= 144);
         if (!hasNearbyMerchant) return;
 
         MerchantRecipe recipe = event.getRecipe();

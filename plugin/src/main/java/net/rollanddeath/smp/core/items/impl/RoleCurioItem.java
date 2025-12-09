@@ -63,7 +63,6 @@ public class RoleCurioItem extends CustomItem {
     @Override
     protected List<String> getLore() {
         List<String> lore = new ArrayList<>(extraLore);
-        lore.add("Requiere rol: " + requiredRole.getName());
         lore.add("Consumible");
         return lore;
     }
@@ -91,14 +90,6 @@ public class RoleCurioItem extends CustomItem {
         if (!isItem(item)) return;
 
         Player player = event.getPlayer();
-        RoleManager roleManager = plugin.getRoleManager();
-        RoleType playerRole = roleManager != null ? roleManager.getPlayerRole(player) : null;
-        if (playerRole != requiredRole) {
-            player.sendMessage(MiniMessage.miniMessage().deserialize("<red>Este ítem requiere el rol: <bold>" + requiredRole.getName()));
-            event.setCancelled(true);
-            return;
-        }
-
         event.setCancelled(true);
 
         List<PotionEffect> selectedEffects = effects;

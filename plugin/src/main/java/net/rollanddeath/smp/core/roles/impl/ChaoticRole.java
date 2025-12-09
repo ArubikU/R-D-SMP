@@ -22,11 +22,11 @@ public class ChaoticRole extends Role {
         PotionEffectType.LEVITATION
     };
 
-    private final PotionEffectType[] positiveEffects = {
-        PotionEffectType.SPEED, PotionEffectType.STRENGTH, PotionEffectType.JUMP_BOOST,
-        PotionEffectType.REGENERATION, PotionEffectType.FAST_DIGGING, PotionEffectType.DAMAGE_RESISTANCE,
-        PotionEffectType.ABSORPTION
-    };
+        private final PotionEffectType[] positiveEffects = {
+            PotionEffectType.SPEED, PotionEffectType.STRENGTH, PotionEffectType.JUMP_BOOST,
+            PotionEffectType.REGENERATION, PotionEffectType.HASTE, PotionEffectType.RESISTANCE,
+            PotionEffectType.ABSORPTION
+        };
 
     public ChaoticRole(RollAndDeathSMP plugin) {
         super(plugin, RoleType.CHAOTIC);

@@ -35,7 +35,7 @@ public class ExplorerRole extends Role {
                 for (Player player : plugin.getServer().getOnlinePlayers()) {
                     if (hasRole(player)) {
                         player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 40, 1, false, false));
-                        player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 40, 0, false, false));
+                        player.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 40, 0, false, false));
                         PlayerInventory inv = player.getInventory();
                         for (int slot = 27; slot <= 35; slot++) { // restringir última fila
                             ItemStack item = inv.getItem(slot);

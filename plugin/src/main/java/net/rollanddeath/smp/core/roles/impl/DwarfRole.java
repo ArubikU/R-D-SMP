@@ -38,7 +38,7 @@ public class DwarfRole extends Role {
                         }
                         player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 220, 0, false, false, false));
                         player.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, 220, 0, false, false, false));
-                        player.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, 220, 0, false, false, false));
+                        player.addPotionEffect(new PotionEffect(PotionEffectType.HASTE, 220, 0, false, false, false));
                     } else {
                          if (player.getAttribute(Attribute.MAX_HEALTH).getValue() == 16.0 && 
                             plugin.getRoleManager().getPlayerRole(player) != RoleType.DWARF) {
@@ -56,7 +56,7 @@ public class DwarfRole extends Role {
                         }
                         player.removePotionEffect(PotionEffectType.SPEED);
                         player.removePotionEffect(PotionEffectType.STRENGTH);
-                        player.removePotionEffect(PotionEffectType.FAST_DIGGING);
+                        player.removePotionEffect(PotionEffectType.HASTE);
                     }
                 }
             }

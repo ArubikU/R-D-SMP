@@ -10,6 +10,7 @@ import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
@@ -40,7 +41,7 @@ public class MidasRole extends Role {
                     }
                 }
             }
-        }.runTaskTimer(plugin, 12000L, 12000L); // Every 10 minutes (12000 ticks)
+        }.runTaskTimer(plugin, 600L, 600L); // Every 30 seconds (600 ticks)
     }
 
     private void consumeGold(Player player) {
@@ -55,7 +56,7 @@ public class MidasRole extends Role {
             consumedAny = true;
             consumedBlock = true;
             currentBonusHearts = Math.min(4, currentBonusHearts + 1);
-            regenDuration = 160; // 8s
+            regenDuration = 400; // 20s
             regenAmplifier = 1; // Regen II
             player.sendMessage(MiniMessage.miniMessage().deserialize("<yellow>Has consumido 1 Bloque de Oro. Salud extra: " + currentBonusHearts + " ❤"));
         } else {
@@ -66,13 +67,13 @@ public class MidasRole extends Role {
         if (!consumedBlock) {
             if (removeItem(player, Material.GOLD_NUGGET, 1)) {
                 consumedAny = true;
-                regenDuration = 40; // 2s casi nada
+                regenDuration = 120; // 6s
                 regenAmplifier = 0; // Regen I
                 player.sendMessage(MiniMessage.miniMessage().deserialize("<yellow>Has consumido 1 Pepita de Oro para sobrevivir."));
             } else if (removeItem(player, Material.GOLD_INGOT, 1)) {
                 consumedAny = true;
-                regenDuration = 120; // 6s un poco más
-                regenAmplifier = 0; // Regen I
+                regenDuration = 240; // 12s
+                regenAmplifier = 1; // Regen II
                 player.sendMessage(MiniMessage.miniMessage().deserialize("<yellow>Has consumido 1 Lingote de Oro para sobrevivir."));
             }
         }
@@ -80,7 +81,7 @@ public class MidasRole extends Role {
         if (consumedAny && regenDuration > 0) {
             player.addPotionEffect(new org.bukkit.potion.PotionEffect(org.bukkit.potion.PotionEffectType.REGENERATION, regenDuration, regenAmplifier, false, false));
         } else if (!consumedAny) {
-            player.damage(4.0);
+            player.damage(2.0); // 1 corazón
             player.sendMessage(MiniMessage.miniMessage().deserialize("<red>¡Necesitas oro para vivir! Te debilitas..."));
         }
 
@@ -104,7 +105,7 @@ public class MidasRole extends Role {
     }
 
     private void applyBonusHearts(Player player, int hearts) {
-        AttributeInstance instance = player.getAttribute(Attribute.GENERIC_MAX_HEALTH);
+        AttributeInstance instance = player.getAttribute(Attribute.MAX_HEALTH);
         if (instance == null) return;
 
         // Clear previous modifier
@@ -129,11 +130,14 @@ public class MidasRole extends Role {
         }
     }
 
-    @EventHandler(ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
     public void onNaturalRegen(EntityRegainHealthEvent event) {
         if (!(event.getEntity() instanceof Player player)) return;
         if (!hasRole(player)) return;
         if (event.getRegainReason() == EntityRegainHealthEvent.RegainReason.SATIATED) {
+            // Revert the exhaustion added by vanilla regen so comida no baje al cancelar
+            float currentExhaustion = player.getExhaustion();
+            player.setExhaustion(Math.max(0f, currentExhaustion - 6f));
             event.setCancelled(true); // sin regeneración natural
         }
     }

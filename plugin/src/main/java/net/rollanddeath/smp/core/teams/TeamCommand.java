@@ -172,7 +172,7 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
             case "invite":
                 if (args.length == 2) {
                     Team team = teamManager.getTeam(player.getUniqueId());
-                    if (team == null || !team.getOwner().equals(player.getUniqueId()) || team.getMembers().size() >= 4) {
+                    if (team == null || !team.getOwner().equals(player.getUniqueId()) || team.getMembers().size() >= 5) {
                         return Collections.emptyList();
                     }
 
@@ -392,8 +392,8 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
             return;
         }
 
-        if (team.getMembers().size() >= 4) {
-            player.sendMessage(Component.text("El equipo está lleno (Max 4).", NamedTextColor.RED));
+        if (team.getMembers().size() >= 5) {
+            player.sendMessage(Component.text("El equipo está lleno (Max 5).", NamedTextColor.RED));
             return;
         }
 
@@ -513,7 +513,7 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
         player.sendMessage(Component.text("--- Equipo: " + team.getName() + " ---", NamedTextColor.GOLD));
             String ownerName = Bukkit.getOfflinePlayer(team.getOwner()).getName();
             player.sendMessage(Component.text("Líder: " + (ownerName != null ? ownerName : "Desconocido"), NamedTextColor.YELLOW));
-            player.sendMessage(Component.text("Miembros (" + team.getMembers().size() + "/4):", NamedTextColor.YELLOW));
+            player.sendMessage(Component.text("Miembros (" + team.getMembers().size() + "/5):", NamedTextColor.YELLOW));
             for (UUID memberId : team.getMembers()) {
                 String memberName = Bukkit.getOfflinePlayer(memberId).getName();
                 player.sendMessage(Component.text("- " + (memberName != null ? memberName : "Desconocido"), NamedTextColor.WHITE));
