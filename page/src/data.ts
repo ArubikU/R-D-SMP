@@ -647,26 +647,33 @@ export const items = [
     { name: "Martillo de Guerra", type: "Arma", desc: "Daño de área masivo, recarga muy lenta.", rarity: "epico", acquisition: "Drop: Golem Corrupto" },
     { name: "Tótem de Regeneración", type: "Reliquia", desc: "Cura a todos los aliados en 10 bloques.", rarity: "epico", acquisition: "Cofres de Dungeon / Roll" },
     {
-        name: "Dado de Loki",
+        name: "Dado de Loki (+20% suerte)",
         type: "Utilidad",
-        desc: "Lanza un roll diario instantáneo sin gastar tu cooldown. Lleva suerte +20% o -20% según la receta usada.",
+        desc: "Lanza un roll diario instantáneo sin gastar tu cooldown. Versión bendecida (+20% suerte).",
         rarity: "epico",
-        acquisition: "Crafting (2 recetas)",
+        acquisition: "Crafting",
         recipe: {
             type: "shapeless",
             ingredients: [
                 "Block of Emerald", "Nether Star", "Totem of Undying", "Netherite Ingot", "Enchanted Golden Apple",
                 "Dragon's Breath", "Echo Shard", "Ghast Tear", "End Crystal"
             ],
-            result: "Dado de Loki (+20% suerte)",
-            alt: {
-                type: "shapeless",
-                ingredients: [
-                    "Block of Emerald", "Wither Rose", "Fermented Spider Eye", "Poisonous Potato", "Rotten Flesh",
-                    "Spider Eye", "Soul Soil", "Soul Torch", "Magma Cream"
-                ],
-                result: "Dado de Loki (-20% suerte)"
-            }
+            result: "Dado de Loki (+20% suerte)"
+        }
+    },
+    {
+        name: "Dado de Loki (-20% suerte)",
+        type: "Utilidad",
+        desc: "Lanza un roll diario instantáneo sin gastar tu cooldown. Versión maldita (-20% suerte).",
+        rarity: "epico",
+        acquisition: "Crafting",
+        recipe: {
+            type: "shapeless",
+            ingredients: [
+                "Block of Emerald", "Wither Rose", "Fermented Spider Eye", "Poisonous Potato", "Rotten Flesh",
+                "Spider Eye", "Soul Soil", "Soul Torch", "Magma Cream"
+            ],
+            result: "Dado de Loki (-20% suerte)"
         }
     },
     {

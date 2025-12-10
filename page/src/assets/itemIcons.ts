@@ -31,5 +31,9 @@ export const itemIconMap: Record<string, string> = {
     "Contrato de Alma": "https://arubiku.github.io/R-D-SMP/icons/items/soul_contract.png",
     "Llamada del Vacío": "https://arubiku.github.io/R-D-SMP/icons/items/void_call.png",
     "Huevo de Dragón Real": "https://arubiku.github.io/R-D-SMP/icons/items/real_dragon_egg.png",
-    "La Mano de Dios": "https://arubiku.github.io/R-D-SMP/icons/items/god_hand.png"
+    "La Mano de Dios": "https://arubiku.github.io/R-D-SMP/icons/items/god_hand.png",
+    // Dados de Loki (+/- suerte)
+    "Dado de Loki (+20% suerte)": "https://arubiku.github.io/R-D-SMP/icons/items/loki_dice.png",
+    "Dado de Loki (-20% suerte)": "https://arubiku.github.io/R-D-SMP/icons/items/loki_dice.png",
+    "Dado de Loki": "https://arubiku.github.io/R-D-SMP/icons/items/loki_dice.png"
 };
