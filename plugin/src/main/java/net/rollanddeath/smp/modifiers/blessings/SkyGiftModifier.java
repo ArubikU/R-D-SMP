@@ -1,8 +1,10 @@
 package net.rollanddeath.smp.modifiers.blessings;
 
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.rollanddeath.smp.RollAndDeathSMP;
 import net.rollanddeath.smp.core.modifiers.Modifier;
 import net.rollanddeath.smp.core.modifiers.ModifierType;
+import net.rollanddeath.smp.integration.discord.DiscordWebhookService;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -12,6 +14,7 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.plugin.java.JavaPlugin;
+import net.kyori.adventure.text.format.NamedTextColor;
 
 import java.util.Random;
 
@@ -19,9 +22,11 @@ public class SkyGiftModifier extends Modifier {
 
     private BukkitRunnable task;
     private final Random random = new Random();
+    private final DiscordWebhookService discordService;
 
     public SkyGiftModifier(JavaPlugin plugin) {
         super(plugin, "Regalo del Cielo", ModifierType.BLESSING, "Cofre con suministros cae en Spawn cada hora.");
+        this.discordService = plugin instanceof RollAndDeathSMP smp ? smp.getDiscordService() : null;
     }
 
     @Override
@@ -74,6 +79,15 @@ public class SkyGiftModifier extends Modifier {
             Bukkit.broadcast(MiniMessage.miniMessage().deserialize(
                     "<green>¡Un regalo del cielo ha caído cerca del spawn! Coords: X " + bx + " Z " + bz));
             world.strikeLightningEffect(chestLoc);
+
+            // Notifica al webhook si está activo
+            if (discordService != null && discordService.isEnabled()) {
+                discordService.sendEventAnnouncement(
+                        "Regalo del Cielo",
+                        "Cofre en spawn: X " + bx + " Z " + bz,
+                        NamedTextColor.GREEN
+                );
+            }
         }
     }
 

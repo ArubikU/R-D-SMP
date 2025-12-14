@@ -31,7 +31,10 @@ public class PermanentPotionModifier extends Modifier {
         super.onDisable();
         // Remove from all online players
         for (Player player : Bukkit.getOnlinePlayers()) {
-            player.removePotionEffect(PotionEffectType.HASTE);
+            PotionEffect haste = player.getPotionEffect(PotionEffectType.HASTE);
+            if (haste != null && haste.getAmplifier() == 0) {
+                player.removePotionEffect(PotionEffectType.HASTE);
+            }
         }
     }
 

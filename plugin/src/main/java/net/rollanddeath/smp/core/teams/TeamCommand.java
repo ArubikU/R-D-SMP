@@ -43,6 +43,9 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
             "togglechat",
             "friendlyfire",
             "war",
+                "ally",
+                "allyaccept",
+                "allybreak",
             "info",
             "color",
             "home",
@@ -129,6 +132,15 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
             case "war":
                 handleWar(player, args);
                 break;
+            case "ally":
+                handleAlly(player, args);
+                break;
+            case "allyaccept":
+                handleAllyAccept(player, args);
+                break;
+            case "allybreak":
+                handleAllyBreak(player, args);
+                break;
             case "info":
                 handleInfo(player);
                 break;
@@ -136,7 +148,7 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
                 handleColor(player, args);
                 break;
             case "home":
-                handleHome(player);
+                handleHome(player, args);
                 break;
             case "sethome":
                 handleSetHome(player);
@@ -214,6 +226,41 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
                     return filterCompletions(args[1], targets);
                 }
                 break;
+            case "ally":
+                if (args.length == 2) {
+                    Team team = teamManager.getTeam(player.getUniqueId());
+                    if (team == null || !team.getOwner().equals(player.getUniqueId())) {
+                        return Collections.emptyList();
+                    }
+                    List<String> candidates = teamManager.getTeamNames().stream()
+                            .filter(name -> !name.equalsIgnoreCase(team.getName()))
+                            .filter(name -> !team.isAlliedWith(name))
+                            .filter(name -> !team.isAtWarWith(name))
+                            .toList();
+                    return filterCompletions(args[1], candidates);
+                }
+                break;
+            case "allyaccept":
+                if (args.length == 2) {
+                    Team myTeam = teamManager.getTeam(player.getUniqueId());
+                    if (myTeam == null || !myTeam.getOwner().equals(player.getUniqueId())) {
+                        return Collections.emptyList();
+                    }
+                    String requester = teamManager.getAllianceRequester(myTeam.getName());
+                    if (requester == null) return Collections.emptyList();
+                    return filterCompletions(args[1], List.of(requester));
+                }
+                break;
+            case "allybreak":
+                if (args.length == 2) {
+                    Team myTeam = teamManager.getTeam(player.getUniqueId());
+                    if (myTeam == null || !myTeam.getOwner().equals(player.getUniqueId())) {
+                        return Collections.emptyList();
+                    }
+                    List<String> allies = new ArrayList<>(myTeam.getAlliances());
+                    return filterCompletions(args[1], allies);
+                }
+                break;
             case "color":
                 if (args.length == 2) {
                     return filterCompletions(args[1], COLOR_OPTIONS);
@@ -240,6 +287,9 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
         player.sendMessage(Component.text("/team togglechat - Alterna que todo tu chat vaya al team", NamedTextColor.YELLOW));
         player.sendMessage(Component.text("/team ff - Alternar fuego amigo", NamedTextColor.YELLOW));
         player.sendMessage(Component.text("/team war <equipo> - Declarar guerra", NamedTextColor.YELLOW));
+        player.sendMessage(Component.text("/team ally <equipo> - Proponer alianza (líder)", NamedTextColor.YELLOW));
+        player.sendMessage(Component.text("/team allyaccept <equipo> - Aceptar alianza (líder)", NamedTextColor.YELLOW));
+        player.sendMessage(Component.text("/team allybreak <equipo> - Romper alianza (líder)", NamedTextColor.YELLOW));
         player.sendMessage(Component.text("/team info - Ver información del equipo", NamedTextColor.YELLOW));
         player.sendMessage(Component.text("/team color <color> - Cambiar el color del equipo", NamedTextColor.YELLOW));
         player.sendMessage(Component.text("/team sethome - Establecer home del equipo (líder)", NamedTextColor.YELLOW));
@@ -282,6 +332,166 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
         }
 
         teamManager.declareWar(attacker, defender);
+    }
+
+    private void handleAlly(Player player, String[] args) {
+        Team team = teamManager.getTeam(player.getUniqueId());
+        if (team == null) {
+            player.sendMessage(Component.text("No estás en un equipo.", NamedTextColor.RED));
+            return;
+        }
+
+        if (!team.getOwner().equals(player.getUniqueId())) {
+            player.sendMessage(Component.text("Solo el líder puede proponer alianzas.", NamedTextColor.RED));
+            return;
+        }
+
+        if (args.length < 2) {
+            player.sendMessage(Component.text("Uso: /team ally <equipo>", NamedTextColor.RED));
+            return;
+        }
+
+        String targetName = args[1];
+        Team target = teamManager.getTeam(targetName);
+        if (target == null) {
+            player.sendMessage(Component.text("Equipo no encontrado.", NamedTextColor.RED));
+            return;
+        }
+
+        if (team.getName().equalsIgnoreCase(target.getName())) {
+            player.sendMessage(Component.text("No puedes aliarte contigo mismo.", NamedTextColor.RED));
+            return;
+        }
+
+        if (team.isAtWarWith(target.getName())) {
+            player.sendMessage(Component.text("No puedes aliarte con un equipo en guerra.", NamedTextColor.RED));
+            return;
+        }
+
+        if (team.isAlliedWith(target.getName())) {
+            player.sendMessage(Component.text("Ya tienes alianza con ese equipo.", NamedTextColor.YELLOW));
+            return;
+        }
+
+        String incoming = teamManager.getAllianceRequester(team.getName());
+        if (incoming != null && incoming.equalsIgnoreCase(target.getName())) {
+            player.sendMessage(Component.text("Ese equipo ya te envió una alianza. Usa /team allyaccept " + incoming + " para aceptarla.", NamedTextColor.YELLOW));
+            return;
+        }
+
+        if (teamManager.getAllianceRequester(target.getName()) != null) {
+            player.sendMessage(Component.text("Ese equipo ya tiene una solicitud pendiente. Intenta más tarde.", NamedTextColor.RED));
+            return;
+        }
+
+        Player targetLeader = Bukkit.getPlayer(target.getOwner());
+        if (targetLeader == null) {
+            player.sendMessage(Component.text("El líder de ese equipo no está conectado. No puedes enviar la alianza ahora.", NamedTextColor.RED));
+            return;
+        }
+
+        teamManager.requestAlliance(team.getName(), target.getName());
+        player.sendMessage(Component.text("Solicitud de alianza enviada a " + target.getName() + ".", NamedTextColor.GREEN));
+        targetLeader.sendMessage(Component.text("El equipo " + team.getName() + " te ha enviado una solicitud de alianza. Usa /team allyaccept " + team.getName() + " para aceptarla.", NamedTextColor.AQUA));
+    }
+
+    private void handleAllyAccept(Player player, String[] args) {
+        Team team = teamManager.getTeam(player.getUniqueId());
+        if (team == null) {
+            player.sendMessage(Component.text("No estás en un equipo.", NamedTextColor.RED));
+            return;
+        }
+
+        if (!team.getOwner().equals(player.getUniqueId())) {
+            player.sendMessage(Component.text("Solo el líder puede aceptar alianzas.", NamedTextColor.RED));
+            return;
+        }
+
+        String requesterName;
+        if (args.length >= 2) {
+            requesterName = args[1];
+        } else {
+            requesterName = teamManager.getAllianceRequester(team.getName());
+            if (requesterName == null) {
+                player.sendMessage(Component.text("No tienes solicitudes de alianza pendientes.", NamedTextColor.RED));
+                return;
+            }
+        }
+
+        String storedRequester = teamManager.getAllianceRequester(team.getName());
+        if (storedRequester == null || !storedRequester.equalsIgnoreCase(requesterName)) {
+            player.sendMessage(Component.text("No hay una solicitud pendiente de " + requesterName + ".", NamedTextColor.RED));
+            return;
+        }
+
+        Team requester = teamManager.getTeam(requesterName);
+        if (requester == null) {
+            player.sendMessage(Component.text("El equipo solicitante ya no existe.", NamedTextColor.RED));
+            teamManager.clearAllianceRequest(team.getName());
+            return;
+        }
+
+        if (team.isAlliedWith(requester.getName())) {
+            player.sendMessage(Component.text("Ya tienes alianza con ese equipo.", NamedTextColor.YELLOW));
+            teamManager.clearAllianceRequest(team.getName());
+            return;
+        }
+
+        team.addAlliance(requester.getName());
+        requester.addAlliance(team.getName());
+        teamManager.clearAllianceRequest(team.getName());
+
+        Component notice = Component.text("Alianza formada con " + requester.getName(), NamedTextColor.GREEN);
+        for (UUID memberId : team.getMembers()) {
+            Player member = Bukkit.getPlayer(memberId);
+            if (member != null) member.sendMessage(notice);
+        }
+        Component notice2 = Component.text("Alianza formada con " + team.getName(), NamedTextColor.GREEN);
+        for (UUID memberId : requester.getMembers()) {
+            Player member = Bukkit.getPlayer(memberId);
+            if (member != null) member.sendMessage(notice2);
+        }
+    }
+
+    private void handleAllyBreak(Player player, String[] args) {
+        Team team = teamManager.getTeam(player.getUniqueId());
+        if (team == null) {
+            player.sendMessage(Component.text("No estás en un equipo.", NamedTextColor.RED));
+            return;
+        }
+
+        if (!team.getOwner().equals(player.getUniqueId())) {
+            player.sendMessage(Component.text("Solo el líder puede romper alianzas.", NamedTextColor.RED));
+            return;
+        }
+
+        if (args.length < 2) {
+            player.sendMessage(Component.text("Uso: /team allybreak <equipo>", NamedTextColor.RED));
+            return;
+        }
+
+        String targetName = args[1];
+        if (!team.isAlliedWith(targetName)) {
+            player.sendMessage(Component.text("No tienes alianza con ese equipo.", NamedTextColor.RED));
+            return;
+        }
+
+        Team target = teamManager.getTeam(targetName);
+        if (target != null) {
+            target.removeAlliance(team.getName());
+            Component notice = Component.text("La alianza con " + team.getName() + " ha sido rota.", NamedTextColor.RED);
+            for (UUID memberId : target.getMembers()) {
+                Player member = Bukkit.getPlayer(memberId);
+                if (member != null) member.sendMessage(notice);
+            }
+        }
+
+        team.removeAlliance(targetName);
+        Component noticeSelf = Component.text("Has roto la alianza con " + targetName + ".", NamedTextColor.YELLOW);
+        for (UUID memberId : team.getMembers()) {
+            Player member = Bukkit.getPlayer(memberId);
+            if (member != null) member.sendMessage(noticeSelf);
+        }
     }
 
     private void handleColor(Player player, String[] args) {
@@ -518,6 +728,12 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
                 String memberName = Bukkit.getOfflinePlayer(memberId).getName();
                 player.sendMessage(Component.text("- " + (memberName != null ? memberName : "Desconocido"), NamedTextColor.WHITE));
             }
+
+            if (!team.getAlliances().isEmpty()) {
+                player.sendMessage(Component.text("Alianzas: " + String.join(", ", team.getAlliances()), NamedTextColor.AQUA));
+            } else {
+                player.sendMessage(Component.text("Alianzas: Ninguna", NamedTextColor.GRAY));
+            }
         }
 
     private void handleSetHome(Player player) {
@@ -537,16 +753,31 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
         player.sendMessage(Component.text("Home del equipo establecido en tu posición.", NamedTextColor.GREEN));
     }
 
-    private void handleHome(Player player) {
-        Team team = teamManager.getTeam(player.getUniqueId());
-        if (team == null) {
+    private void handleHome(Player player, String[] args) {
+        Team myTeam = teamManager.getTeam(player.getUniqueId());
+        if (myTeam == null) {
             player.sendMessage(Component.text("No estás en un equipo.", NamedTextColor.RED));
             return;
         }
 
-        Location home = team.getHome();
+        Team targetTeam = myTeam;
+        if (args.length >= 2) {
+            String targetName = args[1];
+            Team resolved = teamManager.getTeam(targetName);
+            if (resolved == null) {
+                player.sendMessage(Component.text("Equipo no encontrado.", NamedTextColor.RED));
+                return;
+            }
+            if (!resolved.getName().equalsIgnoreCase(myTeam.getName()) && !myTeam.isAlliedWith(resolved.getName())) {
+                player.sendMessage(Component.text("Solo puedes ir al home de tu equipo o de aliados.", NamedTextColor.RED));
+                return;
+            }
+            targetTeam = resolved;
+        }
+
+        Location home = targetTeam.getHome();
         if (home == null) {
-            player.sendMessage(Component.text("Tu equipo no tiene un home establecido.", NamedTextColor.RED));
+            player.sendMessage(Component.text("Ese equipo no tiene un home establecido.", NamedTextColor.RED));
             return;
         }
 
@@ -574,7 +805,8 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
         }
 
         Location start = player.getLocation().clone();
-        player.sendMessage(Component.text("Mantente quieto 5s para teletransportarte al home...", NamedTextColor.YELLOW));
+        String warmupTarget = targetTeam.getName();
+        player.sendMessage(Component.text("Mantente quieto 5s para teletransportarte al home de " + warmupTarget + "...", NamedTextColor.YELLOW));
 
         BukkitTask task = plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
             homeWarmups.remove(player.getUniqueId());
@@ -601,7 +833,7 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
             }
 
             player.teleport(home);
-            player.sendMessage(Component.text("Teletransportado al home del equipo.", NamedTextColor.GREEN));
+            player.sendMessage(Component.text("Teletransportado al home de " + warmupTarget + ".", NamedTextColor.GREEN));
             homeCooldowns.put(player.getUniqueId(), System.currentTimeMillis());
         }, 100L); // 5s warmup
 

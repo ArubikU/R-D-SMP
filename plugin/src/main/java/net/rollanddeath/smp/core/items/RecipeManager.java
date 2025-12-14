@@ -33,6 +33,7 @@ public class RecipeManager {
         registerTrueSightHelmet();
         registerResurrectionOrb();
         registerLifeGapple();
+        registerSoulContract();
         registerSteelGear();
         registerObsidianGear();
         registerVoidGear();
@@ -190,6 +191,18 @@ public class RecipeManager {
         recipe.setIngredient('N', Material.ENCHANTED_GOLDEN_APPLE);
         plugin.getServer().addRecipe(recipe);
     }
+
+        private void registerSoulContract() {
+                var item = plugin.getItemManager().getItem(CustomItemType.SOUL_CONTRACT).getItemStack();
+                ShapedRecipe recipe = new ShapedRecipe(new NamespacedKey(plugin, "soul_contract"), item);
+                recipe.shape("SPS", "BKB", "SIS");
+                recipe.setIngredient('S', Material.SOUL_SAND);
+                recipe.setIngredient('P', Material.PAPER);
+                recipe.setIngredient('B', Material.BONE);
+                recipe.setIngredient('K', Material.WITHER_SKELETON_SKULL);
+                recipe.setIngredient('I', Material.INK_SAC);
+                plugin.getServer().addRecipe(recipe);
+        }
 
     private void registerSteelGear() {
         ItemStack helmet = plugin.getItemManager().getItem(CustomItemType.STEEL_HELMET).getItemStack();

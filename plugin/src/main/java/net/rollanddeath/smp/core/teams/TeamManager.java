@@ -26,6 +26,7 @@ public class TeamManager {
     private final Map<UUID, Team> playerTeams = new HashMap<>();
     private final Map<UUID, String> pendingInvites = new HashMap<>();
     private final Set<UUID> teamChatToggles = new HashSet<>();
+    private final Map<String, String> pendingAllianceRequests = new HashMap<>(); // targetTeam -> requesterTeam
 
     public TeamManager(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -72,6 +73,7 @@ public class TeamManager {
             playerTeams.remove(player);
             
             if (team.getMembers().isEmpty()) {
+                cleanupTeamReferences(team.getName());
                 teamsByName.remove(team.getName());
             } else if (team.getOwner().equals(player)) {
                 // Promote new owner
@@ -93,12 +95,31 @@ public class TeamManager {
         pendingInvites.remove(target);
     }
 
+    public void requestAlliance(String requesterTeam, String targetTeam) {
+        pendingAllianceRequests.put(targetTeam, requesterTeam);
+    }
+
+    public String getAllianceRequester(String targetTeam) {
+        return pendingAllianceRequests.get(targetTeam);
+    }
+
+    public void clearAllianceRequest(String targetTeam) {
+        pendingAllianceRequests.remove(targetTeam);
+    }
+
+    public void clearAllianceRequestsInvolving(String teamName) {
+        pendingAllianceRequests.entrySet().removeIf(entry ->
+            entry.getKey().equalsIgnoreCase(teamName) || entry.getValue().equalsIgnoreCase(teamName)
+        );
+    }
+
     public void disbandTeam(String teamName) {
         Team team = teamsByName.get(teamName);
         if (team != null) {
             for (UUID member : team.getMembers()) {
                 playerTeams.remove(member);
             }
+            cleanupTeamReferences(teamName);
             teamsByName.remove(teamName);
         }
     }
@@ -128,6 +149,7 @@ public class TeamManager {
         teamsByName.clear();
         playerTeams.clear();
         pendingInvites.clear();
+        pendingAllianceRequests.clear();
 
         if (section == null) return;
 
@@ -167,6 +189,12 @@ public class TeamManager {
                 team.addWar(war);
             }
 
+            for (String ally : teamSec.getStringList("alliances")) {
+                if (!ally.equalsIgnoreCase(name)) {
+                    team.addAlliance(ally);
+                }
+            }
+
             ConfigurationSection homeSec = teamSec.getConfigurationSection("home");
             if (homeSec != null) {
                 String worldName = homeSec.getString("world");
@@ -189,6 +217,19 @@ public class TeamManager {
                 playerTeams.put(member, team);
             }
         }
+
+        // Ensure alliances are mutual and reference existing teams
+        for (Team team : teamsByName.values()) {
+            team.getAlliances().removeIf(allyName -> !teamsByName.containsKey(allyName));
+        }
+        for (Team team : teamsByName.values()) {
+            for (String allyName : new HashSet<>(team.getAlliances())) {
+                Team ally = teamsByName.get(allyName);
+                if (ally != null && !ally.isAlliedWith(team.getName())) {
+                    ally.addAlliance(team.getName());
+                }
+            }
+        }
     }
 
     public void saveToConfig(ConfigurationSection section) {
@@ -204,6 +245,7 @@ public class TeamManager {
             teamSec.set("members", team.getMembers().stream().map(UUID::toString).collect(Collectors.toList()));
             teamSec.set("friendly_fire", team.isFriendlyFire());
             teamSec.set("wars", new ArrayList<>(team.getActiveWars()));
+            teamSec.set("alliances", new ArrayList<>(team.getAlliances()));
 
             String colorKey = NamedTextColor.NAMES.key(team.getColor());
             teamSec.set("color", colorKey);
@@ -251,5 +293,13 @@ public class TeamManager {
                 member.sendMessage(chatFormat);
             }
         }
+    }
+
+    private void cleanupTeamReferences(String teamName) {
+        for (Team team : teamsByName.values()) {
+            team.removeAlliance(teamName);
+            team.removeWar(teamName);
+        }
+        clearAllianceRequestsInvolving(teamName);
     }
 }

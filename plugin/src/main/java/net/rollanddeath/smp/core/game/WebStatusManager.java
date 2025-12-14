@@ -124,7 +124,7 @@ public class WebStatusManager {
 
         JsonArray activeDayRules = new JsonArray();
         if (dayRuleManager != null) {
-            for (DayRule rule : dayRuleManager.getActiveRules(gameManager.getCurrentDay())) {
+            for (DayRule rule : dayRuleManager.getRulesUpTo(gameManager.getCurrentDay())) {
                 JsonObject obj = new JsonObject();
                 obj.addProperty("day", rule.getDay());
                 obj.addProperty("name", rule.getName());

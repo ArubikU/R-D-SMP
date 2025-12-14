@@ -40,7 +40,10 @@ public class IceFloorModifier extends Modifier {
             task = null;
         }
         for (Player player : Bukkit.getOnlinePlayers()) {
-            player.removePotionEffect(PotionEffectType.SPEED);
+            PotionEffect speed = player.getPotionEffect(PotionEffectType.SPEED);
+            if (speed != null && speed.getAmplifier() == 2) {
+                player.removePotionEffect(PotionEffectType.SPEED);
+            }
         }
     }
 }

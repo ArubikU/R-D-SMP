@@ -24,9 +24,12 @@ public class AssassinRole extends Role {
         Player player = event.getPlayer();
         if (hasRole(player)) {
             if (event.isSneaking()) {
-                player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 999999, 0, false, false));
+                player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 999999, 11, false, false));
             } else {
-                player.removePotionEffect(PotionEffectType.INVISIBILITY);
+                if (player.hasPotionEffect(PotionEffectType.INVISIBILITY) &&
+                    player.getPotionEffect(PotionEffectType.INVISIBILITY).getAmplifier() == 11) {
+                    player.removePotionEffect(PotionEffectType.INVISIBILITY);
+                }
             }
         }
     }
@@ -44,8 +47,11 @@ public class AssassinRole extends Role {
                     event.setDamage(event.getDamage() * 2.0);
                     player.sendMessage(MiniMessage.miniMessage().deserialize("<red>¡Puñalada por la espalda! <bold>CRÍTICO"));
                     
-                    // Reveal assassin
-                    player.removePotionEffect(PotionEffectType.INVISIBILITY);
+                    // Reveal assassin sin tocar invisibilidad de otras fuentes
+                    PotionEffect invis = player.getPotionEffect(PotionEffectType.INVISIBILITY);
+                    if (invis != null && invis.getAmplifier() == 11) {
+                        player.removePotionEffect(PotionEffectType.INVISIBILITY);
+                    }
                 }
             }
         }

@@ -7,6 +7,7 @@ import org.bukkit.World;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerPortalEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 
 public class SoftLockListener implements Listener {
 
@@ -25,6 +26,26 @@ public class SoftLockListener implements Listener {
         World.Environment targetEnv = event.getTo().getWorld().getEnvironment();
         GameManager gameManager = plugin.getGameManager();
 
+        if (targetEnv == World.Environment.NETHER && !gameManager.isNetherUnlocked()) {
+            event.setCancelled(true);
+            event.getPlayer().sendMessage(Component.text("El Nether se desbloquea el día " + gameManager.getNetherUnlockDay() + ".", NamedTextColor.RED));
+            return;
+        }
+
+        if (targetEnv == World.Environment.THE_END && !gameManager.isEndUnlocked()) {
+            event.setCancelled(true);
+            event.getPlayer().sendMessage(Component.text("El End se desbloquea el día " + gameManager.getEndUnlockDay() + ".", NamedTextColor.RED));
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onTeleport(PlayerTeleportEvent event) {
+        if (event.getTo() == null || event.getTo().getWorld() == null) return;
+
+        World.Environment targetEnv = event.getTo().getWorld().getEnvironment();
+        GameManager gameManager = plugin.getGameManager();
+
+        // Prevent cross-dimension bypass (ender pearl, command, etc.) before unlock days
         if (targetEnv == World.Environment.NETHER && !gameManager.isNetherUnlocked()) {
             event.setCancelled(true);
             event.getPlayer().sendMessage(Component.text("El Nether se desbloquea el día " + gameManager.getNetherUnlockDay() + ".", NamedTextColor.RED));

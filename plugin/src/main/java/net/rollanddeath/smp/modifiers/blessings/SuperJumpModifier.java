@@ -41,7 +41,10 @@ public class SuperJumpModifier extends Modifier {
             task.cancel();
         }
         for (Player player : Bukkit.getOnlinePlayers()) {
-            player.removePotionEffect(PotionEffectType.JUMP_BOOST);
+            PotionEffect jump = player.getPotionEffect(PotionEffectType.JUMP_BOOST);
+            if (jump != null && jump.getAmplifier() == 1) {
+                player.removePotionEffect(PotionEffectType.JUMP_BOOST);
+            }
         }
     }
 

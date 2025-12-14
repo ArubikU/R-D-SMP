@@ -41,7 +41,10 @@ public class LightAuraModifier extends Modifier {
             task.cancel();
         }
         for (Player player : Bukkit.getOnlinePlayers()) {
-            player.removePotionEffect(PotionEffectType.NIGHT_VISION);
+            PotionEffect nv = player.getPotionEffect(PotionEffectType.NIGHT_VISION);
+            if (nv != null && nv.getAmplifier() == 0) {
+                player.removePotionEffect(PotionEffectType.NIGHT_VISION);
+            }
         }
     }
 

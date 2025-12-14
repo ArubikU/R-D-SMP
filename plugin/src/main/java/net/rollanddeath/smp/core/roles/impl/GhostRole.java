@@ -42,7 +42,11 @@ public class GhostRole extends Role {
                             plugin.getRoleManager().getPlayerRole(player) != RoleType.GHOST) {
                             player.getAttribute(Attribute.MAX_HEALTH).setBaseValue(20.0);
                         }
-                        player.removePotionEffect(PotionEffectType.INVISIBILITY);
+                        // Solo retiramos la invisibilidad básica del rol para no borrar pociones u otros efectos
+                        PotionEffect invis = player.getPotionEffect(PotionEffectType.INVISIBILITY);
+                        if (invis != null && invis.getAmplifier() == 0) {
+                            player.removePotionEffect(PotionEffectType.INVISIBILITY);
+                        }
                     }
                 }
             }

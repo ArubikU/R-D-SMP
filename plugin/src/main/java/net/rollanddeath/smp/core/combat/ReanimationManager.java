@@ -79,7 +79,10 @@ public class ReanimationManager implements Listener {
         for (UUID uuid : new HashSet<>(slowedCarriers)) {
             Player carrier = Bukkit.getPlayer(uuid);
             if (carrier != null) {
-                carrier.removePotionEffect(PotionEffectType.SLOWNESS);
+                PotionEffect slow = carrier.getPotionEffect(PotionEffectType.SLOWNESS);
+                if (slow != null && slow.getAmplifier() == 0) {
+                    carrier.removePotionEffect(PotionEffectType.SLOWNESS);
+                }
             }
         }
         slowedCarriers.clear();
@@ -125,8 +128,14 @@ public class ReanimationManager implements Listener {
         double restore = Math.max(2.0D, Math.min(settings.revivedHealth, maxHealth));
         player.setHealth(restore);
         player.setInvulnerable(false);
-        player.removePotionEffect(PotionEffectType.SLOWNESS);
-        player.removePotionEffect(PotionEffectType.WEAKNESS);
+        PotionEffect slow = player.getPotionEffect(PotionEffectType.SLOWNESS);
+        if (slow != null && slow.getAmplifier() >= 6) {
+            player.removePotionEffect(PotionEffectType.SLOWNESS);
+        }
+        PotionEffect weak = player.getPotionEffect(PotionEffectType.WEAKNESS);
+        if (weak != null && weak.getAmplifier() == 2) {
+            player.removePotionEffect(PotionEffectType.WEAKNESS);
+        }
         player.resetTitle();
         player.sendMessage(Component.text("Has sido levantado por un admin.", NamedTextColor.GOLD));
         if (downed != null && downed.getCarrierId() != null) {
@@ -359,8 +368,14 @@ public class ReanimationManager implements Listener {
         target.setHealth(restore);
         target.setInvulnerable(false);
         target.setWalkSpeed(downed.originalWalkSpeed);
-        target.removePotionEffect(PotionEffectType.SLOWNESS);
-        target.removePotionEffect(PotionEffectType.WEAKNESS);
+        PotionEffect slow = target.getPotionEffect(PotionEffectType.SLOWNESS);
+        if (slow != null && slow.getAmplifier() >= 6) {
+            target.removePotionEffect(PotionEffectType.SLOWNESS);
+        }
+        PotionEffect weak = target.getPotionEffect(PotionEffectType.WEAKNESS);
+        if (weak != null && weak.getAmplifier() == 2) {
+            target.removePotionEffect(PotionEffectType.WEAKNESS);
+        }
         target.resetTitle();
         target.sendMessage(Component.text("¡Reanimado por " + rescuer.getName() + "!", NamedTextColor.GREEN));
         rescuer.sendMessage(Component.text("Has reanimado a " + target.getName() + ".", NamedTextColor.GOLD));
@@ -397,8 +412,14 @@ public class ReanimationManager implements Listener {
         downed.cancelAll();
         player.setInvulnerable(false);
         player.setWalkSpeed(downed.originalWalkSpeed);
-        player.removePotionEffect(PotionEffectType.SLOWNESS);
-        player.removePotionEffect(PotionEffectType.WEAKNESS);
+        PotionEffect slow = player.getPotionEffect(PotionEffectType.SLOWNESS);
+        if (slow != null && slow.getAmplifier() >= 6) {
+            player.removePotionEffect(PotionEffectType.SLOWNESS);
+        }
+        PotionEffect weak = player.getPotionEffect(PotionEffectType.WEAKNESS);
+        if (weak != null && weak.getAmplifier() == 2) {
+            player.removePotionEffect(PotionEffectType.WEAKNESS);
+        }
         if (player.isInsideVehicle()) {
             player.leaveVehicle();
         }
@@ -467,7 +488,10 @@ public class ReanimationManager implements Listener {
             return;
         }
         if (slowedCarriers.remove(carrier.getUniqueId())) {
-            carrier.removePotionEffect(PotionEffectType.SLOWNESS);
+            PotionEffect slow = carrier.getPotionEffect(PotionEffectType.SLOWNESS);
+            if (slow != null && slow.getAmplifier() == 0) {
+                carrier.removePotionEffect(PotionEffectType.SLOWNESS);
+            }
         }
         carrierCharges.remove(carrier.getUniqueId());
     }

@@ -13,6 +13,7 @@ public class Team {
     private final Set<UUID> members;
     private boolean friendlyFire = false;
     private final Set<String> activeWars = new HashSet<>();
+    private final Set<String> alliances = new HashSet<>();
     private NamedTextColor color = NamedTextColor.AQUA;
     private Location home;
 
@@ -45,6 +46,22 @@ public class Team {
     
     public boolean isAtWarWith(String teamName) {
         return activeWars.contains(teamName);
+    }
+
+    public Set<String> getAlliances() {
+        return alliances;
+    }
+
+    public boolean isAlliedWith(String teamName) {
+        return alliances.contains(teamName);
+    }
+
+    public void addAlliance(String teamName) {
+        alliances.add(teamName);
+    }
+
+    public void removeAlliance(String teamName) {
+        alliances.remove(teamName);
     }
 
     public String getName() {

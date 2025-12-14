@@ -39,7 +39,10 @@ public class ZeroGravityModifier extends Modifier {
             task = null;
         }
         for (Player player : Bukkit.getOnlinePlayers()) {
-            player.removePotionEffect(PotionEffectType.LEVITATION);
+            PotionEffect levitation = player.getPotionEffect(PotionEffectType.LEVITATION);
+            if (levitation != null && levitation.getAmplifier() == 0) {
+                player.removePotionEffect(PotionEffectType.LEVITATION);
+            }
         }
     }
 }

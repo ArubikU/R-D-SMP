@@ -1,6 +1,7 @@
 export const dailyEvents = [
     // --- MALDICIONES (CURSES) ---
     { name: "Sol Tóxico", type: "Maldición", desc: "La luz directa del sol causa lentitud y hambre.", icon: "☀️" },
+    { name: "Sol Abrasador", type: "Maldición", desc: "El sol quema a los jugadores expuestos.", icon: "🌞" },
     { name: "Gravedad Pesada", type: "Maldición", desc: "No se puede saltar bloques completos. Caída hace x2 daño.", icon: "⚓" },
     { name: "Escasez de Hierro", type: "Maldición", desc: "Golems hostiles. Ores de hierro reducidos.", icon: "🛡️" },
     { name: "Atmósfera Densa", type: "Maldición", desc: "Elytras se rompen x2 rápido y consumen más cohetes.", icon: "☁️" },

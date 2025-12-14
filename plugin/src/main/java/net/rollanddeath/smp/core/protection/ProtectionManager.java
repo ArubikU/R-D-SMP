@@ -70,8 +70,14 @@ public class ProtectionManager {
 
         // 3. Check if player is in the same team as owner
         Team ownerTeam = teamManager.getTeam(ownerUUID);
-        if (ownerTeam != null && ownerTeam.isMember(player.getUniqueId())) {
-            return true;
+        if (ownerTeam != null) {
+            if (ownerTeam.isMember(player.getUniqueId())) {
+                return true;
+            }
+            Team playerTeam = teamManager.getTeam(player.getUniqueId());
+            if (playerTeam != null && ownerTeam.isAlliedWith(playerTeam.getName())) {
+                return true;
+            }
         }
 
         return false;

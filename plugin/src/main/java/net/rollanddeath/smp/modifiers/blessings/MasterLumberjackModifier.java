@@ -21,16 +21,22 @@ public class MasterLumberjackModifier extends Modifier {
 
     @EventHandler
     public void onBreak(BlockBreakEvent event) {
+        if (event.isCancelled()) return;
+
         Block block = event.getBlock();
-        if (isLog(block.getType())) {
-            // Avoid infinite recursion if player breaks a log that is part of a huge forest
-            // We limit to 200 blocks
-            breakTree(block);
-        }
+        if (!isEligibleLog(block.getType())) return;
+
+        var player = event.getPlayer();
+        if (player != null && player.isSneaking()) return; // Sneaking disables the instant-fell
+
+        // Avoid infinite recursion if player breaks a log that is part of a huge forest; limit to 200 blocks
+        breakTree(block);
     }
 
-    private boolean isLog(Material type) {
-        return type.name().endsWith("_LOG");
+    private boolean isEligibleLog(Material type) {
+        String name = type.name();
+        if (name.startsWith("STRIPPED_")) return false;
+        return name.endsWith("_LOG");
     }
 
     private void breakTree(Block startBlock) {
@@ -52,7 +58,7 @@ public class MasterLumberjackModifier extends Modifier {
                         if (x == 0 && y == 0 && z == 0) continue;
                         
                         Block relative = current.getRelative(x, y, z);
-                        if (!visited.contains(relative) && isLog(relative.getType())) {
+                        if (!visited.contains(relative) && isEligibleLog(relative.getType())) {
                             visited.add(relative);
                             queue.add(relative);
                         }

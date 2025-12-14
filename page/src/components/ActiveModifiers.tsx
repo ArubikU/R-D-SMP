@@ -154,9 +154,14 @@ export const ActiveModifiers: React.FC = () => {
     if (error) return <div className="text-center text-red-400 py-12">{error}</div>;
     if (!status) return <div className="text-center text-gray-500 py-12">Sin datos disponibles por el momento.</div>;
 
-    // Filter events based on the fetched list
-    const activeEvents = dailyEvents.filter(event =>
-        status.active_modifiers.includes(event.name)
+    // Map active names to known events, with fallback so unknown ones still render
+    const activeEvents = status.active_modifiers.map((name) =>
+        dailyEvents.find((event) => event.name === name) ?? {
+            name,
+            type: 'Evento Activo',
+            desc: 'Descripción no disponible.',
+            icon: '❔',
+        }
     );
 
     const activeMobs = status.active_mobs ?? [];

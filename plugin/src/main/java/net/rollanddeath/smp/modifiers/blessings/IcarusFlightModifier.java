@@ -41,7 +41,10 @@ public class IcarusFlightModifier extends Modifier {
             task.cancel();
         }
         for (Player player : Bukkit.getOnlinePlayers()) {
-            player.removePotionEffect(PotionEffectType.SLOW_FALLING);
+            PotionEffect slowFall = player.getPotionEffect(PotionEffectType.SLOW_FALLING);
+            if (slowFall != null && slowFall.getAmplifier() == 0) {
+                player.removePotionEffect(PotionEffectType.SLOW_FALLING);
+            }
         }
     }
 

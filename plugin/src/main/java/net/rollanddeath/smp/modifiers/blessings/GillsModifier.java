@@ -41,7 +41,10 @@ public class GillsModifier extends Modifier {
             task.cancel();
         }
         for (Player player : Bukkit.getOnlinePlayers()) {
-            player.removePotionEffect(PotionEffectType.WATER_BREATHING);
+            PotionEffect wb = player.getPotionEffect(PotionEffectType.WATER_BREATHING);
+            if (wb != null && wb.getAmplifier() == 0) {
+                player.removePotionEffect(PotionEffectType.WATER_BREATHING);
+            }
         }
     }
 

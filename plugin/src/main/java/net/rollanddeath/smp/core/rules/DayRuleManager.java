@@ -63,6 +63,13 @@ public class DayRuleManager {
                 .collect(Collectors.toList());
     }
 
+    public List<DayRule> getRulesUpTo(int currentDay) {
+        return rules.stream()
+                .filter(rule -> rule.getDay() <= currentDay)
+                .sorted((a, b) -> Integer.compare(a.getDay(), b.getDay()))
+                .collect(Collectors.toList());
+    }
+
     public boolean isRuleActive(int currentDay, RuleType type) {
         return rules.stream()
                 .anyMatch(rule -> rule.getDay() == currentDay && rule.getType() == type);

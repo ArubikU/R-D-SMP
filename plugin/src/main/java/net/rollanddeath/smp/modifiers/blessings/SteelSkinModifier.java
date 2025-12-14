@@ -41,7 +41,10 @@ public class SteelSkinModifier extends Modifier {
             task.cancel();
         }
         for (Player player : Bukkit.getOnlinePlayers()) {
-            player.removePotionEffect(PotionEffectType.FIRE_RESISTANCE);
+            PotionEffect fireRes = player.getPotionEffect(PotionEffectType.FIRE_RESISTANCE);
+            if (fireRes != null && fireRes.getAmplifier() == 0) {
+                player.removePotionEffect(PotionEffectType.FIRE_RESISTANCE);
+            }
         }
     }
 

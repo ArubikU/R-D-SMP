@@ -54,9 +54,18 @@ public class DwarfRole extends Role {
                                 player.getAttribute(scaleAttr).setBaseValue(1.0);
                             }
                         }
-                        player.removePotionEffect(PotionEffectType.SPEED);
-                        player.removePotionEffect(PotionEffectType.STRENGTH);
-                        player.removePotionEffect(PotionEffectType.HASTE);
+                        PotionEffect speed = player.getPotionEffect(PotionEffectType.SPEED);
+                        if (speed != null && speed.getAmplifier() == 0) {
+                            player.removePotionEffect(PotionEffectType.SPEED);
+                        }
+                        PotionEffect strength = player.getPotionEffect(PotionEffectType.STRENGTH);
+                        if (strength != null && strength.getAmplifier() == 0) {
+                            player.removePotionEffect(PotionEffectType.STRENGTH);
+                        }
+                        PotionEffect haste = player.getPotionEffect(PotionEffectType.HASTE);
+                        if (haste != null && haste.getAmplifier() == 0) {
+                            player.removePotionEffect(PotionEffectType.HASTE);
+                        }
                     }
                 }
             }

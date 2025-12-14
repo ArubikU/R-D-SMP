@@ -34,7 +34,8 @@ public class NomadRole extends Role {
                 for (Player player : plugin.getServer().getOnlinePlayers()) {
                     if (hasRole(player)) {
                         if (!player.getPersistentDataContainer().has(nomadDebuffKey, PersistentDataType.BYTE)) {
-                            player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 40, 1, false, false));
+                            // Duración más larga para evitar huecos si el task se retrasa por lag
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 120, 1, false, false));
                         }
                     }
                 }

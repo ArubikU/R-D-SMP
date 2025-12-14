@@ -18,6 +18,7 @@ import org.bukkit.inventory.ItemStack;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Date;
 import java.util.UUID;
 
 @SuppressWarnings("deprecation")
@@ -113,6 +114,13 @@ public class SoulContract extends CustomItem {
             
             // Unban if banned
             Bukkit.getBanList(BanList.Type.NAME).pardon(target.getName());
+
+            // Ban the user who used the contract for 24 hours
+            Date expiration = new Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000L);
+            Bukkit.getBanList(BanList.Type.NAME).addBan(player.getName(), "Has firmado el Contrato de Alma. Nos vemos en 24 horas.", expiration, "RollAndDeath SMP");
+            if (player.isOnline()) {
+                player.kick(Component.text("Has firmado el Contrato de Alma.\n\nNos vemos en 24 horas.", NamedTextColor.DARK_RED));
+            }
         });
     }
 }
