@@ -574,7 +574,7 @@ export const items = [
         recipe: {
             type: "shaped",
             grid: [
-                "Diamond Block", "Netherite Scrap", "Diamond Block",
+                "Block of Diamond", "Netherite Scrap", "Block of Diamond",
                 "Obsidian", "Smithing Table", "Obsidian",
                 null, null, null
             ],
@@ -590,9 +590,9 @@ export const items = [
         recipe: {
             type: "shaped",
             grid: [
-                "Diamond Block", "Netherite Scrap", "Diamond Block",
+                "Block of Diamond", "Netherite Scrap", "Block of Diamond",
                 "Obsidian", "Smithing Table", "Obsidian",
-                "Diamond Block", "Obsidian", "Diamond Block"
+                "Block of Diamond", "Obsidian", "Block of Diamond"
             ],
             result: "Pechera Obsidiana"
         }
@@ -606,9 +606,9 @@ export const items = [
         recipe: {
             type: "shaped",
             grid: [
-                "Diamond Block", "Netherite Scrap", "Diamond Block",
+                "Block of Diamond", "Netherite Scrap", "Block of Diamond",
                 "Obsidian", null, "Obsidian",
-                "Diamond Block", "Obsidian", "Diamond Block"
+                "Block of Diamond", "Obsidian", "Block of Diamond"
             ],
             result: "Grebas Obsidiana"
         }
@@ -623,7 +623,7 @@ export const items = [
             type: "shaped",
             grid: [
                 "Obsidian", null, "Obsidian",
-                "Diamond Block", "Netherite Scrap", "Diamond Block",
+                "Block of Diamond", "Netherite Scrap", "Block of Diamond",
                 "Obsidian", null, "Obsidian"
             ],
             result: "Botas Obsidiana"

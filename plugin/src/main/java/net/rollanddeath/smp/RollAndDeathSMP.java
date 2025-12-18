@@ -456,24 +456,24 @@ public final class RollAndDeathSMP extends JavaPlugin {
             Collections.emptyList(), List.of("Receta secreta: regenera y sacia"), Sound.ITEM_BOTTLE_FILL, 1.2f));
 
         // Gear progresivo sin encantamientos (armadura con atributos)
-        itemManager.registerItem(new AttributeArmorItem(this, CustomItemType.STEEL_HELMET, Material.IRON_HELMET, EquipmentSlotGroup.HEAD, 1.0, 2.0, 0.0, List.of("Casco de acero templado", "Nivel netherite en defensa", "+1 armadura, +2 dureza")));
-        itemManager.registerItem(new AttributeArmorItem(this, CustomItemType.STEEL_CHESTPLATE, Material.IRON_CHESTPLATE, EquipmentSlotGroup.CHEST, 2.0, 3.0, 0.0, List.of("Pechera de placas reforzadas", "Nivel netherite en defensa", "+2 armadura, +3 dureza")));
-        itemManager.registerItem(new AttributeArmorItem(this, CustomItemType.STEEL_LEGGINGS, Material.IRON_LEGGINGS, EquipmentSlotGroup.LEGS, 2.0, 3.0, 0.0, List.of("Grebas de acero con charnelas", "Nivel netherite en defensa", "+2 armadura, +3 dureza")));
-        itemManager.registerItem(new AttributeArmorItem(this, CustomItemType.STEEL_BOOTS, Material.IRON_BOOTS, EquipmentSlotGroup.FEET, 1.0, 2.0, 0.0, List.of("Botas de acero acolchonadas", "Nivel netherite en defensa", "+1 armadura, +2 dureza")));
+        itemManager.registerItem(new AttributeArmorItem(this, CustomItemType.STEEL_HELMET, Material.IRON_HELMET, EquipmentSlotGroup.HEAD, 1.0, 2.0, 0.0, List.of("Casco de acero templado", "Nivel netherite en defensa")));
+        itemManager.registerItem(new AttributeArmorItem(this, CustomItemType.STEEL_CHESTPLATE, Material.IRON_CHESTPLATE, EquipmentSlotGroup.CHEST, 2.0, 3.0, 0.0, List.of("Pechera de placas reforzadas", "Nivel netherite en defensa")));
+        itemManager.registerItem(new AttributeArmorItem(this, CustomItemType.STEEL_LEGGINGS, Material.IRON_LEGGINGS, EquipmentSlotGroup.LEGS, 2.0, 3.0, 0.0, List.of("Grebas de acero con charnelas", "Nivel netherite en defensa")));
+        itemManager.registerItem(new AttributeArmorItem(this, CustomItemType.STEEL_BOOTS, Material.IRON_BOOTS, EquipmentSlotGroup.FEET, 1.0, 2.0, 0.0, List.of("Botas de acero acolchonadas", "Nivel netherite en defensa")));
 
-        itemManager.registerItem(new AttributeArmorItem(this, CustomItemType.OBSIDIAN_HELMET, Material.DIAMOND_HELMET, EquipmentSlotGroup.HEAD, 2.0, 3.0, 0.02, List.of("Casco con placas de obsidiana", "Superior a netherite", "+2 armadura, +3 dureza, +0.02 KB")));
-        itemManager.registerItem(new AttributeArmorItem(this, CustomItemType.OBSIDIAN_CHESTPLATE, Material.DIAMOND_CHESTPLATE, EquipmentSlotGroup.CHEST, 3.0, 4.0, 0.02, List.of("Pechera de obsidiana laminada", "Superior a netherite", "+3 armadura, +4 dureza, +0.02 KB")));
-        itemManager.registerItem(new AttributeArmorItem(this, CustomItemType.OBSIDIAN_LEGGINGS, Material.DIAMOND_LEGGINGS, EquipmentSlotGroup.LEGS, 3.0, 4.0, 0.02, List.of("Grebas diamantadas blindadas", "Superior a netherite", "+3 armadura, +4 dureza, +0.02 KB")));
-        itemManager.registerItem(new AttributeArmorItem(this, CustomItemType.OBSIDIAN_BOOTS, Material.DIAMOND_BOOTS, EquipmentSlotGroup.FEET, 2.0, 2.5, 0.02, List.of("Botas de obsidiana pulida", "Superior a netherite", "+2 armadura, +2.5 dureza, +0.02 KB")));
+        itemManager.registerItem(new AttributeArmorItem(this, CustomItemType.OBSIDIAN_HELMET, Material.DIAMOND_HELMET, EquipmentSlotGroup.HEAD, 2.0, 3.0, 0.02, List.of("Casco con placas de obsidiana", "Superior a netherite")));
+        itemManager.registerItem(new AttributeArmorItem(this, CustomItemType.OBSIDIAN_CHESTPLATE, Material.DIAMOND_CHESTPLATE, EquipmentSlotGroup.CHEST, 3.0, 4.0, 0.02, List.of("Pechera de obsidiana laminada", "Superior a netherite")));
+        itemManager.registerItem(new AttributeArmorItem(this, CustomItemType.OBSIDIAN_LEGGINGS, Material.DIAMOND_LEGGINGS, EquipmentSlotGroup.LEGS, 3.0, 4.0, 0.02, List.of("Grebas diamantadas blindadas", "Superior a netherite")));
+        itemManager.registerItem(new AttributeArmorItem(this, CustomItemType.OBSIDIAN_BOOTS, Material.DIAMOND_BOOTS, EquipmentSlotGroup.FEET, 2.0, 2.5, 0.02, List.of("Botas de obsidiana pulida", "Superior a netherite")));
 
-        itemManager.registerItem(new AttributeArmorItem(this, CustomItemType.VOID_HELMET, Material.NETHERITE_HELMET, EquipmentSlotGroup.HEAD, 3.0, 3.0, 0.05, List.of("Casco del vacío", "Tope de línea", "+3 armadura, +3 dureza, +0.05 KB")));
-        itemManager.registerItem(new AttributeArmorItem(this, CustomItemType.VOID_CHESTPLATE, Material.NETHERITE_CHESTPLATE, EquipmentSlotGroup.CHEST, 4.0, 4.0, 0.05, List.of("Pechera del vacío", "Tope de línea", "+4 armadura, +4 dureza, +0.05 KB")));
-        itemManager.registerItem(new AttributeArmorItem(this, CustomItemType.VOID_LEGGINGS, Material.NETHERITE_LEGGINGS, EquipmentSlotGroup.LEGS, 3.5, 3.0, 0.05, List.of("Grebas del vacío", "Tope de línea", "+3.5 armadura, +3 dureza, +0.05 KB")));
-        itemManager.registerItem(new AttributeArmorItem(this, CustomItemType.VOID_BOOTS, Material.NETHERITE_BOOTS, EquipmentSlotGroup.FEET, 2.0, 2.0, 0.05, List.of("Botas del vacío", "Tope de línea", "+2 armadura, +2 dureza, +0.05 KB")));
+        itemManager.registerItem(new AttributeArmorItem(this, CustomItemType.VOID_HELMET, Material.NETHERITE_HELMET, EquipmentSlotGroup.HEAD, 3.0, 3.0, 0.05, List.of("Casco del vacío", "Tope de línea")));
+        itemManager.registerItem(new AttributeArmorItem(this, CustomItemType.VOID_CHESTPLATE, Material.NETHERITE_CHESTPLATE, EquipmentSlotGroup.CHEST, 4.0, 4.0, 0.05, List.of("Pechera del vacío", "Tope de línea")));
+        itemManager.registerItem(new AttributeArmorItem(this, CustomItemType.VOID_LEGGINGS, Material.NETHERITE_LEGGINGS, EquipmentSlotGroup.LEGS, 3.5, 3.0, 0.05, List.of("Grebas del vacío", "Tope de línea")));
+        itemManager.registerItem(new AttributeArmorItem(this, CustomItemType.VOID_BOOTS, Material.NETHERITE_BOOTS, EquipmentSlotGroup.FEET, 2.0, 2.0, 0.05, List.of("Botas del vacío", "Tope de línea")));
 
-        itemManager.registerItem(new AttributeWeaponItem(this, CustomItemType.STEEL_SWORD, Material.IRON_SWORD, 3.0, 0.1, 0.0, List.of("Espada de acero templada", "Nivel netherite en daño", "+3 daño, +0.1 velocidad")));
-        itemManager.registerItem(new AttributeWeaponItem(this, CustomItemType.OBSIDIAN_SWORD, Material.DIAMOND_SWORD, 4.0, 0.1, 0.0, List.of("Filo de obsidiana", "Superior a netherite", "+4 daño, +0.1 velocidad")));
-        itemManager.registerItem(new AttributeWeaponItem(this, CustomItemType.VOID_SWORD, Material.NETHERITE_SWORD, 5.0, 0.05, 0.1, List.of("Hoja del vacío", "Tope de línea", "+5 daño, +0.05 velocidad, +0.1 KB res")));
+        itemManager.registerItem(new AttributeWeaponItem(this, CustomItemType.STEEL_SWORD, Material.IRON_SWORD, 3.0, 0.1, 0.0, List.of("Espada de acero templada", "Nivel netherite en daño")));
+        itemManager.registerItem(new AttributeWeaponItem(this, CustomItemType.OBSIDIAN_SWORD, Material.DIAMOND_SWORD, 4.0, 0.1, 0.0, List.of("Filo de obsidiana", "Superior a netherite")));
+        itemManager.registerItem(new AttributeWeaponItem(this, CustomItemType.VOID_SWORD, Material.NETHERITE_SWORD, 5.0, 0.05, 0.1, List.of("Hoja del vacío", "Tope de línea")));
 
         this.dailyRollManager = new DailyRollManager(this, itemManager);
         itemManager.registerItem(new LokiDice(this, dailyRollManager));

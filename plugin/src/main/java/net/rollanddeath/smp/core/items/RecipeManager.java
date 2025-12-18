@@ -4,6 +4,7 @@ import net.rollanddeath.smp.RollAndDeathSMP;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.RecipeChoice;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.ShapelessRecipe;
 
@@ -186,7 +187,7 @@ public class RecipeManager {
         ItemStack item = plugin.getItemManager().getItem(CustomItemType.LIFE_GAPPLE).getItemStack();
         ShapedRecipe recipe = new ShapedRecipe(new NamespacedKey(plugin, "life_gapple"), item);
         recipe.shape("HTH", "TNT", "HTH");
-        recipe.setIngredient('H', Material.PLAYER_HEAD);
+                recipe.setIngredient('H', new RecipeChoice.MaterialChoice(Material.PLAYER_HEAD, Material.PLAYER_WALL_HEAD));
         recipe.setIngredient('T', Material.TOTEM_OF_UNDYING);
         recipe.setIngredient('N', Material.ENCHANTED_GOLDEN_APPLE);
         plugin.getServer().addRecipe(recipe);
