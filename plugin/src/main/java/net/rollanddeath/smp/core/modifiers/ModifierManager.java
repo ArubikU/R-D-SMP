@@ -4,6 +4,10 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.title.Title;
 import net.rollanddeath.smp.RollAndDeathSMP;
+import net.rollanddeath.smp.core.modifiers.scripted.ScriptedModifier;
+import net.rollanddeath.smp.core.modifiers.scripted.ScriptedModifierDefinition;
+import net.rollanddeath.smp.core.modifiers.scripted.ScriptedModifierParser;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -16,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.io.File;
 
 public class ModifierManager {
 
@@ -30,6 +35,34 @@ public class ModifierManager {
     public ModifierManager(RollAndDeathSMP plugin) {
         this.plugin = plugin;
         loadModifierState();
+        loadScriptedModifiers();
+    }
+
+    private void loadScriptedModifiers() {
+        try {
+            if (!plugin.getDataFolder().exists()) {
+                //noinspection ResultOfMethodCallIgnored
+                plugin.getDataFolder().mkdirs();
+            }
+
+            File file = new File(plugin.getDataFolder(), "modifiers.yml");
+            if (!file.exists()) {
+                plugin.saveResource("modifiers.yml", false);
+            }
+
+            YamlConfiguration cfg = YamlConfiguration.loadConfiguration(file);
+            Map<String, ScriptedModifierDefinition> defs = ScriptedModifierParser.parseAll(cfg);
+            if (defs.isEmpty()) return;
+
+            for (ScriptedModifierDefinition def : defs.values()) {
+                ScriptedModifier mod = new ScriptedModifier(plugin, def.name(), def.type(), def.description(), def.events());
+                registerModifier(mod);
+            }
+
+            plugin.getLogger().info("Cargados modifiers scripted desde modifiers.yml: " + defs.size());
+        } catch (Exception e) {
+            plugin.getLogger().warning("No se pudo cargar modifiers.yml: " + e.getMessage());
+        }
     }
 
     private void loadModifierState() {
@@ -57,6 +90,11 @@ public class ModifierManager {
     }
 
     public void registerModifier(Modifier modifier) {
+        if (registeredModifiers.containsKey(modifier.getName())) {
+            plugin.getLogger().warning("Modifier duplicado ignorado: " + modifier.getName());
+            return;
+        }
+
         registeredModifiers.put(modifier.getName(), modifier);
         if (activeModifiers.contains(modifier.getName())) {
             modifier.onEnable();

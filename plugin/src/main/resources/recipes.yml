@@ -1,0 +1,1081 @@
+# Definición de recetas cargadas por el plugin.
+#
+# Estructura:
+# recipes:
+#   <id>:
+#     type: shaped | shapeless | furnace | blasting | smoking | campfire | stonecutting | smithing_transform
+#     result:
+#       # UNO de:
+#       material: <Bukkit Material>
+#       custom: <CustomItemType>
+#       amount: <int> (opcional, default 1)
+#       params: (opcional; actualmente soporta luck para LOKI_DICE)
+#         luck: <double>
+#
+# Ingredientes:
+# - Para shaped:
+#     pattern: ["ABC", "DEF", "GHI"] (1-3 filas)
+#     key:
+#       A: { material: STICK }
+#       B: { custom: SHARP_STICK }
+#       C: { material: IRON_INGOT }
+# - Para shapeless:
+#     ingredients:
+#       - { material: PAPER }
+#       - { custom: SOME_CUSTOM }
+#       - { material: STICK, count: 2 }
+#
+# Procesado (furnace/blasting/smoking/campfire):
+#   input: { material: RAW_IRON } | { custom: SOME_CUSTOM }
+#   experience: 0.7
+#   cookingTime: 200
+#
+# Stonecutting:
+#   input: { material: STONE }
+#
+# Smithing transform:
+#   template: { material: NETHERITE_UPGRADE_SMITHING_TEMPLATE }
+#   base:     { material: DIAMOND_SWORD }
+#   addition: { material: NETHERITE_INGOT }
+#
+# Rules (conditions/actions) opcionales por receta:
+#   rules:
+#     prepare: (se ejecuta en PrepareItemCraftEvent)
+#     craft:   (se ejecuta en CraftItemEvent)
+#
+# Cada fase soporta:
+#   deny_on_fail: true|false (default true)
+#   require_all:  [ {type: ...}, ... ]
+#   on_fail:      [ {type: ...}, ... ]
+#   on_pass:      [ {type: ...}, ... ]
+#
+# Conditions soportadas:
+# - { type: min_day, value: 10 }
+# - { type: lives_at_least, value: 2 }
+# - { type: role_is, value: ENGINEER }
+# - { type: modifier_active, name: "NoRegen" }
+# - { type: placeholder_compare, placeholder: "%rdsmp_lives%", operator: ">=", value: "2" }
+#
+# Actions soportadas:
+# - { type: message, color: red, message: "..." }
+# - { type: deny, color: red, message: "..." }  # deniega explícitamente
+# - { type: command, as: console|player, command: "say %player% ..." }
+# - { type: take_lives, amount: 1, color: red, message: "..." }
+# - { type: add_lives, amount: 1, color: green, message: "..." }
+# - { type: set_lives, value: 3, color: yellow, message: "..." }
+#
+recipes:
+  healing_bandage:
+    type: shapeless
+    result: { custom: HEALING_BANDAGE }
+    ingredients:
+      - { material: PAPER }
+      - { material: WHITE_WOOL }
+
+  sharpening_stone:
+    type: shapeless
+    result: { custom: SHARPENING_STONE }
+    ingredients:
+      - { material: STONE }
+      - { material: FLINT }
+
+  moldy_bread:
+    type: shapeless
+    result: { custom: MOLDY_BREAD }
+    ingredients:
+      - { material: BREAD }
+      - { material: BROWN_MUSHROOM }
+
+  eternal_torch:
+    type: shapeless
+    result: { custom: ETERNAL_TORCH }
+    ingredients:
+      - { material: TORCH }
+      - { material: GLOWSTONE_DUST }
+
+  sharp_stick:
+    type: shaped
+    result: { custom: SHARP_STICK }
+    pattern:
+      - "F"
+      - "S"
+    key:
+      F: { material: FLINT }
+      S: { material: STICK }
+
+  reinforced_leather_boots:
+    type: shaped
+    result: { custom: REINFORCED_LEATHER_BOOTS }
+    pattern:
+      - "I I"
+      - "L L"
+    key:
+      I: { material: IRON_INGOT }
+      L: { material: LEATHER_BOOTS }
+
+  mysterious_soup:
+    type: shapeless
+    result: { custom: MYSTERIOUS_SOUP }
+    ingredients:
+      - { material: BOWL }
+      - { material: NETHER_WART }
+      - { material: SPIDER_EYE }
+
+  thorn_shield:
+    type: shapeless
+    result: { custom: THORN_SHIELD }
+    ingredients:
+      - { material: SHIELD }
+      - { material: CACTUS }
+
+  bone_bow:
+    type: shaped
+    result: { custom: BONE_BOW }
+    pattern:
+      - " BS"
+      - "B S"
+      - " BS"
+    key:
+      B: { material: BONE }
+      S: { material: STRING }
+
+  glass_pickaxe:
+    type: shaped
+    result: { custom: GLASS_PICKAXE }
+    pattern:
+      - "GGG"
+      - " S "
+      - " S "
+    key:
+      G: { material: GLASS }
+      S: { material: STICK }
+
+  small_backpack:
+    type: shaped
+    result: { custom: SMALL_BACKPACK }
+    pattern:
+      - "LCL"
+      - "L L"
+      - "LLL"
+    key:
+      L: { material: LEATHER }
+      C: { material: CHEST }
+
+  grappling_hook:
+    type: shaped
+    result: { custom: GRAPPLING_HOOK }
+    pattern:
+      - " II"
+      - " SI"
+      - "S  "
+    key:
+      I: { material: IRON_INGOT }
+      S: { material: STRING }
+
+  armored_wings:
+    type: shaped
+    result: { custom: ARMORED_WINGS }
+    pattern:
+      - "NEN"
+      - "N N"
+      - "N N"
+    key:
+      N: { material: NETHERITE_INGOT }
+      E: { material: ELYTRA }
+
+  invisibility_cloak:
+    type: shaped
+    result: { custom: INVISIBILITY_CLOAK }
+    pattern:
+      - "WWW"
+      - "WGW"
+      - "WWW"
+    key:
+      W: { material: BLACK_WOOL }
+      G: { material: GLASS }
+
+  true_sight_helmet:
+    type: shaped
+    result: { custom: TRUE_SIGHT_HELMET }
+    pattern:
+      - "GEG"
+      - "G G"
+      - "   "
+    key:
+      G: { material: GOLD_INGOT }
+      E: { material: ENDER_PEARL }
+
+  resurrection_orb:
+    type: shaped
+    result: { custom: RESURRECTION_ORB }
+    pattern:
+      - "DSD"
+      - "SOS"
+      - "DSD"
+    key:
+      D: { material: DIAMOND_BLOCK }
+      S: { material: NETHER_STAR }
+      O: { material: GOLD_BLOCK }
+    rules:
+      prepare:
+        deny_on_fail: false
+        on_pass:
+          - { type: message, color: red, message: "⚠ ADVERTENCIA: Craftear este ítem te costará 1 VIDA." }
+      craft:
+        require_all:
+          - { type: lives_at_least, value: 2 }
+        on_fail:
+          - { type: deny, color: red, message: "No tienes suficientes vidas para craftear esto. Morirías permanentemente." }
+        on_pass:
+          - { type: take_lives, amount: 1, color: red, message: "Has sacrificado 1 vida para crear el Orbe de Resurrección." }
+
+  life_gapple:
+    type: shaped
+    result: { custom: LIFE_GAPPLE }
+    pattern:
+      - "HTH"
+      - "TNT"
+      - "HTH"
+    key:
+      H: { material: PLAYER_HEAD }
+      T: { material: TOTEM_OF_UNDYING }
+      N: { material: ENCHANTED_GOLDEN_APPLE }
+
+  soul_contract:
+    type: shaped
+    result: { custom: SOUL_CONTRACT }
+    pattern:
+      - "SPS"
+      - "BKB"
+      - "SIS"
+    key:
+      S: { material: SOUL_SAND }
+      P: { material: PAPER }
+      B: { material: BONE }
+      K: { material: WITHER_SKELETON_SKULL }
+      I: { material: INK_SAC }
+    rules:
+      prepare:
+        deny_on_fail: false
+        on_pass:
+          - { type: message, color: dark_red, message: "⚠ ADVERTENCIA: Usar este ítem te BANEARÁ por 24 HORAS." }
+
+  steel_helmet:
+    type: shaped
+    result: { custom: STEEL_HELMET }
+    pattern:
+      - "BFB"
+      - "C C"
+      - "I I"
+    key:
+      B: { material: IRON_BLOCK }
+      F: { material: BLAST_FURNACE }
+      C: { material: CHAIN }
+      I: { material: IRON_INGOT }
+    rules:
+      prepare:
+        require_all: [ { type: min_day, value: 10 } ]
+        on_fail:
+          - { type: message, color: red, message: "Disponible para craftear desde el día 10. Día actual: %rdsmp_day%" }
+      craft:
+        require_all: [ { type: min_day, value: 10 } ]
+        on_fail:
+          - { type: message, color: red, message: "Aún no puedes craftear este ítem. Día mínimo: 10" }
+
+  steel_chestplate:
+    type: shaped
+    result: { custom: STEEL_CHESTPLATE }
+    pattern:
+      - "BFB"
+      - "BCB"
+      - "BIB"
+    key:
+      B: { material: IRON_BLOCK }
+      F: { material: BLAST_FURNACE }
+      C: { material: CHAINMAIL_CHESTPLATE }
+      I: { material: IRON_INGOT }
+    rules:
+      prepare:
+        require_all: [ { type: min_day, value: 10 } ]
+        on_fail:
+          - { type: message, color: red, message: "Disponible para craftear desde el día 10. Día actual: %rdsmp_day%" }
+      craft:
+        require_all: [ { type: min_day, value: 10 } ]
+        on_fail:
+          - { type: message, color: red, message: "Aún no puedes craftear este ítem. Día mínimo: 10" }
+
+  steel_leggings:
+    type: shaped
+    result: { custom: STEEL_LEGGINGS }
+    pattern:
+      - "BFB"
+      - "C C"
+      - "BIB"
+    key:
+      B: { material: IRON_BLOCK }
+      F: { material: BLAST_FURNACE }
+      C: { material: CHAIN }
+      I: { material: IRON_INGOT }
+    rules:
+      prepare:
+        require_all: [ { type: min_day, value: 10 } ]
+        on_fail:
+          - { type: message, color: red, message: "Disponible para craftear desde el día 10. Día actual: %rdsmp_day%" }
+      craft:
+        require_all: [ { type: min_day, value: 10 } ]
+        on_fail:
+          - { type: message, color: red, message: "Aún no puedes craftear este ítem. Día mínimo: 10" }
+
+  steel_boots:
+    type: shaped
+    result: { custom: STEEL_BOOTS }
+    pattern:
+      - "C C"
+      - "BFB"
+      - "I I"
+    key:
+      C: { material: CHAIN }
+      B: { material: IRON_BLOCK }
+      F: { material: BLAST_FURNACE }
+      I: { material: IRON_INGOT }
+    rules:
+      prepare:
+        require_all: [ { type: min_day, value: 10 } ]
+        on_fail:
+          - { type: message, color: red, message: "Disponible para craftear desde el día 10. Día actual: %rdsmp_day%" }
+      craft:
+        require_all: [ { type: min_day, value: 10 } ]
+        on_fail:
+          - { type: message, color: red, message: "Aún no puedes craftear este ítem. Día mínimo: 10" }
+
+  obsidian_helmet:
+    type: shaped
+    result: { custom: OBSIDIAN_HELMET }
+    pattern:
+      - "DND"
+      - "OSO"
+      - "   "
+    key:
+      D: { material: DIAMOND_BLOCK }
+      N: { material: NETHERITE_SCRAP }
+      O: { material: OBSIDIAN }
+      S: { material: SMITHING_TABLE }
+    rules:
+      prepare:
+        require_all: [ { type: min_day, value: 20 } ]
+        on_fail:
+          - { type: message, color: red, message: "Disponible para craftear desde el día 20. Día actual: %rdsmp_day%" }
+      craft:
+        require_all: [ { type: min_day, value: 20 } ]
+        on_fail:
+          - { type: message, color: red, message: "Aún no puedes craftear este ítem. Día mínimo: 20" }
+
+  obsidian_chestplate:
+    type: shaped
+    result: { custom: OBSIDIAN_CHESTPLATE }
+    pattern:
+      - "DND"
+      - "OSO"
+      - "DOD"
+    key:
+      D: { material: DIAMOND_BLOCK }
+      N: { material: NETHERITE_SCRAP }
+      O: { material: OBSIDIAN }
+      S: { material: SMITHING_TABLE }
+    rules:
+      prepare:
+        require_all: [ { type: min_day, value: 20 } ]
+        on_fail:
+          - { type: message, color: red, message: "Disponible para craftear desde el día 20. Día actual: %rdsmp_day%" }
+      craft:
+        require_all: [ { type: min_day, value: 20 } ]
+        on_fail:
+          - { type: message, color: red, message: "Aún no puedes craftear este ítem. Día mínimo: 20" }
+
+  obsidian_leggings:
+    type: shaped
+    result: { custom: OBSIDIAN_LEGGINGS }
+    pattern:
+      - "DND"
+      - "O O"
+      - "DOD"
+    key:
+      D: { material: DIAMOND_BLOCK }
+      N: { material: NETHERITE_SCRAP }
+      O: { material: OBSIDIAN }
+    rules:
+      prepare:
+        require_all: [ { type: min_day, value: 20 } ]
+        on_fail:
+          - { type: message, color: red, message: "Disponible para craftear desde el día 20. Día actual: %rdsmp_day%" }
+      craft:
+        require_all: [ { type: min_day, value: 20 } ]
+        on_fail:
+          - { type: message, color: red, message: "Aún no puedes craftear este ítem. Día mínimo: 20" }
+
+  obsidian_boots:
+    type: shaped
+    result: { custom: OBSIDIAN_BOOTS }
+    pattern:
+      - "O O"
+      - "DND"
+      - "O O"
+    key:
+      O: { material: OBSIDIAN }
+      D: { material: DIAMOND_BLOCK }
+      N: { material: NETHERITE_SCRAP }
+    rules:
+      prepare:
+        require_all: [ { type: min_day, value: 20 } ]
+        on_fail:
+          - { type: message, color: red, message: "Disponible para craftear desde el día 20. Día actual: %rdsmp_day%" }
+      craft:
+        require_all: [ { type: min_day, value: 20 } ]
+        on_fail:
+          - { type: message, color: red, message: "Aún no puedes craftear este ítem. Día mínimo: 20" }
+
+  void_helmet:
+    type: shaped
+    result: { custom: VOID_HELMET }
+    pattern:
+      - "CNC"
+      - "SES"
+      - "   "
+    key:
+      C: { material: CRYING_OBSIDIAN }
+      N: { material: NETHERITE_INGOT }
+      S: { material: ECHO_SHARD }
+      E: { material: END_CRYSTAL }
+    rules:
+      prepare:
+        require_all: [ { type: min_day, value: 30 } ]
+        on_fail:
+          - { type: message, color: red, message: "Disponible para craftear desde el día 30. Día actual: %rdsmp_day%" }
+      craft:
+        require_all: [ { type: min_day, value: 30 } ]
+        on_fail:
+          - { type: message, color: red, message: "Aún no puedes craftear este ítem. Día mínimo: 30" }
+
+  void_chestplate:
+    type: shaped
+    result: { custom: VOID_CHESTPLATE }
+    pattern:
+      - "CNC"
+      - "SES"
+      - "CNC"
+    key:
+      C: { material: CRYING_OBSIDIAN }
+      N: { material: NETHERITE_INGOT }
+      S: { material: ECHO_SHARD }
+      E: { material: END_CRYSTAL }
+    rules:
+      prepare:
+        require_all: [ { type: min_day, value: 30 } ]
+        on_fail:
+          - { type: message, color: red, message: "Disponible para craftear desde el día 30. Día actual: %rdsmp_day%" }
+      craft:
+        require_all: [ { type: min_day, value: 30 } ]
+        on_fail:
+          - { type: message, color: red, message: "Aún no puedes craftear este ítem. Día mínimo: 30" }
+
+  void_leggings:
+    type: shaped
+    result: { custom: VOID_LEGGINGS }
+    pattern:
+      - "CNC"
+      - "S S"
+      - "CNC"
+    key:
+      C: { material: CRYING_OBSIDIAN }
+      N: { material: NETHERITE_INGOT }
+      S: { material: ECHO_SHARD }
+    rules:
+      prepare:
+        require_all: [ { type: min_day, value: 30 } ]
+        on_fail:
+          - { type: message, color: red, message: "Disponible para craftear desde el día 30. Día actual: %rdsmp_day%" }
+      craft:
+        require_all: [ { type: min_day, value: 30 } ]
+        on_fail:
+          - { type: message, color: red, message: "Aún no puedes craftear este ítem. Día mínimo: 30" }
+
+  void_boots:
+    type: shaped
+    result: { custom: VOID_BOOTS }
+    pattern:
+      - "S S"
+      - "CNC"
+      - "N N"
+    key:
+      S: { material: ECHO_SHARD }
+      C: { material: CRYING_OBSIDIAN }
+      N: { material: NETHERITE_INGOT }
+    rules:
+      prepare:
+        require_all: [ { type: min_day, value: 30 } ]
+        on_fail:
+          - { type: message, color: red, message: "Disponible para craftear desde el día 30. Día actual: %rdsmp_day%" }
+      craft:
+        require_all: [ { type: min_day, value: 30 } ]
+        on_fail:
+          - { type: message, color: red, message: "Aún no puedes craftear este ítem. Día mínimo: 30" }
+
+  steel_sword:
+    type: shaped
+    result: { custom: STEEL_SWORD }
+    pattern:
+      - " B "
+      - " F "
+      - " I "
+    key:
+      B: { material: IRON_BLOCK }
+      F: { material: BLAST_FURNACE }
+      I: { material: IRON_INGOT }
+    rules:
+      prepare:
+        require_all: [ { type: min_day, value: 10 } ]
+        on_fail:
+          - { type: message, color: red, message: "Disponible para craftear desde el día 10. Día actual: %rdsmp_day%" }
+      craft:
+        require_all: [ { type: min_day, value: 10 } ]
+        on_fail:
+          - { type: message, color: red, message: "Aún no puedes craftear este ítem. Día mínimo: 10" }
+
+  obsidian_sword:
+    type: shaped
+    result: { custom: OBSIDIAN_SWORD }
+    pattern:
+      - " O "
+      - " D "
+      - " N "
+    key:
+      O: { material: OBSIDIAN }
+      D: { material: DIAMOND_SWORD }
+      N: { material: NETHERITE_SCRAP }
+    rules:
+      prepare:
+        require_all: [ { type: min_day, value: 20 } ]
+        on_fail:
+          - { type: message, color: red, message: "Disponible para craftear desde el día 20. Día actual: %rdsmp_day%" }
+      craft:
+        require_all: [ { type: min_day, value: 20 } ]
+        on_fail:
+          - { type: message, color: red, message: "Aún no puedes craftear este ítem. Día mínimo: 20" }
+
+  void_sword:
+    type: shaped
+    result: { custom: VOID_SWORD }
+    pattern:
+      - " C "
+      - "NS "
+      - " E "
+    key:
+      C: { material: CRYING_OBSIDIAN }
+      N: { material: NETHERITE_SWORD }
+      S: { material: ECHO_SHARD }
+      E: { material: END_CRYSTAL }
+    rules:
+      prepare:
+        require_all: [ { type: min_day, value: 30 } ]
+        on_fail:
+          - { type: message, color: red, message: "Disponible para craftear desde el día 30. Día actual: %rdsmp_day%" }
+      craft:
+        require_all: [ { type: min_day, value: 30 } ]
+        on_fail:
+          - { type: message, color: red, message: "Aún no puedes craftear este ítem. Día mínimo: 30" }
+
+  # --- Ítems de rol ---
+  pacifist_balm:
+    type: shapeless
+    result: { custom: PACIFIST_BALM }
+    ingredients:
+      - { material: HONEY_BOTTLE }
+      - { material: GHAST_TEAR }
+      - { material: MILK_BUCKET }
+    rules:
+      prepare:
+        require_all: [ { type: role_is, value: PACIFIST } ]
+      craft:
+        require_all: [ { type: role_is, value: PACIFIST } ]
+        on_fail:
+          - { type: message, color: red, message: "Este crafteo requiere el rol Pacifista." }
+
+  vampire_vial:
+    type: shapeless
+    result: { custom: VAMPIRE_VIAL }
+    ingredients:
+      - { material: GLASS_BOTTLE }
+      - { material: FERMENTED_SPIDER_EYE }
+      - { material: NETHER_WART }
+      - { material: REDSTONE }
+    rules:
+      prepare:
+        require_all: [ { type: role_is, value: VAMPIRE } ]
+      craft:
+        require_all: [ { type: role_is, value: VAMPIRE } ]
+        on_fail:
+          - { type: message, color: red, message: "Este crafteo requiere el rol Vampiro." }
+
+  glass_cannon_charge:
+    type: shapeless
+    result: { custom: GLASS_CANNON_CHARGE }
+    ingredients:
+      - { material: AMETHYST_SHARD }
+      - { material: TNT }
+      - { material: GLOWSTONE_DUST }
+    rules:
+      prepare:
+        require_all: [ { type: role_is, value: GLASS_CANNON } ]
+      craft:
+        require_all: [ { type: role_is, value: GLASS_CANNON } ]
+        on_fail:
+          - { type: message, color: red, message: "Este crafteo requiere el rol Cañón de Cristal." }
+
+  midas_talisman:
+    type: shapeless
+    result: { custom: MIDAS_TALISMAN }
+    ingredients:
+      - { material: GOLD_BLOCK }
+      - { material: COPPER_INGOT }
+      - { material: EMERALD }
+    rules:
+      prepare:
+        require_all: [ { type: role_is, value: MIDAS } ]
+      craft:
+        require_all: [ { type: role_is, value: MIDAS } ]
+        on_fail:
+          - { type: message, color: red, message: "Este crafteo requiere el rol Midas." }
+
+  nomad_compass:
+    type: shapeless
+    result: { custom: NOMAD_COMPASS }
+    ingredients:
+      - { material: COMPASS }
+      - { material: PHANTOM_MEMBRANE }
+      - { material: RABBIT_FOOT }
+    rules:
+      prepare:
+        require_all: [ { type: role_is, value: NOMAD } ]
+      craft:
+        require_all: [ { type: role_is, value: NOMAD } ]
+        on_fail:
+          - { type: message, color: red, message: "Este crafteo requiere el rol Nómada." }
+
+  tank_plating:
+    type: shapeless
+    result: { custom: TANK_PLATING }
+    ingredients:
+      - { material: IRON_BLOCK }
+      - { material: SHIELD }
+      - { material: TURTLE_HELMET }
+    rules:
+      prepare:
+        require_all: [ { type: role_is, value: TANK } ]
+      craft:
+        require_all: [ { type: role_is, value: TANK } ]
+        on_fail:
+          - { type: message, color: red, message: "Este crafteo requiere el rol Tanque." }
+
+  assassin_poison_kit:
+    type: shapeless
+    result: { custom: ASSASSIN_POISON_KIT }
+    ingredients:
+      - { material: FERMENTED_SPIDER_EYE }
+      - { material: ARROW }
+      - { material: BLACK_DYE }
+    rules:
+      prepare:
+        require_all: [ { type: role_is, value: ASSASSIN } ]
+      craft:
+        require_all: [ { type: role_is, value: ASSASSIN } ]
+        on_fail:
+          - { type: message, color: red, message: "Este crafteo requiere el rol Asesino." }
+
+  engineer_repair_kit:
+    type: shapeless
+    result: { custom: ENGINEER_REPAIR_KIT }
+    ingredients:
+      - { material: REDSTONE }
+      - { material: IRON_INGOT }
+      - { material: ANVIL }
+    rules:
+      prepare:
+        require_all: [ { type: role_is, value: ENGINEER } ]
+      craft:
+        require_all: [ { type: role_is, value: ENGINEER } ]
+        on_fail:
+          - { type: message, color: red, message: "Este crafteo requiere el rol Ingeniero." }
+
+  pyro_torch:
+    type: shapeless
+    result: { custom: PYRO_TORCH }
+    ingredients:
+      - { material: FLINT_AND_STEEL }
+      - { material: BLAZE_POWDER }
+      - { material: MAGMA_CREAM }
+    rules:
+      prepare:
+        require_all: [ { type: role_is, value: PYRO } ]
+      craft:
+        require_all: [ { type: role_is, value: PYRO } ]
+        on_fail:
+          - { type: message, color: red, message: "Este crafteo requiere el rol Pirómano." }
+
+  cursed_idol:
+    type: shapeless
+    result: { custom: CURSED_IDOL }
+    ingredients:
+      - { material: WITHER_ROSE }
+      - { material: ENDER_PEARL }
+      - { material: ROTTEN_FLESH }
+    rules:
+      prepare:
+        require_all: [ { type: role_is, value: CURSED } ]
+      craft:
+        require_all: [ { type: role_is, value: CURSED } ]
+        on_fail:
+          - { type: message, color: red, message: "Este crafteo requiere el rol Maldito." }
+
+  druid_seed:
+    type: shapeless
+    result: { custom: DRUID_SEED }
+    ingredients:
+      - { material: MOSS_BLOCK }
+      - { material: WHEAT_SEEDS }
+      - { material: BONE_MEAL }
+    rules:
+      prepare:
+        require_all: [ { type: role_is, value: DRUID } ]
+      craft:
+        require_all: [ { type: role_is, value: DRUID } ]
+        on_fail:
+          - { type: message, color: red, message: "Este crafteo requiere el rol Druida." }
+
+  berserker_mead:
+    type: shapeless
+    result: { custom: BERSERKER_MEAD }
+    ingredients:
+      - { material: HONEY_BOTTLE }
+      - { material: BLAZE_POWDER }
+      - { material: COOKED_BEEF }
+    rules:
+      prepare:
+        require_all: [ { type: role_is, value: BERSERKER } ]
+      craft:
+        require_all: [ { type: role_is, value: BERSERKER } ]
+        on_fail:
+          - { type: message, color: red, message: "Este crafteo requiere el rol Berserker." }
+
+  sniper_scope:
+    type: shapeless
+    result: { custom: SNIPER_SCOPE }
+    ingredients:
+      - { material: SPYGLASS }
+      - { material: FEATHER }
+      - { material: STRING }
+    rules:
+      prepare:
+        require_all: [ { type: role_is, value: SNIPER } ]
+      craft:
+        require_all: [ { type: role_is, value: SNIPER } ]
+        on_fail:
+          - { type: message, color: red, message: "Este crafteo requiere el rol Francotirador." }
+
+  merchant_ledger:
+    type: shapeless
+    result: { custom: MERCHANT_LEDGER }
+    ingredients:
+      - { material: BOOK }
+      - { material: EMERALD }
+      - { material: GOLD_INGOT }
+    rules:
+      prepare:
+        require_all: [ { type: role_is, value: MERCHANT } ]
+      craft:
+        require_all: [ { type: role_is, value: MERCHANT } ]
+        on_fail:
+          - { type: message, color: red, message: "Este crafteo requiere el rol Mercader." }
+
+  ghost_veil:
+    type: shapeless
+    result: { custom: GHOST_VEIL }
+    ingredients:
+      - { material: WHITE_STAINED_GLASS_PANE }
+      - { material: PHANTOM_MEMBRANE }
+      - { material: SNOWBALL }
+    rules:
+      prepare:
+        require_all: [ { type: role_is, value: GHOST } ]
+      craft:
+        require_all: [ { type: role_is, value: GHOST } ]
+        on_fail:
+          - { type: message, color: red, message: "Este crafteo requiere el rol Fantasma." }
+
+  aquatic_gills:
+    type: shapeless
+    result: { custom: AQUATIC_GILLS }
+    ingredients:
+      - { material: PRISMARINE_SHARD }
+      - { material: KELP }
+      - { material: TROPICAL_FISH }
+    rules:
+      prepare:
+        require_all: [ { type: role_is, value: AQUATIC } ]
+      craft:
+        require_all: [ { type: role_is, value: AQUATIC } ]
+        on_fail:
+          - { type: message, color: red, message: "Este crafteo requiere el rol Acuático." }
+
+  miner_charge:
+    type: shapeless
+    result: { custom: MINER_CHARGE }
+    ingredients:
+      - { material: TNT }
+      - { material: IRON_PICKAXE }
+      - { material: TORCH }
+    rules:
+      prepare:
+        require_all: [ { type: role_is, value: MINER } ]
+      craft:
+        require_all: [ { type: role_is, value: MINER } ]
+        on_fail:
+          - { type: message, color: red, message: "Este crafteo requiere el rol Minero." }
+
+  tamer_whistle:
+    type: shapeless
+    result: { custom: TAMER_WHISTLE }
+    ingredients:
+      - { material: BONE }
+      - { material: LEAD }
+      - { material: COOKED_CHICKEN }
+    rules:
+      prepare:
+        require_all: [ { type: role_is, value: TAMER } ]
+      craft:
+        require_all: [ { type: role_is, value: TAMER } ]
+        on_fail:
+          - { type: message, color: red, message: "Este crafteo requiere el rol Domador." }
+
+  alchemist_catalyst:
+    type: shapeless
+    result: { custom: ALCHEMIST_CATALYST }
+    ingredients:
+      - { material: NETHER_WART }
+      - { material: REDSTONE }
+      - { material: GLOWSTONE_DUST }
+    rules:
+      prepare:
+        require_all: [ { type: role_is, value: ALCHEMIST } ]
+      craft:
+        require_all: [ { type: role_is, value: ALCHEMIST } ]
+        on_fail:
+          - { type: message, color: red, message: "Este crafteo requiere el rol Alquimista." }
+
+  knight_banner:
+    type: shapeless
+    result: { custom: KNIGHT_BANNER }
+    ingredients:
+      - { material: WHITE_BANNER }
+      - { material: IRON_SWORD }
+      - { material: SHIELD }
+    rules:
+      prepare:
+        require_all: [ { type: role_is, value: KNIGHT } ]
+      craft:
+        require_all: [ { type: role_is, value: KNIGHT } ]
+        on_fail:
+          - { type: message, color: red, message: "Este crafteo requiere el rol Caballero." }
+
+  thief_lockpicks:
+    type: shapeless
+    result: { custom: THIEF_LOCKPICKS }
+    ingredients:
+      - { material: TRIPWIRE_HOOK }
+      - { material: IRON_NUGGET }
+      - { material: ENDER_PEARL }
+    rules:
+      prepare:
+        require_all: [ { type: role_is, value: THIEF } ]
+      craft:
+        require_all: [ { type: role_is, value: THIEF } ]
+        on_fail:
+          - { type: message, color: red, message: "Este crafteo requiere el rol Ladrón." }
+
+  giant_bracer:
+    type: shapeless
+    result: { custom: GIANT_BRACER }
+    ingredients:
+      - { material: IRON_BLOCK }
+      - { material: LEATHER }
+      - { material: BEETROOT_SOUP }
+    rules:
+      prepare:
+        require_all: [ { type: role_is, value: GIANT } ]
+      craft:
+        require_all: [ { type: role_is, value: GIANT } ]
+        on_fail:
+          - { type: message, color: red, message: "Este crafteo requiere el rol Gigante." }
+
+  dwarf_forge_hammer:
+    type: shapeless
+    result: { custom: DWARF_FORGE_HAMMER }
+    ingredients:
+      - { material: IRON_PICKAXE }
+      - { material: COAL }
+      - { material: ANVIL }
+    rules:
+      prepare:
+        require_all: [ { type: role_is, value: DWARF } ]
+      craft:
+        require_all: [ { type: role_is, value: DWARF } ]
+        on_fail:
+          - { type: message, color: red, message: "Este crafteo requiere el rol Enano." }
+
+  illusionist_mirror:
+    type: shapeless
+    result: { custom: ILLUSIONIST_MIRROR }
+    ingredients:
+      - { material: GLASS_PANE }
+      - { material: LAPIS_LAZULI }
+      - { material: ENDER_PEARL }
+    rules:
+      prepare:
+        require_all: [ { type: role_is, value: ILLUSIONIST } ]
+      craft:
+        require_all: [ { type: role_is, value: ILLUSIONIST } ]
+        on_fail:
+          - { type: message, color: red, message: "Este crafteo requiere el rol Ilusionista." }
+
+  barbarian_mead:
+    type: shapeless
+    result: { custom: BARBARIAN_MEAD }
+    ingredients:
+      - { material: COOKED_PORKCHOP }
+      - { material: HONEY_BOTTLE }
+      - { material: BLAZE_POWDER }
+    rules:
+      prepare:
+        require_all: [ { type: role_is, value: BARBARIAN } ]
+      craft:
+        require_all: [ { type: role_is, value: BARBARIAN } ]
+        on_fail:
+          - { type: message, color: red, message: "Este crafteo requiere el rol Bárbaro." }
+
+  sage_scroll:
+    type: shapeless
+    result: { custom: SAGE_SCROLL }
+    ingredients:
+      - { material: PAPER }
+      - { material: LAPIS_LAZULI }
+      - { material: AMETHYST_SHARD }
+    rules:
+      prepare:
+        require_all: [ { type: role_is, value: SAGE } ]
+      craft:
+        require_all: [ { type: role_is, value: SAGE } ]
+        on_fail:
+          - { type: message, color: red, message: "Este crafteo requiere el rol Sabio." }
+
+  chaotic_seal:
+    type: shapeless
+    result: { custom: CHAOTIC_SEAL }
+    ingredients:
+      - { material: ECHO_SHARD }
+      - { material: REDSTONE }
+      - { material: GUNPOWDER }
+    rules:
+      prepare:
+        require_all: [ { type: role_is, value: CHAOTIC } ]
+      craft:
+        require_all: [ { type: role_is, value: CHAOTIC } ]
+        on_fail:
+          - { type: message, color: red, message: "Este crafteo requiere el rol Caótico." }
+
+  guardian_sigil:
+    type: shapeless
+    result: { custom: GUARDIAN_SIGIL }
+    ingredients:
+      - { material: SHIELD }
+      - { material: IRON_INGOT }
+      - { material: HEART_OF_THE_SEA }
+    rules:
+      prepare:
+        require_all: [ { type: role_is, value: GUARDIAN } ]
+      craft:
+        require_all: [ { type: role_is, value: GUARDIAN } ]
+        on_fail:
+          - { type: message, color: red, message: "Este crafteo requiere el rol Guardián." }
+
+  explorer_compass:
+    type: shapeless
+    result: { custom: EXPLORER_COMPASS }
+    ingredients:
+      - { material: MAP }
+      - { material: FEATHER }
+      - { material: SWEET_BERRIES }
+    rules:
+      prepare:
+        require_all: [ { type: role_is, value: EXPLORER } ]
+      craft:
+        require_all: [ { type: role_is, value: EXPLORER } ]
+        on_fail:
+          - { type: message, color: red, message: "Este crafteo requiere el rol Explorador." }
+
+  cook_spice_blend:
+    type: shapeless
+    result: { custom: COOK_SPICE_BLEND }
+    ingredients:
+      - { material: BOWL }
+      - { material: CARROT }
+      - { material: POTATO }
+      - { material: BEETROOT }
+    rules:
+      prepare:
+        require_all: [ { type: role_is, value: COOK } ]
+      craft:
+        require_all: [ { type: role_is, value: COOK } ]
+        on_fail:
+          - { type: message, color: red, message: "Este crafteo requiere el rol Cocinero." }
+
+  # --- Loki Dice (resultado parametrizado) ---
+  loki_dice_lucky:
+    type: shapeless
+    result:
+      custom: LOKI_DICE
+      params: { luck: 0.20 }
+    ingredients:
+      - { material: EMERALD_BLOCK }
+      - { material: NETHER_STAR }
+      - { material: TOTEM_OF_UNDYING }
+      - { material: NETHERITE_INGOT }
+      - { material: ENCHANTED_GOLDEN_APPLE }
+      - { material: DRAGON_BREATH }
+      - { material: ECHO_SHARD }
+      - { material: GHAST_TEAR }
+      - { material: END_CRYSTAL }
+
+  loki_dice_cursed:
+    type: shapeless
+    result:
+      custom: LOKI_DICE
+      params: { luck: -0.20 }
+    ingredients:
+      - { material: EMERALD_BLOCK }
+      - { material: WITHER_ROSE }
+      - { material: FERMENTED_SPIDER_EYE }
+      - { material: POISONOUS_POTATO }
+      - { material: ROTTEN_FLESH }
+      - { material: SPIDER_EYE }
+      - { material: SOUL_SOIL }
+      - { material: SOUL_TORCH }
+      - { material: MAGMA_CREAM }
+
+  loki_role_dice:
+    type: shapeless
+    result: { custom: LOKI_ROLE_DICE }
+    ingredients:
+      - { material: EMERALD_BLOCK }
+      - { material: NETHERITE_SCRAP }
+      - { material: ECHO_SHARD }
+      - { material: GHAST_TEAR }
+      - { material: TOTEM_OF_UNDYING }

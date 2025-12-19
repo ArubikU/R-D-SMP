@@ -1,0 +1,56 @@
+# Definición de modifiers cargados dinámicamente.
+#
+# Estructura:
+# modifiers:
+#   <id>:
+#     name: "Nombre visible"            # IMPORTANTE: el nombre es el identificador usado por el juego/ruleta
+#     type: CURSE|BLESSING|CHAOS
+#     description: "..."
+#     events:
+#       # Eventos soportados (por ahora):
+#       # - player_regain_health  (EntityRegainHealthEvent solo si es Player)
+#       # - player_item_consume   (PlayerItemConsumeEvent)
+#       <event_name>:
+#         deny_on_fail: false            # default false
+#         require_all: [ {type: ...}, ...]
+#         on_fail:     [ {type: ...}, ...]
+#         on_pass:     [ {type: ...}, ...]
+#
+# Variables disponibles por evento:
+# - player_regain_health:
+#   - regain_reason: SATIATED|EATING|REGEN|MAGIC|...
+#   - amount: <double>
+# - player_item_consume:
+#   - item_material: <Material>
+#
+# Conditions extra (además de las ya soportadas):
+# - { type: var_equals, key: "item_material", value: "MILK_BUCKET" }
+# - { type: var_in, key: "regain_reason", values: ["SATIATED", "EATING"] }
+#
+# Nota: Si un modifier existe también en Java con el mismo nombre, el YAML lo puede “pisar”
+# (se registra primero el YAML y luego se ignora el duplicado).
+
+modifiers:
+  no_regen:
+    name: "Sin Regeneración"
+    type: CURSE
+    description: "La vida no se regenera por comida (UHC Mode)."
+    events:
+      player_regain_health:
+        deny_on_fail: false
+        require_all:
+          - { type: var_in, key: "regain_reason", values: ["SATIATED", "EATING"] }
+        on_pass:
+          - { type: deny, color: red, message: "No hay regeneración natural hoy." }
+
+  no_milk:
+    name: "Sin Leche"
+    type: CURSE
+    description: "No se puede beber leche."
+    events:
+      player_item_consume:
+        deny_on_fail: false
+        require_all:
+          - { type: var_equals, key: "item_material", value: "MILK_BUCKET" }
+        on_pass:
+          - { type: deny, color: red, message: "No puedes beber leche." }
