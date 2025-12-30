@@ -1,6 +1,5 @@
 package net.rollanddeath.smp.core.mobs;
 
-import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.rollanddeath.smp.RollAndDeathSMP;
 import org.bukkit.Location;
@@ -12,17 +11,23 @@ import org.bukkit.event.Listener;
 public abstract class CustomMob implements Listener {
 
     protected final RollAndDeathSMP plugin;
-    protected final MobType type;
+    protected final String id;
+    protected final String displayName;
     protected final EntityType entityType;
 
-    public CustomMob(RollAndDeathSMP plugin, MobType type, EntityType entityType) {
+    public CustomMob(RollAndDeathSMP plugin, String id, String displayName, EntityType entityType) {
         this.plugin = plugin;
-        this.type = type;
+        this.id = id;
+        this.displayName = displayName;
         this.entityType = entityType;
     }
 
-    public MobType getType() {
-        return type;
+    public String getId() {
+        return id;
+    }
+
+    public String getDisplayName() {
+        return displayName;
     }
 
     public EntityType getEntityType() {
@@ -31,12 +36,14 @@ public abstract class CustomMob implements Listener {
 
     public LivingEntity spawn(Location location) {
         LivingEntity entity = (LivingEntity) location.getWorld().spawnEntity(location, entityType);
-        entity.customName(MiniMessage.miniMessage().deserialize(type.getDisplayName()));
-        entity.setCustomNameVisible(true);
+        if (displayName != null) {
+            entity.customName(MiniMessage.miniMessage().deserialize(displayName));
+            entity.setCustomNameVisible(true);
+        }
         
         // Tag the entity to identify it as a custom mob
         entity.addScoreboardTag("custom_mob");
-        entity.addScoreboardTag(type.name());
+        entity.addScoreboardTag(id);
 
         applyAttributes(entity);
         applyEquipment(entity);

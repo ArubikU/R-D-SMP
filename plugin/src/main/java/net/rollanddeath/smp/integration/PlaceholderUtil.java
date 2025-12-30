@@ -2,10 +2,9 @@ package net.rollanddeath.smp.integration;
 
 import net.rollanddeath.smp.RollAndDeathSMP;
 import net.rollanddeath.smp.core.roles.RoleType;
+import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-
-import java.lang.reflect.Method;
 import java.util.Locale;
 
 public final class PlaceholderUtil {
@@ -30,13 +29,10 @@ public final class PlaceholderUtil {
         // PlaceholderAPI (si está presente)
         try {
             if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
-                Class<?> papi = Class.forName("me.clip.placeholderapi.PlaceholderAPI");
-                Method setPlaceholders = papi.getMethod("setPlaceholders", Player.class, String.class);
-                Object resolved = setPlaceholders.invoke(null, player, out);
-                if (resolved instanceof String s) {
-                    out = s;
-                }
+                out = PlaceholderAPI.setPlaceholders(player, out);
             }
+        } catch (NoClassDefFoundError ignored) {
+            // PlaceholderAPI no está realmente disponible en runtime
         } catch (Throwable ignored) {
             // no-op: nunca queremos romper por placeholders
         }

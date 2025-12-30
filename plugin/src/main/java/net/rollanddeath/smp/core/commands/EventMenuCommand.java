@@ -6,7 +6,6 @@ import net.kyori.adventure.text.format.TextDecoration;
 import net.rollanddeath.smp.RollAndDeathSMP;
 import net.rollanddeath.smp.core.modifiers.Modifier;
 import net.rollanddeath.smp.core.modifiers.ModifierManager;
-import net.rollanddeath.smp.core.modifiers.ModifierType;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -116,27 +115,33 @@ public class EventMenuCommand implements CommandExecutor, TabCompleter, Listener
         }
     }
 
-    private Material materialFor(ModifierType type) {
-        return switch (type) {
-            case BLESSING -> Material.EMERALD;
-            case CURSE -> Material.WITHER_ROSE;
-            case CHAOS -> Material.CLOCK;
+    private Material materialFor(String type) {
+        if (type == null) return Material.BOOK;
+        return switch (type.toUpperCase()) {
+            case "BLESSING" -> Material.EMERALD;
+            case "CURSE" -> Material.WITHER_ROSE;
+            case "CHAOS" -> Material.CLOCK;
+            default -> Material.BOOK;
         };
     }
 
-    private NamedTextColor toColor(ModifierType type) {
-        return switch (type) {
-            case BLESSING -> NamedTextColor.AQUA;
-            case CURSE -> NamedTextColor.DARK_PURPLE;
-            case CHAOS -> NamedTextColor.GOLD;
+    private NamedTextColor toColor(String type) {
+        if (type == null) return NamedTextColor.WHITE;
+        return switch (type.toUpperCase()) {
+            case "BLESSING" -> NamedTextColor.AQUA;
+            case "CURSE" -> NamedTextColor.DARK_PURPLE;
+            case "CHAOS" -> NamedTextColor.GOLD;
+            default -> NamedTextColor.WHITE;
         };
     }
 
-    private String typeLabel(ModifierType type) {
-        return switch (type) {
-            case BLESSING -> "Bendición";
-            case CURSE -> "Maldición";
-            case CHAOS -> "Caos";
+    private String typeLabel(String type) {
+        if (type == null) return "Evento";
+        return switch (type.toUpperCase()) {
+            case "BLESSING" -> "Bendición";
+            case "CURSE" -> "Maldición";
+            case "CHAOS" -> "Caos";
+            default -> type;
         };
     }
 }

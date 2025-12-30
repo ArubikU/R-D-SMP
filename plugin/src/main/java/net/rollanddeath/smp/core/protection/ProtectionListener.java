@@ -5,11 +5,16 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 public class ProtectionListener implements Listener {
@@ -68,5 +73,29 @@ public class ProtectionListener implements Listener {
                 event.getPlayer().sendMessage(Component.text("Este bloque está protegido.", NamedTextColor.RED));
             }
         }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onEntityExplode(EntityExplodeEvent event) {
+        // Bloques protegidos SIEMPRE están protegidos contra explosiones (incluso durante Purga)
+        List<Block> toRemove = new ArrayList<>();
+        for (Block block : event.blockList()) {
+            if (protectionManager.isProtected(block)) {
+                toRemove.add(block);
+            }
+        }
+        event.blockList().removeAll(toRemove);
+    }
+
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onBlockExplode(BlockExplodeEvent event) {
+        // Bloques protegidos SIEMPRE están protegidos contra explosiones (incluso durante Purga)
+        List<Block> toRemove = new ArrayList<>();
+        for (Block block : event.blockList()) {
+            if (protectionManager.isProtected(block)) {
+                toRemove.add(block);
+            }
+        }
+        event.blockList().removeAll(toRemove);
     }
 }

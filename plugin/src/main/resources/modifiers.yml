@@ -8,24 +8,183 @@
 #     description: "..."
 #     events:
 #       # Eventos soportados (por ahora):
-#       # - player_regain_health  (EntityRegainHealthEvent solo si es Player)
-#       # - player_item_consume   (PlayerItemConsumeEvent)
+#       # - player_regain_health       (EntityRegainHealthEvent solo si es Player)
+#       # - player_item_consume        (PlayerItemConsumeEvent)
+#       # - food_level_change          (FoodLevelChangeEvent solo si es Player)
+#       # - player_bed_enter           (PlayerBedEnterEvent)
+#       # - prepare_item_enchant       (PrepareItemEnchantEvent)
+#       # - prepare_anvil              (PrepareAnvilEvent)
+#       # - player_interact            (PlayerInteractEvent)
+#       # - player_chat                (AsyncChatEvent - Paper)
+#       # - potion_splash              (PotionSplashEvent)
+#       # - area_effect_cloud_apply    (AreaEffectCloudApplyEvent)
+#       # - player_tick                (task cada 1s, por jugador)
+#       # - player_fast_tick           (task cada 5 ticks, por jugador)
+#       # - modifier_enable            (se ejecuta al activar el modifier, 1 vez por jugador online)
+#       # - modifier_disable           (se ejecuta al desactivar el modifier, 1 vez por jugador online)
+#       # - player_move                (PlayerMoveEvent, solo cuando cambia de bloque)
+#       # - entity_damage              (EntityDamageEvent)
+#       # - entity_damage_by_entity    (EntityDamageByEntityEvent)
+#       # - entity_potion_effect       (EntityPotionEffectEvent solo si es Player)
+#       # - player_item_damage         (PlayerItemDamageEvent)
+#       # - block_break                (BlockBreakEvent)
+#       # - player_portal              (PlayerPortalEvent)
+#       # - player_join                (PlayerJoinEvent)
+#       # - inventory_click            (InventoryClickEvent)
+#       # - inventory_close            (InventoryCloseEvent)
+#       # - player_pickup_item         (EntityPickupItemEvent solo si es Player)
+#       # - player_exp_change          (PlayerExpChangeEvent)
+#       # - player_fish                (PlayerFishEvent)
 #       <event_name>:
 #         deny_on_fail: false            # default false
 #         require_all: [ {type: ...}, ...]
 #         on_fail:     [ {type: ...}, ...]
 #         on_pass:     [ {type: ...}, ...]
 #
+# --- Ejemplo: usar macros de scripts.yml (type: call) ---
+# modifiers:
+#   DEMO_CALL_MACRO:
+#     name: "Demo"
+#     type: BLESSING
+#     description: "Ejemplo de macro call"
+#     events:
+#       player_join:
+#         on_pass:
+#           - type: call
+#             ref: tell_ok
+#             with:
+#               message: "<green>Bienvenido!</green>"  # disponible como EVENT.args.message dentro del macro
+#         on_fail: []
+#         deny_on_fail: false
+#
 # Variables disponibles por evento:
 # - player_regain_health:
 #   - regain_reason: SATIATED|EATING|REGEN|MAGIC|...
 #   - amount: <double>
 # - player_item_consume:
-#   - item_material: <Material>
+#   - ITEM.type: <Material>
+#   - ITEM.state.isEdible: <boolean>
+#   - ITEM.pdc.<namespace:key>: <string|number|null>
+# - food_level_change:
+#   - old_level: <int>
+#   - new_level: <int>
+#   - is_sprinting: <boolean>
+# - player_bed_enter:
+#   - bed_location: <Location>
+# - player_interact:
+#   - action: <Action>
+#   - is_right_click: <boolean>
+#   - has_shield: <boolean>
+#   - player_is_gliding: <boolean>
+# - player_chat:
+#   - is_async: <boolean>
+#   - has_bypass: <boolean>
+# - player_tick:
+#   - y: <double>
+#   - world_time: <long>
+#   - is_day: <boolean>
+#   - sky_light: <int|null>
+#   - helmet_material: <Material|null>
+#   - block_type: <Material|null>
+#   - block_below_type: <Material|null>
+# - player_fast_tick:
+#   - block_type: <Material|null>
+#   - block_below_type: <Material|null>
+# - player_move:
+#   - from_y: <double>
+#   - to_y: <double>
+#   - delta_y: <double>
+#   - is_in_water: <boolean>
+# - entity_potion_effect:
+#   - new_effect_type: <string|null>
+#   - action: <Action|null>
+# - entity_damage:
+#   - damage_cause: <DamageCause>
+#   - damage: <double>
+#   - block_type: <Material|null>          # solo si entity es Player
+#   - block_below_type: <Material|null>    # solo si entity es Player
+# - entity_damage_by_entity:
+#   - damager_type: <EntityType|null>
+#   - damage: <double>
+# - player_item_damage:
+#   - ITEM.type: <Material|null>
+#   - damage: <int>
+#   - player_is_gliding: <boolean>
+# - inventory_click:
+#   - slot_type: ARMOR|CONTAINER|...    # InventoryType.SlotType
+#   - inventory_type: <InventoryType>
+#   - click: <ClickType>
+#   - raw_slot: <int>
+#   - slot: <int>
+#   - is_shift_click: <boolean>
+#   - EVENT.cursor_item.type: <Material|null>
+#   - EVENT.current_item.type: <Material|null>
+# - inventory_close:
+#   - inventory_type: <InventoryType>
+#   - inventory_location: <Location|null>
+#   - view_title: <string>
+# - player_exp_change:
+#   - amount: <int>
+# - player_fish:
+#   - state: <State>
+#   - hook_location: <Location|null>
+#   - caught_entity_type: <EntityType|null>
+# - player_pickup_item:
+#   - ITEM.type: <Material|null>
+#   - ITEM.state.isEdible: <boolean>
+#   - ITEM.amount: <int|null>
 #
 # Conditions extra (además de las ya soportadas):
-# - { type: var_equals, key: "item_material", value: "MILK_BUCKET" }
+# - { type: var_equals, key: "ITEM.type", value: "MILK_BUCKET" }
 # - { type: var_in, key: "regain_reason", values: ["SATIATED", "EATING"] }
+# - { type: var_compare, key: "y", operator: "<", value: 0 }
+# - { type: player_has_permission, permission: "rd.chat.bypass", invert: true }
+# - { type: var_truthy, key: "is_day" }
+# - { type: player_game_mode_in, values: [CREATIVE, SPECTATOR], invert: true }
+# - { type: world_has_storm, value: true }
+# - { type: world_environment_is, value: NORMAL }
+
+# Actions extra (además de las ya soportadas):
+# - { type: play_sound, sound: AMBIENT_CAVE, volume: 1.0, pitch: 1.0 }
+# - { type: play_sound, sounds: [ENTITY_CREEPER_PRIMED, ENTITY_TNT_PRIMED] }
+# - { type: stop_all_sounds }
+# - { type: set_view_distance, chunks: 2 }
+# - { type: set_world_time, time: 18000 }
+# - { type: set_gamerule_all_worlds, rule: REDUCED_DEBUG_INFO, value: true }
+# - { type: add_velocity_random, min_x: -0.1, max_x: 0.1, min_y: 0.1, max_y: 0.1, min_z: -0.1, max_z: 0.1 }
+# - { type: spawn_entity_near_player, entity_type: SLIME, y_offset: 10, radius: 5, max_y: 320, max_per_chunk: 8, require_storm: true }
+# - { type: set_var_now_plus, key: "GLOBAL.custom.next_earthquake_ms", min_ms: 45000, max_ms: 90000 }
+# - { type: for_each_online_player, actions: [ {type: message, message: "hola"} ] }
+# - { type: set_fire_ticks, ticks: 200 }
+# - { type: set_compass_target_random, min_x: -2000, max_x: 2000, min_z: -2000, max_z: 2000, y: 64 }
+# - { type: set_compass_target_spawn }
+# - { type: set_weather_all_worlds, storm: true, thunder: true, weather_duration: 999999, thunder_duration: 999999 }
+# - { type: set_nametag_visibility, team: "hideNames", enabled: true }
+# - { type: slip_drop_hand_item, message: "¡Se te resbaló!", color: red }
+# - { type: set_block_below_type, material: MAGMA_BLOCK }
+# - { type: spawn_entity_at_player, entity_type: PHANTOM, offset_y: 2 }
+# - { type: set_block_break_drop_items, value: false }
+# - { type: set_portal_destination_random, min_x: -2000, max_x: 2000, min_z: -2000, max_z: 2000, use_highest_block: true }
+# - { type: cancel_event }
+# - { type: give_item, material: GOLD_INGOT, amount: 3 }
+# - { type: give_item, material: GOLD_INGOT, amount_key: "ITEM.amount" }
+# - { type: remove_event_item_entity }
+# - { type: unequip_item, slot: CHEST, drop_if_full: true, message: "...", color: red }
+# - { type: damage_item_durability, slot: HEAD, amount: 1 }
+# - { type: aggro_nearby_mobs, entity_type: ENDERMAN, radius: 32, only_if_no_target: true }
+# - { type: add_player_attribute_modifier, attribute: GRAVITY, key: reverse_lunar_gravity, operation: ADD_SCALAR, amount: -0.2, slot_group: ANY }
+# - { type: remove_player_attribute_modifier, attribute: GRAVITY, key: reverse_lunar_gravity }
+# - { type: duplicate_entity_death_drops, multiplier: 2 }          # default 2 (alias: mult / multiply / multipli)
+# - { type: explosive_mining_bonus_drop, key: block_location, multiplier: 1 }   # default 1 (alias: mult / multiply / multipli)
+# - type: default_item_enchantments
+#   enchantments:
+#     - { enchant: SILK_TOUCH, level: 1 }
+#     - { enchant: EFFICIENCY, level: 5 }
+#     - { enchantment: UNBREAKING, level: 3 }
+
+# Conditions extra:
+# - { type: now_ms_gte_var, key: "GLOBAL.custom.next_earthquake_ms" }
+# - { type: world_is_thundering, value: true }
 #
 # Nota: Si un modifier existe también en Java con el mismo nombre, el YAML lo puede “pisar”
 # (se registra primero el YAML y luego se ignora el duplicado).
@@ -39,7 +198,7 @@ modifiers:
       player_regain_health:
         deny_on_fail: false
         require_all:
-          - { type: var_in, key: "regain_reason", values: ["SATIATED", "EATING"] }
+          - { type: var_in, key: "EVENT.regainReason", values: ["SATIATED", "EATING"] }
         on_pass:
           - { type: deny, color: red, message: "No hay regeneración natural hoy." }
 
@@ -51,6 +210,1576 @@ modifiers:
       player_item_consume:
         deny_on_fail: false
         require_all:
-          - { type: var_equals, key: "item_material", value: "MILK_BUCKET" }
+          - { type: var_equals, key: "ITEM.type", value: "MILK_BUCKET" }
         on_pass:
           - { type: deny, color: red, message: "No puedes beber leche." }
+
+  no_beds:
+    name: "Sin Camas"
+    type: CURSE
+    description: "Las camas explotan al intentar dormir."
+    events:
+      player_bed_enter:
+        require_all: []
+        on_pass:
+          - { type: explode, where: "EVENT.bed.location", power: 5.0, set_fire: true, break_blocks: true }
+          - { type: deny }
+
+  no_potions:
+    name: "Sin Pociones"
+    type: CURSE
+    description: "Las pociones no tienen efecto."
+    events:
+      player_item_consume:
+        require_all:
+          - { type: var_equals, key: "ITEM.type", value: "POTION" }
+        on_pass:
+          - { type: deny, color: red, message: "Las pociones están desactivadas." }
+      potion_splash:
+        require_all: []
+        on_pass:
+          - { type: deny }
+      area_effect_cloud_apply:
+        require_all: []
+        on_pass:
+          - { type: deny }
+
+  no_enchants:
+    name: "Sin Encantamientos"
+    type: CURSE
+    description: "No se pueden encantar objetos ni usar yunques."
+    events:
+      prepare_item_enchant:
+        require_all: []
+        on_pass:
+          - { type: deny }
+      prepare_anvil:
+        require_all: []
+        on_pass:
+          - { type: clear_anvil_result }
+
+  no_shields:
+    name: "Sin Escudos"
+    type: CURSE
+    description: "El uso de escudos está prohibido."
+    events:
+      player_interact:
+        require_all:
+          - { type: var_in, key: "EVENT.action", values: ["RIGHT_CLICK_AIR", "RIGHT_CLICK_BLOCK"] }
+          - { type: var_equals, key: "ITEM.type", value: "SHIELD" }
+        on_pass:
+          - { type: deny, color: red, message: "Escudos deshabilitados." }
+
+  voracious_hunger:
+    name: "Hambre Voraz"
+    type: CURSE
+    description: "El hambre baja 3 veces más rápido."
+    events:
+      food_level_change:
+        require_all:
+          - { type: var_compare, key: "EVENT.foodLevel", operator: "<", other_key: "EVENT.entity.foodLevel" }
+        on_pass:
+          - { type: multiply_food_loss, multiplier: 3 }
+
+  deep_blindness:
+    name: "Ceguera Profunda"
+    type: CURSE
+    description: "Bajo Y=0, tienes Ceguera permanente."
+    events:
+      player_tick:
+        require_all:
+          - { type: var_compare, key: "SUBJECT.location.y", operator: "<", value: 0 }
+        on_pass:
+          - { type: apply_effect, effect: "BLINDNESS", duration: 40, amplifier: 0, ambient: false, particles: false }
+
+  no_chat:
+    name: "Sin Chat"
+    type: CHAOS
+    description: "El chat está deshabilitado. Nadie puede leerte."
+    events:
+      player_chat:
+        require_all:
+          - { type: player_has_permission, permission: "rd.chat.bypass", invert: true }
+        on_pass:
+          - { type: deny, color: red, message: "El chat está deshabilitado por el evento 'Sin Chat'." }
+
+  no_hunger:
+    name: "Sin Hambre"
+    type: BLESSING
+    description: "La barra de comida no baja si no corres."
+    events:
+      food_level_change:
+        require_all:
+          - { type: var_compare, key: "EVENT.foodLevel", operator: "<", other_key: "EVENT.entity.foodLevel" }
+          - { type: var_equals, key: "SUBJECT.is_sprinting", value: "false" }
+        on_pass:
+          - { type: deny }
+
+  dense_atmosphere:
+    name: "Atmósfera Densa"
+    type: CURSE
+    description: "Las elytras se rompen más rápido y los cohetes se consumen el doble."
+    events:
+      player_item_damage:
+        require_all:
+          - { type: var_equals, key: "ITEM.type", value: "ELYTRA" }
+        on_pass:
+          - { type: multiply_event_damage, multiplier: 2 }
+      player_interact:
+        require_all:
+          - { type: var_equals, key: "ITEM.type", value: "FIREWORK_ROCKET" }
+          - { type: var_equals, key: "SUBJECT.is_gliding", value: "true" }
+        on_pass:
+          - { type: consume_extra_hand_item, amount: 1 }
+
+  acid_water:
+    name: "Agua Ácida"
+    type: CURSE
+    description: "Entrar al agua aplica Veneno."
+    events:
+      player_move:
+        require_all:
+          - { type: var_equals, key: "SUBJECT.is_in_water", value: "true" }
+        on_pass:
+          - { type: apply_effect, effect: "POISON", duration: 100, amplifier: 0, ambient: false, particles: true }
+
+  glass_bones:
+    name: "Huesos de Cristal"
+    type: CURSE
+    description: "El daño por caída se multiplica por 3."
+    events:
+      entity_damage:
+        require_all:
+          - { type: var_equals, key: "EVENT.cause", value: "FALL" }
+        on_pass:
+          - { type: multiply_event_damage, multiplier: 3 }
+
+  lead_feet:
+    name: "Pies de Plomo"
+    type: CURSE
+    description: "No puedes nadar hacia arriba, te hundes rápido."
+    events:
+      player_move:
+        require_all:
+          - { type: var_equals, key: "SUBJECT.is_in_water", value: "true" }
+          - { type: var_compare, key: "EVENT.delta.y", operator: ">", value: 0 }
+        on_pass:
+          - { type: add_velocity, y: -0.1 }
+
+  will_o_wisp:
+    name: "Fuego Fatuo"
+    type: CURSE
+    description: "El fuego azul (soul fire) mata instantáneamente."
+    events:
+      entity_damage:
+        require_all:
+          - { type: var_in, key: "EVENT.cause", values: ["FIRE", "FIRE_TICK"] }
+          - { type: var_equals, key: "SUBJECT.location.block.type", value: "SOUL_FIRE" }
+        on_pass:
+          - { type: kill_player }
+
+  leap_of_faith:
+    name: "Salto de Fe"
+    type: BLESSING
+    description: "No recibes daño de caída en césped."
+    events:
+      entity_damage:
+        require_all:
+          - { type: var_equals, key: "EVENT.cause", value: "FALL" }
+          - { type: var_in, key: "SUBJECT.location.block_below.type", values: [
+              "GRASS_BLOCK", "DIRT", "COARSE_DIRT", "PODZOL", "MYCELIUM", "MOSS_BLOCK", "HAY_BLOCK",
+              "OAK_LEAVES", "SPRUCE_LEAVES", "BIRCH_LEAVES", "JUNGLE_LEAVES", "ACACIA_LEAVES", "DARK_OAK_LEAVES",
+              "MANGROVE_LEAVES", "CHERRY_LEAVES", "AZALEA_LEAVES", "FLOWERING_AZALEA_LEAVES"
+            ] }
+        on_pass:
+          - { type: deny }
+
+  titan_heart:
+    name: "Corazón de Titán"
+    type: BLESSING
+    description: "+2 Corazones de vida máxima permanentes."
+    events:
+      modifier_enable:
+        require_all: []
+        on_pass:
+          - { type: add_player_attribute_modifier, attribute: MAX_HEALTH, key: titan_heart, operation: ADD_NUMBER, amount: 4.0, slot_group: ANY }
+      player_join:
+        require_all: []
+        on_pass:
+          - { type: add_player_attribute_modifier, attribute: MAX_HEALTH, key: titan_heart, operation: ADD_NUMBER, amount: 4.0, slot_group: ANY }
+      modifier_disable:
+        require_all: []
+        on_pass:
+          - { type: remove_player_attribute_modifier, attribute: MAX_HEALTH, key: titan_heart }
+
+  super_strength:
+    name: "Fuerza Descomunal"
+    type: BLESSING
+    description: "+20% de daño de ataque."
+    events:
+      modifier_enable:
+        require_all: []
+        on_pass:
+          - { type: add_player_attribute_modifier, attribute: ATTACK_DAMAGE, key: super_strength, operation: ADD_SCALAR, amount: 0.2, slot_group: ANY }
+      player_join:
+        require_all: []
+        on_pass:
+          - { type: add_player_attribute_modifier, attribute: ATTACK_DAMAGE, key: super_strength, operation: ADD_SCALAR, amount: 0.2, slot_group: ANY }
+      modifier_disable:
+        require_all: []
+        on_pass:
+          - { type: remove_player_attribute_modifier, attribute: ATTACK_DAMAGE, key: super_strength }
+
+  steel_skin:
+    name: "Piel de Acero"
+    type: BLESSING
+    description: "Resistencia al fuego permanente."
+    events:
+      player_tick:
+        require_all: []
+        on_pass:
+          - { type: apply_effect, effect: "FIRE_RESISTANCE", duration: 120, amplifier: 0, ambient: true, particles: false }
+
+  super_jump:
+    name: "Supersalto"
+    type: BLESSING
+    description: "Salto mejorado II permanente."
+    events:
+      player_tick:
+        require_all: []
+        on_pass:
+          - { type: apply_effect, effect: "JUMP_BOOST", duration: 120, amplifier: 1, ambient: true, particles: false }
+
+  gills:
+    name: "Branquias"
+    type: BLESSING
+    description: "Respiración acuática infinita."
+    events:
+      player_tick:
+        require_all: []
+        on_pass:
+          - { type: apply_effect, effect: "WATER_BREATHING", duration: 120, amplifier: 0, ambient: true, particles: false }
+
+  photosynthesis:
+    name: "Fotosíntesis"
+    type: BLESSING
+    description: "Recuperas hambre bajo el sol."
+    events:
+      player_tick:
+        require_all:
+          - { type: var_compare, key: "WORLD.time", operator: "<", value: 12300 }
+          - { type: world_environment_is, value: NORMAL }
+          - { type: world_has_storm, value: false }
+          - { type: player_sky_light_at_least, value: 14 }
+          - { type: now_ms_gte_var, key: "PLAYER.custom.photosynthesis.next_ms" }
+        on_pass:
+          - { type: set_var_now_plus, key: "PLAYER.custom.photosynthesis.next_ms", add_ms: 5000 }
+          - { type: add_player_food, food: 1, saturation: 1 }
+
+  regenerative_bed:
+    name: "Cama Regenerativa"
+    type: BLESSING
+    description: "Dormir cura toda la vida al instante."
+    events:
+      player_bed_enter:
+        require_all: []
+        on_pass:
+          - { type: set_player_health, value: "max" }
+          - { type: message, color: green, message: "¡Has descansado y recuperado toda tu salud!" }
+
+  adrenaline:
+    name: "Adrenalina"
+    type: BLESSING
+    description: "Bajo 3 corazones = Velocidad III."
+    events:
+      player_tick:
+        require_all:
+          - { type: var_compare, key: "PLAYER.health", operator: "<=", value: 6.0 }
+        on_pass:
+          - { type: apply_effect, effect: "SPEED", duration: 60, amplifier: 2, ambient: false, particles: false }
+
+  fleet_feet:
+    name: "Pies Ligeros"
+    type: BLESSING
+    description: "Al esprintar, ganas Velocidad I."
+    events:
+      player_tick:
+        require_all:
+          - { type: var_truthy, key: "PLAYER.state.movement.isSprinting" }
+        on_pass:
+          - { type: apply_effect, effect: "SPEED", duration: 60, amplifier: 0, ambient: false, particles: false }
+
+  tactical_invisibility:
+    name: "Invisibilidad Táctica"
+    type: BLESSING
+    description: "Si te agachas por 3 segundos, te vuelves invisible."
+    events:
+      player_tick:
+        require_all: []
+        on_pass:
+          - type: add_var
+            key: "PLAYER.custom.tactical_invisibility.sneak_seconds"
+            value: 1
+            when: { type: var_truthy, key: "PLAYER.state.movement.isSneaking" }
+          - type: set_var
+            key: "PLAYER.custom.tactical_invisibility.sneak_seconds"
+            value: 0
+            when:
+              type: not
+              condition: { type: var_truthy, key: "PLAYER.state.movement.isSneaking" }
+          - type: set_var
+            key: "PLAYER.custom.tactical_invisibility.sneak_seconds"
+            value: 3
+            when:
+              type: all_of
+              conditions:
+                - { type: var_truthy, key: "PLAYER.state.movement.isSneaking" }
+                - { type: var_compare, key: "PLAYER.custom.tactical_invisibility.sneak_seconds", operator: ">=", value: 3 }
+          - type: apply_effect
+            effect: "INVISIBILITY"
+            duration: 40
+            amplifier: 0
+            ambient: false
+            particles: false
+            when:
+              type: all_of
+              conditions:
+                - { type: var_truthy, key: "PLAYER.state.movement.isSneaking" }
+                - { type: var_compare, key: "PLAYER.custom.tactical_invisibility.sneak_seconds", operator: ">=", value: 3 }
+
+  icarus_flight:
+    name: "Vuelo de Ícaro"
+    type: BLESSING
+    description: "Caída lenta permanente."
+    events:
+      player_tick:
+        require_all: []
+        on_pass:
+          - { type: apply_effect, effect: "SLOW_FALLING", duration: 80, amplifier: 0, ambient: true, particles: false }
+
+  light_aura:
+    name: "Aura de Luz"
+    type: BLESSING
+    description: "Visión nocturna permanente."
+    events:
+      player_tick:
+        require_all: []
+        on_pass:
+          - { type: apply_effect, effect: "NIGHT_VISION", duration: 300, amplifier: 0, ambient: true, particles: false }
+
+  dolphin_swimmer:
+    name: "Nadador Delfín"
+    type: BLESSING
+    description: "Gracia del delfín permanente."
+    events:
+      player_tick:
+        require_all: []
+        on_pass:
+          - { type: apply_effect, effect: "DOLPHINS_GRACE", duration: 80, amplifier: 0, ambient: true, particles: false }
+
+  item_magnet:
+    name: "Imán de Items"
+    type: BLESSING
+    description: "Los items del suelo vuelan hacia ti (rango 5m)."
+    events:
+      player_fast_tick:
+        require_all: []
+        on_pass:
+          - { type: pull_nearby_items, radius: 5.0, speed: 0.5, ignore_pickup_delay: false }
+
+  poison_immunity:
+    name: "Inmunidad al Veneno"
+    type: BLESSING
+    description: "Inmune a veneno y wither."
+    events:
+      modifier_enable:
+        require_all: []
+        on_pass:
+          - { type: remove_effect, effect: "POISON" }
+          - { type: remove_effect, effect: "WITHER" }
+      entity_potion_effect:
+        require_all:
+          - { type: var_in, key: "EVENT.newEffect.type.name", values: ["POISON", "WITHER"] }
+        on_pass:
+          - { type: deny }
+
+  light_speed:
+    name: "Velocidad de la Luz"
+    type: BLESSING
+    description: "Caminar sobre caminos de tierra da Velocidad II."
+    events:
+      player_fast_tick:
+        require_all:
+          - type: any_of
+            conditions:
+              - { type: var_equals, key: "SUBJECT.location.block.type", value: "DIRT_PATH" }
+              - { type: var_equals, key: "SUBJECT.location.block_below.type", value: "DIRT_PATH" }
+        on_pass:
+          - { type: apply_effect, effect: "SPEED", duration: 40, amplifier: 1, ambient: false, particles: false }
+
+  reflective_shield:
+    name: "Escudo Reflejante"
+    type: BLESSING
+    description: "Bloquear devuelve el 50% del daño."
+    events:
+      entity_damage_by_entity:
+        require_all: []
+        on_pass:
+          - { type: reflect_damage_if_blocking, multiplier: 0.5 }
+
+  demeter_blessing:
+    name: "Bendición de Demeter"
+    type: BLESSING
+    description: "Cultivos crecen instantáneamente con click derecho."
+    events:
+      player_interact:
+        require_all:
+          - { type: var_equals, key: "EVENT.action", value: "RIGHT_CLICK_BLOCK" }
+        on_pass:
+          - { type: grow_ageable_to_max }
+
+  liquid_xp:
+    name: "Experiencia Líquida"
+    type: BLESSING
+    description: "Todo da x3 XP."
+    events:
+      player_exp_change:
+        require_all: []
+        on_pass:
+          - { type: multiply_event_exp, multiplier: 3 }
+
+  legendary_fisher:
+    name: "Pescador Legendario"
+    type: BLESSING
+    description: "Pesca es instantánea."
+    events:
+      player_fish:
+        require_all:
+          - { type: var_equals, key: "EVENT.state", value: "FISHING" }
+        on_pass:
+          - { type: legendary_fisher, min_wait_ticks: 0, max_wait_ticks: 20, apply_lure: true }
+
+  divine_blacksmith:
+    name: "Herrero Divino"
+    type: BLESSING
+    description: "Yunques nunca se rompen."
+    events:
+      inventory_close:
+        require_all:
+          - { type: var_equals, key: "EVENT.inventory.type", value: "ANVIL" }
+        on_pass:
+          - { type: restore_anvil }
+
+  fortune_touch:
+    name: "Toque de Fortuna"
+    type: BLESSING
+    description: "Ores siempre dan el máximo drop posible."
+    events:
+      block_break:
+        require_all: []
+        on_pass:
+          - { type: fortune_touch_best_drop, attempts: 10, fortune_level: 3 }
+
+  master_lumberjack:
+    name: "Leñador Maestro"
+    type: BLESSING
+    description: "Talar un bloque rompe todo el árbol."
+    events:
+      block_break:
+        require_all: []
+        on_pass:
+          - { type: lumberjack_break_tree, limit: 200 }
+
+  cursed_chat:
+    name: "Chat Maldito"
+    type: CHAOS
+    description: "Hablar en chat te hace daño."
+    events:
+      player_chat:
+        require_all:
+          - { type: random_chance, probability: 0.3 }
+        on_pass:
+          - { type: damage_player, amount: 2.0 }
+          - { type: message, color: red, message: "¡El chat está maldito! Te duele hablar." }
+
+  fishing_day:
+    name: "Día de Pesca"
+    type: CHAOS
+    description: "Solo se puede comer pescado."
+    events:
+      player_item_consume:
+        require_all:
+          - type: any_of
+            conditions:
+              # Si no es comestible, no bloqueamos.
+              - { type: var_compare, key: "ITEM.state.isEdible", operator: "!=", value: "true" }
+              # Si es comestible, debe ser pez o el item especial NOTCH_HEART.
+              - type: any_of
+                conditions:
+                  - { type: var_equals, key: "ITEM.pdc.rdsmp:custom_item_id", value: "NOTCH_HEART" }
+                  - { type: var_in, key: "ITEM.type", values: ["COOKED_COD", "COOKED_SALMON", "COD", "SALMON", "TROPICAL_FISH", "PUFFERFISH"] }
+        on_fail:
+          - { type: deny, color: red, message: "¡Solo puedes comer pescado!" }
+
+  snow_war:
+    name: "Guerra de Nieve"
+    type: CHAOS
+    description: "Las bolas de nieve hacen 2 corazones de daño."
+    events:
+      entity_damage_by_entity:
+        require_all:
+          - { type: var_equals, key: "EVENT.damager.type", value: "SNOWBALL" }
+        on_pass:
+          - { type: set_event_damage, value: 4.0 }
+
+  russian_roulette:
+    name: "Ruleta Rusa"
+    type: CHAOS
+    description: "Comer tiene 1/6 de chance de matar."
+    events:
+      player_item_consume:
+        require_all:
+          - { type: var_compare, key: "ITEM.state.isEdible", operator: "==", value: "true" }
+          - { type: random_chance, numerator: 1, denominator: 6 }
+        on_pass:
+          - { type: kill_player }
+          - { type: message, color: red, message: "¡Has perdido la Ruleta Rusa!" }
+          - { type: broadcast, color: red, message: "%player% murió jugando a la Ruleta Rusa." }
+
+  slime_rain:
+    name: "Lluvia de Slimes"
+    type: CHAOS
+    description: "Mientras llueve, spawnean slimes del cielo (con límite por chunk)."
+    events:
+      player_tick:
+        require_all:
+          - { type: world_has_storm, value: true }
+          - { type: random_chance, probability: 0.10 }
+        on_pass:
+          - { type: spawn_entity_near_player, entity_type: SLIME, y_offset: 10, radius: 5, max_y: 320, max_per_chunk: 8, require_storm: true }
+
+  whispers:
+    name: "Susurros"
+    type: CHAOS
+    description: "Sonidos de cueva aleatorios para todos."
+    events:
+      player_tick:
+        require_all:
+          - { type: random_chance, probability: 0.02 }
+        on_pass:
+          - { type: play_sound, sound: AMBIENT_CAVE, volume: 1.0, pitch: 1.0 }
+
+  earthquake:
+    name: "Terremoto"
+    type: CHAOS
+    description: "La pantalla tiembla cada cierto tiempo (cooldown GLOBAL persistente)."
+    events:
+      player_tick:
+        require_all:
+          - { type: now_ms_gte_var, key: "GLOBAL.custom.next_earthquake_ms" }
+        on_pass:
+          - { type: set_var_now_plus, key: "GLOBAL.custom.next_earthquake_ms", min_ms: 45000, max_ms: 90000 }
+          - type: for_each_online_player
+            actions:
+              - { type: play_sound, sound: ENTITY_GENERIC_EXPLODE, volume: 0.5, pitch: 0.5 }
+              - { type: add_velocity_random, min_x: -0.12, max_x: 0.12, min_y: 0.10, max_y: 0.16, min_z: -0.12, max_z: 0.12 }
+              - type: message
+                color: red
+                message: "¡Terremoto!"
+                when: { type: random_chance, probability: 0.10 }
+
+  deafness:
+    name: "Sordera"
+    type: CURSE
+    description: "Todos los sonidos del juego desactivados."
+    events:
+      player_tick:
+        require_all: []
+        on_pass:
+          - { type: stop_all_sounds }
+
+  zero_gravity:
+    name: "Gravedad Cero"
+    type: CHAOS
+    description: "Todos tienen levitación leve constante."
+    events:
+      player_tick:
+        require_all: []
+        on_pass:
+          - { type: apply_effect, effect: LEVITATION, duration: 40, amplifier: 0, ambient: false, particles: false }
+
+  eternal_night:
+    name: "Noche Eterna"
+    type: CHAOS
+    description: "El sol nunca sale."
+    events:
+      player_tick:
+        require_all:
+          - { type: world_environment_is, value: NORMAL }
+        on_pass:
+          - { type: set_world_time, time: 18000 }
+
+  no_coordinates:
+    name: "Sin Coordenadas"
+    type: CHAOS
+    description: "F3 desactivado/oculto completamente."
+    events:
+      modifier_enable:
+        require_all: []
+        on_pass:
+          - { type: set_gamerule_all_worlds, rule: REDUCED_DEBUG_INFO, value: true }
+      modifier_disable:
+        require_all: []
+        on_pass:
+          - { type: set_gamerule_all_worlds, rule: REDUCED_DEBUG_INFO, value: false }
+
+  myopia:
+    name: "Miopes"
+    type: CHAOS
+    description: "Distancia de renderizado forzada a 2 chunks."
+    events:
+      modifier_enable:
+        require_all: []
+        on_pass:
+          - { type: set_view_distance, chunks: 2 }
+      modifier_disable:
+        require_all: []
+        on_pass:
+          - { type: set_view_distance, chunks: 10 }
+
+  bleeding:
+    name: "Sangrado"
+    type: CURSE
+    description: "Recibir daño puede causar sangrado (daño periódico)."
+    events:
+      entity_damage:
+        require_all:
+          - { type: var_compare, key: "EVENT.finalDamage", operator: ">=", value: 1.5 }
+          - { type: random_chance, probability: 0.20 }
+        on_pass:
+          - { type: set_var, key: "PLAYER.custom.bleed_ticks", value: 10 }
+          - { type: message, color: red, message: "¡Estás sangrando!" }
+      player_tick:
+        require_all:
+          - { type: var_compare, key: "PLAYER.custom.bleed_ticks", operator: ">", value: 0 }
+        on_pass:
+          - { type: damage_player, amount: 1.0 }
+          - { type: add_var, key: "PLAYER.custom.bleed_ticks", value: -1 }
+
+  paranoia:
+    name: "Paranoia"
+    type: CURSE
+    description: "Sonidos falsos de Creeper y TNT explotando aleatoriamente."
+    events:
+      player_tick:
+        require_all:
+          - { type: random_chance, probability: 0.05 }
+        on_pass:
+          - { type: play_sound, sounds: [ENTITY_CREEPER_PRIMED, ENTITY_TNT_PRIMED], volume: 1.0, pitch: 1.0 }
+
+  eternal_storm:
+    name: "Tormenta Eterna"
+    type: CURSE
+    description: "Siempre hay lluvia y truenos (se re-aplica si alguien intenta quitarla)."
+    events:
+      modifier_enable:
+        require_all: []
+        on_pass:
+          - { type: set_weather_all_worlds, storm: true, thunder: true, weather_duration: 999999, thunder_duration: 999999 }
+      modifier_disable:
+        require_all: []
+        on_pass:
+          - { type: set_weather_all_worlds, storm: false, thunder: false }
+      player_tick:
+        require_all:
+          - type: any_of
+            conditions:
+              - { type: world_has_storm, value: false }
+              - { type: world_is_thundering, value: false }
+          - { type: random_chance, probability: 0.10 }
+        on_pass:
+          - { type: set_weather_all_worlds, storm: true, thunder: true, weather_duration: 999999, thunder_duration: 999999 }
+
+  hurricane_winds:
+    name: "Vientos Huracanados"
+    type: CURSE
+    description: "Los golpes te empujan mucho más."
+    events:
+      entity_damage_by_entity:
+        require_all: []
+        on_pass:
+          - { type: add_velocity_random, min_x: -0.35, max_x: 0.35, min_y: 0.10, max_y: 0.22, min_z: -0.35, max_z: 0.35 }
+
+  heavy_gravity:
+    name: "Gravedad Pesada"
+    type: CURSE
+    description: "Te mueves más lento y el daño por caída se duplica."
+    events:
+      player_tick:
+        require_all: []
+        on_pass:
+          - { type: apply_effect, effect: SLOW, duration: 40, amplifier: 1, ambient: false, particles: false }
+      entity_damage:
+        require_all:
+          - { type: var_equals, key: "EVENT.cause", value: "FALL" }
+        on_pass:
+          - { type: multiply_event_damage, multiplier: 2.0 }
+
+  heavy_inventory:
+    name: "Inventario Pesado"
+    type: CURSE
+    description: "Si tu inventario está lleno, te vuelves lento."
+    events:
+      player_tick:
+        require_all:
+          - { type: player_inventory_full, value: true }
+        on_pass:
+          - { type: apply_effect, effect: SLOW, duration: 40, amplifier: 1, ambient: false, particles: false }
+
+  nightmares:
+    name: "Pesadillas"
+    type: CURSE
+    description: "Dormir tiene chance de invocar un Phantom y cancelar el sueño."
+    events:
+      player_bed_enter:
+        require_all:
+          - { type: random_chance, probability: 0.50 }
+        on_pass:
+          - { type: spawn_entity_at_player, entity_type: PHANTOM, offset_y: 2 }
+          - { type: deny, color: red, message: "No puedes dormir... algo te acecha." }
+
+  slippery_hands:
+    name: "Manos Resbaladizas"
+    type: CURSE
+    description: "A veces se te cae el ítem al interactuar."
+    events:
+      player_interact:
+        require_all:
+          - type: not
+            condition: { type: var_is_missing, key: "ITEM.type" }
+          - { type: random_chance, probability: 0.01 }
+        on_pass:
+          - { type: slip_drop_hand_item, message: "¡Se te resbaló de la mano!", color: red }
+
+  fragile_glass:
+    name: "Cristal Frágil"
+    type: CURSE
+    description: "Romper vidrio hace explotar el bloque."
+    events:
+      block_break:
+        require_all:
+          - { type: var_in, key: "EVENT.block.type", values: ["GLASS", "GLASS_PANE", "TINTED_GLASS"] }
+        on_pass:
+          - { type: explode, where: "EVENT.block.location", power: 3.0, set_fire: false, break_blocks: false }
+          - { type: play_sound, sound: ENTITY_GLASS_BREAK, volume: 1.0, pitch: 1.0 }
+
+  iron_shortage:
+    name: "Escasez de Hierro"
+    type: CURSE
+    description: "El hierro a veces no dropea nada al picarlo."
+    events:
+      block_break:
+        require_all:
+          - { type: var_in, key: "EVENT.block.type", values: ["IRON_ORE", "DEEPSLATE_IRON_ORE"] }
+          - { type: random_chance, probability: 0.50 }
+        on_pass:
+          - { type: set_block_break_drop_items, value: false }
+
+  rat_plague:
+    name: "Plaga de Ratas"
+    type: CURSE
+    description: "Picar piedra puede hacer aparecer silverfish."
+    events:
+      block_break:
+        require_all:
+          - { type: var_in, key: "EVENT.block.type", values: ["STONE", "COBBLESTONE", "DEEPSLATE", "TUFF", "GRANITE", "ANDESITE", "DIORITE"] }
+          - { type: random_chance, probability: 0.05 }
+        on_pass:
+          - { type: spawn_entity_at_player, entity_type: SILVERFISH }
+          - { type: play_sound, sound: ENTITY_SILVERFISH_AMBIENT, volume: 1.0, pitch: 1.0 }
+
+  unstable_nether:
+    name: "Nether Inestable"
+    type: CURSE
+    description: "Entrar al Nether te manda a coordenadas aleatorias (con cooldown por jugador)."
+    events:
+      player_portal:
+        require_all:
+          - { type: var_equals, key: "EVENT.cause", value: "NETHER_PORTAL" }
+          - { type: var_equals, key: "EVENT.to.worldobj.environment", value: "NETHER" }
+          - { type: now_ms_gte_var, key: "PLAYER.custom.next_unstable_nether_ms" }
+        on_pass:
+          - { type: set_var_now_plus, key: "PLAYER.custom.next_unstable_nether_ms", min_ms: 15000, max_ms: 30000 }
+          - { type: set_portal_destination_random, min_x: -2000, max_x: 2000, min_z: -2000, max_z: 2000, use_highest_block: true }
+
+  toxic_sun:
+    name: "Sol Tóxico"
+    type: CURSE
+    description: "De día y con sol directo, te da Lentitud y Hambre."
+    events:
+      player_tick:
+        require_all:
+          - { type: world_environment_is, value: NORMAL }
+          - { type: world_has_storm, value: false }
+          - { type: var_compare, key: "WORLD.time", operator: "<", value: 12300 }
+          - { type: player_sky_light_at_least, value: 15 }
+        on_pass:
+          - { type: apply_effect, effect: SLOW, duration: 40, amplifier: 0, ambient: false, particles: false }
+          - { type: apply_effect, effect: HUNGER, duration: 40, amplifier: 0, ambient: false, particles: false }
+
+  fragile_ground:
+    name: "Suelo Frágil"
+    type: CURSE
+    description: "Al caminar, a veces la piedra se convierte en grava."
+    events:
+      player_move:
+        require_all:
+          - { type: var_in, key: "SUBJECT.location.block_below.type", values: ["STONE", "COBBLESTONE"] }
+          - { type: random_chance, probability: 0.05 }
+        on_pass:
+          - { type: set_block_below_type, material: GRAVEL }
+
+  nuclear_creeper:
+    name: "Creeper Nuclear"
+    type: CURSE
+    description: "Los creepers explotan con un radio 3x."
+    events:
+      explosion_prime:
+        require_all:
+          - { type: var_equals, key: "EVENT.entity.type", value: "CREEPER" }
+        on_pass:
+          - { type: multiply_explosion_radius, multiplier: 3.0 }
+
+  rotten_wood:
+    name: "Madera Podrida"
+    type: CURSE
+    description: "Romper troncos a veces no dropea nada."
+    events:
+      block_break:
+        require_all:
+          - { type: material_in_tag, key: "EVENT.block.type", tag: LOGS }
+          - { type: random_chance, probability: 0.50 }
+        on_pass:
+          - { type: set_block_break_drop_items, value: false }
+
+  arachnophobia:
+    name: "Arachnophobia"
+    type: CURSE
+    description: "Todas las arañas tienen Velocidad II e Invisibilidad."
+    events:
+      creature_spawn:
+        require_all:
+          - { type: var_in, key: "EVENT.entity.type", values: ["SPIDER", "CAVE_SPIDER"] }
+        on_pass:
+          - { type: apply_effect_to_event_entity, effect: SPEED, duration: 9999999, amplifier: 1, ambient: false, particles: false }
+          - { type: apply_effect_to_event_entity, effect: INVISIBILITY, duration: 9999999, amplifier: 0, ambient: false, particles: false }
+
+  deadly_silence:
+    name: "Silencio Mortal"
+    type: CURSE
+    description: "Los mobs hostiles no hacen sonidos."
+    events:
+      modifier_enable:
+        require_all: []
+        on_pass:
+          - { type: set_monsters_silent_all_worlds, value: true }
+      modifier_disable:
+        require_all: []
+        on_pass:
+          - { type: set_monsters_silent_all_worlds, value: false }
+      entity_spawn:
+        require_all:
+          - { type: var_equals, key: "EVENT.entity.is_monster", value: "true" }
+        on_pass:
+          - { type: set_event_entity_silent, value: true }
+
+  scorching_sun:
+    name: "Sol Abrasador"
+    type: CURSE
+    description: "El sol quema a los jugadores expuestos (casco protege pero se desgasta)."
+    events:
+      modifier_enable:
+        require_all: []
+        on_pass:
+          - { type: set_var, key: "PLAYER.custom.next_scorch_helmet_ms", value: 0 }
+      player_tick:
+        require_all:
+          - { type: world_environment_is, value: NORMAL }
+          - { type: world_has_storm, value: false }
+          - { type: var_compare, key: "WORLD.time", operator: "<", value: 12300 }
+          - { type: player_sky_light_at_least, value: 15 }
+        on_pass:
+          - type: set_fire_ticks
+            ticks: 60
+            when:
+              type: not
+              condition: { type: var_matches_regex, key: "SUBJECT.inventory.helmet.type", pattern: ".*_HELMET$" }
+          - type: set_var_now_plus
+            key: "PLAYER.custom.next_scorch_helmet_ms"
+            min_ms: 4000
+            max_ms: 4000
+            when:
+              type: all_of
+              conditions:
+                - { type: var_matches_regex, key: "SUBJECT.inventory.helmet.type", pattern: ".*_HELMET$" }
+                - { type: now_ms_gte_var, key: "PLAYER.custom.next_scorch_helmet_ms" }
+          - type: damage_item_durability
+            slot: HEAD
+            amount: 1
+            when:
+              type: all_of
+              conditions:
+                - { type: var_matches_regex, key: "SUBJECT.inventory.helmet.type", pattern: ".*_HELMET$" }
+                - { type: now_ms_gte_var, key: "PLAYER.custom.next_scorch_helmet_ms" }
+
+  reverse_lunar_gravity:
+    name: "Gravedad Lunar Inversa"
+    type: CURSE
+    description: "La gravedad se reduce en un 20%."
+    events:
+      modifier_enable:
+        require_all: []
+        on_pass:
+          - type: for_each_online_player
+            actions:
+              - { type: add_player_attribute_modifier, attribute: GRAVITY, key: reverse_lunar_gravity, operation: ADD_SCALAR, amount: -0.2, slot_group: ANY }
+      player_join:
+        require_all: []
+        on_pass:
+          - { type: add_player_attribute_modifier, attribute: GRAVITY, key: reverse_lunar_gravity, operation: ADD_SCALAR, amount: -0.2, slot_group: ANY }
+      modifier_disable:
+        require_all: []
+        on_pass:
+          - type: for_each_online_player
+            actions:
+              - { type: remove_player_attribute_modifier, attribute: GRAVITY, key: reverse_lunar_gravity }
+
+  furious_enderman:
+    name: "Enderman Furiosos"
+    type: CURSE
+    description: "Los Enderman cercanos pueden aggrearte aleatoriamente."
+    events:
+      player_tick:
+        require_all:
+          - { type: player_game_mode_in, values: [CREATIVE, SPECTATOR], invert: true }
+        on_pass:
+          - { type: aggro_nearby_mobs, entity_type: ENDERMAN, radius: 32, only_if_no_target: true }
+
+  binding_curse:
+    name: "Maldición de Binding"
+    type: CURSE
+    description: "No puedes interactuar con slots de armadura en el inventario."
+    events:
+      inventory_click:
+        require_all:
+          - { type: var_equals, key: EVENT.slotType, value: ARMOR }
+        on_pass:
+          - { type: cancel_event }
+          - { type: message, color: red, message: "¡No puedes quitarte la armadura!" }
+
+  blood_thirst:
+    name: "Sed de Sangre"
+    type: CURSE
+    description: "Si no matas algo en 10 min, pierdes 1 corazón (y repite cada 30s hasta matar)."
+    events:
+      modifier_enable:
+        require_all: []
+        on_pass:
+          - type: for_each_online_player
+            actions:
+              - { type: set_var_now_plus, key: "PLAYER.custom.next_bloodthirst_damage_ms", min_ms: 600000, max_ms: 600000 }
+      entity_death:
+        require_all:
+          - { type: var_equals, key: "EVENT.entity.killer.type", value: "PLAYER" }
+        on_pass:
+          - { type: set_var_now_plus, key: "PLAYER.custom.next_bloodthirst_damage_ms", min_ms: 600000, max_ms: 600000 }
+      player_tick:
+        require_all:
+          - { type: now_ms_gte_var, key: "PLAYER.custom.next_bloodthirst_damage_ms" }
+        on_pass:
+          - { type: damage_player, amount: 2.0 }
+          - { type: message, color: red, message: "¡Tu sed de sangre te consume!" }
+          - { type: set_var_now_plus, key: "PLAYER.custom.next_bloodthirst_damage_ms", min_ms: 30000, max_ms: 30000 }
+
+  disorientation:
+    name: "Desorientación"
+    type: CURSE
+    description: "La brújula apunta a coordenadas aleatorias cada pocos segundos."
+    events:
+      player_tick:
+        require_all:
+          - { type: random_chance, probability: 0.20 }
+        on_pass:
+          - { type: set_compass_target_random, min_x: -5000, max_x: 5000, min_z: -5000, max_z: 5000, y: 64 }
+      modifier_disable:
+        require_all: []
+        on_pass:
+          - type: for_each_online_player
+            actions:
+              - { type: set_compass_target_spawn }
+
+  icarus_curse:
+    name: "Maldición de Ícaro"
+    type: CURSE
+    description: "Si subes por encima de Y=150, empiezas a quemarte."
+    events:
+      player_tick:
+        require_all:
+          - { type: var_compare, key: SUBJECT.location.y, operator: ">", value: 150 }
+        on_pass:
+          - { type: set_fire_ticks, ticks: 60 }
+
+  ice_floor:
+    name: "Suelo de Hielo"
+    type: CHAOS
+    description: "Todo el mundo resbala como en hielo."
+    events:
+      player_tick:
+        require_all: []
+        on_pass:
+          - { type: apply_effect, effect: SPEED, duration: 40, amplifier: 2, ambient: false, particles: false }
+
+  no_names:
+    name: "Sin Nombres"
+    type: CHAOS
+    description: "Nametags de jugadores ocultos."
+    events:
+      modifier_enable:
+        require_all: []
+        on_pass:
+          - { type: set_nametag_visibility, team: "hideNames", enabled: true }
+      modifier_disable:
+        require_all: []
+        on_pass:
+          - { type: set_nametag_visibility, team: "hideNames", enabled: false }
+
+  no_armor:
+    name: "Sin Armadura"
+    type: CHAOS
+    description: "No se puede equipar pecheras (se desequipan automáticamente)."
+    events:
+      modifier_enable:
+        require_all: []
+        on_pass:
+          - type: for_each_online_player
+            actions:
+              - { type: unequip_item, slot: CHEST, message: "Tu pechera ha sido desequipada por el evento.", color: red }
+      player_join:
+        require_all: []
+        on_pass:
+          - { type: unequip_item, slot: CHEST, message: "Tu pechera ha sido desequipada por el evento.", color: red }
+      inventory_click:
+        require_all:
+          - { type: var_equals, key: EVENT.slot_type, value: ARMOR }
+          - type: any_of
+            conditions:
+              - { type: var_matches_regex, key: EVENT.cursor_item.type, pattern: ".*CHESTPLATE$" }
+              - type: all_of
+                conditions:
+                  - { type: var_equals, key: EVENT.is_shift_click, value: "true" }
+                  - { type: var_matches_regex, key: EVENT.current_item.type, pattern: ".*CHESTPLATE$" }
+        on_pass:
+          - { type: cancel_event }
+          - { type: message, color: red, message: "¡No puedes equipar pecheras!" }
+
+  evil_midas_touch:
+    name: "Toque de Midas Maligno"
+    type: CURSE
+    description: "La comida se convierte en oro (no comestible) al tocarla."
+    events:
+      player_pickup_item:
+        require_all:
+          - { type: var_truthy, key: ITEM.state.isEdible }
+          - type: not
+            condition: { type: var_in, key: ITEM.type, values: [GOLDEN_APPLE, ENCHANTED_GOLDEN_APPLE] }
+        on_pass:
+          - { type: cancel_event }
+          - { type: remove_event_item_entity }
+          - { type: give_item, material: GOLD_INGOT, amount_key: ITEM.amount }
+          - { type: message, color: gold, message: "¡Tu comida se ha convertido en oro!" }
+
+  inflation:
+    name: "Inflación"
+    type: CURSE
+    description: "Los aldeanos cuestan 3x esmeraldas."
+    events:
+      modifier_enable:
+        require_all: []
+        on_pass:
+          - { type: inflate_villager_prices_all_worlds, multiplier: 3, key: inflation }
+      modifier_disable:
+        require_all: []
+        on_pass:
+          - { type: deflate_villager_prices_all_worlds, divisor: 3, key: inflation }
+      entity_spawn:
+        require_all:
+          - { type: var_equals, key: "EVENT.entity.type", value: "VILLAGER" }
+        on_pass:
+          - { type: inflate_event_villager_prices, multiplier: 3, key: inflation }
+      villager_acquire_trade:
+        require_all: []
+        on_pass:
+          - { type: multiply_villager_trade_cost, multiplier: 3 }
+
+  sniper_skeletons:
+    name: "Esqueletos Francotiradores"
+    type: CURSE
+    description: "Los esqueletos disparan un 50% más rápido."
+    events:
+      modifier_enable:
+        require_all: []
+        on_pass:
+          - { type: set_skeletons_bow_interval_all_worlds, interval: 10 }
+      modifier_disable:
+        require_all: []
+        on_pass:
+          - { type: set_skeletons_bow_interval_all_worlds, interval: 20 }
+      entity_spawn:
+        require_all:
+          - { type: var_equals, key: "EVENT.entity.type", value: "SKELETON" }
+        on_pass:
+          - { type: set_event_skeleton_bow_interval, interval: 10 }
+
+  cursed_earth:
+    name: "Tierra Maldita"
+    type: CURSE
+    description: "Al morir, un Gigante aparece en tu lugar con tu loot."
+    events:
+      player_death:
+        require_all: []
+        on_pass:
+          - { type: cursed_earth_spawn_giant_with_loot, key: giant_loot }
+      entity_death:
+        require_all:
+          - { type: var_equals, key: "EVENT.entity.type", value: "GIANT" }
+        on_pass:
+          - { type: cursed_earth_restore_loot_on_giant_death, key: giant_loot }
+
+
+  double_loot:
+    name: "Doble Loot"
+    type: BLESSING
+    description: "Mobs sueltan el doble de ítems."
+    events:
+      entity_death:
+        require_all:
+          - { type: var_equals, key: "EVENT.entity.killer.type", value: "PLAYER" }
+          - { type: var_compare, key: "EVENT.entity.type", operator: "!=", value: "PLAYER" }
+        on_pass:
+          - { type: duplicate_entity_death_drops }
+
+  explosive_mining:
+    name: "Minería Explosiva"
+    type: BLESSING
+    description: "Probabilidad de encontrar TNT o Diamantes al minar."
+    events:
+      block_break:
+        require_all:
+          - { type: var_matches_regex, key: "EVENT.block.type", pattern: "(.*(STONE|ORE)$|DEEPSLATE|NETHERRACK|TUFF)" }
+          - { type: random_chance, probability: 0.01 }
+        on_pass:
+          - { type: random_bool_to_var, key: "EVENT.custom.explosive_mining.is_tnt", probability: 0.5 }
+          - { type: drop_item_at_location, where: "EVENT.block.location", material: "TNT", amount: 1, condition: { type: var_equals, key: "EVENT.custom.explosive_mining.is_tnt", value: "true" } }
+          - { type: drop_item_at_location, where: "EVENT.block.location", material: "DIAMOND", amount: 1, condition: { type: var_equals, key: "EVENT.custom.explosive_mining.is_tnt", value: "false" } }
+          - { type: message, color: red, message: "¡Has encontrado TNT!", condition: { type: var_equals, key: "EVENT.custom.explosive_mining.is_tnt", value: "true" } }
+          - { type: message, color: aqua, message: "¡Has encontrado un Diamante!", condition: { type: var_equals, key: "EVENT.custom.explosive_mining.is_tnt", value: "false" } }
+
+  silk_touch_hands:
+    name: "Manos de Seda"
+    type: BLESSING
+    description: "Toque de seda automático en todo."
+    events:
+      block_break:
+        require_all: []
+        on_pass:
+          - type: default_item_enchantments
+            enchantments:
+              - { enchant: SILK_TOUCH, level: 1 }
+
+  iron_fist:
+    name: "Puño de Hierro"
+    type: BLESSING
+    description: "Golpear con la mano hace daño como espada de piedra."
+    events:
+      entity_damage_by_entity:
+        require_all:
+          - { type: var_equals, key: "EVENT.damager.type", value: "PLAYER" }
+          - { type: var_equals, key: "EVENT.damager.inventory.itemInMainHand.type", value: "AIR" }
+          - { type: var_compare, key: "EVENT.finalDamage", operator: "<", value: 5 }
+        on_pass:
+          - { type: set_event_damage, value: 5 }
+
+  vampire_blood:
+    name: "Sangre de Vampiro"
+    type: BLESSING
+    description: "Matar mobs cura medio corazón."
+    events:
+      entity_death:
+        require_all:
+          - { type: var_equals, key: "EVENT.entity.killer.type", value: "PLAYER" }
+        on_pass:
+          - { type: heal_player, amount: 1.0 }
+
+  fair_trade:
+    name: "Comercio Justo"
+    type: BLESSING
+    description: "Piglin Bartering siempre da cosas buenas."
+    events:
+      piglin_barter:
+        require_all: []
+        on_pass:
+          - { type: fair_trade_piglin_barter }
+
+  permanent_potion:
+    name: "Poción Permanente"
+    type: BLESSING
+    description: "Efecto de Haste I para todos."
+    events:
+      modifier_enable:
+        require_all: []
+        on_pass:
+          - { type: apply_effect, effect: "HASTE", duration: 9999999, amplifier: 0, ambient: false, particles: false }
+      modifier_disable:
+        require_all: []
+        on_pass:
+          - { type: remove_effect, effect: "HASTE", only_if_amplifier: 0 }
+      player_join:
+        require_all: []
+        on_pass:
+          - { type: apply_effect, effect: "HASTE", duration: 9999999, amplifier: 0, ambient: false, particles: false }
+      player_respawn:
+        require_all: []
+        on_pass:
+          - { type: apply_effect, effect: "HASTE", duration: 9999999, amplifier: 0, ambient: false, particles: false }
+
+  mirror_world:
+    name: "Mundo Espejo"
+    type: CHAOS
+    description: "Enderman pacíficos, Cerdos agresivos."
+    events:
+      modifier_enable:
+        require_all:
+          - { type: var_is_missing, key: "GLOBAL.custom.mirror_world_applied" }
+        on_pass:
+          - { type: set_var, key: "GLOBAL.custom.mirror_world_applied", value: true }
+          - type: for_each_entity_in_all_worlds
+            entity_types: ["ENDERMAN"]
+            entity_var: SUBJECT
+            actions:
+              - { type: mirror_world_enderman_passive }
+          - type: for_each_entity_in_all_worlds
+            entity_types: ["PIG"]
+            entity_var: SUBJECT
+            actions:
+              - { type: mirror_world_pig_aggressive }
+      entity_spawn:
+        require_all:
+          - { type: var_in, key: "EVENT.entity.type", values: ["ENDERMAN", "PIG"] }
+        on_pass:
+          - { type: mirror_world_enderman_passive }
+          - { type: mirror_world_pig_aggressive }
+
+  lava_floors:
+    name: "Pisos de Lava"
+    type: CHAOS
+    description: "La lava fluye tan rápido como el agua."
+    events:
+      block_from_to:
+        require_all:
+          - { type: var_equals, key: "EVENT.block.type", value: "LAVA" }
+        on_pass:
+          - { type: lava_flow_like_water }
+
+  persistent_shadow:
+    name: "Sombra Persistente"
+    type: CURSE
+    description: "Las antorchas se apagan solas tras 5 minutos."
+    events:
+      modifier_enable:
+        require_all: []
+        on_pass:
+          - { type: persistent_shadow_start, interval_ms: 300000, check_period_ticks: 100 }
+      modifier_disable:
+        require_all: []
+        on_pass:
+          - { type: persistent_shadow_stop }
+
+  sky_gift:
+    name: "Regalo del Cielo"
+    type: BLESSING
+    description: "Cofre con suministros cae en Spawn cada hora."
+    events:
+      modifier_enable:
+        require_all:
+          - { type: var_is_missing, key: "GLOBAL.custom.sky_gift_next_ms" }
+        on_pass:
+          - { type: set_var_now_plus, key: "GLOBAL.custom.sky_gift_next_ms", add_ms: 10000 }
+      player_tick:
+        require_all:
+          - { type: now_ms_gte_var, key: "GLOBAL.custom.sky_gift_next_ms" }
+        on_pass:
+          - { type: set_var_now_plus, key: "GLOBAL.custom.sky_gift_next_ms", add_ms: 3600000 }
+          - { type: find_top_block_near, world: "world", radius: 150, attempts: 40, store_key: "GLOBAL.custom.sky_gift_base" }
+          - { type: location_offset, from: "GLOBAL.custom.sky_gift_base", dy: 1, store_key: "GLOBAL.custom.sky_gift_chest" }
+          - { type: set_block_type_at, where: "GLOBAL.custom.sky_gift_chest", material: "CHEST" }
+          - type: fill_chest_loot
+            where: "GLOBAL.custom.sky_gift_chest"
+            clear: false
+            loot:
+              - { material: "GOLDEN_APPLE", amount: 2 }
+              - { material: "DIAMOND", min: 1, max: 3 }
+              - { material: "IRON_INGOT", min: 5, max: 14 }
+              - { material: "COOKED_BEEF", amount: 16 }
+              - { material: "EXPERIENCE_BOTTLE", amount: 10 }
+          - { type: place_torches_around, center: "GLOBAL.custom.sky_gift_chest", distance: 1, include_diagonals: false, material: "TORCH" }
+          - { type: strike_lightning_effect_at, where: "GLOBAL.custom.sky_gift_chest" }
+          - { type: broadcast_with_location, location: "GLOBAL.custom.sky_gift_chest", message: "<green>¡Un regalo del cielo ha caído cerca del spawn! Coords: X {x} Z {z}" }
+          - { type: discord_announce_with_location, location: "GLOBAL.custom.sky_gift_chest", title: "Regalo del Cielo", message: "Cofre en spawn: X {x} Z {z}", color: "green" }
+
+  extra_life:
+    name: "Vida Extra"
+    type: BLESSING
+    description: "+2 Corazones de vida máxima."
+    events:
+      modifier_enable:
+        require_all: []
+        on_pass:
+          - { type: add_player_attribute_modifier, attribute: "MAX_HEALTH", key: "extra_life", operation: "ADD_NUMBER", amount: 4.0, slot_group: "ANY" }
+      modifier_disable:
+        require_all: []
+        on_pass:
+          - { type: remove_player_attribute_modifier, attribute: "MAX_HEALTH", key: "extra_life" }
+      player_join:
+        require_all: []
+        on_pass:
+          - { type: add_player_attribute_modifier, attribute: "MAX_HEALTH", key: "extra_life", operation: "ADD_NUMBER", amount: 4.0, slot_group: "ANY" }
+
+  icarus_flight:
+    name: "Vuelo de Ícaro"
+    type: BLESSING
+    description: "Caída lenta permanente."
+    events:
+      player_tick:
+        require_all: []
+        on_pass:
+          - { type: apply_effect, effect: "SLOW_FALLING", duration: 200, amplifier: 0, ambient: false, particles: false }
+      modifier_disable:
+        require_all: []
+        on_pass:
+          - { type: remove_effect, effect: "SLOW_FALLING", only_if_amplifier: 0 }
+
+  ender_eyes:
+    name: "Ojos de Ender"
+    type: BLESSING
+    description: "Endermans dropean perlas 100% garantizado."
+    events:
+      entity_death:
+        require_all:
+          - { type: var_equals, key: "EVENT.entity.type", value: "ENDERMAN" }
+        on_pass:
+          - { type: add_event_death_drop, material: "ENDER_PEARL", amount: 1 }
+
+  explosive_loot:
+    name: "Botín Explosivo"
+    type: CHAOS
+    description: "20% chance de que cofres exploten."
+    events:
+      player_interact:
+        require_all:
+          - { type: var_equals, key: "EVENT.action", value: "RIGHT_CLICK_BLOCK" }
+          - { type: var_in, key: "EVENT.block.type", values: ["CHEST", "TRAPPED_CHEST", "BARREL", "SHULKER_BOX", "WHITE_SHULKER_BOX", "ORANGE_SHULKER_BOX", "MAGENTA_SHULKER_BOX", "LIGHT_BLUE_SHULKER_BOX", "YELLOW_SHULKER_BOX", "LIME_SHULKER_BOX", "PINK_SHULKER_BOX", "GRAY_SHULKER_BOX", "LIGHT_GRAY_SHULKER_BOX", "CYAN_SHULKER_BOX", "PURPLE_SHULKER_BOX", "BLUE_SHULKER_BOX", "BROWN_SHULKER_BOX", "GREEN_SHULKER_BOX", "RED_SHULKER_BOX", "BLACK_SHULKER_BOX"] }
+          - { type: random_chance, probability: 0.2 }
+        on_pass:
+          - { type: cancel_event, value: true }
+          - { type: explode, where: "EVENT.block.location", power: 2.0, set_fire: false, break_blocks: false }
+          - { type: message, color: red, message: "¡El cofre tenía una trampa explosiva!" }
+
+  equivalent_exchange:
+    name: "Intercambio Equivalente"
+    type: CHAOS
+    description: "Matar un mob te teletransporta a su lugar."
+    events:
+      entity_death:
+        require_all:
+          - { type: var_equals, key: "EVENT.entity.killer.type", value: "PLAYER" }
+        on_pass:
+          - { type: teleport_player_to_key, where: "EVENT.entity.location" }
+
+  giant_world:
+    name: "Mundo Gigante"
+    type: CHAOS
+    description: "Los Slimes y Magma Cubes son x4 tamaño."
+    events:
+      creature_spawn:
+        require_all:
+          - { type: var_in, key: "EVENT.entity.type", values: ["SLIME", "MAGMA_CUBE"] }
+        on_pass:
+          - { type: get_slime_size_to_var, key: "EVENT.custom.giant_world_slime_size" }
+          - { type: math_set_var, key: "EVENT.custom.giant_world_slime_size", op: "mul", a_key: "EVENT.custom.giant_world_slime_size", b: 4 }
+          - { type: set_slime_size, size: "EVENT.custom.giant_world_slime_size" }
+
+  skeleton_invasion:
+    name: "Invasión Esqueleto"
+    type: CHAOS
+    description: "Solo spawnean Esqueletos."
+    events:
+      creature_spawn:
+        require_all:
+          - { type: var_equals, key: "EVENT.spawnReason", value: "NATURAL" }
+          - { type: var_compare, key: "EVENT.entity.is_monster", operator: "==", value: true }
+          - { type: var_compare, key: "EVENT.entity.type", operator: "!=", value: "SKELETON" }
+        on_pass:
+          - { type: cancel_event, value: true }
+          - { type: spawn_entity_at_key, where: "EVENT.location", entity_type: "SKELETON", count: 1, radius: 0, y_offset: 0 }
+
+  zombie_invasion:
+    name: "Invasión Zombie"
+    type: CHAOS
+    description: "Solo spawnean Zombies, pero muchísimos."
+    events:
+      creature_spawn:
+        require_all:
+          - { type: var_equals, key: "EVENT.spawnReason", value: "NATURAL" }
+          - { type: var_compare, key: "EVENT.entity.is_monster", operator: "==", value: true }
+          - { type: var_compare, key: "EVENT.entity.type", operator: "!=", value: "ZOMBIE" }
+        on_pass:
+          - { type: cancel_event, value: true }
+          - { type: spawn_entity_at_key, where: "EVENT.location", entity_type: "ZOMBIE", count: 1, radius: 0, y_offset: 0 }
+
+  purge:
+    name: "La Purga"
+    type: CHAOS
+    description: "Se pueden robar cofres protegidos."
+    events:
+      modifier_enable:
+        require_all: []
+        on_pass:
+          - { type: set_protection_purge_active, value: true }
+          - { type: broadcast, color: red, message: "¡LA PURGA HA COMENZADO! Las protecciones están desactivadas." }
+      modifier_disable:
+        require_all: []
+        on_pass:
+          - { type: set_protection_purge_active, value: false }
+          - { type: broadcast, color: green, message: "La Purga ha terminado. Las protecciones están activas de nuevo." }
+
+  animal_friendship:
+    name: "Amistad Animal"
+    type: BLESSING
+    description: "Lobos y Gatos domados son inmortales."
+    events:
+      entity_damage:
+        require_all:
+          - { type: var_truthy, key: "EVENT.entity.is_tamed" }
+          - { type: var_in, key: "EVENT.entity.type", values: ["WOLF", "CAT"] }
+        on_pass:
+          - { type: cancel_event, value: true }
+
+  magic_archer:
+    name: "Arquero Mágico"
+    type: BLESSING
+    description: "Las flechas no se consumen."
+    events:
+      modifier_enable:
+        require_all: []
+        on_pass:
+          - { type: ensure_player_has_item, material: "ARROW", amount: 1 }
+      player_tick:
+        require_all: []
+        on_pass:
+          - { type: ensure_player_has_item, material: "ARROW", amount: 1 }
+      entity_shoot_bow:
+        require_all: []
+        on_pass:
+          - { type: bow_refund_consumable }
+
+  musical_chairs:
+    name: "Juego de la Silla"
+    type: CHAOS
+    description: "Cada 30 min, todos cambian de posición con otro jugador."
+    events:
+      player_tick:
+        require_all: []
+        on_pass:
+          - type: rotate_online_player_positions
+            next_key: "GLOBAL.custom.next_musical_chairs_ms"
+            interval_ms: 1800000
+            shuffle: true
+            color: yellow
+            message: "¡Cambio de lugar! Has sido teletransportado."
+
+  explosive_chickens:
+    name: "Gallinas Explosivas"
+    type: CHAOS
+    description: "Las gallinas explotan si te acercas."
+    events:
+      player_fast_tick:
+        require_all: []
+        on_pass:
+          - { type: explode_nearby_entities, entity_type: "CHICKEN", radius: 3.0, power: 2.0, set_fire: false, break_blocks: false }
+
+  fatal_attraction:
+    name: "Atracción Fatal"
+    type: CHAOS
+    description: "Todos los mobs son atraídos hacia el jugador más cercano."
+    events:
+      player_tick:
+        require_all: []
+        on_pass:
+          - { type: aggro_nearby_creatures, radius: 30, radius_y: 10, only_if_no_target: true }
+
+  blind_inventory:
+    name: "Inventario Ciego"
+    type: CHAOS
+    description: "Los tooltips de los items están ocultos."
+    events:
+      modifier_enable:
+        require_all: []
+        on_pass:
+          - { type: set_player_inventory_hide_tooltip, hide: true }
+      modifier_disable:
+        require_all: []
+        on_pass:
+          - { type: set_player_inventory_hide_tooltip, hide: false }
+      player_join:
+        require_all: []
+        on_pass:
+          - { type: set_player_inventory_hide_tooltip, hide: true }
+      player_pickup_item:
+        require_all: []
+        on_pass:
+          - { type: set_hide_tooltip_from_event_items, hide: true }
+      inventory_click:
+        require_all: []
+        on_pass:
+          - { type: set_hide_tooltip_from_event_items, hide: true }
+      prepare_item_craft:
+        require_all: []
+        on_pass:
+          - { type: set_hide_tooltip_from_event_items, hide: true }
+
+
+# ------------------------------------------------------------
+# Scoped Modifiers (sistema de scopes)
+# ------------------------------------------------------------
+#
+# Objetivo: aplicar "modifiers" sobre variables custom (generic/custom) dentro
+# de scopes globales: PLAYER, WORLD, CHUNK, GLOBAL, TEAM, EVENT.
+#
+# Reglas:
+# - Se evalúan por prioridad (desc).
+# - when: condición (si falta, se asume true).
+# - effects: SOLO se permiten efectos que modifiquen variables custom.
+#   En este MVP: {type: set_var|add_var, key: "SCOPE.custom.<...>", value: ...}
+# - Cualquier intento de escribir sobre getters nativos / cache / state debe fallar
+#   con error explícito (engine fail-safe).
+#
+# Ejemplo conceptual:
+# scoped_modifiers:
+#   PLAYER:
+#     - id: low_health_bonus
+#       priority: 100
+#       when: { type: var_compare, key: "PLAYER.health", operator: "<", value: 5 }
+#       effects:
+#         - { type: add_var, key: "PLAYER.custom.damage", value: 2 }
+
+scoped_modifiers: {}

@@ -9,8 +9,9 @@
 #       material: <Bukkit Material>
 #       custom: <CustomItemType>
 #       amount: <int> (opcional, default 1)
-#       params: (opcional; actualmente soporta luck para LOKI_DICE)
-#         luck: <double>
+#       params: (opcional)
+#         pdc: (opcional) lista de entradas PDC que se aplican al ItemStack resultante
+#           - { key: some_key, type: DOUBLE|INT|LONG|STRING|BYTE, value: <any> }
 #
 # Ingredientes:
 # - Para shaped:
@@ -270,7 +271,7 @@ recipes:
     key:
       B: { material: IRON_BLOCK }
       F: { material: BLAST_FURNACE }
-      C: { material: CHAIN }
+      C: { material: IRON_CHAIN }
       I: { material: IRON_INGOT }
     rules:
       prepare:
@@ -314,7 +315,7 @@ recipes:
     key:
       B: { material: IRON_BLOCK }
       F: { material: BLAST_FURNACE }
-      C: { material: CHAIN }
+      C: { material: IRON_CHAIN }
       I: { material: IRON_INGOT }
     rules:
       prepare:
@@ -334,7 +335,7 @@ recipes:
       - "BFB"
       - "I I"
     key:
-      C: { material: CHAIN }
+      C: { material: IRON_CHAIN }
       B: { material: IRON_BLOCK }
       F: { material: BLAST_FURNACE }
       I: { material: IRON_INGOT }
@@ -1042,7 +1043,9 @@ recipes:
     type: shapeless
     result:
       custom: LOKI_DICE
-      params: { luck: 0.20 }
+      params:
+        pdc:
+          - { key: loki_dice_luck, type: DOUBLE, value: 0.20 }
     ingredients:
       - { material: EMERALD_BLOCK }
       - { material: NETHER_STAR }
@@ -1058,7 +1061,9 @@ recipes:
     type: shapeless
     result:
       custom: LOKI_DICE
-      params: { luck: -0.20 }
+      params:
+        pdc:
+          - { key: loki_dice_luck, type: DOUBLE, value: -0.20 }
     ingredients:
       - { material: EMERALD_BLOCK }
       - { material: WITHER_ROSE }

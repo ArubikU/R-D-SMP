@@ -2,7 +2,6 @@ package net.rollanddeath.smp.core.items.impl;
 
 import net.rollanddeath.smp.RollAndDeathSMP;
 import net.rollanddeath.smp.core.items.CustomItem;
-import net.rollanddeath.smp.core.items.CustomItemType;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.entity.Mob;
@@ -28,12 +27,22 @@ public class OblivionPotion extends CustomItem {
     private final Map<UUID, Long> protectedPlayers = new HashMap<>();
 
     public OblivionPotion(RollAndDeathSMP plugin) {
-        super(plugin, CustomItemType.OBLIVION_POTION);
+        super(plugin, "OBLIVION_POTION");
     }
 
     @Override
     protected ItemStack createBaseItem() {
         return new ItemStack(Material.POTION);
+    }
+
+    @Override
+    public String getDisplayName() {
+        return "Poción de Olvido";
+    }
+
+    @Override
+    protected Integer getCustomModelData() {
+        return 710009;
     }
 
     @Override

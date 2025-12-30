@@ -2,7 +2,6 @@ package net.rollanddeath.smp.core.items.impl;
 
 import net.rollanddeath.smp.RollAndDeathSMP;
 import net.rollanddeath.smp.core.items.CustomItem;
-import net.rollanddeath.smp.core.items.CustomItemType;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -27,7 +26,7 @@ public class EternalTorch extends CustomItem {
     private final File dataFile;
 
     public EternalTorch(RollAndDeathSMP plugin) {
-        super(plugin, CustomItemType.ETERNAL_TORCH);
+        super(plugin, "ETERNAL_TORCH");
         this.dataFile = new File(plugin.getDataFolder(), "eternal_torches.yml");
         loadPersistedTorches();
     }
@@ -35,6 +34,16 @@ public class EternalTorch extends CustomItem {
     @Override
     protected ItemStack createBaseItem() {
         return new ItemStack(Material.TORCH);
+    }
+
+    @Override
+    public String getDisplayName() {
+        return "Antorcha Eterna";
+    }
+
+    @Override
+    protected Integer getCustomModelData() {
+        return 710004;
     }
 
     @Override

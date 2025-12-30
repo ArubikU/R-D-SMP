@@ -1,7 +1,6 @@
 package net.rollanddeath.smp.core.game;
 
 import net.rollanddeath.smp.RollAndDeathSMP;
-import net.rollanddeath.smp.core.mobs.MobType;
 import org.bukkit.World;
 import org.bukkit.entity.EnderDragon;
 import org.bukkit.entity.EntityType;
@@ -32,10 +31,10 @@ public class EndBattleListener implements Listener {
             double roll = random.nextDouble();
             if (roll < 0.05) { // 5% chance
                 event.setCancelled(true);
-                plugin.getMobManager().spawnMob(MobType.VOID_WALKER, event.getLocation());
+                plugin.getMobManager().spawnMob("void_walker", event.getLocation());
             } else if (roll < 0.10) { // Another 5%
                 event.setCancelled(true);
-                plugin.getMobManager().spawnMob(MobType.THE_STALKER, event.getLocation());
+                plugin.getMobManager().spawnMob("the_stalker", event.getLocation());
             }
         }
     }
@@ -50,7 +49,7 @@ public class EndBattleListener implements Listener {
             
             // Let's spawn 3 Void Walkers on Dragon death as guards of the egg
             for (int i = 0; i < 3; i++) {
-                plugin.getMobManager().spawnMob(MobType.VOID_WALKER, event.getEntity().getLocation().add(random.nextInt(10)-5, 0, random.nextInt(10)-5));
+                plugin.getMobManager().spawnMob("void_walker", event.getEntity().getLocation().add(random.nextInt(10)-5, 0, random.nextInt(10)-5));
             }
         }
     }

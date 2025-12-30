@@ -136,11 +136,14 @@ public class WebStatusManager {
 
         JsonArray activeMobs = new JsonArray();
         if (mobRotation != null) {
-            for (var mob : mobRotation.getActiveMobs()) {
+            for (String mobId : mobRotation.getActiveMobs()) {
+                net.rollanddeath.smp.core.mobs.CustomMob mob = plugin.getMobManager().getMob(mobId);
+                if (mob == null) continue;
+                
                 JsonObject mobObj = new JsonObject();
-                mobObj.addProperty("id", mob.name());
+                mobObj.addProperty("id", mob.getId());
                 mobObj.addProperty("name", mob.getDisplayName());
-                mobObj.addProperty("boss", mob.isBoss());
+                // mobObj.addProperty("boss", mob.isBoss()); // Not available
                 activeMobs.add(mobObj);
             }
             root.addProperty("active_mob_count", mobRotation.getActiveMobs().size());

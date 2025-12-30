@@ -7,6 +7,8 @@ import net.rollanddeath.smp.RollAndDeathSMP;
 import net.rollanddeath.smp.core.modifiers.scripted.ScriptedModifier;
 import net.rollanddeath.smp.core.modifiers.scripted.ScriptedModifierDefinition;
 import net.rollanddeath.smp.core.modifiers.scripted.ScriptedModifierParser;
+import net.rollanddeath.smp.core.scripting.lint.ScriptLinter;
+import net.rollanddeath.smp.core.scripting.scope.modifiers.ScopedModifierParser;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
@@ -31,6 +33,7 @@ public class ModifierManager {
     private final Random random = new Random();
     private int lastRouletteDay = -1;
     private boolean spinning = false;
+    private boolean restoredAtStartup = false;
 
     public ModifierManager(RollAndDeathSMP plugin) {
         this.plugin = plugin;
@@ -51,18 +54,46 @@ public class ModifierManager {
             }
 
             YamlConfiguration cfg = YamlConfiguration.loadConfiguration(file);
-            Map<String, ScriptedModifierDefinition> defs = ScriptedModifierParser.parseAll(cfg);
-            if (defs.isEmpty()) return;
 
+            // Lint temprano para detectar referencias inválidas en scripts
+            ScriptLinter.logIssues(plugin.getLogger(), ScriptLinter.lintConfiguration("modifiers.yml", cfg));
+
+            Map<String, ScriptedModifierDefinition> defs = ScriptedModifierParser.parseAll(cfg);
             for (ScriptedModifierDefinition def : defs.values()) {
                 ScriptedModifier mod = new ScriptedModifier(plugin, def.name(), def.type(), def.description(), def.events());
                 registerModifier(mod);
             }
 
-            plugin.getLogger().info("Cargados modifiers scripted desde modifiers.yml: " + defs.size());
+            // Scoped modifiers (PLAYER/WORLD/CHUNK/GLOBAL/TEAM/EVENT)
+            try {
+                var scoped = ScopedModifierParser.parseAll(cfg);
+                plugin.getScopeRegistry().setScopedModifiers(scoped);
+                int total = scoped.values().stream().mapToInt(java.util.List::size).sum();
+                if (total > 0) {
+                    plugin.getLogger().info("Cargados scoped_modifiers desde modifiers.yml: " + total);
+                }
+            } catch (Exception e) {
+                plugin.getLogger().warning("No se pudo cargar scoped_modifiers: " + e.getMessage());
+            }
+
+            if (!defs.isEmpty()) {
+                plugin.getLogger().info("Cargados modifiers scripted desde modifiers.yml: " + defs.size());
+            }
         } catch (Exception e) {
             plugin.getLogger().warning("No se pudo cargar modifiers.yml: " + e.getMessage());
         }
+    }
+
+    /**
+     * Recarga los modifiers desde modifiers.yml sin afectar los modifiers actualmente activos.
+     * Los nuevos modifiers estarán disponibles para la próxima ruleta.
+     */
+    public void loadAndRegister() {
+        // Limpiar solo los modifiers scripted registrados (mantener los activos)
+        registeredModifiers.entrySet().removeIf(entry -> entry.getValue() instanceof ScriptedModifier);
+        
+        // Recargar desde archivo
+        loadScriptedModifiers();
     }
 
     private void loadModifierState() {
@@ -96,9 +127,30 @@ public class ModifierManager {
         }
 
         registeredModifiers.put(modifier.getName(), modifier);
-        if (activeModifiers.contains(modifier.getName())) {
-            modifier.onEnable();
-            plugin.getLogger().info("Restaurando modificador activo: " + modifier.getName());
+    }
+
+    /**
+     * Restaura (reactiva) los modificadores persistidos como activos.
+     *
+     * Importante: debe llamarse cuando el plugin ya terminó de inicializar managers
+     * que los scripts puedan necesitar (ej: ProtectionManager para "purge").
+     */
+    public void restoreActiveModifiers() {
+        if (restoredAtStartup) return;
+        restoredAtStartup = true;
+
+        for (String name : new HashSet<>(activeModifiers)) {
+            Modifier mod = registeredModifiers.get(name);
+            if (mod == null) {
+                plugin.getLogger().warning("Modificador activo persistido no encontrado: " + name);
+                continue;
+            }
+            try {
+                mod.onEnable();
+                plugin.getLogger().info("Restaurando modificador activo: " + mod.getName());
+            } catch (Exception e) {
+                plugin.getLogger().warning("No se pudo restaurar modificador activo: " + mod.getName() + " -> " + e.getMessage());
+            }
         }
     }
 
@@ -245,7 +297,7 @@ public class ModifierManager {
     }
 
     private void announceModifier(Modifier mod) {
-        ModifierType type = mod.getType();
+        String type = mod.getType();
         NamedTextColor typeColor = getTypeColor(type);
         Component titleMain = Component.text("[Evento]", typeColor);
         Component titleSub = Component.text(getTypeDisplayName(type) + " - " + mod.getName(), NamedTextColor.WHITE);
@@ -275,27 +327,30 @@ public class ModifierManager {
         }
     }
 
-    private NamedTextColor getTypeColor(ModifierType type) {
+    private NamedTextColor getTypeColor(String type) {
         return switch (type) {
-            case CURSE -> NamedTextColor.DARK_PURPLE;
-            case CHAOS -> NamedTextColor.GOLD;
-            case BLESSING -> NamedTextColor.AQUA;
+            case "CURSE" -> NamedTextColor.DARK_PURPLE;
+            case "CHAOS" -> NamedTextColor.GOLD;
+            case "BLESSING" -> NamedTextColor.AQUA;
+            default -> NamedTextColor.GRAY;
         };
     }
 
-    private String getTypeDisplayName(ModifierType type) {
+    private String getTypeDisplayName(String type) {
         return switch (type) {
-            case CURSE -> "Maldición";
-            case CHAOS -> "Caos";
-            case BLESSING -> "Bendición";
+            case "CURSE" -> "Maldición";
+            case "CHAOS" -> "Caos";
+            case "BLESSING" -> "Bendición";
+            default -> type;
         };
     }
 
-    private Sound getTypeSound(ModifierType type) {
+    private Sound getTypeSound(String type) {
         return switch (type) {
-            case CURSE -> Sound.ENTITY_ENDER_DRAGON_GROWL;
-            case CHAOS -> Sound.ENTITY_WITHER_SPAWN;
-            case BLESSING -> Sound.UI_TOAST_CHALLENGE_COMPLETE;
+            case "CURSE" -> Sound.ENTITY_ENDER_DRAGON_GROWL;
+            case "CHAOS" -> Sound.ENTITY_WITHER_SPAWN;
+            case "BLESSING" -> Sound.UI_TOAST_CHALLENGE_COMPLETE;
+            default -> Sound.ENTITY_EXPERIENCE_ORB_PICKUP;
         };
     }
 }

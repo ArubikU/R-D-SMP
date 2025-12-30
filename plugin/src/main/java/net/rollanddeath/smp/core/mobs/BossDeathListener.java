@@ -3,11 +3,13 @@ package net.rollanddeath.smp.core.mobs;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.rollanddeath.smp.RollAndDeathSMP;
+import net.rollanddeath.smp.core.mobs.scripted.ScriptedMob;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
+import org.bukkit.entity.Slime;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -36,8 +38,21 @@ public class BossDeathListener implements Listener {
         if (!victim.getScoreboardTags().contains("custom_mob")) return;
 
         // Check if it's a boss
-        MobType type = getMobType(victim);
-        if (type == null || !type.isBoss()) return;
+        String mobId = getMobId(victim);
+        if (mobId == null) return;
+
+        CustomMob mob = plugin.getMobManager().getMob(mobId);
+        if (mob == null) return;
+
+        boolean isBoss = false;
+        if (mob instanceof ScriptedMob sm) {
+            isBoss = sm.definition().isBoss();
+        }
+
+        if (!isBoss) return;
+
+        // Evita dar KP/trackear para sub-spawns (ej: splits del Slime King)
+        if (!isEligibleBossEntity(victim, mobId)) return;
 
         Player attacker = null;
         if (event.getDamager() instanceof Player) {
@@ -60,13 +75,26 @@ public class BossDeathListener implements Listener {
         LivingEntity victim = event.getEntity();
         if (!victim.getScoreboardTags().contains("custom_mob")) return;
 
-        MobType type = getMobType(victim);
-        if (type == null || !type.isBoss()) return;
+        String mobId = getMobId(victim);
+        if (mobId == null) return;
 
-        handleBossDeath(victim, type);
+        CustomMob mob = plugin.getMobManager().getMob(mobId);
+        if (mob == null) return;
+
+        boolean isBoss = false;
+        if (mob instanceof ScriptedMob sm) {
+            isBoss = sm.definition().isBoss();
+        }
+
+        if (!isBoss) return;
+
+        // Solo el boss "real" debe dar KP (en Slime King: solo el grande)
+        if (!isEligibleBossEntity(victim, mobId)) return;
+
+        handleBossDeath(victim, mob);
     }
 
-    private void handleBossDeath(LivingEntity boss, MobType type) {
+    private void handleBossDeath(LivingEntity boss, CustomMob mob) {
         UUID bossId = boss.getUniqueId();
         Map<UUID, Double> damageMap = damageTracker.remove(bossId);
 
@@ -79,7 +107,7 @@ public class BossDeathListener implements Listener {
                 .collect(Collectors.toList());
 
         // Broadcast
-        Component message = Component.text("¡" + type.getDisplayName() + " ha sido derrotado!", NamedTextColor.GOLD)
+        Component message = Component.text("¡" + mob.getDisplayName() + " ha sido derrotado!", NamedTextColor.GOLD)
                 .append(Component.newline())
                 .append(Component.text("Top Daño:", NamedTextColor.YELLOW));
 
@@ -92,9 +120,15 @@ public class BossDeathListener implements Listener {
                     .append(Component.text("#" + rank + " " + name + " - " + String.format("%.1f", entry.getValue()) + " daño", NamedTextColor.WHITE));
             
             // Award Kill Point
-            plugin.getKillPointsManager().addKill(entry.getKey());
-            if (p != null) {
-                p.sendMessage(Component.text("¡Has recibido 1 Kill Point por tu contribución!", NamedTextColor.GREEN));
+            try {
+                var kpm = plugin.getKillPointsManager();
+                if (kpm != null && kpm.isKillPointsEnabled()) {
+                    kpm.addKill(entry.getKey());
+                    if (p != null) {
+                        p.sendMessage(Component.text("¡Has recibido 1 Kill Point por tu contribución!", NamedTextColor.GREEN));
+                    }
+                }
+            } catch (Exception ignored) {
             }
             
             rank++;
@@ -103,12 +137,25 @@ public class BossDeathListener implements Listener {
         Bukkit.broadcast(message);
     }
 
-    private MobType getMobType(Entity entity) {
+    private String getMobId(Entity entity) {
+        if (plugin.getMobManager() == null) return null;
         for (String tag : entity.getScoreboardTags()) {
-            try {
-                return MobType.valueOf(tag);
-            } catch (IllegalArgumentException ignored) {}
+            if (plugin.getMobManager().getMobIds().contains(tag)) {
+                return tag;
+            }
         }
         return null;
+    }
+
+    private boolean isEligibleBossEntity(LivingEntity entity, String mobId) {
+        // Slime King: solo el grande otorga Kill Points.
+        // Nota: el Slime King se setea a size 10 en mobs.yml.
+        if ("SLIME_KING".equals(mobId)) {
+            if (entity instanceof Slime s) {
+                return s.getSize() >= 10;
+            }
+            return false;
+        }
+        return true;
     }
 }

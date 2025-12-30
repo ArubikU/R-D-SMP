@@ -4,7 +4,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.rollanddeath.smp.RollAndDeathSMP;
 import net.rollanddeath.smp.core.items.CustomItem;
-import net.rollanddeath.smp.core.items.CustomItemType;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -27,12 +26,22 @@ public class SoulContract extends CustomItem {
     private final Map<UUID, Long> pendingRevives = new HashMap<>();
 
     public SoulContract(RollAndDeathSMP plugin) {
-        super(plugin, CustomItemType.SOUL_CONTRACT);
+        super(plugin, "SOUL_CONTRACT");
     }
 
     @Override
     protected ItemStack createBaseItem() {
         return new ItemStack(Material.PAPER);
+    }
+
+    @Override
+    public String getDisplayName() {
+        return "Contrato de Alma";
+    }
+
+    @Override
+    protected Integer getCustomModelData() {
+        return 710027;
     }
 
     @Override

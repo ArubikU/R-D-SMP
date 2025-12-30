@@ -2,7 +2,6 @@ package net.rollanddeath.smp.modifiers.chaos;
 
 import net.rollanddeath.smp.RollAndDeathSMP;
 import net.rollanddeath.smp.core.modifiers.Modifier;
-import net.rollanddeath.smp.core.modifiers.ModifierType;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -16,7 +15,7 @@ public class RandomBlocksModifier extends Modifier {
     private final Material[] materials = Material.values();
 
     public RandomBlocksModifier(RollAndDeathSMP plugin) {
-        super(plugin, "Bloques Random", ModifierType.CHAOS, "Los drops de bloques están aleatorizados.");
+        super(plugin, "Bloques Random", "CHAOS", "Los drops de bloques están aleatorizados.");
     }
 
     @EventHandler

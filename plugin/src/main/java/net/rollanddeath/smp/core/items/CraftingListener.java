@@ -7,6 +7,7 @@ import net.rollanddeath.smp.core.scripting.ActionResult;
 import net.rollanddeath.smp.core.scripting.ScriptContext;
 import net.rollanddeath.smp.core.scripting.ScriptEngine;
 import net.rollanddeath.smp.core.scripting.ScriptPhase;
+import net.rollanddeath.smp.core.scripting.ScriptVars;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -16,7 +17,6 @@ import org.bukkit.inventory.Recipe;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Keyed;
 import org.bukkit.inventory.ItemStack;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,7 +47,7 @@ public class CraftingListener implements Listener {
         RecipeRuleSet rules = plugin.getRecipeManager().getRuleSet(key);
         if (rules == null || rules.prepare() == null) return;
 
-        boolean deny = applyRulesPhase(rules.prepare(), player, key, ScriptPhase.PREPARE);
+        boolean deny = applyRulesPhase(rules.prepare(), player, item.getItemStack(), key, ScriptPhase.PREPARE, event);
         if (deny) {
             event.getInventory().setResult(null);
         }
@@ -72,16 +72,25 @@ public class CraftingListener implements Listener {
         RecipeRuleSet rules = plugin.getRecipeManager().getRuleSet(key);
         if (rules == null || rules.craft() == null) return;
 
-        boolean deny = applyRulesPhase(rules.craft(), player, key, ScriptPhase.CRAFT);
+        boolean deny = applyRulesPhase(rules.craft(), player, item.getItemStack(), key, ScriptPhase.CRAFT, event);
         if (deny) {
             event.setCancelled(true);
         }
     }
 
-    private boolean applyRulesPhase(RecipeRulePhase phase, Player player, NamespacedKey recipeKey, ScriptPhase scriptPhase) {
-        Map<String, Object> vars = new HashMap<>();
-        vars.put("recipe_key", recipeKey.getKey());
-        vars.put("recipe_namespace", recipeKey.getNamespace());
+    private boolean applyRulesPhase(RecipeRulePhase phase, Player player, ItemStack craftedItem, NamespacedKey recipeKey, ScriptPhase scriptPhase, Object nativeEvent) {
+        Map<String, Object> ev = new HashMap<>();
+        ev.put("type", scriptPhase == ScriptPhase.PREPARE ? "prepare_item_craft" : "craft_item");
+        ev.put("__native", nativeEvent);
+        ev.put("recipe", recipeKey.toString());
+        ev.put("recipeKey", recipeKey.getKey());
+        ev.put("recipeNamespace", recipeKey.getNamespace());
+
+        Map<String, Object> vars = ScriptVars.create()
+            .subject(player)
+            .item(craftedItem)
+            .event(ev)
+            .build();
 
         ScriptContext ctx = new ScriptContext(plugin, player, recipeKey.toString(), scriptPhase, vars);
 
@@ -96,8 +105,7 @@ public class CraftingListener implements Listener {
     }
 
     private CustomItem getCustomItemFromStack(ItemStack stack) {
-        for (CustomItemType type : CustomItemType.values()) {
-            CustomItem item = plugin.getItemManager().getItem(type);
+        for (CustomItem item : plugin.getItemManager().getItems().values()) {
             if (item != null && item.getItemStack().isSimilar(stack)) {
                 return item;
             }

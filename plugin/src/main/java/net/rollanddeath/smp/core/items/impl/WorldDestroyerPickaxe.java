@@ -4,7 +4,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.rollanddeath.smp.RollAndDeathSMP;
 import net.rollanddeath.smp.core.items.CustomItem;
-import net.rollanddeath.smp.core.items.CustomItemType;
 import net.rollanddeath.smp.core.protection.ProtectionManager;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -18,12 +17,22 @@ import java.util.List;
 public class WorldDestroyerPickaxe extends CustomItem {
 
     public WorldDestroyerPickaxe(RollAndDeathSMP plugin) {
-        super(plugin, CustomItemType.WORLD_DESTROYER_PICKAXE);
+        super(plugin, "WORLD_DESTROYER_PICKAXE");
     }
 
     @Override
     protected ItemStack createBaseItem() {
         return new ItemStack(Material.NETHERITE_PICKAXE);
+    }
+
+    @Override
+    public String getDisplayName() {
+        return "Pico Destructor de Mundos";
+    }
+
+    @Override
+    protected Integer getCustomModelData() {
+        return 710024;
     }
 
     @Override

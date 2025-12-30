@@ -1,7 +1,6 @@
 package net.rollanddeath.smp.core.items;
 
 import net.rollanddeath.smp.RollAndDeathSMP;
-import net.rollanddeath.smp.core.items.impl.LokiDice;
 import net.rollanddeath.smp.core.items.recipes.RecipeRuleParser;
 import net.rollanddeath.smp.core.items.recipes.RecipeRuleSet;
 import org.bukkit.Material;
@@ -19,11 +18,16 @@ import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.inventory.SmokingRecipe;
 import org.bukkit.inventory.StonecuttingRecipe;
 import org.bukkit.inventory.SmithingTransformRecipe;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class RecipeManager {
 
@@ -247,25 +251,222 @@ public class RecipeManager {
 
                 String customName = resultSection.getString("custom");
                 if (customName != null && !customName.isBlank()) {
-                        CustomItemType type = CustomItemType.valueOf(customName.trim().toUpperCase(Locale.ROOT));
+                        String type = customName.trim().toUpperCase(Locale.ROOT);
                         var customItem = plugin.getItemManager().getItem(type);
                         if (customItem == null) throw new IllegalArgumentException("custom no registrado: " + type);
 
-                        // Soporte para resultados parametrizados (p. ej. LOKI_DICE)
-                        ConfigurationSection params = resultSection.getConfigurationSection("params");
-                        if (customItem instanceof LokiDice dice && params != null && params.contains("luck")) {
-                                double luck = params.getDouble("luck");
-                                ItemStack out = dice.getItemStack(luck);
-                                out.setAmount(amount);
-                                return out;
-                        }
-
                         ItemStack out = customItem.getItemStack();
                         out.setAmount(amount);
+
+                        // Params genéricos: permite setear PDC extra para resultados de recetas.
+                        // Formato:
+                        // params:
+                        //   pdc:
+                        //     - { key: some_key, type: DOUBLE, value: 0.2 }
+                        ConfigurationSection params = resultSection.getConfigurationSection("params");
+                        if (params != null) {
+                                applyResultParams(out, params);
+                        }
+
                         return out;
                 }
 
                 return null;
+        }
+
+        private void applyResultParams(ItemStack item, ConfigurationSection params) {
+                if (item == null || params == null) return;
+
+                List<Map<?, ?>> pdcList = params.getMapList("pdc");
+                if (pdcList == null || pdcList.isEmpty()) return;
+
+                ItemMeta meta = item.getItemMeta();
+                if (meta == null) return;
+
+                for (Map<?, ?> raw : pdcList) {
+                        if (raw == null) continue;
+                        Object keyObj = raw.get("key");
+                        Object typeObj = raw.get("type");
+                        if (typeObj == null) typeObj = raw.get("data_type");
+                        if (typeObj == null) typeObj = raw.get("dataType");
+                        Object valueObj = raw.get("value");
+
+                        if (!(keyObj instanceof String keyRaw) || keyRaw.isBlank()) continue;
+                        if (valueObj == null) continue;
+
+                        NamespacedKey k;
+                        String rawKey = keyRaw.trim();
+                        if (rawKey.contains(":")) {
+                                k = NamespacedKey.fromString(rawKey);
+                        } else {
+                                k = new NamespacedKey(plugin, rawKey);
+                        }
+                        if (k == null) continue;
+
+                        String dt = (typeObj instanceof String s) ? s.trim().toUpperCase(Locale.ROOT) : null;
+                        Object v = valueObj;
+
+                        if (dt == null || dt.isBlank()) {
+                                if (v instanceof Number) dt = "DOUBLE";
+                                else if (v instanceof Boolean) dt = "BYTE";
+                                else dt = "STRING";
+                        }
+
+                        try {
+                                switch (dt) {
+                                        case "STRING" -> meta.getPersistentDataContainer().set(k, PersistentDataType.STRING, String.valueOf(v));
+                                        case "INT", "INTEGER" -> {
+                                                Integer n = v instanceof Number nn ? nn.intValue() : Integer.parseInt(String.valueOf(v).trim());
+                                                meta.getPersistentDataContainer().set(k, PersistentDataType.INTEGER, n);
+                                        }
+                                        case "LONG" -> {
+                                                Long n = v instanceof Number nn ? nn.longValue() : Long.parseLong(String.valueOf(v).trim());
+                                                meta.getPersistentDataContainer().set(k, PersistentDataType.LONG, n);
+                                        }
+                                        case "DOUBLE" -> {
+                                                Double n = v instanceof Number nn ? nn.doubleValue() : Double.parseDouble(String.valueOf(v).trim());
+                                                meta.getPersistentDataContainer().set(k, PersistentDataType.DOUBLE, n);
+                                        }
+                                        case "BYTE", "BOOLEAN" -> {
+                                                byte b = (v instanceof Boolean bb && bb) ? (byte) 1 : (byte) 0;
+                                                if (v instanceof Number nn) b = (byte) (nn.intValue() != 0 ? 1 : 0);
+                                                meta.getPersistentDataContainer().set(k, PersistentDataType.BYTE, b);
+                                        }
+                                        default -> meta.getPersistentDataContainer().set(k, PersistentDataType.STRING, String.valueOf(v));
+                                }
+                        } catch (Exception ignored) {
+                        }
+                }
+
+                // Si el lore tiene placeholders basados en PDC, actualízalo después de setear params.
+                applyPdcLorePlaceholders(meta);
+                item.setItemMeta(meta);
+        }
+
+        private static final Pattern PDC_TOKEN = Pattern.compile("%pdc:([^%]+)%");
+        private static final Pattern PDC_PERCENT_TOKEN = Pattern.compile("%pdc_percent:([^%]+)%");
+
+        private void applyPdcLorePlaceholders(ItemMeta meta) {
+                if (meta == null) return;
+                if (!meta.hasLore()) return;
+
+                List<String> lore = meta.getLore();
+                if (lore == null || lore.isEmpty()) return;
+
+                boolean changed = false;
+                for (int i = 0; i < lore.size(); i++) {
+                        String line = lore.get(i);
+                        if (line == null || line.isEmpty()) continue;
+
+                        String next = replacePdcTokens(line, meta);
+                        if (!next.equals(line)) {
+                                lore.set(i, next);
+                                changed = true;
+                        }
+                }
+
+                if (changed) {
+                        meta.setLore(lore);
+                }
+        }
+
+        private String replacePdcTokens(String input, ItemMeta meta) {
+                if (input == null || input.isEmpty() || meta == null) return input;
+
+                String out = input;
+                out = replaceToken(out, meta, PDC_PERCENT_TOKEN, true);
+                out = replaceToken(out, meta, PDC_TOKEN, false);
+                return out;
+        }
+
+        private String replaceToken(String input, ItemMeta meta, Pattern pattern, boolean percent) {
+                Matcher m = pattern.matcher(input);
+                if (!m.find()) return input;
+
+                StringBuffer sb = new StringBuffer();
+                do {
+                        String keyRaw = m.group(1);
+                        String replacement = "";
+                        if (keyRaw != null) {
+                                replacement = percent ? getPdcAsPercent(meta, keyRaw.trim()) : getPdcAsString(meta, keyRaw.trim());
+                        }
+                        if (replacement == null) replacement = "";
+                        m.appendReplacement(sb, Matcher.quoteReplacement(replacement));
+                } while (m.find());
+                m.appendTail(sb);
+                return sb.toString();
+        }
+
+        private String getPdcAsString(ItemMeta meta, String rawKey) {
+                if (meta == null || rawKey == null || rawKey.isBlank()) return "";
+                NamespacedKey k = rawKey.contains(":") ? NamespacedKey.fromString(rawKey) : new NamespacedKey(plugin, rawKey);
+                if (k == null) return "";
+                try {
+                        var pdc = meta.getPersistentDataContainer();
+                        Double d = pdc.get(k, PersistentDataType.DOUBLE);
+                        if (d != null) return trimDouble(d);
+
+                        Integer i = pdc.get(k, PersistentDataType.INTEGER);
+                        if (i != null) return String.valueOf(i);
+
+                        Long l = pdc.get(k, PersistentDataType.LONG);
+                        if (l != null) return String.valueOf(l);
+
+                        String s = pdc.get(k, PersistentDataType.STRING);
+                        if (s != null) return s;
+
+                        Byte b = pdc.get(k, PersistentDataType.BYTE);
+                        if (b != null) return b != 0 ? "true" : "false";
+                } catch (Exception ignored) {
+                }
+                return "";
+        }
+
+        private String getPdcAsPercent(ItemMeta meta, String rawKey) {
+                if (meta == null || rawKey == null || rawKey.isBlank()) return "0%";
+                NamespacedKey k = rawKey.contains(":") ? NamespacedKey.fromString(rawKey) : new NamespacedKey(plugin, rawKey);
+                if (k == null) return "0%";
+
+                Double v = null;
+                try {
+                        var pdc = meta.getPersistentDataContainer();
+                        v = pdc.get(k, PersistentDataType.DOUBLE);
+                        if (v == null) {
+                                Integer i = pdc.get(k, PersistentDataType.INTEGER);
+                                if (i != null) v = i.doubleValue();
+                        }
+                        if (v == null) {
+                                Long l = pdc.get(k, PersistentDataType.LONG);
+                                if (l != null) v = l.doubleValue();
+                        }
+                        if (v == null) {
+                                String s = pdc.get(k, PersistentDataType.STRING);
+                                if (s != null) {
+                                        try {
+                                                v = Double.parseDouble(s.trim());
+                                        } catch (Exception ignored) {
+                                                v = null;
+                                        }
+                                }
+                        }
+                } catch (Exception ignored) {
+                        v = null;
+                }
+
+                if (v == null) v = 0.0;
+                double pct = v * 100.0;
+                String sign = pct > 0.0000001 ? "+" : "";
+                return sign + trimDouble(pct) + "%";
+        }
+
+        private static String trimDouble(double v) {
+                if (Double.isNaN(v) || Double.isInfinite(v)) return "0";
+                String s = String.format(Locale.ROOT, "%.2f", v);
+                while (s.contains(".") && (s.endsWith("0") || s.endsWith("."))) {
+                        s = s.substring(0, s.length() - 1);
+                }
+                if (s.isBlank()) return "0";
+                return s;
         }
 
         private RecipeChoice resolveChoice(ConfigurationSection ingredientSection) {
@@ -283,7 +484,7 @@ public class RecipeManager {
 
                 Object customName = raw.get("custom");
                 if (customName instanceof String s && !s.isBlank()) {
-                        CustomItemType type = CustomItemType.valueOf(s.trim().toUpperCase(Locale.ROOT));
+                        String type = s.trim().toUpperCase(Locale.ROOT);
                         var customItem = plugin.getItemManager().getItem(type);
                         if (customItem == null) throw new IllegalArgumentException("custom no registrado: " + type);
                         ItemStack ingredient = customItem.getItemStack();

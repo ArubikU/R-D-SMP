@@ -3,7 +3,6 @@ package net.rollanddeath.smp.core.items.impl;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.rollanddeath.smp.RollAndDeathSMP;
 import net.rollanddeath.smp.core.items.CustomItem;
-import net.rollanddeath.smp.core.items.CustomItemType;
 import net.rollanddeath.smp.core.roles.RoleManager;
 import net.rollanddeath.smp.core.roles.RoleType;
 import org.bukkit.Material;
@@ -22,6 +21,8 @@ import java.util.Random;
 
 public class RoleCurioItem extends CustomItem {
 
+    private final String displayName;
+    private final Integer customModelData;
     private final RoleType requiredRole;
     private final Material baseMaterial;
     private final List<PotionEffect> effects;
@@ -32,7 +33,9 @@ public class RoleCurioItem extends CustomItem {
     private final Random random = new Random();
 
     public RoleCurioItem(RollAndDeathSMP plugin,
-                         CustomItemType type,
+                         String id,
+                         String displayName,
+                         Integer customModelData,
                          RoleType requiredRole,
                          Material baseMaterial,
                          List<PotionEffect> effects,
@@ -40,7 +43,9 @@ public class RoleCurioItem extends CustomItem {
                          List<String> extraLore,
                          Sound sound,
                          float pitch) {
-        super(plugin, type);
+        super(plugin, id);
+        this.displayName = displayName;
+        this.customModelData = customModelData;
         this.requiredRole = requiredRole;
         this.baseMaterial = baseMaterial;
         this.effects = effects != null ? effects : Collections.emptyList();
@@ -48,6 +53,16 @@ public class RoleCurioItem extends CustomItem {
         this.extraLore = extraLore != null ? extraLore : Collections.emptyList();
         this.sound = sound;
         this.pitch = pitch;
+    }
+
+    @Override
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    @Override
+    protected Integer getCustomModelData() {
+        return customModelData;
     }
 
     @Override
@@ -103,6 +118,6 @@ public class RoleCurioItem extends CustomItem {
 
         item.setAmount(item.getAmount() - 1);
         player.playSound(player.getLocation(), sound, 1f, pitch);
-        player.sendMessage(MiniMessage.miniMessage().deserialize("<green>Has usado " + type.getDisplayName() + "."));
+        player.sendMessage(MiniMessage.miniMessage().deserialize("<green>Has usado " + displayName + "."));
     }
 }

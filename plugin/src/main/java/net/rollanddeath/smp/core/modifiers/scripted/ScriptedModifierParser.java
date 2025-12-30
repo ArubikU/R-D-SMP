@@ -1,9 +1,8 @@
 package net.rollanddeath.smp.core.modifiers.scripted;
 
-import net.rollanddeath.smp.core.modifiers.ModifierType;
 import net.rollanddeath.smp.core.scripting.Action;
 import net.rollanddeath.smp.core.scripting.Condition;
-import net.rollanddeath.smp.core.scripting.builtin.BuiltInActions;
+import net.rollanddeath.smp.core.scripting.builtin.actions.ActionRegistrar;
 import net.rollanddeath.smp.core.scripting.builtin.BuiltInConditions;
 import org.bukkit.configuration.ConfigurationSection;
 
@@ -34,12 +33,7 @@ public final class ScriptedModifierParser {
             String description = sec.getString("description", "");
             if (name == null || name.isBlank() || typeRaw == null || typeRaw.isBlank()) continue;
 
-            ModifierType type;
-            try {
-                type = ModifierType.valueOf(typeRaw.trim().toUpperCase(Locale.ROOT));
-            } catch (IllegalArgumentException e) {
-                continue;
-            }
+            String type = typeRaw.trim().toUpperCase(Locale.ROOT);
 
             Map<String, ModifierRule> events = new HashMap<>();
             ConfigurationSection eventsSec = sec.getConfigurationSection("events");
@@ -71,13 +65,13 @@ public final class ScriptedModifierParser {
 
         List<Action> onFail = new ArrayList<>();
         for (Map<?, ?> raw : sec.getMapList("on_fail")) {
-            Action a = BuiltInActions.parse(raw);
+            Action a = ActionRegistrar.parse(raw);
             if (a != null) onFail.add(a);
         }
 
         List<Action> onPass = new ArrayList<>();
         for (Map<?, ?> raw : sec.getMapList("on_pass")) {
-            Action a = BuiltInActions.parse(raw);
+            Action a = ActionRegistrar.parse(raw);
             if (a != null) onPass.add(a);
         }
 

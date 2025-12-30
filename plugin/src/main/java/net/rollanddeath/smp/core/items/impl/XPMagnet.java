@@ -2,7 +2,6 @@ package net.rollanddeath.smp.core.items.impl;
 
 import net.rollanddeath.smp.RollAndDeathSMP;
 import net.rollanddeath.smp.core.items.CustomItem;
-import net.rollanddeath.smp.core.items.CustomItemType;
 import org.bukkit.Material;
 import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.Player;
@@ -15,12 +14,22 @@ import java.util.List;
 public class XPMagnet extends CustomItem {
 
     public XPMagnet(RollAndDeathSMP plugin) {
-        super(plugin, CustomItemType.XP_MAGNET);
+        super(plugin, "XP_MAGNET");
     }
 
     @Override
     protected ItemStack createBaseItem() {
         return new ItemStack(Material.EMERALD);
+    }
+
+    @Override
+    public String getDisplayName() {
+        return "Imán de XP";
+    }
+
+    @Override
+    protected Integer getCustomModelData() {
+        return 710012;
     }
 
     @Override

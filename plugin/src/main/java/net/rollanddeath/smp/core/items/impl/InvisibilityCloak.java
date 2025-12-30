@@ -2,7 +2,6 @@ package net.rollanddeath.smp.core.items.impl;
 
 import net.rollanddeath.smp.RollAndDeathSMP;
 import net.rollanddeath.smp.core.items.CustomItem;
-import net.rollanddeath.smp.core.items.CustomItemType;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -24,7 +23,7 @@ public class InvisibilityCloak extends CustomItem {
     private final Map<UUID, Long> lastMoveTime = new HashMap<>();
 
     public InvisibilityCloak(RollAndDeathSMP plugin) {
-        super(plugin, CustomItemType.INVISIBILITY_CLOAK);
+        super(plugin, "INVISIBILITY_CLOAK");
         // Task to check for invisibility
         Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             for (Player player : Bukkit.getOnlinePlayers()) {
@@ -46,6 +45,16 @@ public class InvisibilityCloak extends CustomItem {
         meta.setColor(Color.BLACK);
         item.setItemMeta(meta);
         return item;
+    }
+
+    @Override
+    public String getDisplayName() {
+        return "Capa de Invisibilidad";
+    }
+
+    @Override
+    protected Integer getCustomModelData() {
+        return 710018;
     }
 
     @Override

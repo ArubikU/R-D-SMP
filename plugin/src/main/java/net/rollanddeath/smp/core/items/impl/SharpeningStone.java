@@ -2,7 +2,6 @@ package net.rollanddeath.smp.core.items.impl;
 
 import net.rollanddeath.smp.RollAndDeathSMP;
 import net.rollanddeath.smp.core.items.CustomItem;
-import net.rollanddeath.smp.core.items.CustomItemType;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
@@ -17,12 +16,22 @@ import java.util.List;
 public class SharpeningStone extends CustomItem {
 
     public SharpeningStone(RollAndDeathSMP plugin) {
-        super(plugin, CustomItemType.SHARPENING_STONE);
+        super(plugin, "SHARPENING_STONE");
     }
 
     @Override
     protected ItemStack createBaseItem() {
         return new ItemStack(Material.FLINT);
+    }
+
+    @Override
+    public String getDisplayName() {
+        return "Piedra de Afilar";
+    }
+
+    @Override
+    protected Integer getCustomModelData() {
+        return 710002;
     }
 
     @Override

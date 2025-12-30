@@ -4,7 +4,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.rollanddeath.smp.RollAndDeathSMP;
 import net.rollanddeath.smp.core.items.CustomItem;
-import net.rollanddeath.smp.core.items.CustomItemType;
 import net.rollanddeath.smp.core.game.KillPointsManager;
 import net.rollanddeath.smp.core.game.GameManager;
 import org.bukkit.Material;
@@ -21,7 +20,7 @@ import java.util.function.Supplier;
 
 public class KillStoreCommand implements CommandExecutor, TabCompleter {
 
-    private record StoreItem(String id, String label, int cost, int unlockDay, Supplier<List<ItemStack>> bundleSupplier, CustomItemType customItem) {}
+    private record StoreItem(String id, String label, int cost, int unlockDay, Supplier<List<ItemStack>> bundleSupplier, String customItemId) {}
 
     private final RollAndDeathSMP plugin;
     private final List<StoreItem> storeItems;
@@ -29,7 +28,7 @@ public class KillStoreCommand implements CommandExecutor, TabCompleter {
     public KillStoreCommand(RollAndDeathSMP plugin) {
         this.plugin = plugin;
         this.storeItems = List.of(
-                new StoreItem("bandage", "Venda Curativa", 1, 1, null, CustomItemType.HEALING_BANDAGE),
+                new StoreItem("bandage", "Venda Curativa", 1, 1, null, "HEALING_BANDAGE"),
             new StoreItem("pearl", "Perlas de Ender x4", 2, 1, () -> List.of(createStack(Material.ENDER_PEARL, 4)), null),
             new StoreItem("rockets", "Cohetes x16", 3, 1, () -> List.of(createStack(Material.FIREWORK_ROCKET, 16)), null),
             new StoreItem("arrows", "Flechas x32", 2, 1, () -> List.of(createStack(Material.ARROW, 32)), null),
@@ -37,34 +36,34 @@ public class KillStoreCommand implements CommandExecutor, TabCompleter {
             new StoreItem("gapple", "Manzana Encantada", 5, 1, () -> List.of(new ItemStack(Material.ENCHANTED_GOLDEN_APPLE)), null),
             new StoreItem("totem", "Totem de la Inmortalidad", 8, 1, () -> List.of(new ItemStack(Material.TOTEM_OF_UNDYING)), null),
             new StoreItem("netherite", "Lingote de Netherita", 7, 1, () -> List.of(new ItemStack(Material.NETHERITE_INGOT)), null),
-            new StoreItem("regen_totem", "Tótem de Regeneración", 9, 1, null, CustomItemType.REGENERATION_TOTEM),
-            new StoreItem("grappling", "Gancho de Agarre", 5, 1, null, CustomItemType.GRAPPLING_HOOK),
-            new StoreItem("armor_wings", "Alas Blindadas", 16, 5, null, CustomItemType.ARMORED_WINGS),
-            new StoreItem("life_gapple", "Manzana de Vida", 12, 5, null, CustomItemType.LIFE_GAPPLE),
-            new StoreItem("res_orb", "Orbe de Resurrección", 18, 7, null, CustomItemType.RESURRECTION_ORB),
-            new StoreItem("notch_heart", "Corazón de Notch", 22, 10, null, CustomItemType.NOTCH_HEART),
+            new StoreItem("regen_totem", "Tótem de Regeneración", 9, 1, null, "REGENERATION_TOTEM"),
+            new StoreItem("grappling", "Gancho de Agarre", 5, 1, null, "GRAPPLING_HOOK"),
+            new StoreItem("armor_wings", "Alas Blindadas", 16, 5, null, "ARMORED_WINGS"),
+            new StoreItem("life_gapple", "Manzana de Vida", 12, 5, null, "LIFE_GAPPLE"),
+            new StoreItem("res_orb", "Orbe de Resurrección", 18, 7, null, "RESURRECTION_ORB"),
+            new StoreItem("notch_heart", "Corazón de Notch", 22, 10, null, "NOTCH_HEART"),
                 // Gear progresivo sin encantamientos
                         new StoreItem("set_acero", "Set de Acero (+armadura base)", 18, 10, () -> bundleFromTypes(
-                    CustomItemType.STEEL_HELMET,
-                    CustomItemType.STEEL_CHESTPLATE,
-                    CustomItemType.STEEL_LEGGINGS,
-                    CustomItemType.STEEL_BOOTS
+                    "STEEL_HELMET",
+                    "STEEL_CHESTPLATE",
+                    "STEEL_LEGGINGS",
+                    "STEEL_BOOTS"
                 ), null),
                         new StoreItem("set_obsidiana", "Set Obsidiana (+armadura y dureza)", 30, 20, () -> bundleFromTypes(
-                    CustomItemType.OBSIDIAN_HELMET,
-                    CustomItemType.OBSIDIAN_CHESTPLATE,
-                    CustomItemType.OBSIDIAN_LEGGINGS,
-                    CustomItemType.OBSIDIAN_BOOTS
+                    "OBSIDIAN_HELMET",
+                    "OBSIDIAN_CHESTPLATE",
+                    "OBSIDIAN_LEGGINGS",
+                    "OBSIDIAN_BOOTS"
                 ), null),
                         new StoreItem("set_vacio", "Set del Vacío (+armadura, dureza, KB)", 45, 30, () -> bundleFromTypes(
-                    CustomItemType.VOID_HELMET,
-                    CustomItemType.VOID_CHESTPLATE,
-                    CustomItemType.VOID_LEGGINGS,
-                    CustomItemType.VOID_BOOTS
+                    "VOID_HELMET",
+                    "VOID_CHESTPLATE",
+                    "VOID_LEGGINGS",
+                    "VOID_BOOTS"
                 ), null),
-                        new StoreItem("arma_acero", "Espada de Acero (+2.5 daño)", 10, 10, null, CustomItemType.STEEL_SWORD),
-                        new StoreItem("arma_obsidiana", "Espada Obsidiana (+3.5 daño)", 15, 20, null, CustomItemType.OBSIDIAN_SWORD),
-                        new StoreItem("arma_vacio", "Espada del Vacío (+4.5 daño)", 20, 30, null, CustomItemType.VOID_SWORD)
+                        new StoreItem("arma_acero", "Espada de Acero (+2.5 daño)", 10, 10, null, "STEEL_SWORD"),
+                        new StoreItem("arma_obsidiana", "Espada Obsidiana (+3.5 daño)", 15, 20, null, "OBSIDIAN_SWORD"),
+                        new StoreItem("arma_vacio", "Espada del Vacío (+4.5 daño)", 20, 30, null, "VOID_SWORD")
         );
     }
 
@@ -127,8 +126,8 @@ public class KillStoreCommand implements CommandExecutor, TabCompleter {
             int newBalance = balance - item.cost;
             kpm.setPoints(player.getUniqueId(), newBalance);
 
-            if (item.customItem != null) {
-                plugin.getItemManager().giveItem(player, item.customItem, 1);
+            if (item.customItemId != null) {
+                plugin.getItemManager().giveItem(player, item.customItemId, 1);
             }
             if (item.bundleSupplier != null) {
                 for (ItemStack stack : item.bundleSupplier.get()) {
@@ -171,16 +170,16 @@ public class KillStoreCommand implements CommandExecutor, TabCompleter {
         return new ItemStack(material, amount);
     }
 
-    private List<ItemStack> bundleFromTypes(CustomItemType... types) {
+    private List<ItemStack> bundleFromTypes(String... types) {
         List<ItemStack> items = new ArrayList<>();
-        for (CustomItemType type : types) {
+        for (String type : types) {
             items.add(customStack(type));
         }
         return items;
     }
 
-    private ItemStack customStack(CustomItemType type) {
-        CustomItem item = plugin.getItemManager().getItem(type);
+    private ItemStack customStack(String id) {
+        CustomItem item = plugin.getItemManager().getItem(id);
         if (item == null) {
             return new ItemStack(Material.BARRIER);
         }

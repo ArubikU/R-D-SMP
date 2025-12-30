@@ -10,7 +10,6 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -44,13 +43,15 @@ public class MobCommand implements CommandExecutor, TabCompleter {
         }
 
         if (args[0].equalsIgnoreCase("spawn")) {
-            String mobName = args[1].toUpperCase();
-            try {
-                MobType type = MobType.valueOf(mobName);
-                plugin.getMobManager().spawnMob(type, player.getLocation());
-                player.sendMessage(MiniMessage.miniMessage().deserialize("<green>Mob " + type.getDisplayName() + " spawneado."));
-            } catch (IllegalArgumentException e) {
-                player.sendMessage(MiniMessage.miniMessage().deserialize("<red>Tipo de mob inválido."));
+            String mobId = args[1];
+            CustomMob mob = plugin.getMobManager().getMob(mobId);
+            
+            if (mob != null) {
+                plugin.getMobManager().spawnMob(mobId, player.getLocation());
+                String displayName = mob.getDisplayName() != null ? mob.getDisplayName() : mobId;
+                player.sendMessage(MiniMessage.miniMessage().deserialize("<green>Mob " + displayName + " spawneado."));
+            } else {
+                player.sendMessage(MiniMessage.miniMessage().deserialize("<red>Tipo de mob inválido: " + mobId));
             }
         }
 
@@ -80,10 +81,7 @@ public class MobCommand implements CommandExecutor, TabCompleter {
         }
 
         if (args.length == 2) {
-            List<String> mobs = Arrays.stream(MobType.values())
-                    .map(Enum::name)
-                    .toList();
-            return filterCompletions(args[1], mobs);
+            return filterCompletions(args[1], plugin.getMobManager().getMobIds());
         }
 
         return Collections.emptyList();

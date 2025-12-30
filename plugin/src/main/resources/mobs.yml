@@ -1,0 +1,876 @@
+# ScriptedMobs
+#
+# Este archivo permite definir/overrider CustomMobs por YAML.
+# - Cada entrada bajo `mobs:` define un mob por ID.
+# - `mob_type` debe ser un valor del enum MobType (ej: MAGMA_SLIME, SLIME_KING, etc.)
+# - Si un mob_type ya existe en Java, esta definición lo sobreescribe (override).
+#
+# Eventos soportados (mismo formato que ScriptedModifiers):
+# - mob_spawn
+# - mob_damage
+# - mob_damage_by_entity
+# - mob_death
+# - mob_explode
+# - mob_tick (1 vez/seg, solo para mobs spawneados por el sistema)
+# - slime_split_child (hook especial: hijos de SLIME_SPLIT antes de limpiar tags)
+#
+# En scripts de mobs (recomendado):
+# - Usa scopes en vez de vars legacy.
+# - SUBJECT.* apunta al mob (Entity) y soporta acceso reflectivo (ej: SUBJECT.location.x, SUBJECT.size, SUBJECT.type).
+# - EVENT.* expone el evento base (ej: EVENT.location si el evento tiene getLocation()).
+# - Para ticks, usa acciones como `apply_effect_to_mob` (ver BuiltInActions).
+
+# --- Ejemplo: llamar macro con args en un evento de mob ---
+# mobs:
+#   demo_mob:
+#     mob_type: CAVE_RAT
+#     entity_type: SILVERFISH
+#     name: "<gray>Demo"
+#     events:
+#       mob_spawn:
+#         on_pass:
+#           - type: call
+#             ref: tell_ok
+#             with:
+#               message: "<yellow>Spawned: </yellow><white>${SUBJECT.type}</white>"
+#         on_fail: []
+
+daily_theme_default: "<gold><bold>Supervivencia</bold></gold>"
+
+# Tema del día por número de día (1-indexed).
+# Puedes usar MiniMessage.
+daily_themes:
+  "1": "<gold><bold>Inicio</bold></gold>"
+  "2": "<yellow><bold>Caza</bold></yellow>"
+
+mobs:
+  cave_rat:
+    entity_type: SILVERFISH
+    name: "<gray>Rata de Cueva"
+    attributes:
+      MAX_HEALTH: 10
+      ATTACK_DAMAGE: 2
+      MOVEMENT_SPEED: 0.3
+
+  jumping_spider:
+    entity_type: SPIDER
+    name: "<green>Araña Saltadora"
+    attributes:
+      MAX_HEALTH: 16
+      ATTACK_DAMAGE: 4
+    events:
+      mob_spawn:
+        on_pass:
+          - type: call
+            ref: jumping_spider_spawn
+
+  miner_zombie:
+    entity_type: ZOMBIE
+    name: "<dark_gray>Zombie Minero"
+    attributes:
+      MAX_HEALTH: 25
+    equipment:
+      helmet: IRON_HELMET
+      main_hand: IRON_PICKAXE
+
+  armored_skeleton:
+    entity_type: SKELETON
+    name: "<white>Esqueleto Blindado"
+    attributes:
+      MAX_HEALTH: 30
+    equipment:
+      helmet: IRON_HELMET
+      chestplate: IRON_CHESTPLATE
+      leggings: IRON_LEGGINGS
+      boots: IRON_BOOTS
+      main_hand: BOW
+
+  wet_creeper:
+    entity_type: CREEPER
+    name: "<aqua>Creeper Húmedo"
+    attributes:
+      MAX_HEALTH: 20
+    events:
+      mob_spawn:
+        on_pass:
+          - type: set_entity_property
+            target: SUBJECT
+            property: max_fuse_ticks
+            value: 20
+          - type: call
+            ref: mob_spawn_smoke
+      mob_explode:
+        on_pass:
+          - type: set_block
+            location: EVENT.location
+            type: WATER
+            physics: true
+
+  # ------------------------------------------------------------------
+  # Nota de migración:
+  # - Donde antes decía caster/target/event_location, ahora usa SUBJECT/TARGET/EVENT.location
+  # ------------------------------------------------------------------
+
+  magma_slime:
+    entity_type: MAGMA_CUBE
+    name: "<red>Slime de Magma"
+    attributes:
+      MAX_HEALTH: 20
+    events:
+      mob_spawn:
+        on_pass:
+          - type: set_mob_max_health
+            value: 8
+            condition: { type: var_compare, key: SUBJECT.size, operator: "==", value: 1 }
+          - type: set_mob_max_health
+            value: 14
+            condition: { type: var_compare, key: SUBJECT.size, operator: "==", value: 2 }
+          - type: set_mob_max_health
+            value: 20
+            condition: { type: var_compare, key: SUBJECT.size, operator: "==", value: 3 }
+          - type: math_set_var
+            key: EVENT.custom.magma_slime_hp
+            op: sub
+            a_key: SUBJECT.size
+            b: 3
+            condition: { type: var_compare, key: SUBJECT.size, operator: ">", value: 3 }
+          - type: math_set_var
+            key: EVENT.custom.magma_slime_hp
+            op: mul
+            a_key: EVENT.custom.magma_slime_hp
+            b: 6
+            condition: { type: var_compare, key: SUBJECT.size, operator: ">", value: 3 }
+          - type: math_set_var
+            key: EVENT.custom.magma_slime_hp
+            op: add
+            a_key: EVENT.custom.magma_slime_hp
+            b: 20
+            condition: { type: var_compare, key: SUBJECT.size, operator: ">", value: 3 }
+          - type: set_mob_max_health
+            value_key: EVENT.custom.magma_slime_hp
+            condition: { type: var_compare, key: SUBJECT.size, operator: ">", value: 3 }
+
+  ice_creeper:
+    entity_type: CREEPER
+    name: "<aqua>Creeper de Hielo"
+    attributes:
+      MAX_HEALTH: 20
+      MOVEMENT_SPEED: 0.25
+    events:
+      mob_explode:
+        on_pass:
+          - type: cancel_event
+            value: true
+          - type: explode
+            where: EVENT.location
+            power: 3.0
+            set_fire: false
+            break_blocks: false
+          - type: freeze_area
+            where: EVENT.location
+            radius: 4
+            air_chance: 0.3
+            air_material: POWDER_SNOW
+            water_material: WATER
+            ice_material: ICE
+          - type: apply_effect
+            target: 
+              type: select_entities
+              source: nearby
+              location: EVENT.location
+              radius: 5
+              # include_players/mobs handled by default select_entities
+            effect: SLOWNESS
+            duration: 200
+            amplifier: 2
+            ambient: false
+            particles: false
+
+  speed_zombie:
+    entity_type: ZOMBIE
+    name: "<yellow>Zombie Veloz"
+    attributes:
+      MAX_HEALTH: 15
+      MOVEMENT_SPEED: 0.45
+    events:
+      mob_spawn:
+        on_pass:
+          - type: set_entity_property
+            target: SUBJECT
+            property: baby
+            value: true
+
+  lesser_phantom:
+    entity_type: PHANTOM
+    name: "<gray>Fantasma Menor"
+    attributes:
+      MAX_HEALTH: 10
+      ATTACK_DAMAGE: 3
+    events:
+      mob_spawn:
+        on_pass:
+          - type: set_entity_property
+            target: SUBJECT
+            property: size
+            value: 1
+
+  wandering_skeleton:
+    entity_type: STRAY
+    name: "<white>Esqueleto Errante"
+    attributes:
+      MAX_HEALTH: 20
+      MOVEMENT_SPEED: 0.2
+
+  vengeful_spirit:
+    entity_type: VEX
+    name: "<aqua>Espíritu Vengativo"
+    spawn_rate: 0.25
+    attributes:
+      MAX_HEALTH: 14
+      ATTACK_DAMAGE: 8
+    events:
+      mob_spawn:
+        on_pass:
+          - type: set_entity_property
+            target: SUBJECT
+            property: charging
+            value: true
+
+  corrupted_golem:
+    entity_type: IRON_GOLEM
+    name: "<dark_red>Gólem Corrupto"
+    spawn_rate: 0.25
+    attributes:
+      MAX_HEALTH: 150
+      ATTACK_DAMAGE: 15
+      MOVEMENT_SPEED: 0.2
+    loot:
+      - custom_item: WAR_HAMMER
+        chance: 0.065
+        amount: 1
+    events:
+      mob_spawn:
+        on_pass:
+          - type: set_entity_property
+            target: SUBJECT
+            property: player_created
+            value: false
+          - type: set_mob_target_nearest_player
+            radius: 20
+
+  giant_phantom:
+    entity_type: PHANTOM
+    name: "<dark_purple>Fantasma Gigante"
+    spawn_rate: 0.25
+    attributes:
+      MAX_HEALTH: 60
+      ATTACK_DAMAGE: 12
+    events:
+      mob_spawn:
+        on_pass:
+          # Tamaño vanilla (0..64). Ajusta aquí si quieres un tamaño distinto.
+          - type: set_entity_property
+            target: SUBJECT
+            property: size
+            value: 64
+          # Escala visual (atributo SCALE, si existe en tu versión)
+          - type: set_mob_attribute_base
+            attribute: SCALE
+            value: 2.5
+
+  the_hive:
+    entity_type: BEE
+    name: "<gold>La Colmena"
+    spawn_rate: 0.25
+    attributes:
+      MAX_HEALTH: 30
+      ATTACK_DAMAGE: 6
+    events:
+      mob_spawn:
+        on_pass:
+          - type: set_entity_property
+            target: SUBJECT
+            property: anger
+            value: 2147483647
+      mob_death:
+        on_pass:
+          - type: spawn
+            location: EVENT.location
+            type: BEE
+            amount: 3
+            spread: 1
+            on_spawn:
+              - type: set_entity_property
+                target: SUBJECT
+                property: anger
+                value: 2147483647
+
+  bone_turret:
+    entity_type: SKELETON
+    name: "<white>Torreta Ósea"
+    spawn_rate: 0.10
+    attributes:
+      MAX_HEALTH: 40
+      MOVEMENT_SPEED: 0.0
+      KNOCKBACK_RESISTANCE: 1.0
+    equipment:
+      helmet: DIAMOND_HELMET
+      main_hand: BOW
+      off_hand: ARROW
+    events:
+      mob_spawn:
+        on_pass:
+          - type: set_mob_target_nearest_player
+            radius: 24
+      mob_tick:
+        require_all:
+          - type: random_chance
+            probability: 0.60
+        on_pass:
+          - type: set_mob_target_nearest_player
+            radius: 24
+
+  elite_spider_jockey:
+    entity_type: SPIDER
+    name: "<yellow>Jinete Arácnido Élite"
+    spawn_rate: 0.10
+    attributes:
+      MAX_HEALTH: 30
+      ATTACK_DAMAGE: 6
+    events:
+      mob_spawn:
+        on_pass:
+          - type: spawn_passenger_for_mob
+            entity_type: SKELETON
+            max_health: 30
+            name: "<gray>Jinete"
+            equipment:
+              helmet: DIAMOND_HELMET
+              main_hand: BOW
+
+  apocalypse_knight:
+    entity_type: WITHER_SKELETON
+    name: "<dark_red>Caballero del Apocalipsis"
+    spawn_rate: 0.02
+    attributes:
+      MAX_HEALTH: 80
+      ATTACK_DAMAGE: 12
+    equipment:
+      helmet: NETHERITE_HELMET
+      chestplate: NETHERITE_CHESTPLATE
+      leggings: NETHERITE_LEGGINGS
+      boots: NETHERITE_BOOTS
+      main_hand: NETHERITE_SWORD
+    events:
+      mob_spawn:
+        on_pass:
+          - type: spawn_mount_for_mob
+            entity_type: SKELETON_HORSE
+            max_health: 50
+            name: "<gray>Corcel"
+          - type: start_particle_system
+            follow: SUBJECT
+            particle: REDSTONE
+            dust_color: "#ff2a00"
+            dust_size: 1.25
+            shape: HELIX
+            points: 14
+            radius: 0.85
+            height: 2.2
+            turns: 2
+            y_offset: 0.15
+            lifetime_ticks: 2400
+            period_ticks: 3
+
+      mob_tick:
+        require_all:
+          - type: random_chance
+            probability: 0.35
+        on_pass:
+          - type: math_set_var
+            key: EVENT.custom.ak_curve_side
+            op: rand_range
+            a: -2.0
+            b: 2.0
+          - type: launch_curved_projectile
+            projectile: SNOWBALL
+            shooter_key: SUBJECT
+            speed: 1.25
+            curve_height: 2.8
+            curve_side_key: EVENT.custom.ak_curve_side
+            homing: true
+            target_y_offset: 1.0
+            targets: ["PLAYERS"]
+            on_launch:
+              - action: play_sound
+                sound: ENTITY_BLAZE_SHOOT
+                volume: 1.0
+                pitch: 0.8
+              - action: play_particle
+                particle: FLAME
+                count: 10
+                speed: 0.1
+                spread: 0.3
+            on_tick:
+              - type: spawn_particle_shape
+                particle: REDSTONE
+                dust_color: "#ff2a00"
+                dust_size: 1.1
+                shape: HELIX
+                points: 8
+                radius: 0.25
+                height: 0.6
+                turns: 2
+                count: 1
+            explode_on_impact: true
+            explode_on_finish: false
+            explosion_power: 2.2
+            explosion_fire: false
+            explosion_break_blocks: false
+            on_hit:
+              - type: spawn_particle_shape
+                center: EVENT.hitLocation
+                particle: FLAME
+                shape: RING
+                points: 18
+                radius: 1.25
+                y_offset: 0.2
+                count: 1
+
+  leviathan:
+    entity_type: ELDER_GUARDIAN
+    name: "<aqua>Leviatán"
+    spawn_rate: 0.02
+    attributes:
+      MAX_HEALTH: 200
+      ATTACK_DAMAGE: 15
+    events:
+      mob_spawn:
+        on_pass:
+          - type: start_particle_system
+            follow: SUBJECT
+            particle: WATER_BUBBLE
+            shape: SPHERE
+            points: 26
+            radius: 1.7
+            y_offset: 0.3
+            lifetime_ticks: 2400
+            period_ticks: 5
+      mob_tick:
+        require_all:
+          - type: random_chance
+            probability: 0.25
+        on_pass:
+          - type: launch_curved_projectile
+            projectile: TRIDENT
+            shooter_key: SUBJECT
+            speed: 1.8
+            curve_height: 1.8
+            curve_side: 0.0
+            homing: true
+            target_y_offset: 1.0
+            targets: ["PLAYERS"]
+            on_launch:
+              - action: play_sound
+                sound: ITEM_TRIDENT_THROW
+                volume: 1.0
+                pitch: 1.0
+              - action: play_particle
+                particle: WATER_SPLASH
+                count: 15
+                speed: 0.1
+                spread: 0.5
+            on_tick:
+              - type: spawn_particle_shape
+                particle: WATER_SPLASH
+                shape: RING
+                points: 10
+                radius: 0.35
+                count: 1
+            explode_on_impact: false
+            explode_on_finish: false
+            on_hit:
+              - type: spawn_particle_shape
+                center: EVENT.hitLocation
+                particle: BUBBLE_POP
+                shape: SPHERE
+                points: 20
+                radius: 1.4
+                y_offset: 0.2
+                count: 1
+              - type: apply_effect
+                target: 
+                  type: select_entities
+                  source: nearby
+                  location: EVENT.hitLocation
+                  radius: 4
+                effect: SLOWNESS
+                duration: 120
+                amplifier: 1
+                ambient: false
+                particles: false
+    loot:
+      - custom_item: POSEIDON_TRIDENT
+        chance: 0.015
+        amount: 1
+
+  rat_king:
+    entity_type: SILVERFISH
+    name: "<dark_gray>Rey Rata"
+    spawn_rate: 0.02
+    attributes:
+      MAX_HEALTH: 60
+      ATTACK_DAMAGE: 6
+    events:
+      mob_damage_by_entity:
+        require_all:
+          - type: random_chance
+            probability: 0.2
+        on_pass:
+          - type: spawn
+            location: EVENT.location
+            type: SILVERFISH
+            amount: 1
+            spread: 1
+            on_spawn:
+              - type: set_entity_property
+                target: SUBJECT
+                property: custom_name
+                value: "<gray>Rat Minion"
+              - type: set_entity_property
+                target: SUBJECT
+                property: custom_name_visible
+                value: true
+
+  awakened_warden:
+    entity_type: WARDEN
+    name: "<dark_purple>Warden Despierto"
+    spawn_rate: 0.02
+    attributes:
+      MAX_HEALTH: 1000
+      ATTACK_DAMAGE: 45
+      MOVEMENT_SPEED: 0.4
+    loot:
+      - custom_item: NOTCH_HEART
+        chance: 1.0
+        amount: 1
+
+  alpha_dragon:
+    entity_type: ENDER_DRAGON
+    name: "<dark_red>Dragón Alpha"
+    spawn_rate: 0.02
+    attributes:
+      MAX_HEALTH: 500
+      ATTACK_DAMAGE: 20
+    loot:
+      - custom_item: REAL_DRAGON_EGG
+        chance: 1.0
+        amount: 1
+
+  the_reaper:
+    entity_type: WITHER_SKELETON
+    name: "<black>La Parca"
+    spawn_rate: 0.02
+    attributes:
+      MAX_HEALTH: 100
+      ATTACK_DAMAGE: 18
+      MOVEMENT_SPEED: 0.3
+    equipment:
+      main_hand: NETHERITE_HOE
+      helmet: WITHER_SKELETON_SKULL
+    events:
+      mob_spawn:
+        on_pass:
+          - type: start_particle_system
+            follow: SUBJECT
+            particle: SOUL
+            shape: HELIX
+            points: 16
+            radius: 0.75
+            height: 2.1
+            turns: 3
+            y_offset: 0.1
+            lifetime_ticks: 2400
+            period_ticks: 3
+      mob_tick:
+        require_all:
+          - type: random_chance
+            probability: 0.30
+        on_pass:
+          - type: launch_curved_projectile
+            projectile: SNOWBALL
+            shooter_key: SUBJECT
+            speed: 1.15
+            curve_height: 2.2
+            curve_side: 0.0
+            homing: true
+            target_y_offset: 1.0
+            targets: ["PLAYERS"]
+            on_launch:
+              - action: play_sound
+                sound: ENTITY_WITHER_SHOOT
+                volume: 1.0
+                pitch: 0.5
+              - action: play_particle
+                particle: SOUL_FIRE_FLAME
+                count: 10
+                speed: 0.1
+                spread: 0.3
+            on_tick:
+              - type: spawn_particle_shape
+                particle: SMOKE_NORMAL
+                shape: FORMULA
+                points: 8
+                turns: 2
+                formula_x: "cos(angle)*0.30"
+                formula_y: "sin(age/4.0)*0.12"
+                formula_z: "sin(angle)*0.30"
+                count: 1
+            explode_on_impact: false
+            explode_on_finish: false
+            on_hit:
+              - type: spawn_particle_shape
+                center: EVENT.hitLocation
+                particle: SOUL_FIRE_FLAME
+                shape: RING
+                points: 18
+                radius: 1.4
+                y_offset: 0.15
+                count: 1
+              - type: apply_effect
+                target: 
+                  type: select_entities
+                  source: nearby
+                  location: EVENT.hitLocation
+                  radius: 4
+                effect: WITHER
+                duration: 120
+                amplifier: 1
+                ambient: false
+                particles: false
+
+  slime_king:
+    entity_type: SLIME
+    name: "<green>Rey Slime"
+    spawn_rate: 0.02
+    attributes:
+      MAX_HEALTH: 100
+    events:
+      mob_spawn:
+        on_pass:
+          - type: set_entity_property
+            target: SUBJECT
+            property: size
+            value: 10
+
+  
+  void_walker:
+    entity_type: WITHER_SKELETON
+    name: "<dark_purple>Caminante del Vacío"
+    spawn_rate: 0.02
+    attributes:
+      MAX_HEALTH: 40
+      ATTACK_DAMAGE: 10
+      MOVEMENT_SPEED: 0.38
+    equipment:
+      main_hand: NETHERITE_SWORD
+      helmet: NETHERITE_HELMET
+      chestplate: NETHERITE_CHESTPLATE
+      leggings: NETHERITE_LEGGINGS
+      boots: NETHERITE_BOOTS
+    events:
+      mob_spawn:
+        on_pass:
+          - type: start_particle_system
+            follow: SUBJECT
+            particle: PORTAL
+            shape: SPHERE
+            points: 18
+            radius: 1.2
+            y_offset: 0.4
+            lifetime_ticks: 2400
+            period_ticks: 6
+      mob_tick:
+        require_all:
+          - type: random_chance
+            probability: 0.3
+        on_pass:
+          - type: math_set_var
+            key: EVENT.custom.vw_curve_height
+            op: rand_range
+            a: 1.5
+            b: 3.5
+          - type: launch_curved_projectile
+            projectile: SNOWBALL
+            shooter_key: SUBJECT
+            speed: 7
+            curve_height_key: EVENT.custom.vw_curve_height
+            curve_side: 0.1
+            homing: false
+            target_y_offset: 1.0
+            targets: ["PLAYERS"]
+            on_launch:
+              - action: play_sound
+                sound: ENTITY_ENDER_DRAGON_SHOOT
+                volume: 1.0
+                pitch: 0.5
+              - action: play_particle
+                particle: DRAGON_BREATH
+                count: 20
+                speed: 0.1
+                spread: 0.5
+            on_tick:
+              - type: spawn_particle_shape
+                particle: DRAGON_BREATH
+                shape: RING
+                points: 10
+                radius: 0.30
+                count: 3
+            explode_on_impact: true
+            explode_on_finish: true
+            explosion_power: 1.65
+            explosion_fire: false
+            explosion_break_blocks: false
+            on_hit:
+              - type: spawn_particle_shape
+                center: EVENT.hitLocation
+                particle: PORTAL
+                shape: SPIRAL
+                points: 16
+                radius: 1.2
+                height: 1.2
+                turns: 2
+                y_offset: 0.0
+                count: 1
+    loot:
+      - custom_item: VOID_CALL
+        chance: 0.16
+        amount: 1
+
+  swamp_witch:
+    entity_type: WITCH
+    name: "<dark_green>Bruja del Pantano"
+    spawn_rate: 0.25
+    attributes:
+      MAX_HEALTH: 40
+      MOVEMENT_SPEED: 0.3
+    loot:
+      - custom_item: OBLIVION_POTION
+        chance: 0.12
+        amount: 1
+      - custom_item: DISCORD_APPLE
+        chance: 0.03
+        amount: 1
+
+  the_stalker:
+    entity_type: ENDERMAN
+    name: "<dark_gray>El Acechador"
+    spawn_rate: 0.10
+    attributes:
+      MAX_HEALTH: 50
+      ATTACK_DAMAGE: 10
+      MOVEMENT_SPEED: 0.4
+    loot:
+      - custom_item: VOID_CALL
+        chance: 0.008
+        amount: 1
+    events:
+      mob_teleport:
+        require_all:
+          - type: random_chance
+            probability: 0.5
+        on_pass:
+          - type: cancel_event
+            value: true
+
+  shadow:
+    entity_type: WITHER_SKELETON
+    name: "<black>Sombra"
+    spawn_rate: 0.10
+    attributes:
+      MAX_HEALTH: 30
+      ATTACK_DAMAGE: 10
+      MOVEMENT_SPEED: 0.35
+    loot:
+      - custom_item: VAMPIRE_SWORD
+        chance: 0.002
+        amount: 1
+    events:
+      mob_spawn:
+        on_pass:
+          - type: apply_effect
+            target: SUBJECT
+            effect: INVISIBILITY
+            duration: 9999999
+            amplifier: 0
+            ambient: false
+            particles: false
+
+  blue_blaze:
+    entity_type: BLAZE
+    name: "<blue>Blaze Azul"
+    spawn_rate: 0.10
+    attributes:
+      MAX_HEALTH: 30
+      ATTACK_DAMAGE: 8
+
+  mimic_shulker:
+    entity_type: SHULKER
+    name: "<red>Mímico"
+    spawn_rate: 0.10
+    attributes:
+      MAX_HEALTH: 40
+    events:
+      mob_spawn:
+        on_pass:
+          - type: set_entity_property
+            target: SUBJECT
+            property: color
+            value: RED
+
+  mad_evoker:
+    entity_type: EVOKER
+    name: "<light_purple>Evocador Loco"
+    spawn_rate: 0.10
+    attributes:
+      MAX_HEALTH: 60
+      MOVEMENT_SPEED: 0.35
+
+  banshee:
+    entity_type: VEX
+    name: "<dark_purple>Banshee"
+    spawn_rate: 0.02
+    attributes:
+      MAX_HEALTH: 30
+      ATTACK_DAMAGE: 8
+      MOVEMENT_SPEED: 0.55
+
+# Ejemplo (comentado) de override:
+# mobs:
+#   magma_slime_yaml:
+#     mob_type: MAGMA_SLIME
+#     entity_type: MAGMA_CUBE
+#     name: "<red>Slime de Magma (YAML)"
+#     attributes:
+#       MAX_HEALTH: 40
+#       ATTACK_DAMAGE: 6
+#       MOVEMENT_SPEED: 0.35
+#     equipment:
+#       helmet: GOLDEN_HELMET
+#     loot:
+#       - material: MAGMA_CREAM
+#         amount: 2
+#         chance: 0.75
+#     events:
+#       mob_death:
+#         on_pass:
+#           - type: add_event_death_drop
+#             material: DIAMOND
+#             amount: 1
+#             condition: { type: random_chance, probability: 0.05 }
+#       mob_tick:
+#         on_pass:
+#           - type: apply_effect_to_mob
+#             effect: FIRE_RESISTANCE
+#             duration: 40
+#             amplifier: 0

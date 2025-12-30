@@ -20,67 +20,12 @@ public class LootManager implements Listener {
 
     @EventHandler
     public void onEntityDeath(EntityDeathEvent event) {
-        LivingEntity entity = event.getEntity();
-
-        if (entity instanceof Zombie) {
-            if (random.nextDouble() < 0.06) { // 6%
-                dropItem(event, CustomItemType.HERMES_BOOTS);
-            }
-            if (entity.customName() != null && PlainTextComponentSerializer.plainText().serialize(entity.customName()).contains("Minero") && random.nextDouble() < 0.015) {
-                dropItem(event, CustomItemType.GREED_PICKAXE);
-            }
-        }
-
-        if (entity instanceof Witch) {
-            if (random.nextDouble() < 0.12) {
-                dropItem(event, CustomItemType.OBLIVION_POTION);
-            }
-            if (random.nextDouble() < 0.03) {
-                dropItem(event, CustomItemType.DISCORD_APPLE);
-            }
-        }
-
-        if (entity instanceof MagmaCube) {
-            if (random.nextDouble() < 0.12) {
-                dropItem(event, CustomItemType.XP_MAGNET);
-            }
-        }
-
-        if (entity instanceof Drowned || entity instanceof Guardian) {
-            if (random.nextDouble() < 0.015) {
-                dropItem(event, CustomItemType.POSEIDON_TRIDENT);
-            }
-        }
-
-        if (entity instanceof IronGolem) {
-            if (random.nextDouble() < 0.065) {
-                dropItem(event, CustomItemType.WAR_HAMMER);
-            }
-        }
-
-        if (entity instanceof WitherSkeleton) {
-            if (random.nextDouble() < 0.002) { // 0.2%
-                dropItem(event, CustomItemType.VAMPIRE_SWORD);
-            }
-        }
-
-        if (entity instanceof EnderDragon) {
-            dropItem(event, CustomItemType.REAL_DRAGON_EGG);
-        }
-        
-        if (entity instanceof Warden) {
-             dropItem(event, CustomItemType.NOTCH_HEART);
-        }
-        
-        if (entity instanceof Enderman) {
-               if (random.nextDouble() < 0.008) {
-                 dropItem(event, CustomItemType.VOID_CALL);
-             }
-        }
+        // Nuevo diseño: todos los drops especiales se definen por mob custom (mobs.yml / ScriptedMobs).
+        // Para evitar que mobs vanilla dropeen ítems custom, no inyectamos drops aquí.
     }
 
-    private void dropItem(EntityDeathEvent event, CustomItemType type) {
-        CustomItem item = plugin.getItemManager().getItem(type);
+    private void dropItem(EntityDeathEvent event, String customItemId) {
+        CustomItem item = plugin.getItemManager().getItem(customItemId);
         if (item != null) {
             event.getDrops().add(item.getItemStack());
         }

@@ -1,0 +1,522 @@
+# Librería global de reutilización para scripting.
+# Disponible desde cualquier items.yml / mobs.yml / modifiers.yml vía:
+#  - actions: { type: call, ref: <id>, with: { ... } }
+#  - conditions: { type: call, ref: <id>, with: { ... } }
+# Los args (si se usan) se inyectan como EVENT.args.<key>
+
+script_library:
+  actions:
+    # 1) Sonido de feedback
+    sfx_click:
+      - type: play_sound
+        sound: UI_BUTTON_CLICK
+        volume: 1
+        pitch: 1
+
+    # 2) Sonido de alerta
+    sfx_warning:
+      - type: play_sound
+        sound: ENTITY_VILLAGER_NO
+        volume: 1
+        pitch: 1
+
+    # 3) Deny estándar
+    deny_std:
+      - type: deny
+        message: "No puedes hacer eso ahora."
+        color: "red"
+
+    # 4) Deny + sonido
+    deny_std_with_sfx:
+      - type: call
+        ref: sfx_warning
+      - type: call
+        ref: deny_std
+
+    # 5) Mensaje verde (para feedback rápido)
+    tell_ok:
+      - type: message
+        message_key: "EVENT.args.message"
+        color: "green"
+
+    # 6) Mensaje rojo
+    tell_err:
+      - type: message
+        message_key: "EVENT.args.message"
+        color: "red"
+
+    # 7) Broadcast genérico
+    broadcast_std:
+      - type: broadcast
+        message_key: "EVENT.args.message"
+        color: "yellow"
+
+    # 8) Curación pequeña
+    heal_small:
+      - type: heal
+        target: SUBJECT
+        amount: 2
+
+    # 9) Curación media
+    heal_medium:
+      - type: heal
+        target: SUBJECT
+        amount: 6
+
+    # 10) Curación por amount_key (parametrizable vía with: { amount: 4 })
+    heal_from_arg:
+      - type: heal
+        target: SUBJECT
+        amount: "${EVENT.args.amount}"
+
+    # 11) Aplicar poison corto
+    poison_short:
+      - type: apply_effect
+        target: SUBJECT
+        effect: POISON
+        duration: 60
+        amplifier: 0
+        ambient: true
+        particles: true
+
+    # 12) Aplicar slowness corto
+    slow_short:
+      - type: apply_effect
+        target: SUBJECT
+        effect: SLOWNESS
+        duration: 80
+        amplifier: 0
+        ambient: true
+        particles: true
+
+    # 13) Remover poison
+    remove_poison:
+      - type: remove_effect
+        target: SUBJECT
+        effect: POISON
+
+    # 14) Ejecutar comando (parametrizable con args.cmd)
+    run_console_from_arg:
+      - type: command
+        as: console
+        command: "${EVENT.args.cmd}"
+
+    # 15) Ejecutar acciones después (macro de delay)
+    delayed_sfx_click:
+      - type: run_later
+        delay_ticks: 5
+        actions:
+          - type: call
+            ref: sfx_click
+
+    # 16) Repetir click durante un tiempo
+    repeat_click:
+      - type: run_repeating
+        interval_ticks: 10
+        total_ticks: 60
+        actions:
+          - type: call
+            ref: sfx_click
+
+    # 17) Cooldown en material (parametrizable con args.material/args.ticks)
+    set_stone_cooldown_2s:
+      - type: set_player_cooldown
+        material: STONE
+        ticks: 40
+
+    # 18) Empujón (fijo)
+    knockup_small:
+      - type: add_velocity
+        target: SUBJECT
+        x: 0
+        y: 0.35
+        z: 0
+
+    # 19) Explosión en location-key (parametrizable por where)
+    explode_at_key:
+      - type: explode
+        location: "${EVENT.args.where}"
+        power: 3.5
+        set_fire: false
+        break_blocks: true
+
+    # 20) Spawn entity cerca del jugador
+    spawn_zombie_near:
+      - type: spawn
+        type: ZOMBIE
+        location: SUBJECT
+        offset_y: 10
+        spread: 5
+        # max_y, max_per_chunk, cap_entity_type, require_storm not directly supported in generic spawn yet, 
+        # but can be handled via conditions or custom logic if needed. 
+        # For now, simplifying to generic spawn.
+        amount: 1
+
+    # ------------------------------------------------------------------
+    # Macros de UX / VFX (pensadas para reusar en items/mobs/modifiers)
+    # ------------------------------------------------------------------
+
+    # Feedback estándar OK (call anidado + args.message)
+    feedback_ok:
+      - type: call
+        ref: sfx_click
+      - type: call
+        ref: tell_ok
+
+    # Feedback estándar ERROR (call anidado + args.message)
+    feedback_err:
+      - type: call
+        ref: sfx_warning
+      - type: call
+        ref: tell_err
+
+    # Curación con partículas + regen y consumo del ítem del evento.
+    # Requiere args:
+    # - amount: double (se usa como EVENT.args.amount)
+    # - message: string (se usa como EVENT.args.message)
+    item_bandage_use:
+      - type: cancel_event
+        value: true
+      - type: call
+        ref: heal_from_arg
+      - type: apply_effect
+        target: SUBJECT
+        effect: REGENERATION
+        duration: 100
+        amplifier: 1
+        ambient: false
+        particles: true
+      - type: spawn_particle_shape
+        center: SUBJECT
+        particle: HEART
+        shape: SPHERE
+        points: 12
+        radius: 0.55
+        y_offset: 1.0
+      - type: play_sound
+        sound: item.honey_bottle.drink
+        volume: 0.9
+        pitch: 1.2
+      - type: consume_event_item
+        amount: 1
+      - type: play_sound
+        sound: UI_BUTTON_CLICK
+        volume: 1
+        pitch: 1
+      - type: message
+        message_key: "EVENT.args.message"
+        color: "green"
+
+    # Totem de regeneración (AOE) con partículas.
+    # Requiere args.message
+    item_regen_totem_use:
+      - type: cancel_event
+        value: true
+      - type: consume_event_item
+        amount: 1
+      - type: apply_effect
+        target: 
+          type: select_entities
+          source: nearby
+          location: SUBJECT
+          radius: 10
+          # include_players/mobs logic handled by select_entities filters if needed, 
+          # or apply_effect applies to all resolved entities.
+          # Default select_entities gets all entities.
+          # We might need to filter for LivingEntity in apply_effect or select_entities.
+        effect: REGENERATION
+        duration: 200
+        amplifier: 2
+        ambient: false
+        particles: true
+      - type: spawn_particle_shape
+        center: SUBJECT
+        particle: TOTEM
+        count: 1
+        offset_x: 0.25
+        offset_y: 0.6
+        offset_z: 0.25
+        shape: SPHERE
+        points: 24
+        radius: 1.6
+        y_offset: 0.6
+      - type: play_sound
+        sound: item.totem.use
+        volume: 1.0
+        pitch: 1.0
+      - type: call
+        ref: feedback_ok
+
+    # VFX genérico para spawn de mobs (no requiere player).
+    mob_spawn_smoke:
+      - type: spawn_particle_shape
+        center: SUBJECT
+        particle: CLOUD
+        count: 6
+        offset_x: 0.25
+        offset_y: 0.25
+        offset_z: 0.25
+        extra: 0.02
+        shape: SPHERE
+        points: 10
+        radius: 0.65
+        y_offset: 0.2
+
+    # Araña saltadora: jump boost + humo al spawnear.
+    jumping_spider_spawn:
+      - type: call
+        ref: mob_spawn_smoke
+      - type: apply_effect
+        target: SUBJECT
+        effect: JUMP_BOOST
+        duration: 9999999
+        amplifier: 2
+        ambient: false
+        particles: false
+
+    # Item VOID_CALL: efecto de agujero negro masivo con múltiples capas de partículas
+    # y pull gravitacional constante. Usa EVENT.custom.void_center como centro.
+    # Diseño basado en física de agujeros negros: horizonte de sucesos, disco de acreción, etc.
+    item_void_call_vortex:
+      # --- CAPA 1: El Horizonte de Sucesos (Núcleo negro denso) ---
+      # Crea una bola negra sólida en el centro para tapar el origen
+      - type: start_particle_system
+        center: EVENT.custom.void_center
+        lifetime_ticks: 200
+        period_ticks: 2
+        particle: SQUID_INK
+        shape: SPHERE
+        points: 20
+        radius: 0.6
+        y_offset: 1.0
+
+      # --- CAPA 2: Disco de Acreción (Materia orbitando y cayendo) ---
+      # Partículas moradas que empiezan lejos y giran hacia adentro
+      - type: start_particle_system
+        center: EVENT.custom.void_center
+        lifetime_ticks: 200
+        period_ticks: 1
+        particle: REDSTONE
+        dust_color: "#6200EA"
+        dust_size: 1.5
+        shape: FORMULA
+        points: 40
+        radius: 5.0
+        y_offset: 1.0
+        # Lógica: El radio disminuye con la edad (age). El ángulo acelera.
+        formula_x: "cos(angle + (age * 0.1) + (age * age * 0.005)) * (4.5 - (age * 0.2))"
+        formula_y: "sin(angle * 3) * 0.2"
+        formula_z: "sin(angle + (age * 0.1) + (age * age * 0.005)) * (4.5 - (age * 0.2))"
+
+      # --- CAPA 3: Líneas de Convergencia (Efecto "Drag") ---
+      # Partículas rápidas que simulan el viento/fuerza succionando
+      - type: start_particle_system
+        center: EVENT.custom.void_center
+        lifetime_ticks: 200
+        period_ticks: 2
+        particle: SMOKE
+        shape: FORMULA
+        points: 15
+        y_offset: 1.0
+        # Estas partículas viajan linealmente desde fuera hacia dentro rápidamente
+        formula_x: "cos(angle) * (5.0 - (age * 0.8))"
+        formula_y: "(age * 0.05) - 0.5"
+        formula_z: "sin(angle) * (5.0 - (age * 0.8))"
+
+      # --- CAPA 4: Distorsión del Espacio (Puntos de luz lejanos aleatorios) ---
+      # Partículas blancas finas que marcan el límite del peligro
+      # Usando rand() para hacer los puntos verdaderamente aleatorios
+      - type: start_particle_system
+        center: EVENT.custom.void_center
+        lifetime_ticks: 200
+        period_ticks: 4
+        particle: FIREWORKS_SPARK
+        shape: FORMULA
+        points: 20
+        radius: 5.0
+        y_offset: 1.0
+        # Puntos aleatorios en el borde exterior usando rand()
+        # rand() devuelve un valor entre 0 y 1, lo usamos para crear variación
+        formula_x: "cos(angle + (rand() * 6.28)) * (5.0 + (rand() * 0.5 - 0.25))"
+        formula_y: "(rand() * 2.0 - 1.0) * 0.3"
+        formula_z: "sin(angle + (rand() * 6.28)) * (5.0 + (rand() * 0.5 - 0.25))"
+
+      # --- CAPA 5: Anillo secundario con distorsión aleatoria ---
+      # Más partículas blancas pero más cerca y con movimiento errático
+      - type: start_particle_system
+        center: EVENT.custom.void_center
+        lifetime_ticks: 200
+        period_ticks: 3
+        particle: END_ROD
+        shape: FORMULA
+        points: 12
+        radius: 3.5
+        y_offset: 1.0
+        # Órbita perturbada con rand() para efecto de distorsión espacial
+        formula_x: "cos(angle * 2 + age * 0.15) * (3.5 + sin(age * 0.2) * 0.4 + (rand() * 0.3 - 0.15))"
+        formula_y: "sin(age * 0.25 + (rand() * 3.14)) * 0.4"
+        formula_z: "sin(angle * 2 + age * 0.15) * (3.5 + sin(age * 0.2) * 0.4 + (rand() * 0.3 - 0.15))"
+      
+      # Sonido inicial de ruptura (fuerte)
+      - type: play_sound
+        sound: BLOCK_END_PORTAL_SPAWN
+        volume: 1.5
+        pitch: 0.5
+
+      # Sonido de "loop" o ambiente (repetido)
+      - type: run_repeating
+        interval_ticks: 20 # Cada segundo
+        total_ticks: 200
+        actions:
+          - type: play_sound
+            sound: BLOCK_BEACON_AMBIENT # Sonido grave y misterioso
+            volume: 2.0
+            pitch: 0.5 # Pitch bajo para que suene masivo
+      # --- SISTEMA DE GRAVEDAD (FÍSICA) ---
+      - type: run_repeating
+        interval_ticks: 1
+        total_ticks: 200
+        actions:
+          - type: gravity_pull
+            center: EVENT.custom.void_center
+            radius: 6.0
+            strength: 0.15
+            scale_by_distance: true
+            max_force: 0.8
+            include_players: true
+            include_mobs: true
+            exclude_subject: false
+            exclude_spectators: true
+            # Partículas en la entidad atraída para mostrar el efecto de succión
+            at_target:
+              - type: spawn_particle_shape
+                center: SUBJECT
+                particle: SOUL
+                count: 2
+                offset_x: 0.3
+                offset_y: 0.5
+                offset_z: 0.3
+                shape: SPHERE
+                points: 4
+                radius: 0.4
+                y_offset: 1.0
+              # Partículas moradas siguiendo la dirección de atracción
+              - type: spawn_particle_shape
+                center: SUBJECT
+                particle: REDSTONE
+                dust_color: "#9C27B0"
+                dust_size: 0.8
+                count: 1
+                offset_x: 0.2
+                offset_y: 0.3
+                offset_z: 0.2
+                shape: SPHERE
+                points: 3
+                radius: 0.3
+                y_offset: 1.0
+
+    # Versión mini del vórtice para el Void Staff
+    item_void_staff_vortex:
+      # --- CAPA 1: El Horizonte de Sucesos (Núcleo negro denso) ---
+      - type: start_particle_system
+        center: EVENT.hitLocation
+        lifetime_ticks: 60
+        period_ticks: 2
+        particle: SQUID_INK
+        shape: SPHERE
+        points: 10
+        radius: 0.3
+        y_offset: 0.5
+
+      # --- CAPA 2: Disco de Acreción (Materia orbitando y cayendo) ---
+      - type: start_particle_system
+        center: EVENT.hitLocation
+        lifetime_ticks: 60
+        period_ticks: 1
+        particle: REDSTONE
+        dust_color: "#6200EA"
+        dust_size: 1.0
+        shape: FORMULA
+        points: 20
+        radius: 2.5
+        y_offset: 0.5
+        formula_x: "cos(angle + (age * 0.15)) * (2.5 - (age * 0.2))"
+        formula_y: "sin(angle * 3) * 0.1"
+        formula_z: "sin(angle + (age * 0.15)) * (2.5 - (age * 0.2))"
+
+      # --- CAPA 3: Líneas de Convergencia (Efecto "Drag") ---
+      - type: start_particle_system
+        center: EVENT.hitLocation
+        lifetime_ticks: 60
+        period_ticks: 2
+        particle: SMOKE
+        shape: FORMULA
+        points: 8
+        y_offset: 0.5
+        formula_x: "cos(angle) * (3.0 - (age * 0.8))"
+        formula_y: "(age * 0.05) - 0.2"
+        formula_z: "sin(angle) * (3.0 - (age * 0.8))"
+
+      # Sonido inicial
+      - type: play_sound
+        sound: BLOCK_END_PORTAL_SPAWN
+        volume: 1.0
+        pitch: 0.8
+
+      # --- SISTEMA DE GRAVEDAD (FÍSICA) ---
+      - type: run_repeating
+        interval_ticks: 1
+        total_ticks: 60
+        actions:
+          - type: gravity_pull
+            center: EVENT.hitLocation
+            radius: 3.5
+            strength_key: EVENT.args.pull_power
+            scale_by_distance: true
+            max_force: 0.6
+            include_players: true
+            include_mobs: true
+            exclude_subject: true
+            exclude_spectators: true
+            at_target:
+              - type: spawn_particle_shape
+                center: SUBJECT
+                particle: SOUL
+                count: 1
+                offset_x: 0.2
+                offset_y: 0.5
+                offset_z: 0.2
+                shape: SPHERE
+                points: 2
+                radius: 0.3
+                y_offset: 0.5
+
+  conditions:
+    # 1) Es de noche
+    is_night:
+      type: world_time_between
+      min: 13000
+      max: 23000
+
+    # 2) No es de noche
+    not_night:
+      type: not
+      condition:
+        type: call
+        ref: is_night
+
+    # 3) Coinflip
+    coinflip:
+      type: random_chance
+      probability: 0.5
+
+    # 4) Feature flag por args.enabled
+    arg_enabled:
+      type: var_truthy
+      key: "EVENT.args.enabled"
+
+    # 5) Flag invertido por args.enabled
+    arg_disabled:
+      type: var_truthy
+      key: "EVENT.args.enabled"
+      invert: true

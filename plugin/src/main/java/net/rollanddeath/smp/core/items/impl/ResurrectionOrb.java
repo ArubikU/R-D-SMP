@@ -4,7 +4,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.rollanddeath.smp.RollAndDeathSMP;
 import net.rollanddeath.smp.core.items.CustomItem;
-import net.rollanddeath.smp.core.items.CustomItemType;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -25,12 +24,22 @@ public class ResurrectionOrb extends CustomItem {
     private final Map<UUID, Long> pendingRevives = new HashMap<>();
 
     public ResurrectionOrb(RollAndDeathSMP plugin) {
-        super(plugin, CustomItemType.RESURRECTION_ORB);
+        super(plugin, "RESURRECTION_ORB");
     }
 
     @Override
     protected ItemStack createBaseItem() {
         return new ItemStack(Material.HEART_OF_THE_SEA);
+    }
+
+    @Override
+    public String getDisplayName() {
+        return "Orbe de Resurrección";
+    }
+
+    @Override
+    protected Integer getCustomModelData() {
+        return 710022;
     }
 
     @Override

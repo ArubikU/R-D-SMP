@@ -39,13 +39,13 @@ public class DailyRollManager {
 
     private void loadLootTable() {
         // Common
-        addCustom(commonItems, CustomItemType.HEALING_BANDAGE);
-        addCustom(commonItems, CustomItemType.SHARPENING_STONE);
-        addCustom(commonItems, CustomItemType.MOLDY_BREAD);
-        addCustom(commonItems, CustomItemType.ETERNAL_TORCH);
-        addCustom(commonItems, CustomItemType.SHARP_STICK);
-        addCustom(commonItems, CustomItemType.REINFORCED_LEATHER_BOOTS);
-        addCustom(commonItems, CustomItemType.MYSTERIOUS_SOUP);
+        addCustom(commonItems, "HEALING_BANDAGE");
+        addCustom(commonItems, "SHARPENING_STONE");
+        addCustom(commonItems, "MOLDY_BREAD");
+        addCustom(commonItems, "ETERNAL_TORCH");
+        addCustom(commonItems, "SHARP_STICK");
+        addCustom(commonItems, "REINFORCED_LEATHER_BOOTS");
+        addCustom(commonItems, "MYSTERIOUS_SOUP");
         addVanilla(commonItems, Material.BREAD, 5);
         addVanilla(commonItems, Material.IRON_INGOT, 3);
         addVanilla(commonItems, Material.COAL, 8);
@@ -54,14 +54,14 @@ public class DailyRollManager {
         addVanilla(commonItems, Material.ARROW, 10);
 
         // Rare
-        addCustom(rareItems, CustomItemType.HERMES_BOOTS);
-        addCustom(rareItems, CustomItemType.OBLIVION_POTION);
-        addCustom(rareItems, CustomItemType.THORN_SHIELD);
-        addCustom(rareItems, CustomItemType.BONE_BOW);
-        addCustom(rareItems, CustomItemType.GLASS_PICKAXE);
-        addCustom(rareItems, CustomItemType.XP_MAGNET);
-        addCustom(rareItems, CustomItemType.SMALL_BACKPACK);
-        addCustom(rareItems, CustomItemType.GRAPPLING_HOOK);
+        addCustom(rareItems, "HERMES_BOOTS");
+        addCustom(rareItems, "OBLIVION_POTION");
+        addCustom(rareItems, "THORN_SHIELD");
+        addCustom(rareItems, "BONE_BOW");
+        addCustom(rareItems, "GLASS_PICKAXE");
+        addCustom(rareItems, "XP_MAGNET");
+        addCustom(rareItems, "SMALL_BACKPACK");
+        addCustom(rareItems, "GRAPPLING_HOOK");
         addVanilla(rareItems, Material.DIAMOND, 1);
         addVanilla(rareItems, Material.EMERALD, 3);
         addVanilla(rareItems, Material.GOLDEN_APPLE, 1);
@@ -70,34 +70,48 @@ public class DailyRollManager {
         addVanilla(rareItems, Material.GHAST_TEAR, 1);
 
         // Epic
-        addCustom(epicItems, CustomItemType.GREED_PICKAXE);
-        addCustom(epicItems, CustomItemType.DISCORD_APPLE);
-        addCustom(epicItems, CustomItemType.POSEIDON_TRIDENT);
-        addCustom(epicItems, CustomItemType.ARMORED_WINGS);
-        addCustom(epicItems, CustomItemType.INVISIBILITY_CLOAK);
-        addCustom(epicItems, CustomItemType.WAR_HAMMER);
-        addCustom(epicItems, CustomItemType.REGENERATION_TOTEM);
+        addCustom(epicItems, "GREED_PICKAXE");
+        addCustom(epicItems, "DISCORD_APPLE");
+        addCustom(epicItems, "POSEIDON_TRIDENT");
+        addCustom(epicItems, "ARMORED_WINGS");
+        addCustom(epicItems, "INVISIBILITY_CLOAK");
+        addCustom(epicItems, "WAR_HAMMER");
+        addCustom(epicItems, "REGENERATION_TOTEM");
         addVanilla(epicItems, Material.NETHERITE_SCRAP, 1);
         addVanilla(epicItems, Material.SHULKER_SHELL, 1);
         addVanilla(epicItems, Material.TOTEM_OF_UNDYING, 1);
 
         // Legendary
-        addCustom(legendaryItems, CustomItemType.CHANCE_TOTEM);
-        addCustom(legendaryItems, CustomItemType.RESURRECTION_ORB);
-        addCustom(legendaryItems, CustomItemType.VAMPIRE_SWORD);
-        addCustom(legendaryItems, CustomItemType.WORLD_DESTROYER_PICKAXE);
-        addCustom(legendaryItems, CustomItemType.TRUE_SIGHT_HELMET);
-        addCustom(legendaryItems, CustomItemType.NOTCH_HEART);
-        addCustom(legendaryItems, CustomItemType.SOUL_CONTRACT);
-        addCustom(legendaryItems, CustomItemType.VOID_CALL);
-        addCustom(legendaryItems, CustomItemType.REAL_DRAGON_EGG);
+        addCustom(legendaryItems, "CHANCE_TOTEM");
+        addCustom(legendaryItems, "RESURRECTION_ORB");
+        addCustom(legendaryItems, "VAMPIRE_SWORD");
+        addCustom(legendaryItems, "WORLD_DESTROYER_PICKAXE");
+        addCustom(legendaryItems, "TRUE_SIGHT_HELMET");
+        addCustom(legendaryItems, "NOTCH_HEART");
+        addCustom(legendaryItems, "SOUL_CONTRACT");
+        addCustom(legendaryItems, "VOID_CALL");
+        addCustom(legendaryItems, "REAL_DRAGON_EGG");
         addVanilla(legendaryItems, Material.NETHERITE_INGOT, 1);
         addVanilla(legendaryItems, Material.ENCHANTED_GOLDEN_APPLE, 1);
         addVanilla(legendaryItems, Material.BEACON, 1);
     }
 
-    private void addCustom(List<ItemStack> list, CustomItemType type) {
-        list.add(itemManager.getItem(type).getItemStack());
+    private void addCustom(List<ItemStack> list, String id) {
+        CustomItem item = itemManager.getItem(id);
+        if (item == null) {
+            plugin.getLogger().warning("DailyRollManager: CustomItem no registrado: " + id);
+            return;
+        }
+        try {
+            ItemStack stack = item.getItemStack();
+            if (stack != null) {
+                list.add(stack);
+            } else {
+                plugin.getLogger().warning("DailyRollManager: ItemStack null para: " + id);
+            }
+        } catch (Exception e) {
+            plugin.getLogger().warning("DailyRollManager: error construyendo item " + id + ": " + e.getMessage());
+        }
     }
 
     private void addVanilla(List<ItemStack> list, Material material, int amount) {

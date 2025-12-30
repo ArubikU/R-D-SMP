@@ -3,8 +3,10 @@ package net.rollanddeath.smp.core.commands;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.rollanddeath.smp.RollAndDeathSMP;
-import net.rollanddeath.smp.core.mobs.MobType;
+import net.rollanddeath.smp.core.mobs.CustomMob;
+import net.rollanddeath.smp.core.mobs.scripted.ScriptedMob;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -42,32 +44,68 @@ public class MobsCommand implements CommandExecutor, Listener {
     }
 
     private void openMenu(Player player) {
-        Inventory inv = Bukkit.createInventory(null, 27, GUI_TITLE);
-        List<MobType> activeMobs = plugin.getDailyMobRotationManager().getActiveMobs();
+        Inventory inv = Bukkit.createInventory(null, 54, GUI_TITLE);
+        List<String> activeMobs = plugin.getDailyMobRotationManager().getActiveMobs();
+
+        // Tema del día (desde mobs.yml)
+        try {
+            String theme = plugin.getScriptedMobManager() != null
+                ? plugin.getScriptedMobManager().getDailyThemeForDay(plugin.getGameManager().getCurrentDay())
+                : null;
+            if (theme != null && !theme.isBlank()) {
+                ItemStack themeItem = new ItemStack(Material.PAPER);
+                ItemMeta meta = themeItem.getItemMeta();
+                meta.displayName(Component.text("Tema del día", NamedTextColor.GOLD).decoration(TextDecoration.ITALIC, false));
+                Component themeComp;
+                try {
+                    themeComp = MiniMessage.miniMessage().deserialize(theme);
+                } catch (Exception ignored) {
+                    themeComp = Component.text(theme, NamedTextColor.YELLOW);
+                }
+                meta.lore(List.of(
+                    Component.text("Día "+ plugin.getGameManager().getCurrentDay(), NamedTextColor.DARK_GRAY).decoration(TextDecoration.ITALIC, false),
+                    Component.empty(),
+                    themeComp.decoration(TextDecoration.ITALIC, false)
+                ));
+                themeItem.setItemMeta(meta);
+                inv.setItem(4, themeItem);
+            }
+        } catch (Exception ignored) {
+        }
 
         if (activeMobs.isEmpty()) {
             ItemStack none = new ItemStack(Material.BARRIER);
             ItemMeta meta = none.getItemMeta();
             meta.displayName(Component.text("No hay mobs especiales activos", NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false));
             none.setItemMeta(meta);
-            inv.setItem(13, none);
+            inv.setItem(22, none);
         } else {
-            int slot = 0;
-            for (MobType mob : activeMobs) {
-                ItemStack item = new ItemStack(mob.isBoss() ? Material.WITHER_SKELETON_SKULL : Material.ZOMBIE_HEAD);
+            int slot = 9; // deja la fila superior para info
+            for (String mobId : activeMobs) {
+                if (slot >= inv.getSize()) break;
+                
+                CustomMob mob = plugin.getMobManager().getMob(mobId);
+                if (mob == null) continue;
+                
+                boolean isBoss = false;
+                if (mob instanceof ScriptedMob sm) {
+                    isBoss = sm.definition().isBoss();
+                }
+
+                ItemStack item = new ItemStack(isBoss ? Material.WITHER_SKELETON_SKULL : Material.ZOMBIE_HEAD);
                 ItemMeta meta = item.getItemMeta();
                 
-                NamedTextColor color = mob.isBoss() ? NamedTextColor.RED : NamedTextColor.YELLOW;
+                NamedTextColor color = isBoss ? NamedTextColor.RED : NamedTextColor.YELLOW;
                 meta.displayName(Component.text(mob.getDisplayName(), color).decoration(TextDecoration.ITALIC, false));
                 
                 List<Component> lore = new ArrayList<>();
-                if (mob.isBoss()) {
+                if (isBoss) {
                     lore.add(Component.text("☠ BOSS ☠", NamedTextColor.DARK_RED).decoration(TextDecoration.BOLD, true).decoration(TextDecoration.ITALIC, false));
                 } else {
                     lore.add(Component.text("Mob Especial", NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false));
                 }
                 lore.add(Component.empty());
-                lore.add(Component.text("ID: " + mob.name(), NamedTextColor.DARK_GRAY).decoration(TextDecoration.ITALIC, false));
+                lore.add(Component.text("ID: " + mobId, NamedTextColor.DARK_GRAY).decoration(TextDecoration.ITALIC, false));
                 
                 meta.lore(lore);
                 item.setItemMeta(meta);

@@ -11,7 +11,14 @@ public final class ScriptEngine {
         if (conditions == null || conditions.isEmpty()) return true;
         for (Condition c : conditions) {
             if (c == null) continue;
-            if (!c.test(ctx)) return false;
+            try {
+                if (!c.test(ctx)) return false;
+            } catch (Exception e) {
+                if (ctx != null && ctx.plugin() != null) {
+                    ctx.plugin().getLogger().warning("[ScriptEngine] Error evaluando condición en '" + ctx.subjectId() + "': " + e.getMessage());
+                }
+                return false;
+            }
         }
         return true;
     }
@@ -26,8 +33,16 @@ public final class ScriptEngine {
         boolean deny = false;
         for (Action a : actions) {
             if (a == null) continue;
-            ActionResult r = a.run(ctx);
-            if (r != null && r.deny()) {
+            try {
+                ActionResult r = a.run(ctx);
+                if (r != null && r.deny()) {
+                    deny = true;
+                }
+            } catch (Exception e) {
+                if (ctx != null && ctx.plugin() != null) {
+                    ctx.plugin().getLogger().warning("[ScriptEngine] Error ejecutando acción en '" + ctx.subjectId() + "': " + e.getMessage());
+                }
+                // Fail-safe: si una acción explota, tratamos como DENY para evitar bypass.
                 deny = true;
             }
         }

@@ -2,7 +2,6 @@ package net.rollanddeath.smp.core.items.impl;
 
 import net.rollanddeath.smp.RollAndDeathSMP;
 import net.rollanddeath.smp.core.items.CustomItem;
-import net.rollanddeath.smp.core.items.CustomItemType;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -37,7 +36,7 @@ public class TrueSightHelmet extends CustomItem {
     private final Map<UUID, Location> lastScan = new HashMap<>();
 
     public TrueSightHelmet(RollAndDeathSMP plugin) {
-        super(plugin, CustomItemType.TRUE_SIGHT_HELMET);
+        super(plugin, "TRUE_SIGHT_HELMET");
         Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             for (Player player : Bukkit.getOnlinePlayers()) {
                 ItemStack helmet = player.getInventory().getHelmet();
@@ -124,6 +123,16 @@ public class TrueSightHelmet extends CustomItem {
     @Override
     protected ItemStack createBaseItem() {
         return new ItemStack(Material.GOLDEN_HELMET);
+    }
+
+    @Override
+    public String getDisplayName() {
+        return "Casco de la Visión Verdadera";
+    }
+
+    @Override
+    protected Integer getCustomModelData() {
+        return 710025;
     }
 
     @Override

@@ -2,7 +2,6 @@ package net.rollanddeath.smp.core.items.impl;
 
 import net.rollanddeath.smp.RollAndDeathSMP;
 import net.rollanddeath.smp.core.items.CustomItem;
-import net.rollanddeath.smp.core.items.CustomItemType;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -22,12 +21,22 @@ public class GrapplingHook extends CustomItem {
     private final Map<UUID, Long> cooldowns = new HashMap<>();
 
     public GrapplingHook(RollAndDeathSMP plugin) {
-        super(plugin, CustomItemType.GRAPPLING_HOOK);
+        super(plugin, "GRAPPLING_HOOK");
     }
 
     @Override
     protected ItemStack createBaseItem() {
         return new ItemStack(Material.FISHING_ROD);
+    }
+
+    @Override
+    public String getDisplayName() {
+        return "Gancho de Agarre";
+    }
+
+    @Override
+    protected Integer getCustomModelData() {
+        return 710014;
     }
 
     @Override

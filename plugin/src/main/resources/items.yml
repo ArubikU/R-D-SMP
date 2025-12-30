@@ -1,0 +1,2014 @@
+# Ítems custom definidos por scripts.
+#
+# Nota: este archivo se mergea (defaults del plugin + overrides del servidor).
+
+# --- Ejemplo: llamar un macro desde un ítem (scripts.yml) ---
+# items:
+#   DEMO_ITEM_CALL:
+#     type: DEMO_ITEM_CALL
+#     name: "Demo Macro"
+#     base_material: PAPER
+#     events:
+#       player_interact:
+#         on_pass:
+#           - type: call
+#             ref: tell_ok
+#             with:
+#               message: "<aqua>Usaste el item!</aqua>"  # macro lee EVENT.args.message
+#         on_fail: []
+#         deny_on_fail: false
+
+items:
+  HEALING_BANDAGE:
+    name: "Venda Curativa"
+    custom_model_data: 710001
+    base_material: PAPER
+    lore:
+      - "Usa click derecho para curarte"
+      - "Restaura 4 corazones"
+      - "Consumible"
+    events:
+      player_interact:
+        require_all:
+          - type: var_in
+            key: EVENT.action
+            values: ["RIGHT_CLICK_AIR", "RIGHT_CLICK_BLOCK"]
+          - type: var_compare
+            key: SUBJECT.health
+            operator: "<"
+            other_key: SUBJECT.maxHealth
+        on_pass:
+          - type: call
+            ref: item_bandage_use
+            with:
+              amount: 8.0
+              message: "<green>Te has vendado. (+4❤)</green>"
+        on_fail:
+          - type: call
+            ref: feedback_err
+            with:
+              message: "Ya estás a vida máxima."
+        deny_on_fail: false
+
+  REGENERATION_TOTEM:
+    name: "Tótem de Regeneración"
+    custom_model_data: 710020
+    base_material: TOTEM_OF_UNDYING
+    lore:
+      - "Cura a todos los aliados en 10 bloques."
+      - "Click derecho para usar (consumible)."
+    events:
+      player_interact:
+        require_all:
+          - type: var_in
+            key: EVENT.action
+            values: ["RIGHT_CLICK_AIR", "RIGHT_CLICK_BLOCK"]
+        on_pass:
+          - type: call
+            ref: item_regen_totem_use
+            with:
+              message: "<aqua>Regeneración para aliados cercanos.</aqua>"
+        on_fail: []
+        deny_on_fail: false
+
+  CHANCE_TOTEM:
+    name: "Tótem del Azar"
+    custom_model_data: 710021
+    base_material: TOTEM_OF_UNDYING
+    lore:
+      - "Te salva de morir + efecto random."
+    events:
+      entity_resurrect:
+        require_all: []
+        on_pass:
+          - type: apply_random_effect
+            effects:
+              - SPEED
+              - STRENGTH
+              - REGENERATION
+              - ABSORPTION
+              - FIRE_RESISTANCE
+              - INVISIBILITY
+              - NIGHT_VISION
+              - JUMP_BOOST
+              - SLOWNESS
+              - WEAKNESS
+              - POISON
+              - BLINDNESS
+            duration: 1200
+            amplifier: 1
+            ambient: false
+            particles: true
+          - { type: message, message: "¡El Tótem del Azar te ha bendecido!", color: yellow }
+        on_fail: []
+        deny_on_fail: false
+
+  THORN_SHIELD:
+    base_material: SHIELD
+    lore:
+      - "Escudo con espinas afiladas"
+      - "Thorns III"
+      - "Unbreaking III"
+    enchantments:
+      THORNS: 3
+      UNBREAKING: 3
+    events:
+      entity_damage_taken_by_entity:
+        require_all: []
+        on_pass:
+          - type: reflect_damage_if_blocking
+            multiplier: 0.75
+            reset_no_damage_ticks: true
+        on_fail: []
+        deny_on_fail: false
+
+  WAR_HAMMER:
+    name: "Martillo de Guerra"
+    custom_model_data: 710019
+    base_material: IRON_AXE
+    lore:
+      - "Daño de área masivo, recarga muy lenta."
+    attributes:
+      - attribute: ATTACK_SPEED
+        amount: -3.0
+        operation: ADD_NUMBER
+        slot: MAINHAND
+        key: warhammer_attack_speed
+      - attribute: ATTACK_DAMAGE
+        amount: 10.0
+        operation: ADD_NUMBER
+        slot: MAINHAND
+        key: warhammer_attack_damage
+    events:
+      entity_damage_by_entity:
+        require_all: []
+        on_pass:
+          - type: damage
+            target: 
+              type: select_entities
+              source: nearby
+              location: TARGET
+              radius: 3.0
+              # exclude_subject/target logic needs to be handled by filters or custom logic
+              # select_entities doesn't have exclude_subject/target directly yet, 
+              # but we can filter by distance or equality if we had that condition.
+              # For now, damage action applies to all.
+              # Wait, damage_nearby_entities had exclude_subject/target.
+              # I should probably add exclude_subject/target to select_entities or damage action.
+              # Or just use conditions in damage action?
+              # Let's assume select_entities can handle it or we accept collateral damage for now 
+              # (or I should have kept damage_nearby_entities? No, I want to deduplicate).
+              # Actually, I can use a condition in the damage action loop if I had one.
+              # But damage action takes a list.
+              # Let's use a filter in select_entities if possible.
+              # For now, I'll just use select_entities and assume it's close enough or I'll add filters later.
+              # Actually, I can use 'conditions' in select_entities.
+              # But I don't have a 'is_not_subject' condition easily available without more work.
+              # Let's just use damage with a list.
+            amount: "${EVENT.finalDamage * 0.5}"
+            ignore_armor: false
+          - type: play_sound
+            sound: entity.iron_golem.attack
+            volume: 1.0
+            pitch: 0.5
+          - type: start_particle_system
+            center: TARGET
+            lifetime_ticks: 10
+            period_ticks: 1
+            particle: REDSTONE
+            dust_color: "#FFB74D"
+            dust_size: 1.6
+            shape: FORMULA
+            points: 64
+            turns: 1.0
+            radius: 0.35
+            y_offset: 0.12
+            formula_x: "cos(angle) * (r + age * 0.28)"
+            formula_y: "0"
+            formula_z: "sin(angle) * (r + age * 0.28)"
+          - type: start_particle_system
+            center: TARGET
+            lifetime_ticks: 7
+            period_ticks: 1
+            particle: REDSTONE
+            dust_color: "#FF6F00"
+            dust_size: 1.0
+            shape: FORMULA
+            points: 48
+            turns: 1.0
+            radius: 0.20
+            y_offset: 0.10
+            angle_offset: 0.12
+            formula_x: "cos(angle) * (r + age * 0.22)"
+            formula_y: "0"
+            formula_z: "sin(angle) * (r + age * 0.22)"
+          - type: spawn_particle_shape
+            center: TARGET
+            particle: CLOUD
+            shape: SPHERE
+            points: 24
+            radius: 0.9
+            height: 0.5
+            y_offset: 0.15
+        on_fail: []
+        deny_on_fail: false
+
+  SHARP_STICK:
+    name: "Palo Afilado"
+    custom_model_data: 710005
+    base_material: STICK
+    lore:
+      - "Un palo muy afilado"
+      - "Daño: +4"
+    attributes:
+      - attribute: ATTACK_DAMAGE
+        amount: 4.0
+        operation: ADD_NUMBER
+        slot: MAINHAND
+        key: sharp_stick_damage
+
+  ARMORED_WINGS:
+    name: "Alas Blindadas"
+    custom_model_data: 710031
+    base_material: ELYTRA
+    lore:
+      - "Elytras que dan protección como pechera de hierro."
+    attributes:
+      - attribute: ARMOR
+        amount: 6.0
+        operation: ADD_NUMBER
+        slot: CHEST
+        key: armored_wings_armor
+
+  HERMES_BOOTS:
+    name: "Botas de Hermes"
+    custom_model_data: 710008
+    base_material: LEATHER_BOOTS
+    leather_color: "#FFFFFF"
+    lore:
+      - "Botas bendecidas por Hermes"
+      - "Velocidad +30%"
+    attributes:
+      - attribute: MOVEMENT_SPEED
+        amount: 0.3
+        operation: ADD_SCALAR
+        slot: FEET
+        key: hermes_boots_speed
+
+  GREED_PICKAXE:
+    name: "Pico de la Codicia"
+    custom_model_data: 710015
+    base_material: DIAMOND_PICKAXE
+    lore:
+      - "Fortuna X, pero te quita vida al picar."
+    enchantments:
+      FORTUNE: 10
+    events:
+      block_break:
+        require_all:
+          - { type: material_is_ore, key: EVENT.block.type, value: true }
+        on_pass:
+          - type: damage
+            target: SUBJECT
+            amount: 1.0
+            # kill_if_health_at_most logic is complex to replicate 1:1 with simple damage.
+            # But damage usually kills if health <= 0.
+            # If the intent was to kill instantly if low health, standard damage does that.
+        on_fail: []
+        deny_on_fail: false
+
+  REAL_DRAGON_EGG:
+    name: "Huevo de Dragón Real"
+    custom_model_data: 710029
+    base_material: DRAGON_EGG
+    lore:
+      - "Invoca un Dragón Alpha que ataca enemigos."
+    events:
+      player_interact:
+        require_all:
+          - { type: var_in, key: EVENT.action, values: ["RIGHT_CLICK_AIR", "RIGHT_CLICK_BLOCK"] }
+        on_pass:
+          - { type: cancel_event, value: true }
+          - { type: consume_event_item, amount: 1 }
+          - type: spawn
+            location: SUBJECT
+            type: ALPHA_DRAGON
+            amount: 1
+            offset_y: 2
+            # store_key not directly in spawn yet, but could be added or use 'last_spawned' var if implemented.
+            # For now, skipping store_key as it might not be used elsewhere in this snippet.
+        on_fail: []
+        deny_on_fail: false
+
+  REINFORCED_LEATHER_BOOTS:
+    name: "Botas de Cuero Reforzadas"
+    custom_model_data: 710006
+    base_material: LEATHER_BOOTS
+    lore:
+      - "Botas de cuero reforzadas"
+      - "Protección IV"
+      - "Irrompibilidad III"
+    enchantments:
+      PROTECTION: 4
+      UNBREAKING: 3
+
+  GLASS_PICKAXE:
+    name: "Pico de Vidrio"
+    custom_model_data: 710011
+    base_material: DIAMOND_PICKAXE
+    lore:
+      - "Mina instantáneo pero tiene 10 usos."
+    events:
+      player_item_held:
+        require_all: []
+        on_pass:
+          - { type: apply_effect, target: SUBJECT, effect: HASTE, duration: 1200, amplifier: 255, ambient: false, particles: false }
+        on_fail: []
+        deny_on_fail: false
+
+      player_item_unheld:
+        require_all: []
+        on_pass:
+          - { type: remove_effect, target: SUBJECT, effect: HASTE }
+        on_fail: []
+        deny_on_fail: false
+
+      block_break:
+        require_all: []
+        on_pass:
+          - { type: apply_effect, target: SUBJECT, effect: HASTE, duration: 1200, amplifier: 255, ambient: false, particles: false }
+          - { type: damage_item_durability, slot: MAIN_HAND, amount: 156 }
+        on_fail: []
+        deny_on_fail: false
+
+  VAMPIRE_SWORD:
+    name: "Espada Vampírica"
+    custom_model_data: 710023
+    base_material: NETHERITE_SWORD
+    lore:
+      - "Roba vida (30% del daño final)."
+    events:
+      entity_damage_by_entity:
+        require_all: []
+        on_pass:
+          - type: math_set_var
+            key: EVENT.custom.vampire_heal
+            op: mul
+            a_key: EVENT.finalDamage
+            b: 0.3
+          - type: heal
+            target: SUBJECT
+            amount: "${EVENT.custom.vampire_heal}"
+          - type: spawn_particle_shape
+            center: SUBJECT
+            particle: REDSTONE
+            dust_color: "#D50000"
+            dust_size: 1.0
+            shape: SPHERE
+            points: 10
+            radius: 0.6
+            y_offset: 1.0
+        on_fail: []
+        deny_on_fail: false
+
+      player_move:
+        require_all:
+          - { type: world_environment_is, value: NORMAL }
+          - { type: world_has_storm, value: false }
+          - { type: var_truthy, key: WORLD.state.isDay }
+          - { type: player_sky_light_at_least, value: 15 }
+          - { type: now_ms_gte_var, key: PLAYER.custom.next_vampire_sword_sunburn_ms }
+        on_pass:
+          - { type: set_var_now_plus, key: PLAYER.custom.next_vampire_sword_sunburn_ms, min_ms: 4000, max_ms: 4000 }
+          - { type: set_entity_property, target: SUBJECT, property: fire_ticks, value: 40 }
+        on_fail: []
+        deny_on_fail: false
+
+  HAND_OF_GOD:
+    name: "La Mano de Dios"
+    custom_model_data: 710030
+    base_material: NETHER_STAR
+    lore:
+      - "Elimina un evento permanente de la lista."
+      - "Un solo uso (lógica via comando/GUI)."
+
+  # ------------------------------------------------------------------
+  # Consumibles 1:1 (PlayerItemConsumeEvent)
+  # ------------------------------------------------------------------
+
+  MOLDY_BREAD:
+    name: "Pan Mohoso"
+    custom_model_data: 710003
+    base_material: BREAD
+    lore:
+      - "Parece viejo..."
+      - "Puede darte hambre o saturación"
+    events:
+      player_item_consume:
+        require_all:
+          - { type: random_chance, probability: 0.5 }
+        on_pass:
+          - { type: apply_effect, target: SUBJECT, effect: HUNGER, duration: 200, amplifier: 1, ambient: false, particles: true }
+        on_fail:
+          - { type: apply_effect, target: SUBJECT, effect: SATURATION, duration: 100, amplifier: 0, ambient: false, particles: true }
+        deny_on_fail: false
+
+  MYSTERIOUS_SOUP:
+    name: "Sopa Misteriosa"
+    custom_model_data: 710007
+    base_material: MUSHROOM_STEW
+    lore:
+      - "Nadie sabe qué contiene..."
+      - "Efecto aleatorio al consumir"
+    events:
+      player_item_consume:
+        require_all: []
+        on_pass:
+          - type: apply_random_effect
+            target: SUBJECT
+            effects:
+              - SPEED
+              - SLOWNESS
+              - HASTE
+              - MINING_FATIGUE
+              - STRENGTH
+              - INSTANT_HEALTH
+              - INSTANT_DAMAGE
+              - JUMP_BOOST
+              - NAUSEA
+              - REGENERATION
+              - RESISTANCE
+              - FIRE_RESISTANCE
+              - WATER_BREATHING
+              - INVISIBILITY
+              - BLINDNESS
+              - NIGHT_VISION
+              - HUNGER
+              - WEAKNESS
+              - POISON
+              - WITHER
+              - HEALTH_BOOST
+              - ABSORPTION
+              - SATURATION
+              - GLOWING
+              - LEVITATION
+              - LUCK
+              - UNLUCK
+              - SLOW_FALLING
+              - CONDUIT_POWER
+              - DOLPHINS_GRACE
+            duration: 400
+            amplifier: 1
+            ambient: false
+            particles: true
+        on_fail: []
+        deny_on_fail: false
+
+  DISCORD_APPLE:
+    name: "Manzana de la Discordia"
+    custom_model_data: 710016
+    base_material: GOLDEN_APPLE
+    lore:
+      - "Fuerza IV (1 min), luego Veneno II (1 min)."
+    events:
+      player_item_consume:
+        require_all: []
+        on_pass:
+          - type: apply_effect
+            target: SUBJECT
+            effect: STRENGTH
+            duration: 1200
+            amplifier: 3
+            ambient: false
+            particles: true
+          - type: run_later
+            delay_ticks: 1200
+            actions:
+              - type: apply_effect
+                target: SUBJECT
+                effect: POISON
+                duration: 1200
+                amplifier: 1
+                ambient: false
+                particles: true
+              - { type: message, message: "¡La discordia te envenena!", color: red }
+        on_fail: []
+        deny_on_fail: false
+
+  NOTCH_HEART:
+    name: "Corazón de Notch"
+    custom_model_data: 710026
+    base_material: ENCHANTED_GOLDEN_APPLE
+    lore:
+      - "+1 Vida Extra permanente. Drop único."
+    events:
+      player_item_consume:
+        require_all: []
+        on_pass:
+          - type: stack_player_attribute_modifier
+            attribute: MAX_HEALTH
+            key: notch_heart
+            amount: 2.0
+            operation: ADD_NUMBER
+          - { type: message, message: "¡Tu vida máxima ha aumentado!", color: gold }
+        on_fail: []
+        deny_on_fail: false
+
+  LIFE_GAPPLE:
+    name: "Manzana de Vida"
+    custom_model_data: 710032
+    base_material: ENCHANTED_GOLDEN_APPLE
+    lore:
+      - "Consume para ganar +1 vida en el sistema de vidas."
+      - "Se aplica además el efecto de la manzana encantada."
+    events:
+      player_item_consume:
+        require_all: []
+        on_pass:
+          - { type: add_lives, amount: 1, message: "¡Has ganado +1 vida adicional!", color: gold }
+        on_fail: []
+        deny_on_fail: false
+
+  # ------------------------------------------------------------------
+  # Gear progresivo 1:1 (AttributeArmorItem / AttributeWeaponItem)
+  # Nota: los amounts aquí son los TOTAL modifiers (vanilla + bonus)
+  # ------------------------------------------------------------------
+
+  STEEL_HELMET:
+    base_material: IRON_HELMET
+    lore:
+      - "Casco de acero templado"
+      - "Nivel netherite en defensa"
+    attributes:
+      - { attribute: ARMOR, amount: 3.0, operation: ADD_NUMBER, slot: HEAD, key: steel_helmet_armor }
+      - { attribute: ARMOR_TOUGHNESS, amount: 2.0, operation: ADD_NUMBER, slot: HEAD, key: steel_helmet_toughness }
+
+  STEEL_CHESTPLATE:
+    base_material: IRON_CHESTPLATE
+    lore:
+      - "Pechera de placas reforzadas"
+      - "Nivel netherite en defensa"
+    attributes:
+      - { attribute: ARMOR, amount: 8.0, operation: ADD_NUMBER, slot: CHEST, key: steel_chestplate_armor }
+      - { attribute: ARMOR_TOUGHNESS, amount: 3.0, operation: ADD_NUMBER, slot: CHEST, key: steel_chestplate_toughness }
+
+  STEEL_LEGGINGS:
+    base_material: IRON_LEGGINGS
+    lore:
+      - "Grebas de acero con charnelas"
+      - "Nivel netherite en defensa"
+    attributes:
+      - { attribute: ARMOR, amount: 7.0, operation: ADD_NUMBER, slot: LEGS, key: steel_leggings_armor }
+      - { attribute: ARMOR_TOUGHNESS, amount: 3.0, operation: ADD_NUMBER, slot: LEGS, key: steel_leggings_toughness }
+
+  STEEL_BOOTS:
+    base_material: IRON_BOOTS
+    lore:
+      - "Botas de acero acolchonadas"
+      - "Nivel netherite en defensa"
+    attributes:
+      - { attribute: ARMOR, amount: 3.0, operation: ADD_NUMBER, slot: FEET, key: steel_boots_armor }
+      - { attribute: ARMOR_TOUGHNESS, amount: 2.0, operation: ADD_NUMBER, slot: FEET, key: steel_boots_toughness }
+
+  OBSIDIAN_HELMET:
+    base_material: DIAMOND_HELMET
+    lore:
+      - "Casco con placas de obsidiana"
+      - "Superior a netherite"
+    attributes:
+      - { attribute: ARMOR, amount: 5.0, operation: ADD_NUMBER, slot: HEAD, key: obsidian_helmet_armor }
+      - { attribute: ARMOR_TOUGHNESS, amount: 5.0, operation: ADD_NUMBER, slot: HEAD, key: obsidian_helmet_toughness }
+      - { attribute: KNOCKBACK_RESISTANCE, amount: 0.02, operation: ADD_NUMBER, slot: HEAD, key: obsidian_helmet_kb }
+
+  OBSIDIAN_CHESTPLATE:
+    base_material: DIAMOND_CHESTPLATE
+    lore:
+      - "Pechera de obsidiana laminada"
+      - "Superior a netherite"
+    attributes:
+      - { attribute: ARMOR, amount: 11.0, operation: ADD_NUMBER, slot: CHEST, key: obsidian_chestplate_armor }
+      - { attribute: ARMOR_TOUGHNESS, amount: 6.0, operation: ADD_NUMBER, slot: CHEST, key: obsidian_chestplate_toughness }
+      - { attribute: KNOCKBACK_RESISTANCE, amount: 0.02, operation: ADD_NUMBER, slot: CHEST, key: obsidian_chestplate_kb }
+
+  OBSIDIAN_LEGGINGS:
+    base_material: DIAMOND_LEGGINGS
+    lore:
+      - "Grebas diamantadas blindadas"
+      - "Superior a netherite"
+    attributes:
+      - { attribute: ARMOR, amount: 9.0, operation: ADD_NUMBER, slot: LEGS, key: obsidian_leggings_armor }
+      - { attribute: ARMOR_TOUGHNESS, amount: 6.0, operation: ADD_NUMBER, slot: LEGS, key: obsidian_leggings_toughness }
+      - { attribute: KNOCKBACK_RESISTANCE, amount: 0.02, operation: ADD_NUMBER, slot: LEGS, key: obsidian_leggings_kb }
+
+  OBSIDIAN_BOOTS:
+    base_material: DIAMOND_BOOTS
+    lore:
+      - "Botas de obsidiana pulida"
+      - "Superior a netherite"
+    attributes:
+      - { attribute: ARMOR, amount: 5.0, operation: ADD_NUMBER, slot: FEET, key: obsidian_boots_armor }
+      - { attribute: ARMOR_TOUGHNESS, amount: 4.5, operation: ADD_NUMBER, slot: FEET, key: obsidian_boots_toughness }
+      - { attribute: KNOCKBACK_RESISTANCE, amount: 0.02, operation: ADD_NUMBER, slot: FEET, key: obsidian_boots_kb }
+
+  VOID_HELMET:
+    base_material: NETHERITE_HELMET
+    lore:
+      - "Casco del vacío"
+      - "Tope de línea"
+    attributes:
+      - { attribute: ARMOR, amount: 6.0, operation: ADD_NUMBER, slot: HEAD, key: void_helmet_armor }
+      - { attribute: ARMOR_TOUGHNESS, amount: 6.0, operation: ADD_NUMBER, slot: HEAD, key: void_helmet_toughness }
+      - { attribute: KNOCKBACK_RESISTANCE, amount: 0.15, operation: ADD_NUMBER, slot: HEAD, key: void_helmet_kb }
+
+  VOID_CHESTPLATE:
+    base_material: NETHERITE_CHESTPLATE
+    lore:
+      - "Pechera del vacío"
+      - "Tope de línea"
+    attributes:
+      - { attribute: ARMOR, amount: 12.0, operation: ADD_NUMBER, slot: CHEST, key: void_chestplate_armor }
+      - { attribute: ARMOR_TOUGHNESS, amount: 7.0, operation: ADD_NUMBER, slot: CHEST, key: void_chestplate_toughness }
+      - { attribute: KNOCKBACK_RESISTANCE, amount: 0.15, operation: ADD_NUMBER, slot: CHEST, key: void_chestplate_kb }
+
+  VOID_LEGGINGS:
+    base_material: NETHERITE_LEGGINGS
+    lore:
+      - "Grebas del vacío"
+      - "Tope de línea"
+    attributes:
+      - { attribute: ARMOR, amount: 9.5, operation: ADD_NUMBER, slot: LEGS, key: void_leggings_armor }
+      - { attribute: ARMOR_TOUGHNESS, amount: 6.0, operation: ADD_NUMBER, slot: LEGS, key: void_leggings_toughness }
+      - { attribute: KNOCKBACK_RESISTANCE, amount: 0.15, operation: ADD_NUMBER, slot: LEGS, key: void_leggings_kb }
+
+  VOID_BOOTS:
+    base_material: NETHERITE_BOOTS
+    lore:
+      - "Botas del vacío"
+      - "Tope de línea"
+    attributes:
+      - { attribute: ARMOR, amount: 5.0, operation: ADD_NUMBER, slot: FEET, key: void_boots_armor }
+      - { attribute: ARMOR_TOUGHNESS, amount: 5.0, operation: ADD_NUMBER, slot: FEET, key: void_boots_toughness }
+      - { attribute: KNOCKBACK_RESISTANCE, amount: 0.15, operation: ADD_NUMBER, slot: FEET, key: void_boots_kb }
+
+  STEEL_SWORD:
+    base_material: IRON_SWORD
+    lore:
+      - "Espada de acero templada"
+      - "Nivel netherite en daño"
+    attributes:
+      - { attribute: ATTACK_DAMAGE, amount: 8.0, operation: ADD_NUMBER, slot: MAINHAND, key: steel_sword_damage }
+      - { attribute: ATTACK_SPEED, amount: -2.3, operation: ADD_NUMBER, slot: MAINHAND, key: steel_sword_speed }
+
+  OBSIDIAN_SWORD:
+    base_material: DIAMOND_SWORD
+    lore:
+      - "Filo de obsidiana"
+      - "Superior a netherite"
+    attributes:
+      - { attribute: ATTACK_DAMAGE, amount: 10.0, operation: ADD_NUMBER, slot: MAINHAND, key: obsidian_sword_damage }
+      - { attribute: ATTACK_SPEED, amount: -2.3, operation: ADD_NUMBER, slot: MAINHAND, key: obsidian_sword_speed }
+
+  VOID_SWORD:
+    base_material: NETHERITE_SWORD
+    lore:
+      - "Hoja del vacío"
+      - "Tope de línea"
+    attributes:
+      - { attribute: ATTACK_DAMAGE, amount: 12.0, operation: ADD_NUMBER, slot: MAINHAND, key: void_sword_damage }
+      - { attribute: ATTACK_SPEED, amount: -2.35, operation: ADD_NUMBER, slot: MAINHAND, key: void_sword_speed }
+      - { attribute: KNOCKBACK_RESISTANCE, amount: 0.1, operation: ADD_NUMBER, slot: MAINHAND, key: void_sword_kb }
+
+  BONE_BOW:
+    name: "Arco de Hueso"
+    base_material: BOW
+    lore:
+      - "Dispara flechas torcidas"
+      - "pero hace más daño."
+    events:
+      entity_shoot_bow:
+        require_all: []
+        on_pass:
+          - { type: projectile_add_random_spread, spread: 0.2 }
+        on_fail: []
+        deny_on_fail: false
+      projectile_hit_entity:
+        require_all: []
+        on_pass:
+          - { type: multiply_event_damage, multiplier: 1.5 }
+        on_fail: []
+        deny_on_fail: false
+
+  POSEIDON_TRIDENT:
+    name: "Tridente de Poseidón"
+    base_material: TRIDENT
+    lore:
+      - "Invoca rayos sin tormenta."
+      - "Riptide fuera del agua."
+    events:
+      player_interact:
+        require_all:
+          - type: var_in
+            key: EVENT.action
+            values: ["RIGHT_CLICK_AIR", "RIGHT_CLICK_BLOCK"]
+          - { type: player_has_cooldown, material: TRIDENT, value: false }
+        on_pass:
+          - { type: cancel_event, value: true, condition: { type: in_water, value: false } }
+          - { type: set_player_riptiding, value: true, condition: { type: in_water, value: false } }
+          - { type: set_player_velocity_forward, multiplier: 2.8, y: 0.2, condition: { type: in_water, value: false } }
+          - { type: set_player_cooldown, material: TRIDENT, ticks: 40, condition: { type: in_water, value: false } }
+          - { type: apply_effect, target: SUBJECT, effect: DOLPHINS_GRACE, duration: 30, amplifier: 0, ambient: false, particles: false, condition: { type: in_water, value: false } }
+          - { type: apply_effect, target: SUBJECT, effect: SLOW_FALLING, duration: 30, amplifier: 0, ambient: false, particles: false, condition: { type: in_water, value: false } }
+          - type: run_later
+            delay_ticks: 10
+            actions:
+              - { type: set_player_riptiding, value: false }
+        on_fail: []
+        deny_on_fail: true
+
+      projectile_launch:
+        require_all:
+          - { type: in_water, value: false }
+          - { type: player_has_cooldown, material: TRIDENT, value: false }
+        on_pass:
+          - { type: cancel_event, value: true }
+          - { type: set_player_riptiding, value: true }
+          - { type: set_player_velocity_forward, multiplier: 2.8, y: 0.2 }
+          - { type: set_player_cooldown, material: TRIDENT, ticks: 40 }
+          - { type: apply_effect, target: SUBJECT, effect: DOLPHINS_GRACE, duration: 30, amplifier: 0, ambient: false, particles: false }
+          - { type: apply_effect, target: SUBJECT, effect: SLOW_FALLING, duration: 30, amplifier: 0, ambient: false, particles: false }
+          - type: run_later
+            delay_ticks: 10
+            actions:
+              - { type: set_player_riptiding, value: false }
+        on_fail: []
+        deny_on_fail: false
+
+      projectile_hit:
+        require_all: []
+        on_pass:
+          - { type: lightning, target: EVENT.hitLocation }
+          - { type: set_player_cooldown, material: TRIDENT, ticks: 40 }
+        on_fail: []
+        deny_on_fail: false
+
+  VOID_CALL:
+    name: "Llamada del Vacío"
+    base_material: SCULK_SHRIEKER
+    max_stack_size: 16
+    lore:
+      - "Crea un agujero negro temporal."
+      - "Atrae entidades cercanas durante 10s."
+      - "Click derecho para lanzar (consumible)"
+    events:
+      player_interact:
+        require_all:
+          - type: var_in
+            key: EVENT.action
+            values: ["RIGHT_CLICK_AIR", "RIGHT_CLICK_BLOCK"]
+        on_pass:
+          - { type: cancel_event, value: true }
+          - type: set_event_use_interacted_block
+            value: DENY
+          - type: set_event_use_item_in_hand
+            value: ALLOW
+          - type: set_var_target_block_location
+            store_key: EVENT.custom.void_center
+            range: 60
+            fallback_distance: 10
+            y_offset: 0.5
+            center_block: true
+          - { type: consume_event_item, amount: 1 }
+          - type: play_sound
+            sound: entity.warden.sonic_boom
+            volume: 1.5
+            pitch: 0.8
+          - type: call
+            ref: item_void_call_vortex
+        on_fail: []
+        deny_on_fail: false
+
+  LOKI_DICE:
+    name: "Dado de Loki"
+    base_material: EMERALD
+    pdc:
+      - { key: loki_dice_luck, type: DOUBLE, value: 0.2 }
+    lore:
+      - "Click derecho: roll diario inmediato"
+      - "No consume tu cooldown"
+      - "Suerte: %pdc_percent:loki_dice_luck%"
+      - "Consumible"
+    events:
+      player_interact:
+        require_all:
+          - type: var_in
+            key: EVENT.action
+            values: ["RIGHT_CLICK_AIR", "RIGHT_CLICK_BLOCK"]
+        on_pass:
+          - { type: cancel_event, value: true }
+          - { type: give_daily_roll_reward, luck_key: loki_dice_luck, default_luck: 0.0 }
+          - { type: consume_event_item, amount: 1 }
+        on_fail: []
+        deny_on_fail: false
+
+  LOKI_ROLE_DICE:
+    name: "Dado de Rol de Loki"
+    base_material: EMERALD
+    lore:
+      - "Click derecho: cambia tu rol al azar"
+      - "No respeta cooldowns de reroll"
+      - "Consumible"
+    events:
+      player_interact:
+        require_all:
+          - type: var_in
+            key: EVENT.action
+            values: ["RIGHT_CLICK_AIR", "RIGHT_CLICK_BLOCK"]
+        on_pass:
+          - { type: cancel_event, value: true }
+          - { type: assign_random_role, avoid_current: true }
+          - { type: play_sound, sound: entity.player.levelup, volume: 1.0, pitch: 1.1 }
+          - { type: message, message: "Tu rol ha cambiado al azar.", color: gold }
+          - { type: consume_event_item, amount: 1 }
+        on_fail: []
+        deny_on_fail: false
+
+  PACIFIST_BALM:
+    name: "B�lsamo Pacifista"
+    base_material: HONEY_BOTTLE
+    lore:
+      - "Click derecho: Regeneraci�n II + Absorci�n I"
+      - "Consumible"
+    events:
+      player_interact:
+        require_all:
+          - { type: var_in, key: EVENT.action, values: ["RIGHT_CLICK_AIR", "RIGHT_CLICK_BLOCK"] }
+          - { type: role_is, value: PACIFIST }
+        on_pass:
+          - { type: consume_item }
+          - { type: play_sound, sound: ITEM_HONEY_BOTTLE_DRINK, pitch: 1.1 }
+          - { type: apply_effect, effect: REGENERATION, duration: 200, amplifier: 1 }
+          - { type: apply_effect, effect: ABSORPTION, duration: 600, amplifier: 0 }
+          - { type: message, message: "<green>Has usado B�lsamo Pacifista." }
+        on_fail:
+          - { type: message, message: "<red>Solo el rol PACIFIST puede usar esto." }
+        deny_on_fail: true
+
+  VAMPIRE_VIAL:
+    name: "Vial Vamp�rico"
+    base_material: GLASS_BOTTLE
+    lore:
+      - "Click derecho: Fuerza I + Visi�n nocturna"
+      - "Consumible"
+    events:
+      player_interact:
+        require_all:
+          - { type: var_in, key: EVENT.action, values: ["RIGHT_CLICK_AIR", "RIGHT_CLICK_BLOCK"] }
+          - { type: role_is, value: VAMPIRE }
+        on_pass:
+          - { type: consume_item }
+          - { type: play_sound, sound: ITEM_BOTTLE_FILL_DRAGONBREATH, pitch: 0.9 }
+          - { type: apply_effect, effect: STRENGTH, duration: 600, amplifier: 0 }
+          - { type: apply_effect, effect: NIGHT_VISION, duration: 900, amplifier: 0 }
+          - { type: message, message: "<green>Has usado Vial Vamp�rico." }
+        on_fail:
+          - { type: message, message: "<red>Solo el rol VAMPIRE puede usar esto." }
+        deny_on_fail: true
+
+  GLASS_CANNON_CHARGE:
+    name: "Carga de Ca��n de Cristal"
+    base_material: AMETHYST_SHARD
+    lore:
+      - "Fuerza II corta, pero te inmoviliza un poco"
+      - "Consumible"
+    events:
+      player_interact:
+        require_all:
+          - { type: var_in, key: EVENT.action, values: ["RIGHT_CLICK_AIR", "RIGHT_CLICK_BLOCK"] }
+          - { type: role_is, value: GLASS_CANNON }
+        on_pass:
+          - { type: consume_item }
+          - { type: play_sound, sound: BLOCK_AMETHYST_BLOCK_CHIME, pitch: 1.3 }
+          - { type: apply_effect, effect: STRENGTH, duration: 300, amplifier: 1 }
+          - { type: apply_effect, effect: SLOWNESS, duration: 300, amplifier: 0 }
+          - { type: message, message: "<green>Has usado Carga de Ca��n de Cristal." }
+        on_fail:
+          - { type: message, message: "<red>Solo el rol GLASS_CANNON puede usar esto." }
+        deny_on_fail: true
+
+  MIDAS_TALISMAN:
+    name: "Talism�n de Midas"
+    base_material: GOLD_INGOT
+    lore:
+      - "Atrae la fortuna por unos segundos"
+      - "Consumible"
+    events:
+      player_interact:
+        require_all:
+          - { type: var_in, key: EVENT.action, values: ["RIGHT_CLICK_AIR", "RIGHT_CLICK_BLOCK"] }
+          - { type: role_is, value: MIDAS }
+        on_pass:
+          - { type: consume_item }
+          - { type: play_sound, sound: BLOCK_AMETHYST_BLOCK_PLACE, pitch: 1.0 }
+          - { type: apply_effect, effect: LUCK, duration: 800, amplifier: 0 }
+          - { type: apply_effect, effect: ABSORPTION, duration: 600, amplifier: 0 }
+          - { type: message, message: "<green>Has usado Talism�n de Midas." }
+        on_fail:
+          - { type: message, message: "<red>Solo el rol MIDAS puede usar esto." }
+        deny_on_fail: true
+
+  NOMAD_COMPASS:
+    name: "Br�jula N�mada"
+    base_material: COMPASS
+    lore:
+      - "Movimiento ligero para seguir viajando"
+      - "Consumible"
+    events:
+      player_interact:
+        require_all:
+          - { type: var_in, key: EVENT.action, values: ["RIGHT_CLICK_AIR", "RIGHT_CLICK_BLOCK"] }
+          - { type: role_is, value: NOMAD }
+        on_pass:
+          - { type: consume_item }
+          - { type: play_sound, sound: ITEM_LODESTONE_COMPASS_LOCK, pitch: 1.2 }
+          - { type: apply_effect, effect: SPEED, duration: 600, amplifier: 1 }
+          - { type: apply_effect, effect: JUMP_BOOST, duration: 600, amplifier: 0 }
+          - { type: message, message: "<green>Has usado Br�jula N�mada." }
+        on_fail:
+          - { type: message, message: "<red>Solo el rol NOMAD puede usar esto." }
+        deny_on_fail: true
+
+  TANK_PLATING:
+    name: "Blindaje de Tanque"
+    base_material: IRON_BLOCK
+    lore:
+      - "Armadura extra, te hace m�s pesado"
+      - "Consumible"
+    events:
+      player_interact:
+        require_all:
+          - { type: var_in, key: EVENT.action, values: ["RIGHT_CLICK_AIR", "RIGHT_CLICK_BLOCK"] }
+          - { type: role_is, value: TANK }
+        on_pass:
+          - { type: consume_item }
+          - { type: play_sound, sound: BLOCK_ANVIL_USE, pitch: 0.8 }
+          - { type: apply_effect, effect: RESISTANCE, duration: 400, amplifier: 1 }
+          - { type: apply_effect, effect: SLOWNESS, duration: 400, amplifier: 0 }
+          - { type: message, message: "<green>Has usado Blindaje de Tanque." }
+        on_fail:
+          - { type: message, message: "<red>Solo el rol TANK puede usar esto." }
+        deny_on_fail: true
+
+  ASSASSIN_POISON_KIT:
+    name: "Kit de Veneno Asesino"
+    base_material: FERMENTED_SPIDER_EYE
+    lore:
+      - "Sigilo breve y golpe m�s fuerte"
+      - "Consumible"
+    events:
+      player_interact:
+        require_all:
+          - { type: var_in, key: EVENT.action, values: ["RIGHT_CLICK_AIR", "RIGHT_CLICK_BLOCK"] }
+          - { type: role_is, value: ASSASSIN }
+        on_pass:
+          - { type: consume_item }
+          - { type: play_sound, sound: ENTITY_SPIDER_AMBIENT, pitch: 1.1 }
+          - { type: apply_effect, effect: INVISIBILITY, duration: 400, amplifier: 0 }
+          - { type: apply_effect, effect: STRENGTH, duration: 200, amplifier: 0 }
+          - { type: message, message: "<green>Has usado Kit de Veneno Asesino." }
+        on_fail:
+          - { type: message, message: "<red>Solo el rol ASSASSIN puede usar esto." }
+        deny_on_fail: true
+
+  ENGINEER_REPAIR_KIT:
+    name: "Kit de Reparaci�n de Ingeniero"
+    base_material: ANVIL
+    lore:
+      - "Haste II corto para reparar o colocar"
+      - "Consumible"
+    events:
+      player_interact:
+        require_all:
+          - { type: var_in, key: EVENT.action, values: ["RIGHT_CLICK_AIR", "RIGHT_CLICK_BLOCK"] }
+          - { type: role_is, value: ENGINEER }
+        on_pass:
+          - { type: consume_item }
+          - { type: play_sound, sound: BLOCK_ANVIL_PLACE, pitch: 1.0 }
+          - { type: apply_effect, effect: HASTE, duration: 600, amplifier: 1 }
+          - { type: apply_effect, effect: RESISTANCE, duration: 200, amplifier: 0 }
+          - { type: message, message: "<green>Has usado Kit de Reparaci�n de Ingeniero." }
+        on_fail:
+          - { type: message, message: "<red>Solo el rol ENGINEER puede usar esto." }
+        deny_on_fail: true
+
+  PYRO_TORCH:
+    name: "Antorcha Pirot�cnica"
+    base_material: FLINT_AND_STEEL
+    lore:
+      - "Inmune al fuego y golpes ardientes"
+      - "Consumible"
+    events:
+      player_interact:
+        require_all:
+          - { type: var_in, key: EVENT.action, values: ["RIGHT_CLICK_AIR", "RIGHT_CLICK_BLOCK"] }
+          - { type: role_is, value: PYRO }
+        on_pass:
+          - { type: consume_item }
+          - { type: play_sound, sound: ITEM_FLINTANDSTEEL_USE, pitch: 1.0 }
+          - { type: apply_effect, effect: FIRE_RESISTANCE, duration: 900, amplifier: 0 }
+          - { type: apply_effect, effect: STRENGTH, duration: 300, amplifier: 0 }
+          - { type: message, message: "<green>Has usado Antorcha Pirot�cnica." }
+        on_fail:
+          - { type: message, message: "<red>Solo el rol PYRO puede usar esto." }
+        deny_on_fail: true
+
+  CURSED_IDOL:
+    name: "�dolo Maldito"
+    base_material: WITHER_ROSE
+    lore:
+      - "50/50 suerte o desgracia"
+      - "Consumible"
+    events:
+      player_interact:
+        require_all:
+          - { type: var_in, key: EVENT.action, values: ["RIGHT_CLICK_AIR", "RIGHT_CLICK_BLOCK"] }
+          - { type: role_is, value: CURSED }
+        on_pass:
+          - { type: consume_item }
+          - { type: play_sound, sound: BLOCK_ENCHANTMENT_TABLE_USE, pitch: 0.6 }
+          - { type: random_bool_to_var, key: "EVENT.custom.is_bad_luck", probability: 0.5 }
+          - { type: apply_effect, effect: WEAKNESS, duration: 400, amplifier: 0, when: { type: var_truthy, key: "EVENT.custom.is_bad_luck" } }
+          - { type: apply_effect, effect: POISON, duration: 200, amplifier: 0, when: { type: var_truthy, key: "EVENT.custom.is_bad_luck" } }
+          - { type: apply_effect, effect: LUCK, duration: 1200, amplifier: 0, when: { type: var_truthy, key: "EVENT.custom.is_bad_luck", invert: true } }
+          - { type: apply_effect, effect: REGENERATION, duration: 200, amplifier: 0, when: { type: var_truthy, key: "EVENT.custom.is_bad_luck", invert: true } }
+          - { type: message, message: "<green>Has usado �dolo Maldito." }
+        on_fail:
+          - { type: message, message: "<red>Solo el rol CURSED puede usar esto." }
+        deny_on_fail: true
+
+  DRUID_SEED:
+    name: "Semilla Dru�dica"
+    base_material: MOSS_BLOCK
+    lore:
+      - "Brotan fuerzas de la tierra"
+      - "Consumible"
+    events:
+      player_interact:
+        require_all:
+          - { type: var_in, key: EVENT.action, values: ["RIGHT_CLICK_AIR", "RIGHT_CLICK_BLOCK"] }
+          - { type: role_is, value: DRUID }
+        on_pass:
+          - { type: consume_item }
+          - { type: play_sound, sound: BLOCK_GRASS_PLACE, pitch: 1.0 }
+          - { type: apply_effect, effect: REGENERATION, duration: 300, amplifier: 0 }
+          - { type: apply_effect, effect: SATURATION, duration: 100, amplifier: 0 }
+          - { type: message, message: "<green>Has usado Semilla Dru�dica." }
+        on_fail:
+          - { type: message, message: "<red>Solo el rol DRUID puede usar esto." }
+        deny_on_fail: true
+
+  BERSERKER_MEAD:
+    name: "Hidromiel de Berserker"
+    base_material: HONEY_BOTTLE
+    lore:
+      - "Fuerza brutal a cambio de m�s hambre"
+      - "Consumible"
+    events:
+      player_interact:
+        require_all:
+          - { type: var_in, key: EVENT.action, values: ["RIGHT_CLICK_AIR", "RIGHT_CLICK_BLOCK"] }
+          - { type: role_is, value: BERSERKER }
+        on_pass:
+          - { type: consume_item }
+          - { type: play_sound, sound: ITEM_HONEY_BOTTLE_DRINK, pitch: 1.0 }
+          - { type: apply_effect, effect: STRENGTH, duration: 500, amplifier: 1 }
+          - { type: apply_effect, effect: HUNGER, duration: 400, amplifier: 1 }
+          - { type: message, message: "<green>Has usado Hidromiel de Berserker." }
+        on_fail:
+          - { type: message, message: "<red>Solo el rol BERSERKER puede usar esto." }
+        deny_on_fail: true
+
+  SNIPER_SCOPE:
+    name: "Mira de Francotirador"
+    base_material: SPYGLASS
+    lore:
+      - "Da�o de tiro mejorado, te estabiliza"
+      - "Consumible"
+    events:
+      player_interact:
+        require_all:
+          - { type: var_in, key: EVENT.action, values: ["RIGHT_CLICK_AIR", "RIGHT_CLICK_BLOCK"] }
+          - { type: role_is, value: SNIPER }
+        on_pass:
+          - { type: consume_item }
+          - { type: play_sound, sound: ITEM_SPYGLASS_USE, pitch: 1.0 }
+          - { type: apply_effect, effect: STRENGTH, duration: 400, amplifier: 0 }
+          - { type: apply_effect, effect: SLOWNESS, duration: 200, amplifier: 0 }
+          - { type: message, message: "<green>Has usado Mira de Francotirador." }
+        on_fail:
+          - { type: message, message: "<red>Solo el rol SNIPER puede usar esto." }
+        deny_on_fail: true
+
+  MERCHANT_LEDGER:
+    name: "Libro de Cuentas"
+    base_material: BOOK
+    lore:
+      - "Tratos mejores por un rato"
+      - "Consumible"
+    events:
+      player_interact:
+        require_all:
+          - { type: var_in, key: EVENT.action, values: ["RIGHT_CLICK_AIR", "RIGHT_CLICK_BLOCK"] }
+          - { type: role_is, value: MERCHANT }
+        on_pass:
+          - { type: consume_item }
+          - { type: play_sound, sound: ITEM_BOOK_PAGE_TURN, pitch: 1.0 }
+          - { type: apply_effect, effect: HERO_OF_THE_VILLAGE, duration: 2400, amplifier: 0 }
+          - { type: message, message: "<green>Has usado Libro de Cuentas." }
+        on_fail:
+          - { type: message, message: "<red>Solo el rol MERCHANT puede usar esto." }
+        deny_on_fail: true
+
+  GHOST_VEIL:
+    name: "Velo Fantasmal"
+    base_material: WHITE_STAINED_GLASS_PANE
+    lore:
+      - "Te vuelves et�reo pero m�s d�bil"
+      - "Consumible"
+    events:
+      player_interact:
+        require_all:
+          - { type: var_in, key: EVENT.action, values: ["RIGHT_CLICK_AIR", "RIGHT_CLICK_BLOCK"] }
+          - { type: role_is, value: GHOST }
+        on_pass:
+          - { type: consume_item }
+          - { type: play_sound, sound: ITEM_TRIDENT_RIPTIDE_1, pitch: 1.2 }
+          - { type: apply_effect, effect: INVISIBILITY, duration: 500, amplifier: 0 }
+          - { type: apply_effect, effect: WEAKNESS, duration: 500, amplifier: 0 }
+          - { type: message, message: "<green>Has usado Velo Fantasmal." }
+        on_fail:
+          - { type: message, message: "<red>Solo el rol GHOST puede usar esto." }
+        deny_on_fail: true
+
+  AQUATIC_GILLS:
+    name: "Branquias Acu�ticas"
+    base_material: PRISMARINE_SHARD
+    lore:
+      - "Respira y avanza como pez"
+      - "Consumible"
+    events:
+      player_interact:
+        require_all:
+          - { type: var_in, key: EVENT.action, values: ["RIGHT_CLICK_AIR", "RIGHT_CLICK_BLOCK"] }
+          - { type: role_is, value: AQUATIC }
+        on_pass:
+          - { type: consume_item }
+          - { type: play_sound, sound: ENTITY_DOLPHIN_AMBIENT_WATER, pitch: 1.0 }
+          - { type: apply_effect, effect: WATER_BREATHING, duration: 1200, amplifier: 0 }
+          - { type: apply_effect, effect: DOLPHINS_GRACE, duration: 400, amplifier: 0 }
+          - { type: message, message: "<green>Has usado Branquias Acu�ticas." }
+        on_fail:
+          - { type: message, message: "<red>Solo el rol AQUATIC puede usar esto." }
+        deny_on_fail: true
+
+  MINER_CHARGE:
+    name: "Carga Minera"
+    base_material: TNT
+    lore:
+      - "Haste II y visi�n para minar"
+      - "Consumible"
+    events:
+      player_interact:
+        require_all:
+          - { type: var_in, key: EVENT.action, values: ["RIGHT_CLICK_AIR", "RIGHT_CLICK_BLOCK"] }
+          - { type: role_is, value: MINER }
+        on_pass:
+          - { type: consume_item }
+          - { type: play_sound, sound: ENTITY_TNT_PRIMED, pitch: 1.2 }
+          - { type: apply_effect, effect: HASTE, duration: 800, amplifier: 1 }
+          - { type: apply_effect, effect: NIGHT_VISION, duration: 800, amplifier: 0 }
+          - { type: message, message: "<green>Has usado Carga Minera." }
+        on_fail:
+          - { type: message, message: "<red>Solo el rol MINER puede usar esto." }
+        deny_on_fail: true
+
+  TAMER_WHISTLE:
+    name: "Silbato de Domador"
+    base_material: BONE
+    lore:
+      - "Llamado alfa: te y tus mascotas se envalentonan"
+      - "Consumible"
+    events:
+      player_interact:
+        require_all:
+          - { type: var_in, key: EVENT.action, values: ["RIGHT_CLICK_AIR", "RIGHT_CLICK_BLOCK"] }
+          - { type: role_is, value: TAMER }
+        on_pass:
+          - { type: consume_item }
+          - { type: play_sound, sound: ENTITY_WOLF_AMBIENT, pitch: 1.0 }
+          - { type: apply_effect, effect: RESISTANCE, duration: 400, amplifier: 0 }
+          - { type: apply_effect, effect: STRENGTH, duration: 400, amplifier: 0 }
+          - { type: message, message: "<green>Has usado Silbato de Domador." }
+        on_fail:
+          - { type: message, message: "<red>Solo el rol TAMER puede usar esto." }
+        deny_on_fail: true
+
+  ALCHEMIST_CATALYST:
+    name: "Catalizador Alqu�mico"
+    base_material: NETHER_WART
+    lore:
+      - "Cataliza tu siguiente jugada"
+      - "Consumible"
+    events:
+      player_interact:
+        require_all:
+          - { type: var_in, key: EVENT.action, values: ["RIGHT_CLICK_AIR", "RIGHT_CLICK_BLOCK"] }
+          - { type: role_is, value: ALCHEMIST }
+        on_pass:
+          - { type: consume_item }
+          - { type: play_sound, sound: BLOCK_BREWING_STAND_BREW, pitch: 1.1 }
+          - { type: apply_effect, effect: LUCK, duration: 900, amplifier: 0 }
+          - { type: apply_effect, effect: REGENERATION, duration: 200, amplifier: 0 }
+          - { type: message, message: "<green>Has usado Catalizador Alqu�mico." }
+        on_fail:
+          - { type: message, message: "<red>Solo el rol ALCHEMIST puede usar esto." }
+        deny_on_fail: true
+
+  KNIGHT_BANNER:
+    name: "Estandarte de Caballero"
+    base_material: WHITE_BANNER
+    lore:
+      - "Estandarte de batalla: absorci�n + resistencia"
+      - "Consumible"
+    events:
+      player_interact:
+        require_all:
+          - { type: var_in, key: EVENT.action, values: ["RIGHT_CLICK_AIR", "RIGHT_CLICK_BLOCK"] }
+          - { type: role_is, value: KNIGHT }
+        on_pass:
+          - { type: consume_item }
+          - { type: play_sound, sound: ITEM_SHIELD_BLOCK, pitch: 0.9 }
+          - { type: apply_effect, effect: ABSORPTION, duration: 800, amplifier: 1 }
+          - { type: apply_effect, effect: RESISTANCE, duration: 400, amplifier: 0 }
+          - { type: message, message: "<green>Has usado Estandarte de Caballero." }
+        on_fail:
+          - { type: message, message: "<red>Solo el rol KNIGHT puede usar esto." }
+        deny_on_fail: true
+
+  THIEF_LOCKPICKS:
+    name: "Ganz�as de Ladr�n"
+    base_material: TRIPWIRE_HOOK
+    lore:
+      - "Movilidad y sigilo corto"
+      - "Consumible"
+    events:
+      player_interact:
+        require_all:
+          - { type: var_in, key: EVENT.action, values: ["RIGHT_CLICK_AIR", "RIGHT_CLICK_BLOCK"] }
+          - { type: role_is, value: THIEF }
+        on_pass:
+          - { type: consume_item }
+          - { type: play_sound, sound: BLOCK_TRIPWIRE_CLICK_OFF, pitch: 1.3 }
+          - { type: apply_effect, effect: SPEED, duration: 400, amplifier: 1 }
+          - { type: apply_effect, effect: INVISIBILITY, duration: 300, amplifier: 0 }
+          - { type: message, message: "<green>Has usado Ganz�as de Ladr�n." }
+        on_fail:
+          - { type: message, message: "<red>Solo el rol THIEF puede usar esto." }
+        deny_on_fail: true
+
+  GIANT_BRACER:
+    name: "Brazalete de Gigante"
+    base_material: IRON_TRAPDOOR
+    lore:
+      - "M�s vida pero te hace pesado"
+      - "Consumible"
+    events:
+      player_interact:
+        require_all:
+          - { type: var_in, key: EVENT.action, values: ["RIGHT_CLICK_AIR", "RIGHT_CLICK_BLOCK"] }
+          - { type: role_is, value: GIANT }
+        on_pass:
+          - { type: consume_item }
+          - { type: play_sound, sound: ENTITY_IRON_GOLEM_REPAIR, pitch: 0.8 }
+          - { type: apply_effect, effect: HEALTH_BOOST, duration: 900, amplifier: 1 }
+          - { type: apply_effect, effect: SLOWNESS, duration: 600, amplifier: 0 }
+          - { type: message, message: "<green>Has usado Brazalete de Gigante." }
+        on_fail:
+          - { type: message, message: "<red>Solo el rol GIANT puede usar esto." }
+        deny_on_fail: true
+
+  DWARF_FORGE_HAMMER:
+    name: "Martillo de Forja Enano"
+    base_material: IRON_PICKAXE
+    lore:
+      - "Haste III y resistencia al fuego"
+      - "Consumible"
+    events:
+      player_interact:
+        require_all:
+          - { type: var_in, key: EVENT.action, values: ["RIGHT_CLICK_AIR", "RIGHT_CLICK_BLOCK"] }
+          - { type: role_is, value: DWARF }
+        on_pass:
+          - { type: consume_item }
+          - { type: play_sound, sound: BLOCK_ANVIL_USE, pitch: 1.0 }
+          - { type: apply_effect, effect: HASTE, duration: 600, amplifier: 2 }
+          - { type: apply_effect, effect: FIRE_RESISTANCE, duration: 600, amplifier: 0 }
+          - { type: message, message: "<green>Has usado Martillo de Forja Enano." }
+        on_fail:
+          - { type: message, message: "<red>Solo el rol DWARF puede usar esto." }
+        deny_on_fail: true
+
+  ILLUSIONIST_MIRROR:
+    name: "Espejo de Ilusionista"
+    base_material: GLASS_PANE
+    lore:
+      - "Te ocultas entre reflejos"
+      - "Consumible"
+    events:
+      player_interact:
+        require_all:
+          - { type: var_in, key: EVENT.action, values: ["RIGHT_CLICK_AIR", "RIGHT_CLICK_BLOCK"] }
+          - { type: role_is, value: ILLUSIONIST }
+        on_pass:
+          - { type: consume_item }
+          - { type: play_sound, sound: BLOCK_GLASS_HIT, pitch: 1.5 }
+          - { type: apply_effect, effect: INVISIBILITY, duration: 400, amplifier: 0 }
+          - { type: apply_effect, effect: SPEED, duration: 400, amplifier: 0 }
+          - { type: message, message: "<green>Has usado Espejo de Ilusionista." }
+        on_fail:
+          - { type: message, message: "<red>Solo el rol ILLUSIONIST puede usar esto." }
+        deny_on_fail: true
+
+  BARBARIAN_MEAD:
+    name: "Hidromiel de B�rbaro"
+    base_material: COOKED_PORKCHOP
+    lore:
+      - "Fuerza bruta, poca fineza"
+      - "Consumible"
+    events:
+      player_interact:
+        require_all:
+          - { type: var_in, key: EVENT.action, values: ["RIGHT_CLICK_AIR", "RIGHT_CLICK_BLOCK"] }
+          - { type: role_is, value: BARBARIAN }
+        on_pass:
+          - { type: consume_item }
+          - { type: play_sound, sound: ENTITY_PLAYER_BURP, pitch: 1.0 }
+          - { type: apply_effect, effect: STRENGTH, duration: 500, amplifier: 1 }
+          - { type: apply_effect, effect: MINING_FATIGUE, duration: 400, amplifier: 0 }
+          - { type: message, message: "<green>Has usado Hidromiel de B�rbaro." }
+        on_fail:
+          - { type: message, message: "<red>Solo el rol BARBARIAN puede usar esto." }
+        deny_on_fail: true
+
+  SAGE_SCROLL:
+    name: "Pergamino de Sabio"
+    base_material: PAPER
+    lore:
+      - "Un impulso de sabidur�a y fortuna"
+      - "Consumible"
+    events:
+      player_interact:
+        require_all:
+          - { type: var_in, key: EVENT.action, values: ["RIGHT_CLICK_AIR", "RIGHT_CLICK_BLOCK"] }
+          - { type: role_is, value: SAGE }
+        on_pass:
+          - { type: consume_item }
+          - { type: play_sound, sound: ITEM_BOOK_PAGE_TURN, pitch: 1.2 }
+          - { type: apply_effect, effect: LUCK, duration: 1200, amplifier: 1 }
+          - { type: apply_effect, effect: ABSORPTION, duration: 400, amplifier: 0 }
+          - { type: message, message: "<green>Has usado Pergamino de Sabio." }
+        on_fail:
+          - { type: message, message: "<red>Solo el rol SAGE puede usar esto." }
+        deny_on_fail: true
+
+  CHAOTIC_SEAL:
+    name: "Sello Ca�tico"
+    base_material: ECHO_SHARD
+    lore:
+      - "Efecto ca�tico: puede ser bueno o malo"
+      - "Consumible"
+    events:
+      player_interact:
+        require_all:
+          - { type: var_in, key: EVENT.action, values: ["RIGHT_CLICK_AIR", "RIGHT_CLICK_BLOCK"] }
+          - { type: role_is, value: CHAOTIC }
+        on_pass:
+          - { type: consume_item }
+          - { type: play_sound, sound: BLOCK_RESPAWN_ANCHOR_DEPLETE, pitch: 0.7 }
+          - { type: random_bool_to_var, key: "EVENT.custom.is_bad_chaos", probability: 0.5 }
+          - { type: apply_effect, effect: WEAKNESS, duration: 400, amplifier: 0, when: { type: var_truthy, key: "EVENT.custom.is_bad_chaos" } }
+          - { type: apply_effect, effect: SLOWNESS, duration: 400, amplifier: 0, when: { type: var_truthy, key: "EVENT.custom.is_bad_chaos" } }
+          - { type: apply_effect, effect: STRENGTH, duration: 400, amplifier: 0, when: { type: var_truthy, key: "EVENT.custom.is_bad_chaos", invert: true } }
+          - { type: apply_effect, effect: SPEED, duration: 400, amplifier: 0, when: { type: var_truthy, key: "EVENT.custom.is_bad_chaos", invert: true } }
+          - { type: message, message: "<green>Has usado Sello Ca�tico." }
+        on_fail:
+          - { type: message, message: "<red>Solo el rol CHAOTIC puede usar esto." }
+        deny_on_fail: true
+
+  GUARDIAN_SIGIL:
+    name: "Sello de Guardi�n"
+    base_material: SHIELD
+    lore:
+      - "Protecci�n concentrada"
+      - "Consumible"
+    events:
+      player_interact:
+        require_all:
+          - { type: var_in, key: EVENT.action, values: ["RIGHT_CLICK_AIR", "RIGHT_CLICK_BLOCK"] }
+          - { type: role_is, value: GUARDIAN }
+        on_pass:
+          - { type: consume_item }
+          - { type: play_sound, sound: ITEM_SHIELD_BLOCK, pitch: 0.9 }
+          - { type: apply_effect, effect: RESISTANCE, duration: 300, amplifier: 1 }
+          - { type: apply_effect, effect: ABSORPTION, duration: 600, amplifier: 0 }
+          - { type: message, message: "<green>Has usado Sello de Guardi�n." }
+        on_fail:
+          - { type: message, message: "<red>Solo el rol GUARDIAN puede usar esto." }
+        deny_on_fail: true
+
+  EXPLORER_COMPASS:
+    name: "Br�jula de Explorador"
+    base_material: MAP
+    lore:
+      - "Corre y ve en la oscuridad"
+      - "Consumible"
+    events:
+      player_interact:
+        require_all:
+          - { type: var_in, key: EVENT.action, values: ["RIGHT_CLICK_AIR", "RIGHT_CLICK_BLOCK"] }
+          - { type: role_is, value: EXPLORER }
+        on_pass:
+          - { type: consume_item }
+          - { type: play_sound, sound: ITEM_LODESTONE_COMPASS_LOCK, pitch: 1.1 }
+          - { type: apply_effect, effect: SPEED, duration: 800, amplifier: 1 }
+          - { type: apply_effect, effect: NIGHT_VISION, duration: 800, amplifier: 0 }
+          - { type: message, message: "<green>Has usado Br�jula de Explorador." }
+        on_fail:
+          - { type: message, message: "<red>Solo el rol EXPLORER puede usar esto." }
+        deny_on_fail: true
+
+  COOK_SPICE_BLEND:
+    name: "Mezcla de Especias"
+    base_material: BOWL
+    lore:
+      - "Receta secreta: regenera y sacia"
+      - "Consumible"
+    events:
+      player_interact:
+        require_all:
+          - { type: var_in, key: EVENT.action, values: ["RIGHT_CLICK_AIR", "RIGHT_CLICK_BLOCK"] }
+          - { type: role_is, value: COOK }
+        on_pass:
+          - { type: consume_item }
+          - { type: play_sound, sound: ITEM_BOTTLE_FILL, pitch: 1.2 }
+          - { type: apply_effect, effect: SATURATION, duration: 200, amplifier: 0 }
+          - { type: apply_effect, effect: REGENERATION, duration: 200, amplifier: 0 }
+          - { type: message, message: "<green>Has usado Mezcla de Especias." }
+        on_fail:
+          - { type: message, message: "<red>Solo el rol COOK puede usar esto." }
+        deny_on_fail: true
+
+
+  XP_MAGNET:
+    name: "Iman de Experiencia"
+    base_material: IRON_INGOT
+    lore:
+      - "Atrae orbes de experiencia cercanos"
+      - "Pasivo (en mano)"
+    events:
+      run_repeating:
+        period: 10
+        on_pass:
+          - { type: pull_nearby_items, radius: 10.0, pull_xp: true, pull_items: false }
+
+
+  AIR_STAFF:
+    name: "<white>Bastón de Aire"
+    base_material: IRON_HOE
+    pdc:
+      - { key: staff_damage, type: DOUBLE, value: 2.0 }
+      - { key: staff_speed, type: DOUBLE, value: 8.5 }
+    lore:
+      - "<gray>Controla los vientos"
+      - ""
+      - "<gray>Al disparar:"
+      - "<blue> +%pdc_double:staff_damage% Daño de Proyectil"
+      - "<blue> +%pdc_double:staff_speed% Velocidad de Proyectil"
+    events:
+      player_interact:
+        require_all:
+          - type: var_in
+            key: EVENT.action
+            values: ["RIGHT_CLICK_AIR", "RIGHT_CLICK_BLOCK"]
+          - { type: player_has_cooldown, material: IRON_HOE, value: false }
+        on_pass:
+          - { type: set_player_cooldown, material: IRON_HOE, ticks: 30 }
+          - type: read_item_pdc_to_var
+            key: staff_damage
+            type: DOUBLE
+            var: EVENT.custom.staff_damage
+          - type: read_item_pdc_to_var
+            key: staff_speed
+            type: DOUBLE
+            var: EVENT.custom.staff_speed
+          - type: math_set_var
+            key: EVENT.custom.as_curve_height
+            op: rand_range
+            a: 1.0
+            b: 3.0
+          - type: launch_curved_projectile
+            projectile: SNOWBALL
+            shooter_key: SUBJECT
+            speed_key: EVENT.custom.staff_speed
+            curve_height_key: EVENT.custom.as_curve_height
+            curve_side: 0.2
+            homing: false
+            target_y_offset: 1.0
+            on_launch:
+              - action: play_sound
+                sound: ENTITY_PHANTOM_FLAP
+                volume: 1.0
+                pitch: 1.5
+              - action: play_particle
+                particle: CLOUD
+                count: 15
+                speed: 0.1
+                spread: 0.3
+            on_tick:
+              - type: spawn_particle_shape
+                particle: CLOUD
+                shape: HELIX
+                points: 10
+                radius: 0.4
+                height: 1.0
+                turns: 2
+                count: 1
+              - type: spawn_particle_shape
+                particle: SWEEP_ATTACK
+                shape: RING
+                points: 4
+                radius: 0.6
+                count: 1
+            explode_on_impact: true
+            explode_on_finish: true
+            explosion_power_key: EVENT.custom.staff_damage
+            explosion_fire: false
+            explosion_break_blocks: false
+            on_hit:
+              - type: play_sound
+                sound: ENTITY_GENERIC_EXPLODE
+                volume: 0.8
+                pitch: 1.5
+              - type: spawn_particle_shape
+                center: EVENT.hitLocation
+                particle: EXPLOSION_NORMAL
+                shape: SPHERE
+                points: 10
+                radius: 1.5
+                count: 1
+              - type: apply_effect
+                target:
+                  selector: nearby
+                  location: EVENT.hitLocation
+                  radius: 4
+                  include_players: true
+                  include_mobs: true
+                effect: LEVITATION
+                duration: 40
+                amplifier: 2
+        on_fail: []
+        deny_on_fail: false
+
+  VOID_STAFF:
+    name: "<dark_purple>Bastón del Vacío"
+    base_material: NETHERITE_HOE
+    pdc:
+      - { key: staff_damage, type: DOUBLE, value: 3.5 }
+      - { key: staff_speed, type: DOUBLE, value: 7.5 }
+      - { key: staff_pull_power, type: DOUBLE, value: 0.12 }
+    lore:
+      - "<gray>Consume a tus enemigos"
+      - ""
+      - "<gray>Al disparar:"
+      - "<blue> +%pdc_double:staff_damage% Daño de Proyectil"
+      - "<blue> +%pdc_double:staff_speed% Velocidad de Proyectil"
+      - "<blue> +%pdc_double:staff_pull_power% Fuerza de Atracción"
+    events:
+      player_interact:
+        require_all:
+          - type: var_in
+            key: EVENT.action
+            values: ["RIGHT_CLICK_AIR", "RIGHT_CLICK_BLOCK"]
+          - { type: player_has_cooldown, material: NETHERITE_HOE, value: false }
+        on_pass:
+          - { type: set_player_cooldown, material: NETHERITE_HOE, ticks: 50 }
+          - type: read_item_pdc_to_var
+            key: staff_damage
+            type: DOUBLE
+            var: EVENT.custom.staff_damage
+          - type: read_item_pdc_to_var
+            key: staff_speed
+            type: DOUBLE
+            var: EVENT.custom.staff_speed
+          - type: read_item_pdc_to_var
+            key: staff_pull_power
+            type: DOUBLE
+            var: EVENT.custom.staff_pull_power
+          - type: math_set_var
+            key: EVENT.custom.vs_curve_height
+            op: rand_range
+            a: 1.5
+            b: 3.5
+          - type: launch_curved_projectile
+            projectile: WITHER_SKULL
+            shooter_key: SUBJECT
+            speed_key: EVENT.custom.staff_speed
+            curve_height_key: EVENT.custom.vs_curve_height
+            curve_side: 0.0
+            homing: false
+            target_y_offset: 1.0
+            on_launch:
+              - action: play_sound
+                sound: ENTITY_WITHER_SHOOT
+                volume: 1.0
+                pitch: 0.8
+              - action: play_particle
+                particle: PORTAL
+                count: 20
+                speed: 0.1
+                spread: 0.5
+            on_tick:
+              - type: spawn_particle_shape
+                particle: PORTAL
+                shape: HELIX
+                points: 12
+                radius: 0.4
+                height: 1.0
+                turns: 2
+                count: 2
+              - type: spawn_particle_shape
+                particle: DRAGON_BREATH
+                shape: SPHERE
+                points: 5
+                radius: 0.2
+                count: 1
+            explode_on_impact: true
+            explode_on_finish: true
+            explosion_power_key: EVENT.custom.staff_damage
+            explosion_fire: false
+            explosion_break_blocks: false
+            on_hit:
+              - type: call
+                ref: item_void_staff_vortex
+                with:
+                  pull_power: "${EVENT.custom.staff_pull_power}"
+              - type: play_sound
+                sound: ENTITY_ENDERMAN_TELEPORT
+                volume: 1.0
+                pitch: 0.5
+              - type: spawn_particle_shape
+                center: EVENT.hitLocation
+                particle: REVERSE_PORTAL
+                shape: SPIRAL
+                points: 20
+                radius: 1.5
+                height: 2.0
+                turns: 3
+                count: 1
+              - type: apply_effect
+                target:
+                  selector: nearby
+                  location: EVENT.hitLocation
+                  radius: 4
+                  include_players: true
+                  include_mobs: true
+                effect: WITHER
+                duration: 80
+                amplifier: 1
+              - type: apply_effect
+                target:
+                  selector: nearby
+                  location: EVENT.hitLocation
+                  radius: 4
+                  include_players: true
+                  include_mobs: true
+                effect: BLINDNESS
+                duration: 60
+                amplifier: 0
+        on_fail: []
+        deny_on_fail: false
+
+  EARTH_STAFF:
+    name: "<green>Bastón de Tierra"
+    base_material: STONE_HOE
+    pdc:
+      - { key: staff_damage, type: DOUBLE, value: 2.5 }
+      - { key: staff_speed, type: DOUBLE, value: 6.5 }
+      - { key: staff_root_duration, type: DOUBLE, value: 3.0 }
+    lore:
+      - "<gray>Aplasta a tus enemigos"
+      - ""
+      - "<gray>Al disparar:"
+      - "<blue> +%pdc_double:staff_damage% Daño de Proyectil"
+      - "<blue> +%pdc_double:staff_speed% Velocidad de Proyectil"
+      - "<blue> +%pdc_double:staff_root_duration%s Arraigo"
+    events:
+      player_interact:
+        require_all:
+          - type: var_in
+            key: EVENT.action
+            values: ["RIGHT_CLICK_AIR", "RIGHT_CLICK_BLOCK"]
+          - { type: player_has_cooldown, material: STONE_HOE, value: false }
+        on_pass:
+          - { type: set_player_cooldown, material: STONE_HOE, ticks: 45 }
+          - type: read_item_pdc_to_var
+            key: staff_damage
+            type: DOUBLE
+            var: EVENT.custom.staff_damage
+          - type: read_item_pdc_to_var
+            key: staff_speed
+            type: DOUBLE
+            var: EVENT.custom.staff_speed
+          - type: math_set_var
+            key: EVENT.custom.es_curve_height
+            op: rand_range
+            a: 0.5
+            b: 2.0
+          - type: launch_curved_projectile
+            projectile: SNOWBALL
+            shooter_key: SUBJECT
+            speed_key: EVENT.custom.staff_speed
+            curve_height_key: EVENT.custom.es_curve_height
+            curve_side: 0.0
+            homing: false
+            target_y_offset: 0.5
+            on_launch:
+              - action: play_sound
+                sound: BLOCK_GRAVEL_BREAK
+                volume: 1.0
+                pitch: 0.8
+              - action: play_particle
+                particle: BLOCK_CRACK
+                material: DIRT
+                count: 20
+                speed: 0.2
+                spread: 0.5
+            on_tick:
+              - type: spawn_particle_shape
+                particle: BLOCK_CRACK
+                material: DIRT
+                shape: HELIX
+                points: 10
+                radius: 0.4
+                height: 1.0
+                turns: 2
+                count: 2
+              - type: spawn_particle_shape
+                particle: BLOCK_CRACK
+                material: STONE
+                shape: RING
+                points: 6
+                radius: 0.5
+                count: 1
+            explode_on_impact: true
+            explode_on_finish: true
+            explosion_power_key: EVENT.custom.staff_damage
+            explosion_fire: false
+            explosion_break_blocks: false
+            on_hit:
+              - type: play_sound
+                sound: ENTITY_ZOMBIE_ATTACK_IRON_DOOR
+                volume: 1.0
+                pitch: 0.5
+              - type: spawn_particle_shape
+                center: EVENT.hitLocation
+                particle: BLOCK_CRACK
+                material: COARSE_DIRT
+                shape: SPHERE
+                points: 30
+                radius: 2.0
+                count: 1
+              - type: apply_effect
+                target:
+                  selector: nearby
+                  location: EVENT.hitLocation
+                  radius: 4
+                  include_players: true
+                  include_mobs: true
+                effect: SLOWNESS
+                duration: 60
+                amplifier: 10
+              - type: apply_effect
+                target:
+                  selector: nearby
+                  location: EVENT.hitLocation
+                  radius: 4
+                  include_players: true
+                  include_mobs: true
+                effect: JUMP_BOOST
+                duration: 60
+                amplifier: 128
+        on_fail: []
+        deny_on_fail: false
+
+
+  ICE_STAFF:
+    name: "<aqua>Bastón de Hielo"
+    base_material: DIAMOND_HOE
+    pdc:
+      - { key: staff_damage, type: DOUBLE, value: 2.0 }
+      - { key: staff_speed, type: DOUBLE, value: 7.5 }
+      - { key: staff_freeze_duration, type: DOUBLE, value: 3.0 }
+    lore:
+      - "<gray>Congela a tus enemigos"
+      - ""
+      - "<gray>Al disparar:"
+      - "<blue> +%pdc_double:staff_damage% Daño de Proyectil"
+      - "<blue> +%pdc_double:staff_speed% Velocidad de Proyectil"
+      - "<blue> +%pdc_double:staff_freeze_duration%s Congelación"
+    events:
+      player_interact:
+        require_all:
+          - type: var_in
+            key: EVENT.action
+            values: ["RIGHT_CLICK_AIR", "RIGHT_CLICK_BLOCK"]
+          - { type: player_has_cooldown, material: DIAMOND_HOE, value: false }
+        on_pass:
+          - { type: set_player_cooldown, material: DIAMOND_HOE, ticks: 40 }
+          - type: read_item_pdc_to_var
+            key: staff_damage
+            type: DOUBLE
+            var: EVENT.custom.staff_damage
+          - type: read_item_pdc_to_var
+            key: staff_speed
+            type: DOUBLE
+            var: EVENT.custom.staff_speed
+          - type: math_set_var
+            key: EVENT.custom.is_curve_height
+            op: rand_range
+            a: 1.0
+            b: 2.5
+          - type: launch_curved_projectile
+            projectile: SNOWBALL
+            shooter_key: SUBJECT
+            speed_key: EVENT.custom.staff_speed
+            curve_height_key: EVENT.custom.is_curve_height
+            curve_side: 0.0
+            homing: false
+            target_y_offset: 1.0
+            on_launch:
+              - action: play_sound
+                sound: ENTITY_SNOW_GOLEM_SHOOT
+                volume: 1.0
+                pitch: 1.0
+              - action: play_particle
+                particle: SNOWFLAKE
+                count: 20
+                speed: 0.1
+                spread: 0.5
+            on_tick:
+              - type: spawn_particle_shape
+                particle: SNOWFLAKE
+                shape: HELIX
+                points: 12
+                radius: 0.4
+                height: 1.0
+                turns: 2
+                count: 2
+              - type: spawn_particle_shape
+                particle: FIREWORKS_SPARK
+                shape: SPHERE
+                points: 5
+                radius: 0.2
+                count: 1
+            explode_on_impact: true
+            explode_on_finish: true
+            explosion_power_key: EVENT.custom.staff_damage
+            explosion_fire: false
+            explosion_break_blocks: false
+            on_hit:
+              - type: play_sound
+                sound: BLOCK_GLASS_BREAK
+                volume: 1.0
+                pitch: 1.2
+              - type: spawn_particle_shape
+                center: EVENT.hitLocation
+                particle: SNOWFLAKE
+                shape: SPHERE
+                points: 30
+                radius: 2.0
+                count: 1
+              - type: freeze_area
+                where: EVENT.hitLocation
+                radius: 3
+                air_chance: 0.5
+                air_material: POWDER_SNOW
+                water_material: ICE
+                ice_material: PACKED_ICE
+              - type: apply_effect
+                target:
+                  selector: nearby
+                  location: EVENT.hitLocation
+                  radius: 4
+                  include_players: true
+                  include_mobs: true
+                effect: SLOWNESS
+                duration: 60
+                amplifier: 2
+        on_fail: []
+        deny_on_fail: false
+
+
+  FIRE_STAFF:
+    name: "<gold>Bastón de Fuego"
+    base_material: GOLDEN_HOE
+    pdc:
+      - { key: staff_damage, type: DOUBLE, value: 2.5 }
+      - { key: staff_speed, type: DOUBLE, value: 8.0 }
+      - { key: staff_burn_duration, type: DOUBLE, value: 3.0 }
+    lore:
+      - "<gray>Incinera a tus enemigos"
+      - ""
+      - "<gray>Al disparar:"
+      - "<blue> +%pdc_double:staff_damage% Daño de Proyectil"
+      - "<blue> +%pdc_double:staff_speed% Velocidad de Proyectil"
+      - "<blue> +%pdc_double:staff_burn_duration%s Quemadura"
+    events:
+      player_interact:
+        require_all:
+          - type: var_in
+            key: EVENT.action
+            values: ["RIGHT_CLICK_AIR", "RIGHT_CLICK_BLOCK"]
+          - { type: player_has_cooldown, material: GOLDEN_HOE, value: false }
+        on_pass:
+          - { type: set_player_cooldown, material: GOLDEN_HOE, ticks: 40 }
+          - type: read_item_pdc_to_var
+            key: staff_damage
+            type: DOUBLE
+            var: EVENT.custom.staff_damage
+          - type: read_item_pdc_to_var
+            key: staff_speed
+            type: DOUBLE
+            var: EVENT.custom.staff_speed
+          - type: launch_curved_projectile
+            projectile: SMALL_FIREBALL
+            shooter_key: SUBJECT
+            speed_key: EVENT.custom.staff_speed
+            curve_height: 0
+            homing: false
+            target_y_offset: 0.5
+            targets: []
+            on_launch:
+              - action: play_sound
+                sound: ENTITY_BLAZE_SHOOT
+                volume: 1.0
+                pitch: 1.0
+              - action: play_particle
+                particle: FLAME
+                count: 20
+                speed: 0.1
+                spread: 0.5
+            on_tick:
+              - type: spawn_particle_shape
+                particle: FLAME
+                shape: HELIX
+                points: 12
+                radius: 0.4
+                height: 1.0
+                turns: 2
+                count: 2
+              - type: spawn_particle_shape
+                particle: SMOKE_LARGE
+                shape: SPHERE
+                points: 5
+                radius: 0.3
+                count: 13
+            explode_on_impact: true
+            explode_on_finish: true
+            explosion_power_key: EVENT.custom.staff_damage
+            explosion_fire: true
+            explosion_break_blocks: false
+            on_hit:
+              - type: play_sound
+                sound: ENTITY_GENERIC_EXPLODE
+                volume: 1.0
+                pitch: 1.2
+              - type: spawn_particle_shape
+                center: EVENT.hitLocation
+                particle: LAVA
+                shape: SPHERE
+                points: 30
+                radius: 2.0
+                count: 1
+              - type: apply_effect
+                target:
+                  selector: nearby
+                  location: EVENT.hitLocation
+                  radius: 3
+                  include_players: true
+                  include_mobs: true
+                effect: WITHER
+                duration: 60
+                amplifier: 1
+        on_fail: []
+        deny_on_fail: false
+

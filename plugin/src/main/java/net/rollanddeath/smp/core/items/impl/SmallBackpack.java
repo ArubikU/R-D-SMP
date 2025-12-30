@@ -2,7 +2,6 @@ package net.rollanddeath.smp.core.items.impl;
 
 import net.rollanddeath.smp.RollAndDeathSMP;
 import net.rollanddeath.smp.core.items.CustomItem;
-import net.rollanddeath.smp.core.items.CustomItemType;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
@@ -36,7 +35,7 @@ public class SmallBackpack extends CustomItem {
     private final Component title = Component.text("Mochila Pequeña");
 
     public SmallBackpack(RollAndDeathSMP plugin) {
-        super(plugin, CustomItemType.SMALL_BACKPACK);
+        super(plugin, "SMALL_BACKPACK");
         this.contentKey = new NamespacedKey(plugin, "backpack_contents");
         this.idKey = new NamespacedKey(plugin, "backpack_id");
     }
@@ -44,6 +43,16 @@ public class SmallBackpack extends CustomItem {
     @Override
     protected ItemStack createBaseItem() {
         return new ItemStack(Material.CHEST);
+    }
+
+    @Override
+    public String getDisplayName() {
+        return "Mochila Pequeña";
+    }
+
+    @Override
+    protected Integer getCustomModelData() {
+        return 710013;
     }
 
     @Override

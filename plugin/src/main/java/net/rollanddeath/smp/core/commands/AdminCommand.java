@@ -4,8 +4,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.rollanddeath.smp.RollAndDeathSMP;
-import net.rollanddeath.smp.core.items.CustomItemType;
-import net.rollanddeath.smp.core.mobs.MobType;
+import net.rollanddeath.smp.core.items.CustomItem;
 import net.rollanddeath.smp.core.modifiers.Modifier;
 import net.rollanddeath.smp.core.roles.RoleType;
 import org.bukkit.Bukkit;
@@ -15,20 +14,26 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 
 public class AdminCommand implements CommandExecutor, TabCompleter {
 
     private final RollAndDeathSMP plugin;
-    private static final List<String> ADMIN_SUBCOMMANDS = Arrays.asList("roulette", "setday", "life", "role", "event", "item", "mob", "discord", "down", "revive", "announce", "toggle", "setspawn");
+    private static final List<String> ADMIN_SUBCOMMANDS = Arrays.asList("roulette", "setday", "life", "role", "event", "item", "mob", "discord", "down", "revive", "announce", "toggle", "setspawn", "reload");
     private static final List<String> EVENT_SUBCOMMANDS = Arrays.asList("add", "remove", "clear", "list");
+    private static final List<String> RELOAD_TARGETS = Arrays.asList("mobs", "items", "modifiers", "recipes", "scripts", "all");
 
     public AdminCommand(RollAndDeathSMP plugin) {
         this.plugin = plugin;
@@ -162,9 +167,7 @@ public class AdminCommand implements CommandExecutor, TabCompleter {
                     return filterCompletions(args[3], players);
                 }
                 if (args.length == 5) {
-                    List<String> items = Arrays.stream(CustomItemType.values())
-                            .map(Enum::name)
-                            .toList();
+                    List<String> items = new ArrayList<>(plugin.getItemManager().getItems().keySet());
                     return filterCompletions(args[4], items);
                 }
                 if (args.length == 6) {
@@ -187,9 +190,7 @@ public class AdminCommand implements CommandExecutor, TabCompleter {
                     return Collections.emptyList();
                 }
                 if (args.length == 4) {
-                    List<String> mobs = Arrays.stream(MobType.values())
-                            .map(Enum::name)
-                            .toList();
+                    List<String> mobs = new ArrayList<>(plugin.getMobManager().getMobIds());
                     return filterCompletions(args[3], mobs);
                 }
                 if (args.length == 5) {
@@ -213,6 +214,11 @@ public class AdminCommand implements CommandExecutor, TabCompleter {
                     return Collections.emptyList();
                 }
                 return Collections.singletonList("<mensaje>");
+            case "reload":
+                if (args.length == 3) {
+                    return filterCompletions(args[2], RELOAD_TARGETS);
+                }
+                return Collections.emptyList();
             default:
                 return Collections.emptyList();
         }
@@ -341,6 +347,9 @@ public class AdminCommand implements CommandExecutor, TabCompleter {
             case "setspawn":
                 handleSetSpawnCommand(sender, args);
                 break;
+            case "reload":
+                handleReloadCommand(sender, args);
+                break;
             default:
                 sendHelp(sender);
                 break;
@@ -428,21 +437,28 @@ public class AdminCommand implements CommandExecutor, TabCompleter {
         }
 
         String itemName = args[3].toUpperCase(Locale.ROOT);
-        CustomItemType type;
-        try {
-            type = CustomItemType.valueOf(itemName);
-        } catch (IllegalArgumentException ex) {
+        CustomItem item = plugin.getItemManager().getItem(itemName);
+        
+        if (item == null) {
             sender.sendMessage(Component.text("Item inválido. Usa tab para ver opciones.", NamedTextColor.RED));
             return;
         }
 
         int amount = 1;
+        int nextArgIndex = 4;
         if (args.length >= 5) {
             try {
                 amount = Integer.parseInt(args[4]);
+                nextArgIndex = 5;
             } catch (NumberFormatException ex) {
-                sender.sendMessage(Component.text("Cantidad inválida.", NamedTextColor.RED));
-                return;
+                // Si falla el parseo de int, asumimos que puede ser el JSON si empieza con {
+                if (args[4].trim().startsWith("{")) {
+                    amount = 1;
+                    nextArgIndex = 4;
+                } else {
+                    sender.sendMessage(Component.text("Cantidad inválida.", NamedTextColor.RED));
+                    return;
+                }
             }
             if (amount <= 0) {
                 sender.sendMessage(Component.text("La cantidad debe ser mayor a 0.", NamedTextColor.RED));
@@ -450,9 +466,24 @@ public class AdminCommand implements CommandExecutor, TabCompleter {
             }
         }
 
-        plugin.getItemManager().giveItem(target, type, amount);
-        sender.sendMessage(Component.text("Entregado " + amount + "x " + type.getDisplayName() + " a " + target.getName(), NamedTextColor.GREEN));
-        target.sendMessage(Component.text("Has recibido " + amount + "x " + type.getDisplayName() + ".", NamedTextColor.GOLD));
+        Map<String, Object> extraPdc = new HashMap<>();
+        if (args.length > nextArgIndex) {
+            String jsonRaw = String.join(" ", Arrays.copyOfRange(args, nextArgIndex, args.length));
+            if (jsonRaw.trim().startsWith("{")) {
+                try {
+                    Gson gson = new Gson();
+                    Type type = new TypeToken<Map<String, Object>>(){}.getType();
+                    extraPdc = gson.fromJson(jsonRaw, type);
+                } catch (Exception e) {
+                    sender.sendMessage(Component.text("Error al leer JSON: " + e.getMessage(), NamedTextColor.RED));
+                    return;
+                }
+            }
+        }
+
+        plugin.getItemManager().giveItem(target, itemName, amount, extraPdc);
+        sender.sendMessage(Component.text("Entregado " + amount + "x " + item.getDisplayName() + " a " + target.getName(), NamedTextColor.GREEN));
+        target.sendMessage(Component.text("Has recibido " + amount + "x " + item.getDisplayName(), NamedTextColor.GREEN));
     }
 
     private void handleMobCommand(CommandSender sender, String[] args) {
@@ -466,11 +497,10 @@ public class AdminCommand implements CommandExecutor, TabCompleter {
             return;
         }
 
-        String mobName = args[2].toUpperCase(Locale.ROOT);
-        MobType type;
-        try {
-            type = MobType.valueOf(mobName);
-        } catch (IllegalArgumentException ex) {
+        String mobId = args[2];
+        net.rollanddeath.smp.core.mobs.CustomMob mob = plugin.getMobManager().getMob(mobId);
+        
+        if (mob == null) {
             sender.sendMessage(Component.text("Mob inválido. Usa tab para ver opciones.", NamedTextColor.RED));
             return;
         }
@@ -507,7 +537,7 @@ public class AdminCommand implements CommandExecutor, TabCompleter {
 
         int spawned = 0;
         for (int i = 0; i < amount; i++) {
-            if (plugin.getMobManager().spawnMob(type, target.getLocation()) != null) {
+            if (plugin.getMobManager().spawnMob(mobId, target.getLocation()) != null) {
                 spawned++;
             }
         }
@@ -517,9 +547,10 @@ public class AdminCommand implements CommandExecutor, TabCompleter {
             return;
         }
 
-        sender.sendMessage(Component.text("Invocado " + spawned + "x " + type.getDisplayName() + " en " + target.getName(), NamedTextColor.GREEN));
+        String displayName = mob.getDisplayName() != null ? mob.getDisplayName() : mobId;
+        sender.sendMessage(Component.text("Invocado " + spawned + "x " + displayName + " en " + target.getName(), NamedTextColor.GREEN));
         if (!target.equals(sender)) {
-            target.sendMessage(Component.text("Un administrador invocó " + spawned + "x " + type.getDisplayName() + " cerca de ti.", NamedTextColor.YELLOW));
+            target.sendMessage(Component.text("Un administrador invocó " + spawned + "x " + displayName + " cerca de ti.", NamedTextColor.YELLOW));
         }
     }
 
@@ -538,6 +569,7 @@ public class AdminCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage(Component.text("/rd admin discord <mensaje> - Enviar anuncio a Discord", NamedTextColor.YELLOW));
         sender.sendMessage(Component.text("/rd admin announce <mensaje> - Anuncio global (MiniMessage)", NamedTextColor.YELLOW));
         sender.sendMessage(Component.text("/rd admin setspawn - Establecer spawn para nuevos jugadores", NamedTextColor.YELLOW));
+        sender.sendMessage(Component.text("/rd admin reload <mobs|items|modifiers|recipes|scripts|all> - Recargar configuraciones", NamedTextColor.YELLOW));
     }
     
     private void handleDiscordCommand(CommandSender sender, String[] args) {
@@ -615,5 +647,78 @@ public class AdminCommand implements CommandExecutor, TabCompleter {
         }
         matches.sort(String.CASE_INSENSITIVE_ORDER);
         return matches;
+    }
+
+    private void handleReloadCommand(CommandSender sender, String[] args) {
+        if (args.length < 2) {
+            sender.sendMessage(Component.text("Uso: /rd admin reload <mobs|items|modifiers|recipes|scripts|all>", NamedTextColor.RED));
+            return;
+        }
+
+        String target = args[1].toLowerCase(Locale.ROOT);
+        long start = System.currentTimeMillis();
+
+        try {
+            switch (target) {
+                case "mobs" -> {
+                    plugin.getScriptedMobManager().loadAndRegister(plugin.getMobManager());
+                    sender.sendMessage(Component.text("✓ Mobs recargados desde mobs.yml", NamedTextColor.GREEN));
+                }
+                case "items" -> {
+                    new net.rollanddeath.smp.core.items.scripted.ScriptedItemManager(plugin).loadAndRegister(plugin.getItemManager());
+                    sender.sendMessage(Component.text("✓ Items recargados desde items.yml", NamedTextColor.GREEN));
+                }
+                case "modifiers" -> {
+                    plugin.getModifierManager().loadAndRegister();
+                    sender.sendMessage(Component.text("✓ Modifiers recargados desde modifiers.yml", NamedTextColor.GREEN));
+                    sender.sendMessage(Component.text("⚠ Los modifiers activos se mantienen en memoria hasta que expiren", NamedTextColor.YELLOW));
+                }
+                case "recipes" -> {
+                    plugin.getRecipeManager().registerRecipes();
+                    sender.sendMessage(Component.text("✓ Recetas recargadas desde recipes.yml", NamedTextColor.GREEN));
+                }
+                case "scripts" -> {
+                    net.rollanddeath.smp.core.scripting.library.ScriptLibrary lib = net.rollanddeath.smp.core.scripting.library.ScriptLibraryLoader.load(plugin);
+                    if (lib != null) {
+                        plugin.setScriptLibrary(lib);
+                        sender.sendMessage(Component.text("✓ Scripts recargados desde scripts.yml", NamedTextColor.GREEN));
+                    } else {
+                        sender.sendMessage(Component.text("✗ Error al cargar scripts.yml", NamedTextColor.RED));
+                    }
+                }
+                case "all" -> {
+                    // Reload scripts primero (otros lo usan)
+                    net.rollanddeath.smp.core.scripting.library.ScriptLibrary lib = net.rollanddeath.smp.core.scripting.library.ScriptLibraryLoader.load(plugin);
+                    if (lib != null) {
+                        plugin.setScriptLibrary(lib);
+                    }
+                    
+                    // Reload componentes en orden
+                    plugin.getModifierManager().loadAndRegister();
+                    plugin.getScriptedMobManager().loadAndRegister(plugin.getMobManager());
+                    new net.rollanddeath.smp.core.items.scripted.ScriptedItemManager(plugin).loadAndRegister(plugin.getItemManager());
+                    plugin.getRecipeManager().registerRecipes();
+                    
+                    if (lib != null) {
+                        sender.sendMessage(Component.text("✓ Recarga completa finalizada (scripts, modifiers, mobs, items, recipes)", NamedTextColor.GREEN));
+                    } else {
+                        sender.sendMessage(Component.text("⚠ Recarga parcial (scripts.yml falló)", NamedTextColor.YELLOW));
+                    }
+                    sender.sendMessage(Component.text("⚠ Modifiers activos se mantienen hasta que expiren", NamedTextColor.YELLOW));
+                }
+                default -> {
+                    sender.sendMessage(Component.text("Objetivo desconocido. Usa: mobs, items, modifiers, recipes, scripts, all", NamedTextColor.RED));
+                    return;
+                }
+            }
+
+            long elapsed = System.currentTimeMillis() - start;
+            sender.sendMessage(Component.text("Recarga completada en " + elapsed + "ms", NamedTextColor.GRAY));
+
+        } catch (Exception e) {
+            sender.sendMessage(Component.text("✗ Error al recargar: " + e.getMessage(), NamedTextColor.RED));
+            plugin.getLogger().warning("Error en reload: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 }

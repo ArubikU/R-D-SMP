@@ -3,5 +3,7 @@ package net.rollanddeath.smp.core.scripting;
 public enum ScriptPhase {
     PREPARE,
     CRAFT,
-    MODIFIER
+    MODIFIER,
+    MOB,
+    ITEM
 }

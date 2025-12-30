@@ -17,6 +17,9 @@ repositories {
 dependencies {
     paperweight.paperDevBundle("1.21.7-R0.1-SNAPSHOT")
     compileOnly("me.clip:placeholderapi:2.11.6")
+
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
+    testImplementation("org.yaml:snakeyaml:2.2")
 }
 
 java {
@@ -25,4 +28,8 @@ java {
 
 tasks.withType<JavaCompile> {
     options.encoding = "UTF-8"
+}
+
+tasks.test {
+    useJUnitPlatform()
 }

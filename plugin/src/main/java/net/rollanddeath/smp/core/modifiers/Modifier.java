@@ -7,10 +7,10 @@ public abstract class Modifier implements Listener {
     
     protected final JavaPlugin plugin;
     private final String name;
-    private final ModifierType type;
+    private final String type;
     private final String description;
 
-    public Modifier(JavaPlugin plugin, String name, ModifierType type, String description) {
+    public Modifier(JavaPlugin plugin, String name, String type, String description) {
         this.plugin = plugin;
         this.name = name;
         this.type = type;
@@ -21,7 +21,7 @@ public abstract class Modifier implements Listener {
         return name;
     }
 
-    public ModifierType getType() {
+    public String getType() {
         return type;
     }
 

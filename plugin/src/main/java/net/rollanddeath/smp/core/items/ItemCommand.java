@@ -50,8 +50,8 @@ public class ItemCommand implements CommandExecutor, TabCompleter {
             }
 
             String itemTypeStr = args[2].toUpperCase();
-            try {
-                CustomItemType type = CustomItemType.valueOf(itemTypeStr);
+            CustomItem item = plugin.getItemManager().getItem(itemTypeStr);
+            if (item != null) {
                 int amount = 1;
                 if (args.length > 3) {
                     try {
@@ -62,9 +62,9 @@ public class ItemCommand implements CommandExecutor, TabCompleter {
                     }
                 }
 
-                plugin.getItemManager().giveItem(target, type, amount);
-                sender.sendMessage(MiniMessage.miniMessage().deserialize("<green>Item " + type.getDisplayName() + " entregado a " + target.getName()));
-            } catch (IllegalArgumentException e) {
+                plugin.getItemManager().giveItem(target, itemTypeStr, amount);
+                sender.sendMessage(MiniMessage.miniMessage().deserialize("<green>Item " + item.getDisplayName() + " entregado a " + target.getName()));
+            } else {
                 sender.sendMessage(MiniMessage.miniMessage().deserialize("<red>Tipo de item inválido."));
             }
         }
@@ -99,9 +99,7 @@ public class ItemCommand implements CommandExecutor, TabCompleter {
         }
 
         if (args.length == 3) {
-            List<String> items = Arrays.stream(CustomItemType.values())
-                    .map(Enum::name)
-                    .toList();
+            List<String> items = new ArrayList<>(plugin.getItemManager().getItems().keySet());
             return filterCompletions(args[2], items);
         }
 

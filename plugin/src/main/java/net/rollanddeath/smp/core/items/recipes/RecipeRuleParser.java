@@ -1,15 +1,13 @@
 package net.rollanddeath.smp.core.items.recipes;
 
-import net.rollanddeath.smp.core.items.CustomItemType;
 import net.rollanddeath.smp.core.scripting.Action;
 import net.rollanddeath.smp.core.scripting.Condition;
-import net.rollanddeath.smp.core.scripting.builtin.BuiltInActions;
+import net.rollanddeath.smp.core.scripting.builtin.actions.ActionRegistrar;
 import net.rollanddeath.smp.core.scripting.builtin.BuiltInConditions;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 public final class RecipeRuleParser {
@@ -23,17 +21,10 @@ public final class RecipeRuleParser {
         ConfigurationSection rules = recipeSection.getConfigurationSection("rules");
         if (rules == null) return null;
 
-        CustomItemType resultCustom = null;
+        String resultCustom = null;
         ConfigurationSection resultSection = recipeSection.getConfigurationSection("result");
         if (resultSection != null) {
-            String custom = resultSection.getString("custom");
-            if (custom != null && !custom.isBlank()) {
-                try {
-                    resultCustom = CustomItemType.valueOf(custom.trim().toUpperCase(Locale.ROOT));
-                } catch (IllegalArgumentException ignored) {
-                    // ignore unknown
-                }
-            }
+            resultCustom = resultSection.getString("custom");
         }
 
         RecipeRulePhase prepare = parsePhase(rules.getConfigurationSection("prepare"));
@@ -56,13 +47,13 @@ public final class RecipeRuleParser {
 
         List<Action> onFail = new ArrayList<>();
         for (Map<?, ?> raw : phaseSection.getMapList("on_fail")) {
-            Action a = BuiltInActions.parse(raw);
+            Action a = ActionRegistrar.parse(raw);
             if (a != null) onFail.add(a);
         }
 
         List<Action> onPass = new ArrayList<>();
         for (Map<?, ?> raw : phaseSection.getMapList("on_pass")) {
-            Action a = BuiltInActions.parse(raw);
+            Action a = ActionRegistrar.parse(raw);
             if (a != null) onPass.add(a);
         }
 
