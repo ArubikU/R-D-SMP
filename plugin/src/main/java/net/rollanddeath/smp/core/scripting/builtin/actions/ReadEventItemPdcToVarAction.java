@@ -22,7 +22,8 @@ final class ReadEventItemPdcToVarAction {
 
     private static Action parse(java.util.Map<?, ?> raw) {
         Object pdcKeySpec = Resolvers.plain(raw, "pdc_key", "key", "namespaced_key");
-        Object dataTypeSpec = Resolvers.plain(raw, "data_type", "type", "pdc_type");
+        // Nota: NO usar "type" aquí porque entra en conflicto con el tipo de acción
+        Object dataTypeSpec = Resolvers.plain(raw, "data_type", "pdc_type");
         Object storeKeySpec = Resolvers.plain(raw, "store_key", "var", "target_key");
         if (pdcKeySpec == null || storeKeySpec == null) return null;
         return ctx -> execute(ctx, pdcKeySpec, dataTypeSpec, storeKeySpec);

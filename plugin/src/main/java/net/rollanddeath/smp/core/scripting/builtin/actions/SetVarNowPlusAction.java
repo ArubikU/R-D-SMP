@@ -2,7 +2,8 @@ package net.rollanddeath.smp.core.scripting.builtin.actions;
 
 import net.rollanddeath.smp.core.scripting.Action;
 import net.rollanddeath.smp.core.scripting.Resolvers;
-import net.rollanddeath.smp.core.scripting.builtin.BuiltInActions;
+import net.rollanddeath.smp.core.scripting.ActionResult;
+import java.util.concurrent.ThreadLocalRandom;
 
 final class SetVarNowPlusAction {
     private SetVarNowPlusAction() {
@@ -20,6 +21,17 @@ final class SetVarNowPlusAction {
         Integer addMs = Resolvers.integer(null, raw, "add_ms");
         int min = minMs != null ? minMs : (addMs != null ? addMs : 0);
         int max = maxMs != null ? maxMs : (addMs != null ? addMs : min);
-        return BuiltInActions.setVarNowPlus(key, min, max);
+        
+        return ctx -> {
+            long now = System.currentTimeMillis();
+            long offset;
+            if (min == max) {
+                offset = min;
+            } else {
+                offset = ThreadLocalRandom.current().nextLong(min, max + 1);
+            }
+            ctx.setGenericVarCompat(key, now + offset);
+            return ActionResult.ALLOW;
+        };
     }
 }

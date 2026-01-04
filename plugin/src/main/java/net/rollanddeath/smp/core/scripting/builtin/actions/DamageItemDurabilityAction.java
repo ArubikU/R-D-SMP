@@ -6,9 +6,6 @@ import net.rollanddeath.smp.core.scripting.ActionResult;
 import net.rollanddeath.smp.core.scripting.Resolvers;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.Damageable;
-import org.bukkit.inventory.meta.ItemMeta;
 
 final class DamageItemDurabilityAction {
     private DamageItemDurabilityAction() {}
@@ -18,9 +15,16 @@ final class DamageItemDurabilityAction {
     }
 
     private static Action parse(Map<?, ?> raw) {
+        // slot estático (MAIN_HAND, OFF_HAND, etc.)
         String slotName = Resolvers.string(null, raw, "slot");
-        EquipmentSlot slot = Resolvers.resolveEquipmentSlot(slotName);
-        if (slot == null) return null;
+        EquipmentSlot staticSlot = Resolvers.resolveEquipmentSlot(slotName);
+        
+        // slot_key dinámico (EVENT.hand, variable, etc.)
+        String slotKey = Resolvers.string(null, raw, "slot_key");
+        
+        // Debe haber al menos uno
+        if (staticSlot == null && slotKey == null) return null;
+        
         Integer amount = Resolvers.integer(null, raw, "amount");
         int a = amount != null ? Math.max(1, amount) : 1;
 
@@ -28,19 +32,19 @@ final class DamageItemDurabilityAction {
             Player player = ctx.player();
             if (player == null) return ActionResult.ALLOW;
             
-            ActionUtils.runSync(ctx.plugin(), () -> {
-                ItemStack item = player.getInventory().getItem(slot);
-                if (item == null || item.getType().isAir()) return;
-                
-                ItemMeta meta = item.getItemMeta();
-                if (meta instanceof Damageable d) {
-                    d.setDamage(d.getDamage() + a);
-                    item.setItemMeta(meta);
-                    if (d.getDamage() >= item.getType().getMaxDurability()) {
-                        player.getInventory().setItem(slot, null);
-                        player.playSound(player.getLocation(), org.bukkit.Sound.ENTITY_ITEM_BREAK, 1f, 1f);
-                    }
+            // Resolver slot dinámicamente si hay slot_key
+            EquipmentSlot slot = staticSlot;
+            if (slotKey != null) {
+                String resolved = Resolvers.string(ctx, slotKey);
+                if (resolved != null) {
+                    slot = Resolvers.resolveEquipmentSlot(resolved);
                 }
+            }
+            if (slot == null) return ActionResult.ALLOW;
+            
+            final EquipmentSlot finalSlot = slot;
+            ActionUtils.runSync(ctx.plugin(), () -> {
+                player.damageItemStack(finalSlot, a);
             });
             return ActionResult.ALLOW;
         };

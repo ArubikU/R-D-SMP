@@ -8,7 +8,6 @@ import net.rollanddeath.smp.RollAndDeathSMP;
 import net.rollanddeath.smp.core.scripting.Action;
 import net.rollanddeath.smp.core.scripting.ActionResult;
 import net.rollanddeath.smp.core.scripting.Resolvers;
-import net.rollanddeath.smp.core.scripting.builtin.BuiltInActions;
 import net.rollanddeath.smp.integration.PlaceholderUtil;
 import org.bukkit.entity.Player;
 
@@ -55,7 +54,7 @@ final class BroadcastAction {
             }
             String textFinal = text;
             NamedTextColor colorFinal = color;
-            BuiltInActions.runSync(plugin, () -> plugin.getServer().broadcast(Component.text(textFinal, colorFinal)));
+            ActionUtils.runSync(plugin, () -> plugin.getServer().broadcast(Component.text(textFinal, colorFinal)));
             return ActionResult.ALLOW;
         };
     }

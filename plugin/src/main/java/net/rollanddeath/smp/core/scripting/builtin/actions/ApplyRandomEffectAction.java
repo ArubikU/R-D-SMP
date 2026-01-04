@@ -8,7 +8,6 @@ import java.util.concurrent.ThreadLocalRandom;
 import net.rollanddeath.smp.core.scripting.Action;
 import net.rollanddeath.smp.core.scripting.ActionResult;
 import net.rollanddeath.smp.core.scripting.Resolvers;
-import net.rollanddeath.smp.core.scripting.builtin.BuiltInActions;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -23,8 +22,11 @@ final class ApplyRandomEffectAction {
 
     private static Action parse(Map<?, ?> raw) {
         Object effectsObj = raw.get("effects");
-        @SuppressWarnings("unchecked")
-        List<Object> effects = effectsObj instanceof List<?> list ? list.stream().toList() : null;
+        List<Object> effects = null;
+        if (effectsObj instanceof List<?> list) {
+            effects = new java.util.ArrayList<>();
+            for (Object o : list) effects.add(o);
+        }
         Object singleEffectSpec = Resolvers.plain(raw, "effect");
         if ((effects == null || effects.isEmpty()) && singleEffectSpec == null) return null;
 
@@ -61,7 +63,7 @@ final class ApplyRandomEffectAction {
             if (type == null) return ActionResult.ALLOW;
 
             PotionEffect eff = new PotionEffect(type, Math.max(1, dur), Math.max(0, amp), ambient, particles);
-            BuiltInActions.runSync(ctx.plugin(), () -> player.addPotionEffect(eff));
+            ActionUtils.runSync(ctx.plugin(), () -> player.addPotionEffect(eff));
             return ActionResult.ALLOW;
         };
     }

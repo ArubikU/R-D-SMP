@@ -49,17 +49,18 @@ final class RunRepeatingAction {
         String subjectId = ctx.subjectId();
         ScriptPhase phase = ctx.phase();
 
-        Map<String, Object> eventGeneric;
+        Map<String, Object> eventGenericRaw;
         try {
             var eventScope = ctx.scopes().get(net.rollanddeath.smp.core.scripting.scope.ScopeId.EVENT);
             if (eventScope != null && eventScope.storage() != null) {
-                eventGeneric = new HashMap<>(eventScope.storage().genericRoot());
+                eventGenericRaw = new HashMap<>(eventScope.storage().genericRoot());
             } else {
-                eventGeneric = new HashMap<>();
+                eventGenericRaw = new HashMap<>();
             }
         } catch (Exception e) {
-            eventGeneric = new HashMap<>();
+            eventGenericRaw = new HashMap<>();
         }
+        final Map<String, Object> eventGeneric = eventGenericRaw;
         Object originalEvent = base.get("__event");
 
         BukkitTask[] task = new BukkitTask[1];

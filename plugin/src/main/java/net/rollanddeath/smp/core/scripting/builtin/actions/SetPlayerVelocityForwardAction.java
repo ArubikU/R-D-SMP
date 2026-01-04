@@ -4,7 +4,6 @@ import net.rollanddeath.smp.RollAndDeathSMP;
 import net.rollanddeath.smp.core.scripting.Action;
 import net.rollanddeath.smp.core.scripting.ActionResult;
 import net.rollanddeath.smp.core.scripting.Resolvers;
-import net.rollanddeath.smp.core.scripting.builtin.BuiltInActions;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
@@ -31,7 +30,7 @@ final class SetPlayerVelocityForwardAction {
 
             Double yOverride = Resolvers.doubleVal(ctx, ySpec);
 
-            BuiltInActions.runSync(plugin, () -> {
+            ActionUtils.runSync(plugin, () -> {
                 try {
                     Vector dir = player.getEyeLocation().getDirection();
                     if (dir.lengthSquared() > 1.0e-6) {

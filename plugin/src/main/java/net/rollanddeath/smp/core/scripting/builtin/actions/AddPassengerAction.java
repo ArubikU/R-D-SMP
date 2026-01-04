@@ -23,9 +23,12 @@ final class AddPassengerAction {
         
         if (vehicleSpec == null && passengerSpec == null) return null;
 
+        final Object finalVehicleSpec = vehicleSpec;
+        final Object finalPassengerSpec = passengerSpec;
+
         return ctx -> {
-            List<Entity> vehicles = Resolvers.entities(ctx, vehicleSpec);
-            List<Entity> passengers = Resolvers.entities(ctx, passengerSpec);
+            List<Entity> vehicles = Resolvers.entities(ctx, finalVehicleSpec);
+            List<Entity> passengers = Resolvers.entities(ctx, finalPassengerSpec);
             
             if (vehicles.isEmpty() && ctx.subject() != null) vehicles = List.of(ctx.subject());
             if (passengers.isEmpty() && ctx.subject() != null) passengers = List.of(ctx.subject());

@@ -1,8 +1,12 @@
 package net.rollanddeath.smp.core.scripting.builtin.actions;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 import net.rollanddeath.smp.core.scripting.Action;
+import net.rollanddeath.smp.core.scripting.ActionResult;
 import net.rollanddeath.smp.core.scripting.Resolvers;
-import net.rollanddeath.smp.core.scripting.builtin.BuiltInActions;
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
 
 final class SetCompassTargetRandomAction {
     private SetCompassTargetRandomAction() {
@@ -19,6 +23,23 @@ final class SetCompassTargetRandomAction {
         Integer maxZ = Resolvers.integer(null, raw, "max_z");
         Integer y = Resolvers.integer(null, raw, "y");
         if (minX == null || maxX == null || minZ == null || maxZ == null) return null;
-        return BuiltInActions.setCompassTargetRandom(minX, maxX, minZ, maxZ, y != null ? y : 64);
+        
+        int fMinX = minX;
+        int fMaxX = maxX;
+        int fMinZ = minZ;
+        int fMaxZ = maxZ;
+        int fY = y != null ? y : 64;
+
+        return ctx -> {
+            Player p = ctx.player();
+            if (p == null) return ActionResult.ALLOW;
+
+            int x = ThreadLocalRandom.current().nextInt(fMinX, fMaxX + 1);
+            int z = ThreadLocalRandom.current().nextInt(fMinZ, fMaxZ + 1);
+            Location loc = new Location(p.getWorld(), x, fY, z);
+
+            p.setCompassTarget(loc);
+            return ActionResult.ALLOW;
+        };
     }
 }

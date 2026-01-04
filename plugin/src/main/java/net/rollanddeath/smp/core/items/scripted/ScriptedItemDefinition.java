@@ -16,6 +16,7 @@ public record ScriptedItemDefinition(
     String displayName,
     Integer customModelData,
     Integer maxStackSize,
+    Integer maxDamage,
     List<String> lore,
     String leatherColor,
     List<PdcSpec> pdc,

@@ -19,16 +19,18 @@ final class SpawnAction {
     private SpawnAction() {}
 
     static void register() {
-        ActionRegistrar.register("spawn", SpawnAction::parse, "spawn_entity", "spawn_mob");
+        ActionRegistrar.register("spawn", SpawnAction::parse, "spawn_entity", "spawn_mob", "spawn_entity_at_key");
     }
 
     private static Action parse(Map<?, ?> raw) {
-        Object locationSpec = raw.get("location");
-        if (locationSpec == null) locationSpec = raw.get("at");
-        if (locationSpec == null) locationSpec = raw.get("where");
+        Object locationSpecRaw = raw.get("location");
+        if (locationSpecRaw == null) locationSpecRaw = raw.get("at");
+        if (locationSpecRaw == null) locationSpecRaw = raw.get("where");
+        final Object locationSpec = locationSpecRaw;
         
-        Object typeSpec = raw.get("type");
-        if (typeSpec == null) typeSpec = raw.get("entity_type");
+        Object typeSpecRaw = raw.get("type");
+        if (typeSpecRaw == null) typeSpecRaw = raw.get("entity_type");
+        final Object typeSpec = typeSpecRaw;
         
         Integer amount = Resolvers.integer(null, raw, "amount", "count");
         Double spread = Resolvers.doubleVal(null, raw, "spread", "radius");
@@ -41,7 +43,7 @@ final class SpawnAction {
         String storeKey = Resolvers.string(null, raw, "store", "var", "key");
 
         return ctx -> {
-            Location loc = Resolvers.location(locationSpec, ctx);
+            Location loc = Resolvers.location(ctx, locationSpec);
             if (loc == null && ctx.location() != null) loc = ctx.location();
             if (loc == null) return ActionResult.ALLOW;
             

@@ -11,5 +11,6 @@ public enum RuleType {
     LOOT_RESTRICTION,
     SPIDER_BUFF,
     RAVAGER_BUFF,
+    SCRIPT,
     NONE
 }

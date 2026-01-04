@@ -6,7 +6,69 @@
 
 script_library:
   actions:
-    # 1) Sonido de feedback
+    handle_electric_jump:
+      # 1. Efecto visual y daño en el punto de impacto actual
+      - { type: lightning, location: LOCATION }
+      - type: play_sound
+        sound: ENTITY_LIGHTNING_BOLT_IMPACT
+        location: LOCATION
+        volume: 0.5
+      
+      # 2. Verificar si quedan saltos disponibles
+      - type: math_set_var
+        key: EVENT.custom.next_jump
+        op: add
+        a_key: EVENT.args.jump_count
+        b: 1
+        
+      # Condición: ¿Aún no llegamos al máximo de saltos?
+      - type: any_of
+        require_all:
+          - type: var_compare
+            key: EVENT.args.jump_count
+            op: "<"
+            value_key: EVENT.args.max_jumps
+        on_pass:
+          # Buscar el siguiente objetivo cerca del impacto actual (excluyendo el que acabamos de golpear)
+          - type: select_entities
+            selector: nearby
+            location: LOCATION
+            radius: 8
+            limit: 1
+            filter:
+              - { type: is_living }
+              - { type: not_equals, key: CANDIDATE, other_key: TARGET }
+            var: EVENT.custom.next_target
+          
+          # Lanzar el siguiente proyectil de la cadena DESDE el impacto actual
+          - type: launch_curved_projectile
+            projectile: SNOWBALL
+            shooter_key: SUBJECT
+            start_key: LOCATION
+            target_key: EVENT.custom.next_target
+            targets: [MOB, PLAYER]
+            speed: 12.0
+            curve_height: 1.5
+            homing: true
+            args:
+              jump_count: EVENT.custom.next_jump
+              max_jumps: EVENT.args.max_jumps
+            on_hit:
+              - { type: call, ref: handle_electric_jump }
+              
+        on_fail:
+          # Lógica para el ÚLTIMO golpe (cuando jump_count == max_jumps)
+          - type: select_entities
+            selector: nearby
+            location: LOCATION
+            radius: 5
+            var: EVENT.custom.final_targets
+          - { type: lightning, target: EVENT.custom.final_targets }
+          - type: damage
+            target: EVENT.custom.final_targets
+            amount: 10.0
+            cause: LIGHTNING
+          - { type: play_sound, sound: ENTITY_LIGHTNING_BOLT_THUNDER, volume: 1.0 }
     sfx_click:
       - type: play_sound
         sound: UI_BUTTON_CLICK
@@ -216,7 +278,6 @@ script_library:
         amount: 1
       - type: apply_effect
         target: 
-          type: select_entities
           source: nearby
           location: SUBJECT
           radius: 10
@@ -419,7 +480,7 @@ script_library:
     item_void_staff_vortex:
       # --- CAPA 1: El Horizonte de Sucesos (Núcleo negro denso) ---
       - type: start_particle_system
-        center: EVENT.hitLocation
+        center: LOCATION
         lifetime_ticks: 60
         period_ticks: 2
         particle: SQUID_INK
@@ -430,7 +491,7 @@ script_library:
 
       # --- CAPA 2: Disco de Acreción (Materia orbitando y cayendo) ---
       - type: start_particle_system
-        center: EVENT.hitLocation
+        center: LOCATION
         lifetime_ticks: 60
         period_ticks: 1
         particle: REDSTONE
@@ -446,7 +507,7 @@ script_library:
 
       # --- CAPA 3: Líneas de Convergencia (Efecto "Drag") ---
       - type: start_particle_system
-        center: EVENT.hitLocation
+        center: LOCATION
         lifetime_ticks: 60
         period_ticks: 2
         particle: SMOKE
@@ -469,7 +530,7 @@ script_library:
         total_ticks: 60
         actions:
           - type: gravity_pull
-            center: EVENT.hitLocation
+            center: LOCATION
             radius: 3.5
             strength_key: EVENT.args.pull_power
             scale_by_distance: true

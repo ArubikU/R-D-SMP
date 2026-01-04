@@ -22,9 +22,10 @@ final class SelectLocationsAction {
         String storeKey = Resolvers.string(null, raw, "store", "var", "key");
         if (storeKey == null || storeKey.isBlank()) return null;
 
-        Object sourceSpec = raw.get("source");
-        if (sourceSpec == null) sourceSpec = raw.get("origin");
-        if (sourceSpec == null) sourceSpec = raw.get("center");
+        Object sourceSpecRaw = raw.get("source");
+        if (sourceSpecRaw == null) sourceSpecRaw = raw.get("origin");
+        if (sourceSpecRaw == null) sourceSpecRaw = raw.get("center");
+        final Object sourceSpec = sourceSpecRaw;
         
         Double radius = Resolvers.doubleVal(null, raw, "radius", "r", "spread");
         Integer count = Resolvers.integer(null, raw, "count", "amount", "limit");
@@ -38,13 +39,16 @@ final class SelectLocationsAction {
         Double offsetZ = Resolvers.doubleVal(null, raw, "offset_z", "dz");
 
         return ctx -> {
-            List<Location> origins = Resolvers.locations(ctx, sourceSpec);
-            if (origins.isEmpty()) {
+            List<Location> resolvedOrigins = Resolvers.locations(ctx, sourceSpec);
+            final List<Location> origins;
+            if (resolvedOrigins.isEmpty()) {
                 if (sourceSpec == null && ctx.location() != null) {
                     origins = List.of(ctx.location());
                 } else {
                     return ActionResult.ALLOW;
                 }
+            } else {
+                origins = resolvedOrigins;
             }
 
             List<Location> results = new ArrayList<>();
@@ -97,9 +101,9 @@ final class SelectLocationsAction {
             
             // Store result
             if (count != null && count > 1) {
-                ctx.setVariable(storeKey, results);
+                ctx.setGenericVarCompat(storeKey, results);
             } else {
-                ctx.setVariable(storeKey, results.isEmpty() ? null : results.get(0));
+                ctx.setGenericVarCompat(storeKey, results.isEmpty() ? null : results.get(0));
             }
 
             return ActionResult.ALLOW;

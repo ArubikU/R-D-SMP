@@ -14,9 +14,10 @@ final class MathSetVarAction {
 
     private static Action parse(Map<?, ?> raw) {
         String key = Resolvers.string(null, raw, "key");
-        String op = Resolvers.string(null, raw, "operation");
-        if (op == null) op = Resolvers.string(null, raw, "op");
-        if (key == null || key.isBlank() || op == null || op.isBlank()) return null;
+        String opRaw = Resolvers.string(null, raw, "operation");
+        if (opRaw == null) opRaw = Resolvers.string(null, raw, "op");
+        if (key == null || key.isBlank() || opRaw == null || opRaw.isBlank()) return null;
+        final String op = opRaw;
 
         Double a = Resolvers.doubleVal(null, raw, "a");
         String aKey = Resolvers.string(null, raw, "a_key");

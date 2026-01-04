@@ -4,7 +4,6 @@ import net.rollanddeath.smp.RollAndDeathSMP;
 import net.rollanddeath.smp.core.scripting.Action;
 import net.rollanddeath.smp.core.scripting.ActionResult;
 import net.rollanddeath.smp.core.scripting.Resolvers;
-import net.rollanddeath.smp.core.scripting.builtin.BuiltInActions;
 import org.bukkit.entity.Player;
 
 final class SetPlayerRiptidingAction {
@@ -26,7 +25,7 @@ final class SetPlayerRiptidingAction {
             Boolean value = Resolvers.bool(ctx, valueSpec);
             if (value == null) return ActionResult.ALLOW;
 
-            BuiltInActions.runSync(plugin, () -> {
+            ActionUtils.runSync(plugin, () -> {
                 try {
                     player.setRiptiding(value);
                 } catch (Exception ignored) {

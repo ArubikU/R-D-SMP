@@ -49,3 +49,67 @@ commands:
   reglas:
     description: Muestra las reglas del servidor
     usage: /reglas
+  ec:
+    description: Abre tu ender chest virtual mejorado
+    usage: /ec
+    aliases: [ender, enderchest]
+    permission: rd.enderchest.virtual
+  craft:
+    description: Abre una mesa de crafteo portátil
+    usage: /craft
+    permission: rd.craft
+  anvil:
+    description: Abre un yunque portátil
+    usage: /anvil
+    permission: rd.anvil
+  enchant:
+    description: Abre una mesa de encantamientos portátil
+    usage: /enchant
+    aliases: [enchanting]
+    permission: rd.enchanting
+  stonecutter:
+    description: Abre un cortapiedra portátil
+    usage: /stonecutter
+    permission: rd.stonecutter
+  smith:
+    description: Abre una mesa de herrería portátil
+    usage: /smith
+    aliases: [smithing]
+    permission: rd.smith
+  loom:
+    description: Abre un telar portátil
+    usage: /loom
+    permission: rd.loom
+  grindstone:
+    description: Abre una afiladora portátil
+    usage: /grindstone
+    permission: rd.grindstone
+  cartography:
+    description: Abre una mesa de cartografía portátil
+    usage: /cartography
+    permission: rd.cartography
+  backpack:
+    description: Abre tu mochila personal
+    usage: /backpack
+    permission: rd.backpack
+  trash:
+    description: Abre un basurero portátil
+    usage: /trash
+    permission: rd.trash
+  furnace:
+    description: Abre un horno portátil
+    usage: /furnace
+    permission: rd.furnace
+  blast:
+    description: Abre un alto horno portátil
+    usage: /blast
+    aliases: [blastfurnace]
+    permission: rd.blast
+  smoker:
+    description: Abre un ahumador portátil
+    usage: /smoker
+    permission: rd.smoker
+  trail:
+    description: Activa/desactiva partículas cosméticas (tab para ver opciones)
+    usage: /trail [nombre|none]
+    permission: rd.trail.base

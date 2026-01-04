@@ -3,8 +3,14 @@ package net.rollanddeath.smp.core.scripting.builtin.actions;
 import java.util.List;
 
 import net.rollanddeath.smp.core.scripting.Action;
+import net.rollanddeath.smp.core.scripting.ActionResult;
 import net.rollanddeath.smp.core.scripting.Resolvers;
-import net.rollanddeath.smp.core.scripting.builtin.BuiltInActions;
+import net.rollanddeath.smp.core.scripting.ScriptContext;
+import net.rollanddeath.smp.core.scripting.ScriptEngine;
+import org.bukkit.Location;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 
 final class GravityPullNearLocationAction {
     private GravityPullNearLocationAction() {
@@ -34,7 +40,62 @@ final class GravityPullNearLocationAction {
 
         List<Action> atTargetActions = Resolvers.parseActionList(raw.get("at_target"));
 
-        return BuiltInActions.gravityPullNearLocation(center, radius, strength, strengthKey, includePlayers, includeMobs, excludeCaster, excludeSpectators, scaleByDistance, maxForce, atTargetActions);
+        return ctx -> {
+            Location loc = Resolvers.location(ctx, center);
+            if (loc == null) return ActionResult.ALLOW;
+
+            double r = radius;
+            double str = strength != null ? strength : 0.0;
+            if (strengthKey != null) {
+                Double d = Resolvers.doubleVal(ctx, strengthKey);
+                if (d != null) str = d;
+            }
+            if (str == 0.0) return ActionResult.ALLOW;
+
+            double finalStr = str;
+
+            ActionUtils.runSync(ctx.plugin(), () -> {
+                for (Entity e : loc.getWorld().getNearbyEntities(loc, r, r, r)) {
+                    if (e.getLocation().distanceSquared(loc) > r * r) continue;
+
+                    if (!includePlayers && e instanceof Player) continue;
+                    if (!includeMobs && !(e instanceof Player)) continue;
+                    if (excludeSpectators && e instanceof Player p && p.getGameMode() == org.bukkit.GameMode.SPECTATOR) continue;
+
+                    if (excludeCaster) {
+                        Entity subject = ctx.subject();
+                        if (subject != null && subject.getUniqueId().equals(e.getUniqueId())) continue;
+                    }
+
+                    Vector dir = loc.toVector().subtract(e.getLocation().toVector());
+                    double dist = dir.length();
+                    dir.normalize();
+
+                    double force = finalStr;
+                    if (scaleByDistance && dist > 0) {
+                        force = finalStr * (1.0 - (dist / r));
+                    }
+
+                    if (maxForce != null && Math.abs(force) > maxForce) {
+                        force = Math.signum(force) * maxForce;
+                    }
+
+                    e.setVelocity(e.getVelocity().add(dir.multiply(force)));
+
+                    if (atTargetActions != null && !atTargetActions.isEmpty()) {
+                        java.util.Map<String, Object> vars = new java.util.HashMap<>(ctx.variables());
+                        vars.put("__subject", e);
+                        vars.put("__target", e);
+
+                        Player p = (e instanceof Player) ? (Player) e : ctx.player();
+                        ScriptContext subCtx = new ScriptContext(ctx.plugin(), p, ctx.subjectId(), ctx.phase(), vars);
+                        ScriptEngine.runAll(subCtx, atTargetActions);
+                    }
+                }
+            });
+
+            return ActionResult.ALLOW;
+        };
     }
 
     private static Object firstNonNull(java.util.Map<?, ?> raw, String... keys) {

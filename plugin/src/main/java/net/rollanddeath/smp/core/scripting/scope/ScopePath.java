@@ -33,6 +33,19 @@ public final class ScopePath {
         return keyPath;
     }
 
+    public String path() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(scope.name());
+        if (kind == Kind.GENERIC) sb.append(".generic");
+        else if (kind == Kind.CACHE) sb.append(".cache");
+        else if (kind == Kind.STATE) sb.append(".state");
+        
+        for (String k : keyPath) {
+            sb.append('.').append(k);
+        }
+        return sb.toString();
+    }
+
     public static ScopePath parse(String raw) {
         if (raw == null) return null;
         String s = raw.trim();
@@ -54,7 +67,8 @@ public final class ScopePath {
         if ("custom".equals(second) || "generic".equals(second)) {
             kind = Kind.GENERIC;
             startIndex = 2;
-        } else if ("cache".equals(second)) {
+        } else if ("cache".equals(second) || "args".equals(second)) {
+            // "args" es un alias de "cache" para simplificar el uso de parámetros de call
             kind = Kind.CACHE;
             startIndex = 2;
         } else if ("state".equals(second)) {

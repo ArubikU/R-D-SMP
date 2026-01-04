@@ -9,7 +9,6 @@ import net.rollanddeath.smp.core.scripting.Action;
 import net.rollanddeath.smp.core.scripting.ActionResult;
 import net.rollanddeath.smp.core.scripting.Resolvers;
 import net.rollanddeath.smp.core.scripting.ScriptContext;
-import net.rollanddeath.smp.core.scripting.builtin.BuiltInActions;
 import net.rollanddeath.smp.integration.PlaceholderUtil;
 import org.bukkit.entity.Player;
 
@@ -38,7 +37,7 @@ final class DenyAction {
         if (message != null && !message.isBlank()) {
             NamedTextColor c = Optional.ofNullable(Resolvers.color(ctx, colorSpec)).orElse(NamedTextColor.RED);
             String text = PlaceholderUtil.resolvePlaceholders(plugin, player, message);
-            BuiltInActions.runSync(plugin, () -> player.sendMessage(Component.text(text, c)));
+            ActionUtils.runSync(plugin, () -> player.sendMessage(Component.text(text, c)));
         }
         return ActionResult.DENY;
     }

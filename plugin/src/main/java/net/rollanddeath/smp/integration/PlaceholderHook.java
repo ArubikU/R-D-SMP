@@ -66,9 +66,11 @@ public class PlaceholderHook extends PlaceholderExpansion {
         switch (key) {
             case "lives":
                 if (player == null) return "";
+                if (!plugin.getLifeManager().isEnabled()) return "off";
                 return String.valueOf(plugin.getLifeManager().getLives(player));
             case "eliminated":
                 if (player == null) return "";
+                if (!plugin.getLifeManager().isEnabled()) return "off";
                 return plugin.getLifeManager().isEliminated(player) ? "si" : "no";
             case "role":
                 if (player == null) return "";

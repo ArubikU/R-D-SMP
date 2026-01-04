@@ -4,7 +4,6 @@ import net.rollanddeath.smp.RollAndDeathSMP;
 import net.rollanddeath.smp.core.scripting.Action;
 import net.rollanddeath.smp.core.scripting.ActionResult;
 import net.rollanddeath.smp.core.scripting.Resolvers;
-import net.rollanddeath.smp.core.scripting.builtin.BuiltInActions;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
@@ -31,7 +30,7 @@ final class SetPlayerCooldownAction {
             int cooldown = ticks != null ? Math.max(0, ticks) : -1;
             if (mat == null || cooldown < 0) return ActionResult.ALLOW;
 
-            BuiltInActions.runSync(plugin, () -> {
+            ActionUtils.runSync(plugin, () -> {
                 try {
                     player.setCooldown(mat, cooldown);
                 } catch (Exception ignored) {

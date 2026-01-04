@@ -38,7 +38,7 @@ public final class LocationOffsetAction {
         var plugin = ctx.plugin();
         if (plugin == null) return ActionResult.ALLOW;
 
-        Location base = Resolvers.location(fromSpec, ctx, ctx.player() != null ? ctx.player().getWorld() : null);
+        Location base = Resolvers.location(ctx, fromSpec, ctx.player() != null ? ctx.player().getWorld() : null);
         if (base == null) return ActionResult.ALLOW;
 
         Location out = base.clone().add(dx, dy, dz);

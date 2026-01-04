@@ -104,6 +104,10 @@ public class PlayerDeathListener implements Listener {
             return;
         }
 
+        if (!lifeManager.isEnabled()) {
+            return;
+        }
+
         lifeManager.removeLife(player);
         int remainingLives = lifeManager.getLives(player);
 

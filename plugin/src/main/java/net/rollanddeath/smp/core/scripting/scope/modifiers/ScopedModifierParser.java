@@ -3,7 +3,7 @@ package net.rollanddeath.smp.core.scripting.scope.modifiers;
 import net.rollanddeath.smp.core.scripting.Action;
 import net.rollanddeath.smp.core.scripting.Condition;
 import net.rollanddeath.smp.core.scripting.builtin.actions.ActionRegistrar;
-import net.rollanddeath.smp.core.scripting.builtin.BuiltInConditions;
+import net.rollanddeath.smp.core.scripting.builtin.conditions.ConditionRegistrar;
 import net.rollanddeath.smp.core.scripting.scope.ScopeId;
 import org.bukkit.configuration.ConfigurationSection;
 
@@ -72,7 +72,7 @@ public final class ScopedModifierParser {
 
         Condition when = null;
         if (whenObj instanceof Map<?, ?> whenMap) {
-            when = BuiltInConditions.parse(whenMap);
+            when = ConditionRegistrar.parse(whenMap);
         }
         if (when == null) {
             // when es obligatorio por spec (aunque puede ser always-true si no se define)

@@ -93,8 +93,10 @@ public class MenuCommand implements CommandExecutor, Listener, TabCompleter {
         ItemMeta statsMeta = statsItem.getItemMeta();
         statsMeta.displayName(Component.text("Estadísticas", NamedTextColor.RED).decoration(TextDecoration.ITALIC, false));
         List<Component> statsLore = new ArrayList<>();
-        int lives = plugin.getLifeManager().getLives(player);
-        statsLore.add(Component.text("Vidas: " + lives, NamedTextColor.WHITE).decoration(TextDecoration.ITALIC, false));
+        String livesLine = plugin.getLifeManager().isEnabled()
+            ? "Vidas: " + plugin.getLifeManager().getLives(player)
+            : "Vidas: desactivadas";
+        statsLore.add(Component.text(livesLine, NamedTextColor.WHITE).decoration(TextDecoration.ITALIC, false));
         
         if (plugin.getTeamManager().getTeam(player.getUniqueId()) != null) {
              statsLore.add(Component.text("Equipo: " + plugin.getTeamManager().getTeam(player.getUniqueId()).getName(), NamedTextColor.WHITE).decoration(TextDecoration.ITALIC, false));

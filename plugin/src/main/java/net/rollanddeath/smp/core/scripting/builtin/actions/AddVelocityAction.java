@@ -4,7 +4,6 @@ import net.rollanddeath.smp.RollAndDeathSMP;
 import net.rollanddeath.smp.core.scripting.Action;
 import net.rollanddeath.smp.core.scripting.ActionResult;
 import net.rollanddeath.smp.core.scripting.Resolvers;
-import net.rollanddeath.smp.core.scripting.builtin.BuiltInActions;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
@@ -35,7 +34,7 @@ final class AddVelocityAction {
             double dz = z != null ? z : 0.0;
 
             Vector add = new Vector(dx, dy, dz);
-            BuiltInActions.runSync(plugin, () -> player.setVelocity(player.getVelocity().add(add)));
+            ActionUtils.runSync(plugin, () -> player.setVelocity(player.getVelocity().add(add)));
             return ActionResult.ALLOW;
         };
     }

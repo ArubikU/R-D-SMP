@@ -2,7 +2,9 @@ package net.rollanddeath.smp.core.scripting.builtin.actions;
 
 import net.rollanddeath.smp.core.scripting.Action;
 import net.rollanddeath.smp.core.scripting.Resolvers;
-import net.rollanddeath.smp.core.scripting.builtin.BuiltInActions;
+import net.rollanddeath.smp.core.scripting.ActionResult;
+import org.bukkit.Bukkit;
+import org.bukkit.World;
 
 final class SetWeatherAllWorldsAction {
     private SetWeatherAllWorldsAction() {
@@ -18,6 +20,15 @@ final class SetWeatherAllWorldsAction {
         Integer weatherDuration = Resolvers.integer(null, raw, "weather_duration");
         Integer thunderDuration = Resolvers.integer(null, raw, "thunder_duration");
         if (storm == null && thunder == null) return null;
-        return BuiltInActions.setWeatherAllWorlds(storm, thunder, weatherDuration, thunderDuration);
+        
+        return ctx -> {
+            for (World w : Bukkit.getWorlds()) {
+                if (storm != null) w.setStorm(storm);
+                if (thunder != null) w.setThundering(thunder);
+                if (weatherDuration != null) w.setWeatherDuration(weatherDuration);
+                if (thunderDuration != null) w.setThunderDuration(thunderDuration);
+            }
+            return ActionResult.ALLOW;
+        };
     }
 }

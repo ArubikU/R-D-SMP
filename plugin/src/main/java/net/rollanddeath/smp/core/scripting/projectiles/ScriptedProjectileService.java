@@ -230,9 +230,9 @@ public final class ScriptedProjectileService implements Listener {
 
             Location next = new Location(current.getWorld(), nextPos.getX(), nextPos.getY(), nextPos.getZ(), current.getYaw(), current.getPitch());
 
-            // onTick actions
+            // onTick actions - IMPORTANTE: el SUBJECT debe ser el proyectil, no el shooter
             if (req.onTick != null && !req.onTick.isEmpty()) {
-                runHook(ap, "scripted_projectile_tick", current, null, null, null, req.onTick, ap.projectile);
+                runHook(ap, "scripted_projectile_tick", current, null, null, null, req.onTick, ap.projectile, true);
             }
 
             // Fin (llegó)
@@ -280,7 +280,8 @@ public final class ScriptedProjectileService implements Listener {
         if (loc == null || loc.getWorld() == null) return;
 
         // Ejecuta hook primero (permite, por ejemplo, spawn de partículas extra)
-        runHook(ap, "scripted_projectile_detonate", loc, hitEntity, hitBlock, eventOrNull, req.onHit, req.shooter);
+        // IMPORTANTE: el TARGET es la entidad golpeada, el SUBJECT es el shooter (quien disparó)
+        runHook(ap, "scripted_projectile_detonate", loc, hitEntity, hitBlock, eventOrNull, req.onHit, ap.req.shooter, false);
 
         // Explosión
         float power = (float) Math.max(0.0, req.explosionPower);
@@ -293,10 +294,16 @@ public final class ScriptedProjectileService implements Listener {
         }
 
         // Hook de finish (post)
-        runHook(ap, "scripted_projectile_finish", loc, hitEntity, hitBlock, eventOrNull, req.onFinish, ap.projectile);
+        runHook(ap, "scripted_projectile_finish", loc, hitEntity, hitBlock, eventOrNull, req.onFinish, ap.projectile, false);
     }
 
-    private void runHook(ActiveProjectile ap, String eventName, Location impact, Entity hitEntity, org.bukkit.block.Block hitBlock, Object eventOrNull, List<Action> actions, Entity subjectOverride) {
+    /**
+     * Ejecuta un hook de scripting con el contexto correcto.
+     * 
+     * @param subjectIsProjectile si es true, SUBJECT será el proyectil (útil para on_tick donde queremos partículas en el proyectil).
+     *                            si es false, SUBJECT será el subjectOverride (normalmente el shooter).
+     */
+    private void runHook(ActiveProjectile ap, String eventName, Location impact, Entity hitEntity, org.bukkit.block.Block hitBlock, Object eventOrNull, List<Action> actions, Entity subjectOverride, boolean subjectIsProjectile) {
         if (actions == null || actions.isEmpty()) return;
 
         ScriptInvocation inv = ap.req.invocation;
@@ -317,17 +324,73 @@ public final class ScriptedProjectileService implements Listener {
             }
         }
 
+        // Determinar el SUBJECT correcto:
+        // - Para on_tick: el proyectil (para que center: SUBJECT funcione con partículas)
+        // - Para on_hit/on_finish: el shooter (para que apply_effect target: SUBJECT no afecte al shooter)
+        Entity subject;
+        if (subjectIsProjectile) {
+            subject = ap.projectile;
+        } else {
+            subject = subjectOverride != null ? subjectOverride : ap.req.shooter;
+        }
+
+        // Construir el evento: si hay evento nativo, lo usamos como base.
+        // Si no hay evento (ej: proyectil explota en el aire sin impactar), creamos un Map
+        // con los datos necesarios para que EVENT.hitLocation funcione.
+        Object eventPayload;
+        if (eventOrNull != null) {
+            // Evento nativo de Bukkit - lo pasamos tal cual y EventPayloads.wrap() lo procesará
+            Map<String, Object> eventMap = new java.util.HashMap<>();
+            eventMap.put("native", eventOrNull);
+            eventMap.put("hitLocation", impact);
+            eventMap.put("hitEntity", hitEntity);
+            eventMap.put("hitBlock", hitBlock);
+            eventMap.put("shooter", ap.req.shooter);
+            eventMap.put("projectile", ap.projectile);
+            eventPayload = eventMap;
+        } else {
+            // Sin evento nativo - creamos un Map con los datos del proyectil
+            // Esto es crucial para que EVENT.hitLocation funcione cuando el proyectil
+            // termina en el aire sin chocar con nada (explode_on_finish)
+            Map<String, Object> eventMap = new java.util.HashMap<>();
+            eventMap.put("hitLocation", impact);
+            eventMap.put("location", impact); // También seteamos location como fallback
+            eventMap.put("hitEntity", hitEntity);
+            eventMap.put("hitBlock", hitBlock);
+            eventMap.put("shooter", ap.req.shooter);
+            eventMap.put("projectile", ap.projectile);
+            eventPayload = eventMap;
+        }
+
         Map<String, Object> vars = ScriptVars.create()
             .merge(inv.baseVars)
-            // 100% scopes: SUBJECT/TARGET/PROJECTILE y EVENT (reflectivo).
-            .subject(subjectOverride != null ? subjectOverride : ap.req.shooter)
+            // SUBJECT: el proyectil (para on_tick) o el shooter (para otros hooks)
+            // TARGET: la entidad golpeada (hitEntity)
+            // PROJECTILE: siempre el proyectil
+            // LOCATION: siempre la ubicación actual del proyectil (override)
+            .subject(subject)
             .target(resolvedTarget)
             .projectile(ap.projectile)
-            .event(eventOrNull)
+            .location(impact)
+            .event(eventPayload)
             .build();
+
+        // Debug: log baseVars to see if args are present
+        if (inv.baseVars != null) {
+            for (Map.Entry<String, Object> e : inv.baseVars.entrySet()) {
+                if (e.getKey() != null && e.getKey().contains("args")) {
+                    plugin.getLogger().info("[DEBUG] runHook baseVars: " + e.getKey() + " = " + e.getValue());
+                }
+            }
+        }
 
         ScriptContext ctx = new ScriptContext(plugin, player, inv.subjectId, inv.phase, vars);
         ScriptEngine.runAllWithResult(ctx, actions);
+    }
+    
+    // Overload para compatibilidad con llamadas existentes
+    private void runHook(ActiveProjectile ap, String eventName, Location impact, Entity hitEntity, org.bukkit.block.Block hitBlock, Object eventOrNull, List<Action> actions, Entity subjectOverride) {
+        runHook(ap, eventName, impact, hitEntity, hitBlock, eventOrNull, actions, subjectOverride, false);
     }
 
     private void cleanup(UUID id) {

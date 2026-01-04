@@ -5,7 +5,7 @@ import java.util.Map;
 import net.rollanddeath.smp.core.scripting.Action;
 import net.rollanddeath.smp.core.scripting.ActionResult;
 import net.rollanddeath.smp.core.scripting.Condition;
-import net.rollanddeath.smp.core.scripting.builtin.BuiltInConditions;
+import net.rollanddeath.smp.core.scripting.builtin.conditions.ConditionRegistrar;
 
 /** Utilities to wrap actions with YAML condition/when checks. */
 final class ActionConditions {
@@ -19,7 +19,7 @@ final class ActionConditions {
             condObj = raw != null ? raw.get("when") : null;
         }
         if (condObj instanceof Map<?, ?> condMap) {
-            Condition cond = BuiltInConditions.parse(condMap);
+            Condition cond = ConditionRegistrar.parse(condMap);
             if (cond == null) return null;
             return ctx -> cond.test(ctx) ? base.run(ctx) : ActionResult.ALLOW;
         }

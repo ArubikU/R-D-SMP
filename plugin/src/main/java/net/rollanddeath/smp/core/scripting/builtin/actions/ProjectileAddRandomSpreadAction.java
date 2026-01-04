@@ -6,7 +6,6 @@ import net.rollanddeath.smp.RollAndDeathSMP;
 import net.rollanddeath.smp.core.scripting.Action;
 import net.rollanddeath.smp.core.scripting.ActionResult;
 import net.rollanddeath.smp.core.scripting.Resolvers;
-import net.rollanddeath.smp.core.scripting.builtin.BuiltInActions;
 import org.bukkit.entity.Projectile;
 import org.bukkit.util.Vector;
 
@@ -32,7 +31,7 @@ final class ProjectileAddRandomSpreadAction {
             double spreadFinal = spread != null ? Math.max(0.0, spread) : 0.0;
             if (spreadFinal <= 0.0) return ActionResult.ALLOW;
 
-            BuiltInActions.runSync(plugin, () -> {
+            ActionUtils.runSync(plugin, () -> {
                 try {
                     Vector velocity = proj.getVelocity();
                     double dx = (ThreadLocalRandom.current().nextDouble() - 0.5) * spreadFinal;

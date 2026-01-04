@@ -339,7 +339,7 @@ modifiers:
     events:
       player_move:
         require_all:
-          - { type: var_equals, key: "SUBJECT.is_in_water", value: "true" }
+          - { type: in_water, expected: true }
         on_pass:
           - { type: apply_effect, effect: "POISON", duration: 100, amplifier: 0, ambient: false, particles: true }
 
@@ -361,7 +361,7 @@ modifiers:
     events:
       player_move:
         require_all:
-          - { type: var_equals, key: "SUBJECT.is_in_water", value: "true" }
+          - { type: in_water, expected: true }
           - { type: var_compare, key: "EVENT.delta.y", operator: ">", value: 0 }
         on_pass:
           - { type: add_velocity, y: -0.1 }
@@ -484,7 +484,7 @@ modifiers:
       player_bed_enter:
         require_all: []
         on_pass:
-          - { type: set_player_health, value: "max" }
+          - { type: heal, set: true, amount: 20.0 }
           - { type: message, color: green, message: "¡Has descansado y recuperado toda tu salud!" }
 
   adrenaline:
@@ -636,7 +636,7 @@ modifiers:
         require_all:
           - { type: var_equals, key: "EVENT.action", value: "RIGHT_CLICK_BLOCK" }
         on_pass:
-          - { type: grow_ageable_to_max }
+          - { type: set_entity_property, property: age, value: max, target: EVENT.block }
 
   liquid_xp:
     name: "Experiencia Líquida"
@@ -863,7 +863,7 @@ modifiers:
         require_all:
           - { type: var_compare, key: "PLAYER.custom.bleed_ticks", operator: ">", value: 0 }
         on_pass:
-          - { type: damage_player, amount: 1.0 }
+          - { type: damage, amount: 1.0 }
           - { type: add_var, key: "PLAYER.custom.bleed_ticks", value: -1 }
 
   paranoia:
@@ -945,7 +945,7 @@ modifiers:
         require_all:
           - { type: random_chance, probability: 0.50 }
         on_pass:
-          - { type: spawn_entity_at_player, entity_type: PHANTOM, offset_y: 2 }
+          - { type: spawn, location: SUBJECT, entity_type: PHANTOM, offset_y: 2 }
           - { type: deny, color: red, message: "No puedes dormir... algo te acecha." }
 
   slippery_hands:
@@ -995,7 +995,7 @@ modifiers:
           - { type: var_in, key: "EVENT.block.type", values: ["STONE", "COBBLESTONE", "DEEPSLATE", "TUFF", "GRANITE", "ANDESITE", "DIORITE"] }
           - { type: random_chance, probability: 0.05 }
         on_pass:
-          - { type: spawn_entity_at_player, entity_type: SILVERFISH }
+          - { type: spawn, location: SUBJECT, entity_type: SILVERFISH }
           - { type: play_sound, sound: ENTITY_SILVERFISH_AMBIENT, volume: 1.0, pitch: 1.0 }
 
   unstable_nether:
@@ -1037,7 +1037,7 @@ modifiers:
           - { type: var_in, key: "SUBJECT.location.block_below.type", values: ["STONE", "COBBLESTONE"] }
           - { type: random_chance, probability: 0.05 }
         on_pass:
-          - { type: set_block_below_type, material: GRAVEL }
+          - { type: set_block, location: SUBJECT, offset_y: -1, material: GRAVEL }
 
   nuclear_creeper:
     name: "Creeper Nuclear"
@@ -1071,8 +1071,8 @@ modifiers:
         require_all:
           - { type: var_in, key: "EVENT.entity.type", values: ["SPIDER", "CAVE_SPIDER"] }
         on_pass:
-          - { type: apply_effect_to_event_entity, effect: SPEED, duration: 9999999, amplifier: 1, ambient: false, particles: false }
-          - { type: apply_effect_to_event_entity, effect: INVISIBILITY, duration: 9999999, amplifier: 0, ambient: false, particles: false }
+          - { type: apply_effect, target: EVENT.entity, effect: SPEED, duration: 9999999, amplifier: 1, ambient: false, particles: false }
+          - { type: apply_effect, target: EVENT.entity, effect: INVISIBILITY, duration: 9999999, amplifier: 0, ambient: false, particles: false }
 
   deadly_silence:
     name: "Silencio Mortal"
@@ -1091,7 +1091,7 @@ modifiers:
         require_all:
           - { type: var_equals, key: "EVENT.entity.is_monster", value: "true" }
         on_pass:
-          - { type: set_event_entity_silent, value: true }
+          - { type: set_entity_property, property: silent, value: true, target: EVENT.entity }
 
   scorching_sun:
     name: "Sol Abrasador"
@@ -1109,8 +1109,10 @@ modifiers:
           - { type: var_compare, key: "WORLD.time", operator: "<", value: 12300 }
           - { type: player_sky_light_at_least, value: 15 }
         on_pass:
-          - type: set_fire_ticks
-            ticks: 60
+          - type: set_entity_property
+            property: fire_ticks
+            value: 60
+            target: SUBJECT
             when:
               type: not
               condition: { type: var_matches_regex, key: "SUBJECT.inventory.helmet.type", pattern: ".*_HELMET$" }
@@ -1163,7 +1165,13 @@ modifiers:
         require_all:
           - { type: player_game_mode_in, values: [CREATIVE, SPECTATOR], invert: true }
         on_pass:
-          - { type: aggro_nearby_mobs, entity_type: ENDERMAN, radius: 32, only_if_no_target: true }
+          - type: set_target
+            target:
+              source: nearby
+              type: ENDERMAN
+              radius: 32
+              location: SUBJECT
+            to: SUBJECT
 
   binding_curse:
     name: "Maldición de Binding"
@@ -1227,7 +1235,7 @@ modifiers:
         require_all:
           - { type: var_compare, key: SUBJECT.location.y, operator: ">", value: 150 }
         on_pass:
-          - { type: set_fire_ticks, ticks: 60 }
+          - { type: set_entity_property, property: fire_ticks, value: 60, target: SUBJECT }
 
   ice_floor:
     name: "Suelo de Hielo"
@@ -1378,7 +1386,7 @@ modifiers:
           - { type: var_matches_regex, key: "EVENT.block.type", pattern: "(.*(STONE|ORE)$|DEEPSLATE|NETHERRACK|TUFF)" }
           - { type: random_chance, probability: 0.01 }
         on_pass:
-          - { type: random_bool_to_var, key: "EVENT.custom.explosive_mining.is_tnt", probability: 0.5 }
+          - { type: set_random_var, var: "EVENT.custom.explosive_mining.is_tnt", probability: 0.5 }
           - { type: drop_item_at_location, where: "EVENT.block.location", material: "TNT", amount: 1, condition: { type: var_equals, key: "EVENT.custom.explosive_mining.is_tnt", value: "true" } }
           - { type: drop_item_at_location, where: "EVENT.block.location", material: "DIAMOND", amount: 1, condition: { type: var_equals, key: "EVENT.custom.explosive_mining.is_tnt", value: "false" } }
           - { type: message, color: red, message: "¡Has encontrado TNT!", condition: { type: var_equals, key: "EVENT.custom.explosive_mining.is_tnt", value: "true" } }
@@ -1521,7 +1529,7 @@ modifiers:
           - { type: set_var_now_plus, key: "GLOBAL.custom.sky_gift_next_ms", add_ms: 3600000 }
           - { type: find_top_block_near, world: "world", radius: 150, attempts: 40, store_key: "GLOBAL.custom.sky_gift_base" }
           - { type: location_offset, from: "GLOBAL.custom.sky_gift_base", dy: 1, store_key: "GLOBAL.custom.sky_gift_chest" }
-          - { type: set_block_type_at, where: "GLOBAL.custom.sky_gift_chest", material: "CHEST" }
+          - { type: set_block, location: "GLOBAL.custom.sky_gift_chest", type: "CHEST" }
           - type: fill_chest_loot
             where: "GLOBAL.custom.sky_gift_chest"
             clear: false
@@ -1532,7 +1540,7 @@ modifiers:
               - { material: "COOKED_BEEF", amount: 16 }
               - { material: "EXPERIENCE_BOTTLE", amount: 10 }
           - { type: place_torches_around, center: "GLOBAL.custom.sky_gift_chest", distance: 1, include_diagonals: false, material: "TORCH" }
-          - { type: strike_lightning_effect_at, where: "GLOBAL.custom.sky_gift_chest" }
+          - { type: lightning, target: "GLOBAL.custom.sky_gift_chest", effect_only: true }
           - { type: broadcast_with_location, location: "GLOBAL.custom.sky_gift_chest", message: "<green>¡Un regalo del cielo ha caído cerca del spawn! Coords: X {x} Z {z}" }
           - { type: discord_announce_with_location, location: "GLOBAL.custom.sky_gift_chest", title: "Regalo del Cielo", message: "Cofre en spawn: X {x} Z {z}", color: "green" }
 
@@ -1603,7 +1611,7 @@ modifiers:
         require_all:
           - { type: var_equals, key: "EVENT.entity.killer.type", value: "PLAYER" }
         on_pass:
-          - { type: teleport_player_to_key, where: "EVENT.entity.location" }
+          - { type: teleport, target: SUBJECT, to: "EVENT.entity.location" }
 
   giant_world:
     name: "Mundo Gigante"
@@ -1614,9 +1622,9 @@ modifiers:
         require_all:
           - { type: var_in, key: "EVENT.entity.type", values: ["SLIME", "MAGMA_CUBE"] }
         on_pass:
-          - { type: get_slime_size_to_var, key: "EVENT.custom.giant_world_slime_size" }
+          - { type: get_entity_property, property: size, target: EVENT.entity, store: "EVENT.custom.giant_world_slime_size" }
           - { type: math_set_var, key: "EVENT.custom.giant_world_slime_size", op: "mul", a_key: "EVENT.custom.giant_world_slime_size", b: 4 }
-          - { type: set_slime_size, size: "EVENT.custom.giant_world_slime_size" }
+          - { type: set_entity_property, property: size, value: "EVENT.custom.giant_world_slime_size", target: EVENT.entity }
 
   skeleton_invasion:
     name: "Invasión Esqueleto"
@@ -1630,7 +1638,7 @@ modifiers:
           - { type: var_compare, key: "EVENT.entity.type", operator: "!=", value: "SKELETON" }
         on_pass:
           - { type: cancel_event, value: true }
-          - { type: spawn_entity_at_key, where: "EVENT.location", entity_type: "SKELETON", count: 1, radius: 0, y_offset: 0 }
+          - { type: spawn, location: "EVENT.location", type: "SKELETON", amount: 1 }
 
   zombie_invasion:
     name: "Invasión Zombie"
@@ -1644,7 +1652,7 @@ modifiers:
           - { type: var_compare, key: "EVENT.entity.type", operator: "!=", value: "ZOMBIE" }
         on_pass:
           - { type: cancel_event, value: true }
-          - { type: spawn_entity_at_key, where: "EVENT.location", entity_type: "ZOMBIE", count: 1, radius: 0, y_offset: 0 }
+          - { type: spawn, location: "EVENT.location", type: "ZOMBIE", amount: 1 }
 
   purge:
     name: "La Purga"
@@ -1725,7 +1733,12 @@ modifiers:
       player_tick:
         require_all: []
         on_pass:
-          - { type: aggro_nearby_creatures, radius: 30, radius_y: 10, only_if_no_target: true }
+          - type: set_target
+            target:
+              source: nearby
+              radius: 30
+              location: SUBJECT
+            to: SUBJECT
 
   blind_inventory:
     name: "Inventario Ciego"

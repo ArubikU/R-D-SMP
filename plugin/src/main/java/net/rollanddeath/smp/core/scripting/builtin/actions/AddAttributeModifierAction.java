@@ -29,15 +29,11 @@ final class AddAttributeModifierAction {
         Object targetSpec = raw.get("target");
 
         return ctx -> {
-            List<Entity> targets = Resolvers.resolveEntities(ctx, targetSpec);
+            List<Entity> targets = Resolvers.entities(ctx, targetSpec);
             if (targets.isEmpty()) return ActionResult.ALLOW;
 
-            Attribute attr;
-            try {
-                attr = Attribute.valueOf(attributeName.toUpperCase());
-            } catch (Exception e) {
-                return ActionResult.ALLOW;
-            }
+            Attribute attr = Resolvers.attribute(ctx, attributeName);
+            if (attr == null) return ActionResult.ALLOW;
 
             AttributeModifier.Operation op;
             try {
@@ -46,16 +42,8 @@ final class AddAttributeModifierAction {
                 return ActionResult.ALLOW;
             }
 
-            EquipmentSlotGroup slotGroup = EquipmentSlotGroup.ANY;
-            if (slotGroupName != null && !slotGroupName.isBlank()) {
-                try {
-                    slotGroup = EquipmentSlotGroup.getByName(slotGroupName.toUpperCase());
-                } catch (Exception ignored) {
-                    try {
-                        slotGroup = EquipmentSlotGroup.valueOf(slotGroupName.toUpperCase());
-                    } catch (Exception ignored2) {}
-                }
-            }
+            EquipmentSlotGroup slotGroup = Resolvers.equipmentSlotGroup(ctx, slotGroupName);
+            if (slotGroup == null) slotGroup = EquipmentSlotGroup.ANY;
             final EquipmentSlotGroup finalSlotGroup = slotGroup;
 
             final AttributeModifier mod = new AttributeModifier(new org.bukkit.NamespacedKey(ctx.plugin(), key), amount, op, finalSlotGroup);

@@ -75,7 +75,7 @@ public final class FillChestLootAction {
         RollAndDeathSMP plugin = ctx.plugin();
         if (plugin == null) return ActionResult.ALLOW;
 
-        Location loc = Resolvers.location(whereSpec, ctx, ctx.player() != null ? ctx.player().getWorld() : null);
+        Location loc = Resolvers.location(ctx, whereSpec, ctx.player() != null ? ctx.player().getWorld() : null);
         if (loc == null || loc.getWorld() == null) return ActionResult.ALLOW;
 
         plugin.getServer().getScheduler().runTask(plugin, () -> {

@@ -75,6 +75,15 @@ public final class ScriptedItem extends CustomItem {
                 }
             }
 
+            // Max damage / durabilidad custom (Paper 1.20.5+). Ignora en versiones antiguas.
+            if (def.maxDamage() != null && def.maxDamage() > 0 && meta instanceof org.bukkit.inventory.meta.Damageable damageable) {
+                try {
+                    damageable.setMaxDamage(def.maxDamage());
+                } catch (NoSuchMethodError ignored) {
+                } catch (Exception ignored) {
+                }
+            }
+
             // Leather armor dye
             if (def.leatherColor() != null && meta instanceof LeatherArmorMeta lam) {
                 Color c = parseHexColor(def.leatherColor());
@@ -172,42 +181,87 @@ public final class ScriptedItem extends CustomItem {
         if (line == null || !line.contains("%")) return line;
         String out = line;
         
-        // Simple replacement for %pdc_key%
-        // We iterate over keys in the PDC? No, we don't know them easily.
-        // We iterate over def.pdc() keys? Yes.
-        // And maybe we should support generic lookup if possible, but iterating def.pdc is safer for now.
-        
-        if (def.pdc() != null) {
-            for (ScriptedItemDefinition.PdcSpec spec : def.pdc()) {
-                String k = spec.key();
-                String placeholder = "%pdc_" + k + "%";
-                if (out.contains(placeholder)) {
-                    Object val = getPdcValue(meta, k);
-                    out = out.replace(placeholder, String.valueOf(val != null ? val : ""));
-                }
-            }
-        }
-        
-        // Also check for common keys that might be set via extraPdc but not in def.pdc
-        // This is harder without knowing the keys.
-        // But we can check for patterns like %pdc_([a-zA-Z0-9_]+)% using regex?
-        // Let's stick to def.pdc for now, plus maybe a few known ones if needed.
-        // Actually, the user wants to pass extra params.
-        // So we should also check keys from the extraPdc map if available?
-        // But we don't have access to extraPdc map here easily unless we pass it or store it.
-        // Wait, we just set them in the PDC. We can read them back if we know the key.
-        // Regex is better.
-        
-        java.util.regex.Pattern p = java.util.regex.Pattern.compile("%pdc_([a-zA-Z0-9_:]+)%");
-        java.util.regex.Matcher m = p.matcher(out);
-        StringBuilder sb = new StringBuilder();
-        while (m.find()) {
-            String keyName = m.group(1);
+        // Soporte para %pdc_double:key%, %pdc_percent:key%, %pdc:key% y legacy %pdc_key%
+        // Pattern para capturar: %pdc_tipo:key% o %pdc:key% o %pdc_key%
+        java.util.regex.Pattern typePattern = java.util.regex.Pattern.compile("%pdc_(double|percent|int|string):([^%]+)%");
+        java.util.regex.Matcher tm = typePattern.matcher(out);
+        StringBuilder sb1 = new StringBuilder();
+        while (tm.find()) {
+            String type = tm.group(1);
+            String keyName = tm.group(2).trim();
             Object val = getPdcValue(meta, keyName);
-            m.appendReplacement(sb, val != null ? String.valueOf(val) : "");
+            String replacement = formatPdcValue(val, type);
+            tm.appendReplacement(sb1, java.util.regex.Matcher.quoteReplacement(replacement));
         }
-        m.appendTail(sb);
-        return sb.toString();
+        tm.appendTail(sb1);
+        out = sb1.toString();
+        
+        // Pattern para %pdc:key% (sin tipo)
+        java.util.regex.Pattern simplePattern = java.util.regex.Pattern.compile("%pdc:([^%]+)%");
+        java.util.regex.Matcher sm = simplePattern.matcher(out);
+        StringBuilder sb2 = new StringBuilder();
+        while (sm.find()) {
+            String keyName = sm.group(1).trim();
+            Object val = getPdcValue(meta, keyName);
+            sm.appendReplacement(sb2, val != null ? java.util.regex.Matcher.quoteReplacement(String.valueOf(val)) : "");
+        }
+        sm.appendTail(sb2);
+        out = sb2.toString();
+        
+        // Legacy pattern para %pdc_key% (retrocompatibilidad)
+        java.util.regex.Pattern legacyPattern = java.util.regex.Pattern.compile("%pdc_([a-zA-Z0-9_]+)%");
+        java.util.regex.Matcher lm = legacyPattern.matcher(out);
+        StringBuilder sb3 = new StringBuilder();
+        while (lm.find()) {
+            String keyName = lm.group(1);
+            Object val = getPdcValue(meta, keyName);
+            lm.appendReplacement(sb3, val != null ? java.util.regex.Matcher.quoteReplacement(String.valueOf(val)) : "");
+        }
+        lm.appendTail(sb3);
+        return sb3.toString();
+    }
+    
+    private String formatPdcValue(Object val, String type) {
+        if (val == null) return "";
+        
+        return switch (type.toLowerCase(Locale.ROOT)) {
+            case "double" -> {
+                if (val instanceof Number n) {
+                    yield trimDouble(n.doubleValue());
+                }
+                yield String.valueOf(val);
+            }
+            case "percent" -> {
+                double d = 0.0;
+                if (val instanceof Number n) {
+                    d = n.doubleValue();
+                } else {
+                    try {
+                        d = Double.parseDouble(String.valueOf(val).trim());
+                    } catch (Exception ignored) {}
+                }
+                double pct = d * 100.0;
+                String sign = pct > 0.0000001 ? "+" : "";
+                yield sign + trimDouble(pct) + "%";
+            }
+            case "int" -> {
+                if (val instanceof Number n) {
+                    yield String.valueOf(n.intValue());
+                }
+                yield String.valueOf(val);
+            }
+            default -> String.valueOf(val);
+        };
+    }
+    
+    private static String trimDouble(double v) {
+        if (Double.isNaN(v) || Double.isInfinite(v)) return "0";
+        String s = String.format(Locale.ROOT, "%.2f", v);
+        while (s.contains(".") && (s.endsWith("0") || s.endsWith("."))) {
+            s = s.substring(0, s.length() - 1);
+        }
+        if (s.isBlank()) return "0";
+        return s;
     }
 
     private Object getPdcValue(ItemMeta meta, String keyRaw) {

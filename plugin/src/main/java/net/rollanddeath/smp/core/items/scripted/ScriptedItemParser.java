@@ -4,7 +4,7 @@ import net.rollanddeath.smp.core.modifiers.scripted.ModifierRule;
 import net.rollanddeath.smp.core.scripting.Action;
 import net.rollanddeath.smp.core.scripting.Condition;
 import net.rollanddeath.smp.core.scripting.builtin.actions.ActionRegistrar;
-import net.rollanddeath.smp.core.scripting.builtin.BuiltInConditions;
+import net.rollanddeath.smp.core.scripting.builtin.conditions.ConditionRegistrar;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
@@ -58,6 +58,9 @@ public final class ScriptedItemParser {
             Integer maxStackSize = sec.getInt("max_stack_size", -1);
             if (maxStackSize != null && maxStackSize < 1) maxStackSize = null;
 
+            Integer maxDamage = sec.getInt("max_damage", -1);
+            if (maxDamage != null && maxDamage < 1) maxDamage = null;
+
             List<String> lore = sec.getStringList("lore");
 
             String leatherColor = sec.getString("leather_color");
@@ -89,7 +92,7 @@ public final class ScriptedItemParser {
                 }
             }
 
-            out.put(id, new ScriptedItemDefinition(id, baseMat, displayName, cmd, maxStackSize, lore, leatherColor, pdc, enchants, attrs, events));
+            out.put(id, new ScriptedItemDefinition(id, baseMat, displayName, cmd, maxStackSize, maxDamage, lore, leatherColor, pdc, enchants, attrs, events));
         }
 
         return out;
@@ -254,7 +257,7 @@ public final class ScriptedItemParser {
 
         List<Condition> requireAll = new ArrayList<>();
         for (Map<?, ?> raw : sec.getMapList("require_all")) {
-            Condition c = BuiltInConditions.parse(raw);
+            Condition c = ConditionRegistrar.parse(raw);
             if (c != null) requireAll.add(c);
         }
 

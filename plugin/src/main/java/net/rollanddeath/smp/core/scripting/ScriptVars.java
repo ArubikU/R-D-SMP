@@ -1,5 +1,6 @@
 package net.rollanddeath.smp.core.scripting;
 
+import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
 
@@ -39,6 +40,11 @@ public final class ScriptVars {
 
     public ScriptVars item(ItemStack item) {
         if (item != null) vars.put("__item", item);
+        return this;
+    }
+
+    public ScriptVars location(Location location) {
+        if (location != null) vars.put("__location", location);
         return this;
     }
 

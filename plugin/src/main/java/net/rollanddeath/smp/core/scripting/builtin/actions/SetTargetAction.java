@@ -17,38 +17,43 @@ final class SetTargetAction {
     }
 
     private static Action parse(Map<?, ?> raw) {
-        Object targetSpec = raw.get("target"); // The mob
-        if (targetSpec == null) targetSpec = raw.get("entity");
+        Object targetSpecRaw = raw.get("target"); // The mob
+        if (targetSpecRaw == null) targetSpecRaw = raw.get("entity");
+        final Object targetSpec = targetSpecRaw;
         
-        Object toSpec = raw.get("to"); // The target entity
-        if (toSpec == null) toSpec = raw.get("value");
+        Object toSpecRaw = raw.get("to"); // The target entity
+        if (toSpecRaw == null) toSpecRaw = raw.get("value");
+        final Object toSpec = toSpecRaw;
         
         // Legacy support for set_mob_target_nearest_player
         Double radius = Resolvers.doubleVal(null, raw, "radius", "r");
         boolean nearestPlayer = raw.containsKey("radius") && toSpec == null;
 
         return ctx -> {
-            List<Entity> mobs = Resolvers.entities(ctx, targetSpec);
-            if (mobs.isEmpty()) {
+            List<Entity> resolvedMobs = Resolvers.entities(ctx, targetSpec);
+            final List<Entity> mobs;
+            if (resolvedMobs.isEmpty()) {
                 if (targetSpec == null && ctx.subject() != null) {
                     mobs = List.of(ctx.subject());
                 } else {
                     return ActionResult.ALLOW;
                 }
+            } else {
+                mobs = resolvedMobs;
             }
 
-            Entity targetEntity = null;
+            final Entity targetEntity;
             if (nearestPlayer && radius != null) {
                 // Logic to find nearest player relative to the mob?
                 // Or relative to context location?
                 // Usually relative to the mob.
                 // We'll handle this inside the loop if needed, but Resolvers.selectEntities is better.
                 // If toSpec is null and we have radius, we assume nearest player.
+                targetEntity = null;
             } else {
                 targetEntity = Resolvers.entity(ctx, toSpec);
             }
 
-            final Entity finalTarget = targetEntity;
             final Double finalRadius = radius;
 
             ActionUtils.runSync(ctx.plugin(), () -> {
@@ -68,7 +73,7 @@ final class SetTargetAction {
                             }
                             mob.setTarget(nearest);
                         } else {
-                            if (finalTarget instanceof LivingEntity le) {
+                            if (targetEntity instanceof LivingEntity le) {
                                 mob.setTarget(le);
                             } else {
                                 mob.setTarget(null);

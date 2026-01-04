@@ -217,6 +217,10 @@ public class ModifierManager {
         return registeredModifiers.keySet();
     }
 
+    public int getLastRouletteDay() {
+        return lastRouletteDay;
+    }
+
     public Modifier startRandomModifier() {
         List<Modifier> available = new ArrayList<>();
         for (Modifier mod : registeredModifiers.values()) {

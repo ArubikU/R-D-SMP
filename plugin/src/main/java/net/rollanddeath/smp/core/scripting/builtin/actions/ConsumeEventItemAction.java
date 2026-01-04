@@ -4,7 +4,6 @@ import net.rollanddeath.smp.RollAndDeathSMP;
 import net.rollanddeath.smp.core.scripting.Action;
 import net.rollanddeath.smp.core.scripting.ActionResult;
 import net.rollanddeath.smp.core.scripting.Resolvers;
-import net.rollanddeath.smp.core.scripting.builtin.BuiltInActions;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -31,7 +30,7 @@ final class ConsumeEventItemAction {
             int consume = amount != null ? Math.max(1, amount) : 1;
 
             Object ev = ctx.nativeEvent();
-            BuiltInActions.runSync(plugin, () -> {
+            ActionUtils.runSync(plugin, () -> {
                 try {
                     if (ev instanceof org.bukkit.event.player.PlayerInteractEvent pie) {
                         var hand = pie.getHand();

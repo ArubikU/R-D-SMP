@@ -1,0 +1,513 @@
+# Reglas diarias configurables.
+# Puedes añadir acciones/condiciones usando el sistema de scripts:
+# day_rules:
+#   1:
+#     name: "Ejemplo"
+#     description: "Texto de la regla"
+#     type: NONE
+#     value: 0.0
+#     scripts:
+#       on_activate:
+#         deny_on_fail: false
+#         require_all: []
+#         on_fail: []
+#         on_pass:
+#           - type: call
+#             ref: broadcast_std
+#             with:
+#               message: "Regla del Día ${EVENT.args.rule_day}: ${EVENT.args.rule_name}"
+#       events:
+#         entity_damage_by_entity:
+#           require_all: []
+#           on_pass: []
+#           on_fail: []
+#           deny_on_fail: false
+
+settings:
+  base_sleep_percentage: 30
+
+# Los nombres de eventos soportados para scripts de reglas diarias son, entre otros:
+# - day_start (usa scripts.on_activate)
+# - entity_damage_by_entity
+# - player_bed_enter
+# - entity_death
+# - creature_spawn
+
+day_rules:
+  1:
+    name: "Calma Inicial"
+    description: "Inicio sin cambios adicionales."
+    type: NONE
+  2:
+    name: "Golpes Más Fuertes I (suave)"
+    description: "+1% daño de mobs hostiles."
+    type: MOB_DAMAGE_BOOST
+    value: 0.01
+  3:
+    name: "Exploración Segura"
+    description: "Sin cambios; ideal para explorar."
+    type: NONE
+  4:
+    name: "Vientos Tranquilos"
+    description: "Sin cambios adicionales."
+    type: NONE
+  5:
+    name: "Campamento Seguro"
+    description: "Sin cambios adicionales."
+    type: NONE
+  6:
+    name: "Golpes Más Fuertes II (suave)"
+    description: "+1% daño de mobs hostiles."
+    type: MOB_DAMAGE_BOOST
+    value: 0.01
+  7:
+    name: "Bosques en Calma"
+    description: "Sin cambios adicionales."
+    type: NONE
+  8:
+    name: "Golpes Más Fuertes III (suave)"
+    description: "+1% daño de mobs hostiles."
+    type: MOB_DAMAGE_BOOST
+    value: 0.01
+  9:
+    name: "Paseo Nocturno"
+    description: "Sin cambios adicionales."
+    type: NONE
+  10:
+    name: "Noche Ligera"
+    description: "70% para dormir (más fácil que vanilla)."
+    type: SLEEP_PERCENTAGE
+    value: 70.0
+  10_spiders:
+    name: "Noche en Serio (Arañas)"
+    description: "Arañas con 1-2 efectos."
+    type: SPIDER_BUFF
+    value: 1.0
+    day: 10
+  11:
+    name: "Golpes Más Fuertes IV (suave)"
+    description: "+1% daño de mobs hostiles."
+    type: MOB_DAMAGE_BOOST
+    value: 0.01
+  12:
+    name: "Patrullas Dobles (suave)"
+    description: "Un mob extra en algunos spawns hostiles."
+    type: DOUBLE_MOB_SPAWN
+    value: 1.0
+  13:
+    name: "Campamento Fortalecido"
+    description: "Sin cambios adicionales."
+    type: NONE
+  14:
+    name: "Golpes Más Fuertes V (suave)"
+    description: "+1% daño de mobs hostiles."
+    type: MOB_DAMAGE_BOOST
+    value: 0.01
+  15:
+    name: "Toque de Queda Suave"
+    description: "60% de jugadores para saltar la noche."
+    type: SLEEP_PERCENTAGE
+    value: 60.0
+  16:
+    name: "Golpes Más Fuertes VI (suave)"
+    description: "+1% daño de mobs hostiles."
+    type: MOB_DAMAGE_BOOST
+    value: 0.01
+  17:
+    name: "Arañas Potenciadas II"
+    description: "Arañas con 1-2 efectos (ligero)."
+    type: SPIDER_BUFF
+    value: 1.5
+  18:
+    name: "Golpes Más Fuertes VII (suave)"
+    description: "+1% daño de mobs hostiles."
+    type: MOB_DAMAGE_BOOST
+    value: 0.01
+  19:
+    name: "Ravagers Codiciosos I"
+    description: "3% de probabilidad de tótem en Ravager."
+    type: RAVAGER_BUFF
+    value: 0.03
+  20:
+    name: "Descanso Vigilado"
+    description: "70% de jugadores para saltar la noche."
+    type: SLEEP_PERCENTAGE
+    value: 70.0
+  21:
+    name: "Golpes Más Fuertes VIII (suave)"
+    description: "+1% daño de mobs hostiles."
+    type: MOB_DAMAGE_BOOST
+    value: 0.01
+  22:
+    name: "Loot Racionado I (ligero)"
+    description: "Sin loot de Bruja y Magma Cube."
+    type: LOOT_RESTRICTION
+    restricted_loot:
+      - WITCH
+      - MAGMA_CUBE
+  23:
+    name: "Ravagers Codiciosos II"
+    description: "6% de probabilidad de tótem en Ravager."
+    type: RAVAGER_BUFF
+    value: 0.06
+  24:
+    name: "Arañas Potenciadas III"
+    description: "Arañas con 2-3 efectos."
+    type: SPIDER_BUFF
+    value: 2.5
+  25:
+    name: "Golpes Más Fuertes IX (suave)"
+    description: "+1% daño de mobs hostiles."
+    type: MOB_DAMAGE_BOOST
+    value: 0.01
+  26:
+    name: "Loot Racionado II (ligero)"
+    description: "Sin loot de Piglin Zombie y Slime."
+    type: LOOT_RESTRICTION
+    restricted_loot:
+      - ZOMBIFIED_PIGLIN
+      - SLIME
+  27:
+    name: "Golpes Más Fuertes X (suave)"
+    description: "+1% daño de mobs hostiles."
+    type: MOB_DAMAGE_BOOST
+    value: 0.01
+  28:
+    name: "Ravagers Codiciosos III"
+    description: "8% de probabilidad de tótem en Ravager."
+    type: RAVAGER_BUFF
+    value: 0.08
+  29:
+    name: "Golpes Más Fuertes XI (suave)"
+    description: "+1% daño de mobs hostiles."
+    type: MOB_DAMAGE_BOOST
+    value: 0.01
+  30:
+    name: "Toque de Queda Alto"
+    description: "80% de jugadores para saltar la noche."
+    type: SLEEP_PERCENTAGE
+    value: 80.0
+  31:
+    name: "Golpes Más Fuertes XII (suave)"
+    description: "+1% daño de mobs hostiles."
+    type: MOB_DAMAGE_BOOST
+    value: 0.01
+  32:
+    name: "Golpes Más Fuertes XVII"
+    description: "+2% daño de mobs hostiles."
+    type: MOB_DAMAGE_BOOST
+    value: 0.02
+  33:
+    name: "Loot Racionado IV"
+    description: "Sin loot de Creeper, Esqueleto y Araña."
+    type: LOOT_RESTRICTION
+    restricted_loot:
+      - CREEPER
+      - SKELETON
+      - SPIDER
+  34:
+    name: "Arañas Potenciadas IV"
+    description: "Arañas con hasta 4 efectos."
+    type: SPIDER_BUFF
+    value: 4.0
+  35:
+    name: "Ravagers Codiciosos IV"
+    description: "10% de probabilidad de tótem en Ravager."
+    type: RAVAGER_BUFF
+    value: 0.10
+  36:
+    name: "Golpes Más Fuertes XVIII"
+    description: "+2% daño de mobs hostiles."
+    type: MOB_DAMAGE_BOOST
+    value: 0.02
+  37:
+    name: "Patrullas Triples II"
+    description: "Se suma otro mob extra por spawn hostil."
+    type: TRIPLE_MOB_SPAWN
+    value: 2.0
+  38:
+    name: "Golpes Más Fuertes XIX"
+    description: "+2% daño de mobs hostiles."
+    type: MOB_DAMAGE_BOOST
+    value: 0.02
+  39:
+    name: "Loot Racionado V"
+    description: "Sin loot de Zombie, Husk, Stray y Piglin."
+    type: LOOT_RESTRICTION
+    restricted_loot:
+      - ZOMBIE
+      - HUSK
+      - STRAY
+      - PIGLIN
+  40:
+    name: "Toque de Queda Duro"
+    description: "80% de jugadores para saltar la noche."
+    type: SLEEP_PERCENTAGE
+    value: 80.0
+  41:
+    name: "Golpes Más Fuertes XX"
+    description: "+2% daño de mobs hostiles."
+    type: MOB_DAMAGE_BOOST
+    value: 0.02
+  42:
+    name: "Arañas Potenciadas V"
+    description: "Arañas con 4 efectos garantizados."
+    type: SPIDER_BUFF
+    value: 4.0
+  43:
+    name: "Ravagers Codiciosos V"
+    description: "12% de probabilidad de tótem en Ravager."
+    type: RAVAGER_BUFF
+    value: 0.12
+  44:
+    name: "Golpes Más Fuertes XXI"
+    description: "+2% daño de mobs hostiles."
+    type: MOB_DAMAGE_BOOST
+    value: 0.02
+  45:
+    name: "No se Duerme II"
+    description: "Dormir deja de saltar la noche."
+    type: NO_SLEEP
+  46:
+    name: "Golpes Más Fuertes XXII"
+    description: "+2% daño de mobs hostiles."
+    type: MOB_DAMAGE_BOOST
+    value: 0.02
+  47:
+    name: "Patrullas Triples III"
+    description: "Se suma otro mob extra por spawn hostil."
+    type: TRIPLE_MOB_SPAWN
+    value: 2.0
+  48:
+    name: "Golpes Más Fuertes XXIII"
+    description: "+2% daño de mobs hostiles."
+    type: MOB_DAMAGE_BOOST
+    value: 0.02
+  49:
+    name: "Loot Racionado VI"
+    description: "Sin loot de Phantom, Shulker, Hoglin y Piglin Bruto."
+    type: LOOT_RESTRICTION
+    restricted_loot:
+      - PHANTOM
+      - SHULKER
+      - HOGLIN
+      - PIGLIN_BRUTE
+  50:
+    name: "Golpes Más Fuertes XXIV"
+    description: "+2% daño de mobs hostiles."
+    type: MOB_DAMAGE_BOOST
+    value: 0.02
+  51:
+    name: "Arañas Potenciadas VI"
+    description: "Arañas con todos los efectos posibles."
+    type: SPIDER_BUFF
+    value: 5.0
+  52:
+    name: "Ravagers Codiciosos VI"
+    description: "15% de probabilidad de tótem en Ravager."
+    type: RAVAGER_BUFF
+    value: 0.15
+  53:
+    name: "Golpes Más Fuertes XXV"
+    description: "+2% daño de mobs hostiles."
+    type: MOB_DAMAGE_BOOST
+    value: 0.02
+  54:
+    name: "Toque de Queda Extremo"
+    description: "100% de jugadores para saltar la noche."
+    type: SLEEP_PERCENTAGE
+    value: 100.0
+  55:
+    name: "Golpes Más Fuertes XXVI"
+    description: "+2% daño de mobs hostiles."
+    type: MOB_DAMAGE_BOOST
+    value: 0.02
+  56:
+    name: "Patrullas Triples IV"
+    description: "Se suma otro mob extra por spawn hostil."
+    type: TRIPLE_MOB_SPAWN
+    value: 2.0
+  57:
+    name: "Golpes Más Fuertes XXVII"
+    description: "+2% daño de mobs hostiles."
+    type: MOB_DAMAGE_BOOST
+    value: 0.02
+  58:
+    name: "Loot Racionado VII"
+    description: "Sin loot de Evoker, Vex, Pillager y Vindicator."
+    type: LOOT_RESTRICTION
+    restricted_loot:
+      - EVOKER
+      - VEX
+      - PILLAGER
+      - VINDICATOR
+  59:
+    name: "Golpes Más Fuertes XXVIII"
+    description: "+2% daño de mobs hostiles."
+    type: MOB_DAMAGE_BOOST
+    value: 0.02
+  60:
+    name: "Insomnio Permanente"
+    description: "Dormir deja de saltar la noche."
+    type: NO_SLEEP
+  61:
+    name: "Golpes Más Fuertes XXIX"
+    description: "+2% daño de mobs hostiles."
+    type: MOB_DAMAGE_BOOST
+    value: 0.02
+  62:
+    name: "Arañas Potenciadas VII"
+    description: "Arañas con todos los efectos posibles."
+    type: SPIDER_BUFF
+    value: 5.0
+  63:
+    name: "Ravagers Codiciosos VII"
+    description: "18% de probabilidad de tótem en Ravager."
+    type: RAVAGER_BUFF
+    value: 0.18
+  64:
+    name: "Golpes Más Fuertes XXX"
+    description: "+2% daño de mobs hostiles."
+    type: MOB_DAMAGE_BOOST
+    value: 0.02
+  65:
+    name: "Patrullas Triples V"
+    description: "Se suma otro mob extra por spawn hostil."
+    type: TRIPLE_MOB_SPAWN
+    value: 2.0
+  66:
+    name: "Golpes Más Fuertes XXXI"
+    description: "+2% daño de mobs hostiles."
+    type: MOB_DAMAGE_BOOST
+    value: 0.02
+  67:
+    name: "Loot Racionado VIII"
+    description: "Sin loot de Elder Guardian, Husk, Drowned y Wither Skeleton."
+    type: LOOT_RESTRICTION
+    restricted_loot:
+      - ELDER_GUARDIAN
+      - HUSK
+      - DROWNED
+      - WITHER_SKELETON
+  68:
+    name: "Golpes Más Fuertes XXXII"
+    description: "+2% daño de mobs hostiles."
+    type: MOB_DAMAGE_BOOST
+    value: 0.02
+  69:
+    name: "Toque de Queda Final"
+    description: "100% de jugadores para saltar la noche."
+    type: SLEEP_PERCENTAGE
+    value: 100.0
+  70:
+    name: "Golpes Más Fuertes XXXIII"
+    description: "+2% daño de mobs hostiles."
+    type: MOB_DAMAGE_BOOST
+    value: 0.02
+  71:
+    name: "Arañas Potenciadas VIII"
+    description: "Arañas con todos los efectos posibles."
+    type: SPIDER_BUFF
+    value: 5.0
+  72:
+    name: "Ravagers Codiciosos VIII"
+    description: "20% de probabilidad de tótem en Ravager."
+    type: RAVAGER_BUFF
+    value: 0.20
+  73:
+    name: "Golpes Más Fuertes XXXIV"
+    description: "+2% daño de mobs hostiles."
+    type: MOB_DAMAGE_BOOST
+    value: 0.02
+  74:
+    name: "Patrullas Triples VI"
+    description: "Se suma otro mob extra por spawn hostil."
+    type: TRIPLE_MOB_SPAWN
+    value: 2.0
+  75:
+    name: "Golpes Más Fuertes XXXV"
+    description: "+2% daño de mobs hostiles."
+    type: MOB_DAMAGE_BOOST
+    value: 0.02
+  76:
+    name: "Loot Racionado IX"
+    description: "Sin loot de Ravager, Pillager, Vex y Phantom."
+    type: LOOT_RESTRICTION
+    restricted_loot:
+      - RAVAGER
+      - PILLAGER
+      - VEX
+      - PHANTOM
+  77:
+    name: "Golpes Más Fuertes XXXVI"
+    description: "+2% daño de mobs hostiles."
+    type: MOB_DAMAGE_BOOST
+    value: 0.02
+  78:
+    name: "Insomnio Total II"
+    description: "Dormir deja de saltar la noche."
+    type: NO_SLEEP
+  79:
+    name: "Golpes Más Fuertes XXXVII"
+    description: "+2% daño de mobs hostiles."
+    type: MOB_DAMAGE_BOOST
+    value: 0.02
+  80:
+    name: "Patrullas Triples VII"
+    description: "Se suma otro mob extra por spawn hostil."
+    type: TRIPLE_MOB_SPAWN
+    value: 2.0
+  81:
+    name: "Arañas Potenciadas IX"
+    description: "Arañas con todos los efectos posibles."
+    type: SPIDER_BUFF
+    value: 5.0
+  82:
+    name: "Ravagers Codiciosos IX"
+    description: "22% de probabilidad de tótem en Ravager."
+    type: RAVAGER_BUFF
+    value: 0.22
+  83:
+    name: "Golpes Más Fuertes XXXVIII"
+    description: "+2% daño de mobs hostiles."
+    type: MOB_DAMAGE_BOOST
+    value: 0.02
+  84:
+    name: "Toque de Queda Cero"
+    description: "100% de jugadores para saltar la noche."
+    type: SLEEP_PERCENTAGE
+    value: 100.0
+  85:
+    name: "Golpes Más Fuertes XXXIX"
+    description: "+2% daño de mobs hostiles."
+    type: MOB_DAMAGE_BOOST
+    value: 0.02
+  86:
+    name: "Loot Racionado X"
+    description: "Sin loot de Ghast, Blaze, Wither Skeleton y Enderman."
+    type: LOOT_RESTRICTION
+    restricted_loot:
+      - GHAST
+      - BLAZE
+      - WITHER_SKELETON
+      - ENDERMAN
+  87:
+    name: "Golpes Más Fuertes XL"
+    description: "+2% daño de mobs hostiles."
+    type: MOB_DAMAGE_BOOST
+    value: 0.02
+  88:
+    name: "Patrullas Triples VIII"
+    description: "Se suma otro mob extra por spawn hostil."
+    type: TRIPLE_MOB_SPAWN
+    value: 2.0
+  89:
+    name: "Golpes Más Fuertes XLI"
+    description: "+2% daño de mobs hostiles."
+    type: MOB_DAMAGE_BOOST
+    value: 0.02
+  90:
+    name: "Ravagers Codiciosos X"
+    description: "25% de probabilidad de tótem en Ravager."
+    type: RAVAGER_BUFF
+    value: 0.25

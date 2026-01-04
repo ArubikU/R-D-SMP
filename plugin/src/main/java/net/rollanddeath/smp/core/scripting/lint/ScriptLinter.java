@@ -197,18 +197,8 @@ public final class ScriptLinter {
             return;
         }
 
-        // cache.* es solo engine
-        if (p.kind() == ScopePath.Kind.CACHE) {
-            out.add(new ScriptLintIssue(
-                ScriptLintSeverity.ERROR,
-                sourceName,
-                path,
-                "'<SCOPE>.cache.*' es interno del engine; no usar en scripts",
-                token,
-                null
-            ));
-            return;
-        }
+        // EVENT.args.* es válido para pasar argumentos a callbacks (on_hit, etc.)
+        // Solo advertir si se usa en otros contextos donde no tendría sentido
 
         // EVENT: chequeos extra para claves base típicas
         if (p.scope() == ScopeId.EVENT && p.kind() == ScopePath.Kind.NATIVE) {

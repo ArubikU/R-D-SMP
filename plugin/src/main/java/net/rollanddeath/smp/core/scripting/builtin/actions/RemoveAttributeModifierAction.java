@@ -25,15 +25,11 @@ final class RemoveAttributeModifierAction {
         Object targetSpec = raw.get("target");
 
         return ctx -> {
-            List<Entity> targets = Resolvers.resolveEntities(ctx, targetSpec);
+            List<Entity> targets = Resolvers.entities(ctx, targetSpec);
             if (targets.isEmpty()) return ActionResult.ALLOW;
 
-            Attribute attr;
-            try {
-                attr = Attribute.valueOf(attributeName.toUpperCase());
-            } catch (Exception e) {
-                return ActionResult.ALLOW;
-            }
+            Attribute attr = Resolvers.attribute(ctx, attributeName);
+            if (attr == null) return ActionResult.ALLOW;
 
             org.bukkit.NamespacedKey nsKey = new org.bukkit.NamespacedKey(ctx.plugin(), key);
 

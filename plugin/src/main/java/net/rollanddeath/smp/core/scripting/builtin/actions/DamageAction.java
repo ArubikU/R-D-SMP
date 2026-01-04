@@ -12,7 +12,7 @@ final class DamageAction {
     private DamageAction() {}
 
     static void register() {
-        ActionRegistrar.register("damage", DamageAction::parse, "damage_entity", "damage_player", "kill", "kill_entity");
+        ActionRegistrar.register("damage", DamageAction::parse, "damage_entity", "damage_player", "kill", "kill_entity", "kill_player");
     }
 
     private static Action parse(Map<?, ?> raw) {
@@ -25,10 +25,15 @@ final class DamageAction {
         // "kill" alias or "amount: kill"
         boolean isKill = "kill".equalsIgnoreCase(String.valueOf(raw.get("type"))) || "kill".equalsIgnoreCase(String.valueOf(amountSpec));
 
+        final Object finalTargetSpec = targetSpec;
+        final Object finalAmountSpec = amountSpec;
+        final boolean finalIgnoreArmor = ignoreArmor;
+        final boolean finalIsKill = isKill;
+
         return ctx -> {
-            List<Entity> targets = Resolvers.entities(ctx, targetSpec);
+            List<Entity> targets = Resolvers.entities(ctx, finalTargetSpec);
             if (targets.isEmpty()) {
-                if (targetSpec == null && ctx.subject() instanceof LivingEntity) {
+                if (finalTargetSpec == null && ctx.subject() instanceof LivingEntity) {
                     targets = List.of(ctx.subject());
                 } else {
                     return ActionResult.ALLOW;
@@ -36,20 +41,20 @@ final class DamageAction {
             }
 
             Double amount = null;
-            if (!isKill) {
-                amount = Resolvers.doubleVal(ctx, amountSpec);
+            if (!finalIsKill) {
+                amount = Resolvers.doubleVal(ctx, finalAmountSpec);
             }
 
             final Double finalAmount = amount;
-            final boolean kill = isKill;
+            final List<Entity> finalTargets = targets;
 
             ActionUtils.runSync(ctx.plugin(), () -> {
-                for (Entity e : targets) {
+                for (Entity e : finalTargets) {
                     if (e instanceof LivingEntity le) {
-                        if (kill) {
+                        if (finalIsKill) {
                             le.setHealth(0);
                         } else if (finalAmount != null) {
-                            if (ignoreArmor) {
+                            if (finalIgnoreArmor) {
                                 double newHealth = Math.max(0, le.getHealth() - finalAmount);
                                 le.setHealth(newHealth);
                                 le.damage(0.0001); // Trigger damage animation/event

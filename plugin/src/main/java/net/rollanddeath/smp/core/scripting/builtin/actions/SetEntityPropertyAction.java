@@ -6,14 +6,17 @@ import net.rollanddeath.smp.core.scripting.Action;
 import net.rollanddeath.smp.core.scripting.ActionResult;
 import net.rollanddeath.smp.core.scripting.Resolvers;
 import org.bukkit.DyeColor;
+import org.bukkit.entity.Ageable;
 import org.bukkit.entity.Bee;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Phantom;
+import org.bukkit.entity.Player;
 import org.bukkit.entity.Shulker;
 import org.bukkit.entity.Slime;
+import org.bukkit.entity.Tameable;
 import org.bukkit.entity.Vex;
 import org.bukkit.entity.Zombie;
 
@@ -21,34 +24,91 @@ final class SetEntityPropertyAction {
     private SetEntityPropertyAction() {}
 
     static void register() {
-        ActionRegistrar.register("set_entity_property", SetEntityPropertyAction::parse, "set_property", "modify_entity");
+        ActionRegistrar.register("set_entity_property", SetEntityPropertyAction::parse, 
+            "set_property", "modify_entity",
+            "grow_ageable_to_max", 
+            "set_event_entity_silent", 
+            "set_slime_size",
+            "set_fire_ticks"
+        );
     }
 
     private static Action parse(Map<?, ?> raw) {
         Object targetSpec = raw.get("target");
         if (targetSpec == null) targetSpec = raw.get("entity");
         
+        String type = String.valueOf(raw.get("type"));
+        
         String property = Resolvers.string(null, raw, "property", "prop", "attribute");
         Object valueSpec = raw.get("value");
         if (valueSpec == null) valueSpec = raw.get("set");
         
+        // Handle aliases
+        if ("grow_ageable_to_max".equalsIgnoreCase(type)) {
+            property = "age";
+            valueSpec = "max";
+            if (targetSpec == null) targetSpec = "EVENT.block"; // Try block first (crops), fallback to entity
+        } else if ("set_event_entity_silent".equalsIgnoreCase(type)) {
+            property = "silent";
+            if (targetSpec == null) targetSpec = "EVENT.entity";
+        } else if ("set_slime_size".equalsIgnoreCase(type)) {
+            property = "size";
+            valueSpec = raw.get("size");
+            if (targetSpec == null) targetSpec = "EVENT.entity";
+        } else if ("set_fire_ticks".equalsIgnoreCase(type)) {
+            property = "fire_ticks";
+            valueSpec = raw.get("ticks");
+            if (valueSpec == null) valueSpec = raw.get("duration");
+        }
+
         if (property == null) return null;
 
+        final String finalProp = property.toLowerCase();
+        final Object finalValueSpec = valueSpec;
+        final Object finalTargetSpec = targetSpec;
+
         return ctx -> {
-            List<Entity> targets = Resolvers.entities(ctx, targetSpec);
+            List<Entity> targets = Resolvers.entities(ctx, finalTargetSpec);
+            
+            // Special handling for crops (Ageable BlockData) if targets is empty
+            if (targets.isEmpty() && "age".equals(finalProp)) {
+                org.bukkit.Location loc = Resolvers.location(ctx, finalTargetSpec);
+                if (loc == null && ctx.location() != null) loc = ctx.location();
+                
+                if (loc != null) {
+                    final org.bukkit.Location finalLoc = loc;
+                    ActionUtils.runSync(ctx.plugin(), () -> {
+                        org.bukkit.block.Block b = finalLoc.getBlock();
+                        if (b.getBlockData() instanceof org.bukkit.block.data.Ageable ageable) {
+                            if ("max".equalsIgnoreCase(String.valueOf(finalValueSpec)) || "adult".equalsIgnoreCase(String.valueOf(finalValueSpec))) {
+                                ageable.setAge(ageable.getMaximumAge());
+                            } else {
+                                Integer age = Resolvers.integer(ctx, finalValueSpec);
+                                if (age != null) ageable.setAge(Math.min(age, ageable.getMaximumAge()));
+                            }
+                            b.setBlockData(ageable);
+                        }
+                    });
+                    return ActionResult.ALLOW;
+                }
+            }
+
             if (targets.isEmpty()) {
-                if (targetSpec == null && ctx.subject() != null) {
+                if (finalTargetSpec == null && ctx.subject() != null) {
                     targets = List.of(ctx.subject());
                 } else {
                     return ActionResult.ALLOW;
                 }
             }
 
-            Object val = Resolvers.resolve(ctx, valueSpec);
+            Object val = Resolvers.resolve(ctx, finalValueSpec);
+
+            final List<Entity> finalTargets = targets;
+            final Object finalVal = val;
 
             ActionUtils.runSync(ctx.plugin(), () -> {
-                for (Entity e : targets) {
-                    applyProperty(e, property, val);
+                for (Entity e : finalTargets) {
+                    applyProperty(e, finalProp, finalVal);
                 }
             });
 
@@ -57,7 +117,7 @@ final class SetEntityPropertyAction {
     }
 
     private static void applyProperty(Entity e, String prop, Object val) {
-        switch (prop.toLowerCase()) {
+        switch (prop) {
             case "silent":
                 e.setSilent(toBool(val, false));
                 break;
@@ -90,7 +150,24 @@ final class SetEntityPropertyAction {
             // Mob specific
             case "baby":
                 if (e instanceof Zombie z) z.setBaby(toBool(val, true));
-                // Add other ageables if needed
+                if (e instanceof Ageable a) {
+                    if (toBool(val, true)) a.setBaby();
+                    else a.setAdult();
+                }
+                break;
+            case "age":
+                if (e instanceof Ageable a) {
+                    if ("max".equalsIgnoreCase(String.valueOf(val)) || "adult".equalsIgnoreCase(String.valueOf(val))) {
+                        a.setAdult();
+                    } else if ("baby".equalsIgnoreCase(String.valueOf(val))) {
+                        a.setBaby();
+                    } else {
+                        a.setAge(toInt(val, 0));
+                    }
+                } else if (e instanceof Zombie z) {
+                     if ("baby".equalsIgnoreCase(String.valueOf(val))) z.setBaby(true);
+                     else z.setBaby(false);
+                }
                 break;
             case "size":
                 if (e instanceof Slime s) s.setSize(toInt(val, 1));
@@ -134,6 +211,12 @@ final class SetEntityPropertyAction {
             case "invisible":
                 if (e instanceof LivingEntity le) le.setInvisible(toBool(val, true));
                 break;
+            case "owner":
+                if (e instanceof Tameable t) {
+                    Player owner = toPlayer(val, e);
+                    if (owner != null) t.setOwner(owner);
+                }
+                break;
         }
     }
 
@@ -152,5 +235,13 @@ final class SetEntityPropertyAction {
             } catch (Exception ignored) {}
         }
         return def;
+    }
+    
+    private static Player toPlayer(Object val, Entity e) {
+        if (val instanceof Player p) return p;
+        if (val instanceof String s) {
+            return e.getServer().getPlayerExact(s);
+        }
+        return null;
     }
 }

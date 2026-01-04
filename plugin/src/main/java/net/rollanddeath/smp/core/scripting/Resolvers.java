@@ -18,7 +18,11 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.EquipmentSlotGroup;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.NamespacedKey;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.util.HashMap;
 import java.util.List;
@@ -70,6 +74,17 @@ public final class Resolvers {
             return value;
         }
         return value;
+    }
+
+    public static List<String> stringList(Map<?, ?> raw, String... keys) {
+        Object val = firstObject(raw, keys);
+        if (val instanceof List<?> list) {
+            return list.stream().map(String::valueOf).collect(Collectors.toList());
+        }
+        if (val instanceof String s) {
+            return List.of(s);
+        }
+        return List.of();
     }
 
     public static String string(ScriptContext ctx, Map<?, ?> raw, String... keys) {
@@ -390,8 +405,10 @@ public final class Resolvers {
     public static Attribute attribute(ScriptContext ctx, Object value) {
         String s = string(ctx, value);
         if (s == null || s.isBlank()) return null;
+        String key = s.trim().toLowerCase(Locale.ROOT);
+        if (!key.contains(":")) key = "minecraft:" + key;
         try {
-            return Attribute.valueOf(s.trim().toUpperCase(Locale.ROOT));
+            return org.bukkit.Registry.ATTRIBUTE.get(NamespacedKey.fromString(key));
         } catch (Exception ignored) {
             return null;
         }
@@ -418,14 +435,28 @@ public final class Resolvers {
     public static EquipmentSlotGroup equipmentSlotGroup(ScriptContext ctx, Object value) {
         String s = string(ctx, value);
         if (s == null || s.isBlank()) return null;
+        String n = s.trim().toUpperCase(Locale.ROOT);
+
+        if ("HAND".equals(n) || "MAIN_HAND".equals(n) || "MAIN".equals(n)) n = "MAINHAND";
+        if ("HELMET".equals(n)) n = "HEAD";
+        if ("CHESTPLATE".equals(n)) n = "CHEST";
+        if ("LEGGINGS".equals(n)) n = "LEGS";
+        if ("BOOTS".equals(n)) n = "FEET";
+
         try {
-            return EquipmentSlotGroup.getByName(s.trim().toUpperCase(Locale.ROOT));
+            return switch (n) {
+                case "ANY" -> EquipmentSlotGroup.ANY;
+                case "MAINHAND" -> EquipmentSlotGroup.MAINHAND;
+                case "OFFHAND" -> EquipmentSlotGroup.OFFHAND;
+                case "HEAD" -> EquipmentSlotGroup.HEAD;
+                case "CHEST" -> EquipmentSlotGroup.CHEST;
+                case "LEGS" -> EquipmentSlotGroup.LEGS;
+                case "FEET" -> EquipmentSlotGroup.FEET;
+                case "ARMOR" -> EquipmentSlotGroup.ARMOR;
+                default -> EquipmentSlotGroup.getByName(n);
+            };
         } catch (Exception ignored) {
-            try {
-                return EquipmentSlotGroup.valueOf(s.trim().toUpperCase(Locale.ROOT));
-            } catch (Exception ignored2) {
-                return EquipmentSlotGroup.ANY;
-            }
+            return EquipmentSlotGroup.ANY;
         }
     }
 
@@ -609,10 +640,44 @@ public final class Resolvers {
             if (center.getWorld() != null) {
                 candidates.addAll(center.getWorld().getNearbyEntities(center, radius, radius, radius));
             }
-        } else {
+        } else if ("world".equals(src)) {
             World w = center != null ? center.getWorld() : (ctx != null && ctx.player() != null ? ctx.player().getWorld() : null);
             if (w != null) {
                 candidates.addAll(w.getEntities());
+            }
+        } else {
+            // Try to resolve source as a variable (list of entities or single entity)
+            Object val = ctx != null ? ctx.getValue(source) : null;
+            if (val instanceof List<?> list) {
+                for (Object o : list) {
+                    if (o instanceof Entity e) candidates.add(e);
+                }
+            } else if (val instanceof Entity e) {
+                candidates.add(e);
+            } else {
+                // Fallback to world if not found? Or empty?
+                // Original logic fell back to world if not server/nearby.
+                // But now we check "world" explicitly.
+                // If source is provided but not found, we should probably return empty or fallback to world if source was null.
+                // But source is not null here (we checked src).
+                // If the user provided a source string that isn't a keyword and isn't a var, maybe it's a selector?
+                // But we don't support vanilla selectors here fully yet (except via entities() method).
+                
+                // Let's try Resolvers.entities(ctx, source) as a fallback?
+                // But that might cause recursion if it calls selectEntities.
+                // Resolvers.entities calls selectEntities if map has source/selector.
+                // Here source is a string. Resolvers.entities(string) handles @a, @p, etc.
+                
+                List<Entity> resolved = entities(ctx, source);
+                if (!resolved.isEmpty()) {
+                    candidates.addAll(resolved);
+                } else {
+                    // Default behavior for unknown source: world of center/player
+                    World w = center != null ? center.getWorld() : (ctx != null && ctx.player() != null ? ctx.player().getWorld() : null);
+                    if (w != null) {
+                        candidates.addAll(w.getEntities());
+                    }
+                }
             }
         }
 
@@ -935,6 +1000,195 @@ public final class Resolvers {
                 return null;
             }
         }
+        return null;
+    }
+
+    public static Object resolveProperty(Object target, String property) {
+        if (target == null || property == null) return null;
+
+        if (property.indexOf('.') > 0) {
+            String[] parts = property.split("\\.", 2);
+            Object first = resolveProperty(target, parts[0]);
+            return resolveProperty(first, parts[1]);
+        }
+
+        String prop = property.toLowerCase(Locale.ROOT);
+
+        if (target instanceof Entity e) {
+            switch (prop) {
+                case "uuid": return e.getUniqueId().toString();
+                case "name": return e.getName();
+                case "custom_name": return e.getCustomName();
+                case "type": return e.getType().name();
+                case "location": return e.getLocation();
+                case "world": return e.getWorld();
+                case "velocity": return e.getVelocity();
+                case "fall_distance": return e.getFallDistance();
+                case "fire_ticks": return e.getFireTicks();
+                case "freeze_ticks": return e.getFreezeTicks();
+                case "height": return e.getHeight();
+                case "width": return e.getWidth();
+                case "is_dead": return e.isDead();
+                case "is_valid": return e.isValid();
+                case "is_on_ground": return e.isOnGround();
+                case "is_glowing": return e.isGlowing();
+                case "is_invulnerable": return e.isInvulnerable();
+                case "is_silent": return e.isSilent();
+                case "is_custom_name_visible": return e.isCustomNameVisible();
+                case "passengers": return e.getPassengers();
+                case "vehicle": return e.getVehicle();
+                case "facing": return e.getFacing().name();
+                case "x": return e.getLocation().getX();
+                case "y": return e.getLocation().getY();
+                case "z": return e.getLocation().getZ();
+                case "yaw": return e.getLocation().getYaw();
+                case "pitch": return e.getLocation().getPitch();
+                case "is_monster": return e instanceof org.bukkit.entity.Monster;
+            }
+            if (e instanceof LivingEntity le) {
+                switch (prop) {
+                    case "health": return le.getHealth();
+                    case "max_health": {
+                        var attr = le.getAttribute(Attribute.MAX_HEALTH);
+                        return attr != null ? attr.getValue() : null;
+                    }
+                    case "absorption": return le.getAbsorptionAmount();
+                    case "air": return le.getRemainingAir();
+                    case "max_air": return le.getMaximumAir();
+                    case "eye_location": return le.getEyeLocation();
+                    case "eye_height": return le.getEyeHeight();
+                    case "is_gliding": return le.isGliding();
+                    case "is_swimming": return le.isSwimming();
+                    case "is_climbing": return le.isClimbing();
+                    case "is_invisible": return le.isInvisible();
+                    case "is_leashed": return le.isLeashed();
+                }
+            }
+            if (e instanceof Player p) {
+                switch (prop) {
+                    case "display_name": return p.getDisplayName(); // Legacy text
+                    case "gamemode": return p.getGameMode().name();
+                    case "ping": return p.getPing();
+                    case "locale": return p.getLocale();
+                    case "address": return p.getAddress() != null ? p.getAddress().toString() : null;
+                    case "exp": return p.getExp();
+                    case "level": return p.getLevel();
+                    case "total_exp": return p.getTotalExperience();
+                    case "fly_speed": return p.getFlySpeed();
+                    case "walk_speed": return p.getWalkSpeed();
+                    case "is_flying": return p.isFlying();
+                    case "is_sneaking": return p.isSneaking();
+                    case "is_sprinting": return p.isSprinting();
+                    case "is_blocking": return p.isBlocking();
+                    case "is_sleeping": return p.isSleeping();
+                    case "is_op": return p.isOp();
+                    case "food": return p.getFoodLevel();
+                    case "saturation": return p.getSaturation();
+                }
+            }
+        }
+
+        if (target instanceof Block b) {
+            switch (prop) {
+                case "type": return b.getType().name();
+                case "material": return b.getType().name();
+                case "data": return b.getBlockData().getAsString();
+                case "location": return b.getLocation();
+                case "world": return b.getWorld();
+                case "x": return b.getX();
+                case "y": return b.getY();
+                case "z": return b.getZ();
+                case "light": return b.getLightLevel();
+                case "block_power": return b.getBlockPower();
+                case "temperature": return b.getTemperature();
+                case "humidity": return b.getHumidity();
+                case "biome": return b.getBiome().name();
+                case "is_passable": return b.isPassable();
+                case "is_liquid": return b.isLiquid();
+                case "is_empty": return b.isEmpty();
+            }
+        }
+
+        if (target instanceof Location l) {
+            switch (prop) {
+                case "world": return l.getWorld();
+                case "x": return l.getX();
+                case "y": return l.getY();
+                case "z": return l.getZ();
+                case "yaw": return l.getYaw();
+                case "pitch": return l.getPitch();
+                case "block_x": return l.getBlockX();
+                case "block_y": return l.getBlockY();
+                case "block_z": return l.getBlockZ();
+                case "chunk": return l.getChunk();
+                case "block": return l.getBlock();
+                case "block_below": return l.getBlock().getRelative(0, -1, 0);
+            }
+        }
+
+        if (target instanceof World w) {
+            switch (prop) {
+                case "name": return w.getName();
+                case "uuid": return w.getUID().toString();
+                case "time": return w.getTime();
+                case "full_time": return w.getFullTime();
+                case "weather": return w.isThundering() ? "thunder" : (w.hasStorm() ? "rain" : "clear");
+                case "storm": return w.hasStorm();
+                case "thundering": return w.isThundering();
+                case "seed": return w.getSeed();
+                case "environment": return w.getEnvironment().name();
+                case "difficulty": return w.getDifficulty().name();
+                case "max_height": return w.getMaxHeight();
+                case "min_height": return w.getMinHeight();
+                case "sea_level": return w.getSeaLevel();
+                case "player_count": return w.getPlayerCount();
+            }
+        }
+
+        if (target instanceof org.bukkit.util.Vector v) {
+            switch (prop) {
+                case "x": return v.getX();
+                case "y": return v.getY();
+                case "z": return v.getZ();
+                case "length": return v.length();
+                case "length_squared": return v.lengthSquared();
+            }
+        }
+
+        if (target instanceof ItemStack is) {
+            switch (prop) {
+                case "type": return is.getType().name();
+                case "amount": return is.getAmount();
+                case "max_stack_size": return is.getMaxStackSize();
+                case "is_air": return is.getType().isAir();
+                case "is_edible": return is.getType().isEdible();
+                case "has_item_meta": return is.hasItemMeta();
+                case "display_name": return is.hasItemMeta() && is.getItemMeta().hasDisplayName() ? is.getItemMeta().getDisplayName() : null;
+                case "custom_model_data": return is.hasItemMeta() && is.getItemMeta().hasCustomModelData() ? is.getItemMeta().getCustomModelData() : null;
+                case "lore": return is.hasItemMeta() && is.getItemMeta().hasLore() ? is.getItemMeta().getLore() : null;
+                case "pdc": {
+                    if (!is.hasItemMeta()) return null;
+                    PersistentDataContainer pdc = is.getItemMeta().getPersistentDataContainer();
+                    Map<String, Object> out = new HashMap<>();
+                    for (NamespacedKey nk : pdc.getKeys()) {
+                        String full = nk.toString();
+                        Object v = null;
+                        try { v = pdc.get(nk, PersistentDataType.STRING); } catch (Exception e) {}
+                        if (v == null) try { v = pdc.get(nk, PersistentDataType.INTEGER); } catch (Exception e) {}
+                        if (v == null) try { v = pdc.get(nk, PersistentDataType.LONG); } catch (Exception e) {}
+                        if (v == null) try { v = pdc.get(nk, PersistentDataType.DOUBLE); } catch (Exception e) {}
+                        if (v == null) try { v = pdc.get(nk, PersistentDataType.BYTE); } catch (Exception e) {}
+                        if (v != null) out.put(full, v);
+                    }
+                    return out.isEmpty() ? null : out;
+                }
+            }
+        }
+
+        if (target instanceof Map<?, ?> map) {
+            return map.get(property); // Case sensitive for maps? Or try lowercase? Let's stick to exact match or lowercase if not found.
+        }
+
         return null;
     }
 }

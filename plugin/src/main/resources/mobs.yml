@@ -175,7 +175,6 @@ mobs:
             ice_material: ICE
           - type: apply_effect
             target: 
-              type: select_entities
               source: nearby
               location: EVENT.location
               radius: 5
@@ -402,11 +401,11 @@ mobs:
             target_y_offset: 1.0
             targets: ["PLAYERS"]
             on_launch:
-              - action: play_sound
+              - type: play_sound
                 sound: ENTITY_BLAZE_SHOOT
                 volume: 1.0
                 pitch: 0.8
-              - action: play_particle
+              - type: play_particle
                 particle: FLAME
                 count: 10
                 speed: 0.1
@@ -471,11 +470,11 @@ mobs:
             target_y_offset: 1.0
             targets: ["PLAYERS"]
             on_launch:
-              - action: play_sound
+              - type: play_sound
                 sound: ITEM_TRIDENT_THROW
                 volume: 1.0
                 pitch: 1.0
-              - action: play_particle
+              - type: play_particle
                 particle: WATER_SPLASH
                 count: 15
                 speed: 0.1
@@ -500,7 +499,6 @@ mobs:
                 count: 1
               - type: apply_effect
                 target: 
-                  type: select_entities
                   source: nearby
                   location: EVENT.hitLocation
                   radius: 4
@@ -607,11 +605,11 @@ mobs:
             target_y_offset: 1.0
             targets: ["PLAYERS"]
             on_launch:
-              - action: play_sound
+              - type: play_sound
                 sound: ENTITY_WITHER_SHOOT
                 volume: 1.0
                 pitch: 0.5
-              - action: play_particle
+              - type: play_particle
                 particle: SOUL_FIRE_FLAME
                 count: 10
                 speed: 0.1
@@ -639,7 +637,6 @@ mobs:
                 count: 1
               - type: apply_effect
                 target: 
-                  type: select_entities
                   source: nearby
                   location: EVENT.hitLocation
                   radius: 4
@@ -710,11 +707,11 @@ mobs:
             target_y_offset: 1.0
             targets: ["PLAYERS"]
             on_launch:
-              - action: play_sound
+              - type: play_sound
                 sound: ENTITY_ENDER_DRAGON_SHOOT
                 volume: 1.0
                 pitch: 0.5
-              - action: play_particle
+              - type: play_particle
                 particle: DRAGON_BREATH
                 count: 20
                 speed: 0.1

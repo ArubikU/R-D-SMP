@@ -301,6 +301,7 @@ public final class EventPayloads {
         if (raw instanceof org.bukkit.event.entity.EntityDeathEvent ede) {
             try {
                 putIfNotNull(out, "entity", ede.getEntity());
+                putIfNotNull(out, "drops", ede.getDrops());
             } catch (Exception ignored) {
             }
         }

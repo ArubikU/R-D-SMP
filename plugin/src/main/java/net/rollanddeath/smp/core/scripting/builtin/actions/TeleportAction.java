@@ -12,28 +12,33 @@ final class TeleportAction {
     private TeleportAction() {}
 
     static void register() {
-        ActionRegistrar.register("teleport", TeleportAction::parse, "tp", "teleport_entity", "teleport_player");
+        ActionRegistrar.register("teleport", TeleportAction::parse, "tp", "teleport_entity", "teleport_player", "teleport_player_to_key");
     }
 
     private static Action parse(Map<?, ?> raw) {
-        Object targetSpec = raw.get("target");
-        if (targetSpec == null) targetSpec = raw.get("entity");
+        Object targetSpecRaw = raw.get("target");
+        if (targetSpecRaw == null) targetSpecRaw = raw.get("entity");
+        final Object targetSpec = targetSpecRaw;
         
-        Object locationSpec = raw.get("to");
-        if (locationSpec == null) locationSpec = raw.get("location");
-        if (locationSpec == null) locationSpec = raw.get("destination");
+        Object locationSpecRaw = raw.get("to");
+        if (locationSpecRaw == null) locationSpecRaw = raw.get("location");
+        if (locationSpecRaw == null) locationSpecRaw = raw.get("destination");
+        final Object locationSpec = locationSpecRaw;
         
         return ctx -> {
-            List<Entity> targets = Resolvers.entities(ctx, targetSpec);
-            if (targets.isEmpty()) {
+            List<Entity> resolved = Resolvers.entities(ctx, targetSpec);
+            final List<Entity> targets;
+            if (resolved.isEmpty()) {
                 if (targetSpec == null && ctx.subject() != null) {
                     targets = List.of(ctx.subject());
                 } else {
                     return ActionResult.ALLOW;
                 }
+            } else {
+                targets = resolved;
             }
 
-            Location loc = Resolvers.location(locationSpec, ctx);
+            Location loc = Resolvers.location(ctx, locationSpec);
             if (loc == null) return ActionResult.ALLOW;
 
             ActionUtils.runSync(ctx.plugin(), () -> {

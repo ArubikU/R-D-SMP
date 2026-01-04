@@ -19,6 +19,50 @@
 #         deny_on_fail: false
 
 items:
+  ELECTRIC_STAFF:
+    name: "<yellow>⚡ Bastón de Centellas"
+    max_damage: 120
+    base_material: DIAMOND_HOE
+    custom_model_data: 710050
+    pdc:
+      - { key: electric_damage, type: DOUBLE, value: 5.0 }
+      - { key: max_jumps, type: INTEGER, value: 3 }
+    lore:
+      - "<gray>Dispara un rayo que encadena"
+      - "<gray>entre enemigos cercanos."
+      - ""
+      - "<blue> +%pdc_double:electric_damage% Daño Eléctrico"
+      - "<blue> +%pdc_int:max_jumps% Rebotes Máximos"
+    events:
+      player_interact:
+        require_all:
+          - { type: var_in, key: EVENT.action, values: ["RIGHT_CLICK_AIR", "RIGHT_CLICK_BLOCK"] }
+          - { type: player_has_cooldown, material: DIAMOND_HOE, value: false }
+        on_pass:
+          - { type: set_player_cooldown, material: DIAMOND_HOE, ticks: 40 }
+          - { type: damage_item_durability, slot_key: EVENT.hand, amount: 1 }
+          # Iniciar el primer proyectil de la cadena
+          - type: launch_curved_projectile
+            projectile: SNOWBALL
+            shooter_key: SUBJECT
+            targets: [MOB, PLAYER]
+            speed: 10.0
+            curve_height: 1.0
+            homing: true
+            args:
+              jump_count: 1
+              max_jumps: ITEM.pdc.rdsmp:max_jumps
+            on_launch:
+              - { type: play_sound, sound: entity.lightning_bolt.thunder, pitch: 2.0 }
+            on_tick:
+              - type: spawn_particle_shape
+                center: LOCATION
+                particle: ELECTRIC_SPARK
+                shape: POINT
+                count: 3
+            on_hit:
+              - type: call
+                ref: handle_electric_jump
   HEALING_BANDAGE:
     name: "Venda Curativa"
     custom_model_data: 710001
@@ -81,8 +125,9 @@ items:
       entity_resurrect:
         require_all: []
         on_pass:
-          - type: apply_random_effect
-            effects:
+          - type: set_random_var
+            var: EVENT.custom.temp_chance_totem_effect
+            options:
               - SPEED
               - STRENGTH
               - REGENERATION
@@ -95,6 +140,8 @@ items:
               - WEAKNESS
               - POISON
               - BLINDNESS
+          - type: apply_effect
+            effect: "${EVENT.custom.temp_chance_totem_effect}"
             duration: 1200
             amplifier: 1
             ambient: false
@@ -145,7 +192,6 @@ items:
         on_pass:
           - type: damage
             target: 
-              type: select_entities
               source: nearby
               location: TARGET
               radius: 3.0
@@ -337,7 +383,7 @@ items:
         require_all: []
         on_pass:
           - { type: apply_effect, target: SUBJECT, effect: HASTE, duration: 1200, amplifier: 255, ambient: false, particles: false }
-          - { type: damage_item_durability, slot: MAIN_HAND, amount: 156 }
+          - { type: damage_item_durability, slot_key: EVENT.hand, amount: 156 }
         on_fail: []
         deny_on_fail: false
 
@@ -424,9 +470,9 @@ items:
       player_item_consume:
         require_all: []
         on_pass:
-          - type: apply_random_effect
-            target: SUBJECT
-            effects:
+          - type: set_random_var
+            var: EVENT.custom.temp_soup_effect
+            options:
               - SPEED
               - SLOWNESS
               - HASTE
@@ -457,6 +503,9 @@ items:
               - SLOW_FALLING
               - CONDUIT_POWER
               - DOLPHINS_GRACE
+          - type: apply_effect
+            target: SUBJECT
+            effect: "${EVENT.custom.temp_soup_effect}"
             duration: 400
             amplifier: 1
             ambient: false
@@ -680,6 +729,7 @@ items:
 
   BONE_BOW:
     name: "Arco de Hueso"
+    custom_model_data: 710010
     base_material: BOW
     lore:
       - "Dispara flechas torcidas"
@@ -700,6 +750,7 @@ items:
 
   POSEIDON_TRIDENT:
     name: "Tridente de Poseidón"
+    custom_model_data: 710017
     base_material: TRIDENT
     lore:
       - "Invoca rayos sin tormenta."
@@ -746,7 +797,7 @@ items:
       projectile_hit:
         require_all: []
         on_pass:
-          - { type: lightning, target: EVENT.hitLocation }
+          - { type: lightning, target: LOCATION }
           - { type: set_player_cooldown, material: TRIDENT, ticks: 40 }
         on_fail: []
         deny_on_fail: false
@@ -754,6 +805,7 @@ items:
   VOID_CALL:
     name: "Llamada del Vacío"
     base_material: SCULK_SHRIEKER
+    custom_model_data: 710028
     max_stack_size: 16
     lore:
       - "Crea un agujero negro temporal."
@@ -1035,7 +1087,7 @@ items:
         on_pass:
           - { type: consume_item }
           - { type: play_sound, sound: BLOCK_ENCHANTMENT_TABLE_USE, pitch: 0.6 }
-          - { type: random_bool_to_var, key: "EVENT.custom.is_bad_luck", probability: 0.5 }
+          - { type: set_random_var, var: "EVENT.custom.is_bad_luck", probability: 0.5 }
           - { type: apply_effect, effect: WEAKNESS, duration: 400, amplifier: 0, when: { type: var_truthy, key: "EVENT.custom.is_bad_luck" } }
           - { type: apply_effect, effect: POISON, duration: 200, amplifier: 0, when: { type: var_truthy, key: "EVENT.custom.is_bad_luck" } }
           - { type: apply_effect, effect: LUCK, duration: 1200, amplifier: 0, when: { type: var_truthy, key: "EVENT.custom.is_bad_luck", invert: true } }
@@ -1394,7 +1446,7 @@ items:
         on_pass:
           - { type: consume_item }
           - { type: play_sound, sound: BLOCK_RESPAWN_ANCHOR_DEPLETE, pitch: 0.7 }
-          - { type: random_bool_to_var, key: "EVENT.custom.is_bad_chaos", probability: 0.5 }
+          - { type: set_random_var, var: "EVENT.custom.is_bad_chaos", probability: 0.5 }
           - { type: apply_effect, effect: WEAKNESS, duration: 400, amplifier: 0, when: { type: var_truthy, key: "EVENT.custom.is_bad_chaos" } }
           - { type: apply_effect, effect: SLOWNESS, duration: 400, amplifier: 0, when: { type: var_truthy, key: "EVENT.custom.is_bad_chaos" } }
           - { type: apply_effect, effect: STRENGTH, duration: 400, amplifier: 0, when: { type: var_truthy, key: "EVENT.custom.is_bad_chaos", invert: true } }
@@ -1484,6 +1536,7 @@ items:
   AIR_STAFF:
     name: "<white>Bastón de Aire"
     base_material: IRON_HOE
+    max_damage: 100
     pdc:
       - { key: staff_damage, type: DOUBLE, value: 2.0 }
       - { key: staff_speed, type: DOUBLE, value: 8.5 }
@@ -1502,13 +1555,14 @@ items:
           - { type: player_has_cooldown, material: IRON_HOE, value: false }
         on_pass:
           - { type: set_player_cooldown, material: IRON_HOE, ticks: 30 }
+          - { type: damage_item_durability, slot_key: EVENT.hand, amount: 1 }
           - type: read_item_pdc_to_var
             key: staff_damage
-            type: DOUBLE
+            data_type: DOUBLE
             var: EVENT.custom.staff_damage
           - type: read_item_pdc_to_var
             key: staff_speed
-            type: DOUBLE
+            data_type: DOUBLE
             var: EVENT.custom.staff_speed
           - type: math_set_var
             key: EVENT.custom.as_curve_height
@@ -1524,17 +1578,18 @@ items:
             homing: false
             target_y_offset: 1.0
             on_launch:
-              - action: play_sound
+              - type: play_sound
                 sound: ENTITY_PHANTOM_FLAP
                 volume: 1.0
                 pitch: 1.5
-              - action: play_particle
+              - type: play_particle
                 particle: CLOUD
                 count: 15
                 speed: 0.1
                 spread: 0.3
             on_tick:
               - type: spawn_particle_shape
+                center: LOCATION
                 particle: CLOUD
                 shape: HELIX
                 points: 10
@@ -1543,6 +1598,7 @@ items:
                 turns: 2
                 count: 1
               - type: spawn_particle_shape
+                center: LOCATION
                 particle: SWEEP_ATTACK
                 shape: RING
                 points: 4
@@ -1559,7 +1615,7 @@ items:
                 volume: 0.8
                 pitch: 1.5
               - type: spawn_particle_shape
-                center: EVENT.hitLocation
+                center: LOCATION
                 particle: EXPLOSION_NORMAL
                 shape: SPHERE
                 points: 10
@@ -1568,7 +1624,7 @@ items:
               - type: apply_effect
                 target:
                   selector: nearby
-                  location: EVENT.hitLocation
+                  location: LOCATION
                   radius: 4
                   include_players: true
                   include_mobs: true
@@ -1581,6 +1637,7 @@ items:
   VOID_STAFF:
     name: "<dark_purple>Bastón del Vacío"
     base_material: NETHERITE_HOE
+    max_damage: 150
     pdc:
       - { key: staff_damage, type: DOUBLE, value: 3.5 }
       - { key: staff_speed, type: DOUBLE, value: 7.5 }
@@ -1601,17 +1658,18 @@ items:
           - { type: player_has_cooldown, material: NETHERITE_HOE, value: false }
         on_pass:
           - { type: set_player_cooldown, material: NETHERITE_HOE, ticks: 50 }
+          - { type: damage_item_durability, slot_key: EVENT.hand, amount: 1 }
           - type: read_item_pdc_to_var
             key: staff_damage
-            type: DOUBLE
+            data_type: DOUBLE
             var: EVENT.custom.staff_damage
           - type: read_item_pdc_to_var
             key: staff_speed
-            type: DOUBLE
+            data_type: DOUBLE
             var: EVENT.custom.staff_speed
           - type: read_item_pdc_to_var
             key: staff_pull_power
-            type: DOUBLE
+            data_type: DOUBLE
             var: EVENT.custom.staff_pull_power
           - type: math_set_var
             key: EVENT.custom.vs_curve_height
@@ -1627,17 +1685,18 @@ items:
             homing: false
             target_y_offset: 1.0
             on_launch:
-              - action: play_sound
+              - type: play_sound
                 sound: ENTITY_WITHER_SHOOT
                 volume: 1.0
                 pitch: 0.8
-              - action: play_particle
+              - type: play_particle
                 particle: PORTAL
                 count: 20
                 speed: 0.1
                 spread: 0.5
             on_tick:
               - type: spawn_particle_shape
+                center: LOCATION
                 particle: PORTAL
                 shape: HELIX
                 points: 12
@@ -1646,6 +1705,7 @@ items:
                 turns: 2
                 count: 2
               - type: spawn_particle_shape
+                center: LOCATION
                 particle: DRAGON_BREATH
                 shape: SPHERE
                 points: 5
@@ -1666,7 +1726,7 @@ items:
                 volume: 1.0
                 pitch: 0.5
               - type: spawn_particle_shape
-                center: EVENT.hitLocation
+                center: LOCATION
                 particle: REVERSE_PORTAL
                 shape: SPIRAL
                 points: 20
@@ -1677,7 +1737,7 @@ items:
               - type: apply_effect
                 target:
                   selector: nearby
-                  location: EVENT.hitLocation
+                  location: LOCATION
                   radius: 4
                   include_players: true
                   include_mobs: true
@@ -1687,7 +1747,7 @@ items:
               - type: apply_effect
                 target:
                   selector: nearby
-                  location: EVENT.hitLocation
+                  location: LOCATION
                   radius: 4
                   include_players: true
                   include_mobs: true
@@ -1700,6 +1760,7 @@ items:
   EARTH_STAFF:
     name: "<green>Bastón de Tierra"
     base_material: STONE_HOE
+    max_damage: 80
     pdc:
       - { key: staff_damage, type: DOUBLE, value: 2.5 }
       - { key: staff_speed, type: DOUBLE, value: 6.5 }
@@ -1720,13 +1781,14 @@ items:
           - { type: player_has_cooldown, material: STONE_HOE, value: false }
         on_pass:
           - { type: set_player_cooldown, material: STONE_HOE, ticks: 45 }
+          - { type: damage_item_durability, slot_key: EVENT.hand, amount: 1 }
           - type: read_item_pdc_to_var
             key: staff_damage
-            type: DOUBLE
+            data_type: DOUBLE
             var: EVENT.custom.staff_damage
           - type: read_item_pdc_to_var
             key: staff_speed
-            type: DOUBLE
+            data_type: DOUBLE
             var: EVENT.custom.staff_speed
           - type: math_set_var
             key: EVENT.custom.es_curve_height
@@ -1742,11 +1804,11 @@ items:
             homing: false
             target_y_offset: 0.5
             on_launch:
-              - action: play_sound
+              - type: play_sound
                 sound: BLOCK_GRAVEL_BREAK
                 volume: 1.0
                 pitch: 0.8
-              - action: play_particle
+              - type: play_particle
                 particle: BLOCK_CRACK
                 material: DIRT
                 count: 20
@@ -1754,6 +1816,7 @@ items:
                 spread: 0.5
             on_tick:
               - type: spawn_particle_shape
+                center: LOCATION
                 particle: BLOCK_CRACK
                 material: DIRT
                 shape: HELIX
@@ -1763,6 +1826,7 @@ items:
                 turns: 2
                 count: 2
               - type: spawn_particle_shape
+                center: LOCATION
                 particle: BLOCK_CRACK
                 material: STONE
                 shape: RING
@@ -1780,7 +1844,7 @@ items:
                 volume: 1.0
                 pitch: 0.5
               - type: spawn_particle_shape
-                center: EVENT.hitLocation
+                center: LOCATION
                 particle: BLOCK_CRACK
                 material: COARSE_DIRT
                 shape: SPHERE
@@ -1790,7 +1854,7 @@ items:
               - type: apply_effect
                 target:
                   selector: nearby
-                  location: EVENT.hitLocation
+                  location: LOCATION
                   radius: 4
                   include_players: true
                   include_mobs: true
@@ -1800,7 +1864,7 @@ items:
               - type: apply_effect
                 target:
                   selector: nearby
-                  location: EVENT.hitLocation
+                  location: LOCATION
                   radius: 4
                   include_players: true
                   include_mobs: true
@@ -1814,10 +1878,12 @@ items:
   ICE_STAFF:
     name: "<aqua>Bastón de Hielo"
     base_material: DIAMOND_HOE
+    max_damage: 120
     pdc:
       - { key: staff_damage, type: DOUBLE, value: 2.0 }
       - { key: staff_speed, type: DOUBLE, value: 7.5 }
       - { key: staff_freeze_duration, type: DOUBLE, value: 3.0 }
+      - { key: staff_freeze_radius, type: DOUBLE, value: 3.0 }
     lore:
       - "<gray>Congela a tus enemigos"
       - ""
@@ -1825,6 +1891,7 @@ items:
       - "<blue> +%pdc_double:staff_damage% Daño de Proyectil"
       - "<blue> +%pdc_double:staff_speed% Velocidad de Proyectil"
       - "<blue> +%pdc_double:staff_freeze_duration%s Congelación"
+      - "<blue> +%pdc_double:staff_freeze_radius% Radio de Congelación"
     events:
       player_interact:
         require_all:
@@ -1834,14 +1901,19 @@ items:
           - { type: player_has_cooldown, material: DIAMOND_HOE, value: false }
         on_pass:
           - { type: set_player_cooldown, material: DIAMOND_HOE, ticks: 40 }
+          - { type: damage_item_durability, slot_key: EVENT.hand, amount: 1 }
           - type: read_item_pdc_to_var
             key: staff_damage
-            type: DOUBLE
+            data_type: DOUBLE
             var: EVENT.custom.staff_damage
           - type: read_item_pdc_to_var
             key: staff_speed
-            type: DOUBLE
+            data_type: DOUBLE
             var: EVENT.custom.staff_speed
+          - type: read_item_pdc_to_var
+            key: staff_freeze_radius
+            data_type: DOUBLE
+            var: EVENT.custom.staff_freeze_radius
           - type: math_set_var
             key: EVENT.custom.is_curve_height
             op: rand_range
@@ -1855,18 +1927,21 @@ items:
             curve_side: 0.0
             homing: false
             target_y_offset: 1.0
+            args:
+              freeze_radius: EVENT.custom.staff_freeze_radius
             on_launch:
-              - action: play_sound
+              - type: play_sound
                 sound: ENTITY_SNOW_GOLEM_SHOOT
                 volume: 1.0
                 pitch: 1.0
-              - action: play_particle
+              - type: play_particle
                 particle: SNOWFLAKE
                 count: 20
                 speed: 0.1
                 spread: 0.5
             on_tick:
               - type: spawn_particle_shape
+                center: LOCATION
                 particle: SNOWFLAKE
                 shape: HELIX
                 points: 12
@@ -1875,6 +1950,7 @@ items:
                 turns: 2
                 count: 2
               - type: spawn_particle_shape
+                center: LOCATION
                 particle: FIREWORKS_SPARK
                 shape: SPHERE
                 points: 5
@@ -1891,15 +1967,15 @@ items:
                 volume: 1.0
                 pitch: 1.2
               - type: spawn_particle_shape
-                center: EVENT.hitLocation
+                center: LOCATION
                 particle: SNOWFLAKE
                 shape: SPHERE
                 points: 30
                 radius: 2.0
                 count: 1
               - type: freeze_area
-                where: EVENT.hitLocation
-                radius: 3
+                where: LOCATION
+                radius_key: EVENT.args.freeze_radius
                 air_chance: 0.5
                 air_material: POWDER_SNOW
                 water_material: ICE
@@ -1907,7 +1983,7 @@ items:
               - type: apply_effect
                 target:
                   selector: nearby
-                  location: EVENT.hitLocation
+                  location: LOCATION
                   radius: 4
                   include_players: true
                   include_mobs: true
@@ -1921,6 +1997,7 @@ items:
   FIRE_STAFF:
     name: "<gold>Bastón de Fuego"
     base_material: GOLDEN_HOE
+    max_damage: 100
     pdc:
       - { key: staff_damage, type: DOUBLE, value: 2.5 }
       - { key: staff_speed, type: DOUBLE, value: 8.0 }
@@ -1941,13 +2018,14 @@ items:
           - { type: player_has_cooldown, material: GOLDEN_HOE, value: false }
         on_pass:
           - { type: set_player_cooldown, material: GOLDEN_HOE, ticks: 40 }
+          - { type: damage_item_durability, slot_key: EVENT.hand, amount: 1 }
           - type: read_item_pdc_to_var
             key: staff_damage
-            type: DOUBLE
+            data_type: DOUBLE
             var: EVENT.custom.staff_damage
           - type: read_item_pdc_to_var
             key: staff_speed
-            type: DOUBLE
+            data_type: DOUBLE
             var: EVENT.custom.staff_speed
           - type: launch_curved_projectile
             projectile: SMALL_FIREBALL
@@ -1958,17 +2036,18 @@ items:
             target_y_offset: 0.5
             targets: []
             on_launch:
-              - action: play_sound
+              - type: play_sound
                 sound: ENTITY_BLAZE_SHOOT
                 volume: 1.0
                 pitch: 1.0
-              - action: play_particle
+              - type: play_particle
                 particle: FLAME
                 count: 20
                 speed: 0.1
                 spread: 0.5
             on_tick:
               - type: spawn_particle_shape
+                center: LOCATION
                 particle: FLAME
                 shape: HELIX
                 points: 12
@@ -1977,6 +2056,7 @@ items:
                 turns: 2
                 count: 2
               - type: spawn_particle_shape
+                center: LOCATION
                 particle: SMOKE_LARGE
                 shape: SPHERE
                 points: 5
@@ -1993,7 +2073,7 @@ items:
                 volume: 1.0
                 pitch: 1.2
               - type: spawn_particle_shape
-                center: EVENT.hitLocation
+                center: LOCATION
                 particle: LAVA
                 shape: SPHERE
                 points: 30
@@ -2002,7 +2082,7 @@ items:
               - type: apply_effect
                 target:
                   selector: nearby
-                  location: EVENT.hitLocation
+                  location: LOCATION
                   radius: 3
                   include_players: true
                   include_mobs: true

@@ -18,8 +18,9 @@ final class SetAttributeAction {
     }
 
     private static Action parse(Map<?, ?> raw) {
-        Object targetSpec = raw.get("target");
-        if (targetSpec == null) targetSpec = raw.get("entity");
+        Object targetSpecRaw = raw.get("target");
+        if (targetSpecRaw == null) targetSpecRaw = raw.get("entity");
+        final Object targetSpec = targetSpecRaw;
         
         Attribute attribute = Resolvers.attribute(null, raw, "attribute", "attr");
         Double value = Resolvers.doubleVal(null, raw, "value", "amount", "base");
@@ -45,7 +46,7 @@ final class SetAttributeAction {
              // Let's just require attribute for new usage.
              // For legacy set_mob_max_health, I'll keep the old action or map it here.
              // I'll map it here by checking if attribute is null.
-             if (attribute == null) attribute = Attribute.GENERIC_MAX_HEALTH;
+             if (attribute == null) attribute = Attribute.MAX_HEALTH;
         }
         
         if (attribute == null || value == null) return null;
@@ -54,13 +55,16 @@ final class SetAttributeAction {
         final double finalValue = value;
 
         return ctx -> {
-            List<Entity> targets = Resolvers.entities(ctx, targetSpec);
-            if (targets.isEmpty()) {
+            List<Entity> resolvedTargets = Resolvers.entities(ctx, targetSpec);
+            final List<Entity> targets;
+            if (resolvedTargets.isEmpty()) {
                 if (targetSpec == null && ctx.subject() != null) {
                     targets = List.of(ctx.subject());
                 } else {
                     return ActionResult.ALLOW;
                 }
+            } else {
+                targets = resolvedTargets;
             }
 
             ActionUtils.runSync(ctx.plugin(), () -> {
@@ -69,7 +73,7 @@ final class SetAttributeAction {
                         AttributeInstance inst = le.getAttribute(finalAttr);
                         if (inst != null) {
                             inst.setBaseValue(finalValue);
-                            if (finalAttr == Attribute.GENERIC_MAX_HEALTH) {
+                            if (finalAttr == Attribute.MAX_HEALTH) {
                                 le.setHealth(finalValue);
                             }
                         }

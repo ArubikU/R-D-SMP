@@ -32,7 +32,6 @@ public final class ActionRegistrar {
         StackPlayerAttributeModifierAction.register();
         AddPlayerFoodAction.register();
         ApplyEffectAction.register();
-        ApplyRandomEffectAction.register();
         RemoveEffectAction.register();
         ConsumeEventItemAction.register();
         BroadcastAction.register();
@@ -54,7 +53,7 @@ public final class ActionRegistrar {
         SetWorldTimeAction.register();
         SetGameRuleAllWorldsAction.register();
         AddVelocityRandomAction.register();
-        RandomBoolToVarAction.register();
+        SetRandomVarAction.register();
         SetVarNowPlusAction.register();
         ForEachOnlinePlayerAction.register();
         ForEachEntityInAllWorldsAction.register();
@@ -116,6 +115,32 @@ public final class ActionRegistrar {
         SetTargetAction.register();
         AddPassengerAction.register();
         SetEntityPropertyAction.register();
+        MessageAction.register();
+        CommandAction.register();
+        ReflectDamageIfBlockingAction.register();
+        PullNearbyItemsAction.register();
+        PlayParticleAction.register();
+        GetBlockAction.register();
+        ModifyVariableAction.register();
+        SetBlockPropertyAction.register();
+        GetEntityPropertyAction.register();
+        SpawnPassengerAction.register();
+        SpawnMountAction.register();
+        DuplicateDropsAction.register();
+        FindTopBlockNearAction.register();
+        LavaFlowLikeWaterAction.register();
+        ForEachEntityAction.register();
+        SetMonstersSilentAllWorldsAction.register();
+        MultiplyEventExpAction.register();
+        LegendaryFisherAction.register();
+        RestoreAnvilAction.register();
+        FortuneTouchBestDropAction.register();
+        LumberjackBreakTreeAction.register();
+        MirrorWorldEndermanPassiveAction.register();
+        MirrorWorldPigAggressiveAction.register();
+        PersistentShadowStartAction.register();
+        PersistentShadowStopAction.register();
+        FairTradePiglinBarterAction.register();
     }
 
     public static void register(String name, Function<Map<?, ?>, Action> factory, String... aliases) {

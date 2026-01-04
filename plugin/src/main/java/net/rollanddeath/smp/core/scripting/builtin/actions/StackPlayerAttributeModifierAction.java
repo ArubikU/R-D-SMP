@@ -48,14 +48,15 @@ public final class StackPlayerAttributeModifierAction {
             return ActionResult.ALLOW;
         }
 
-        AttributeModifier.Operation operation;
+        AttributeModifier.Operation operationRaw;
         try {
-            operation = (opRaw != null && !opRaw.isBlank())
+            operationRaw = (opRaw != null && !opRaw.isBlank())
                 ? AttributeModifier.Operation.valueOf(opRaw.trim().toUpperCase(Locale.ROOT))
                 : AttributeModifier.Operation.ADD_NUMBER;
         } catch (Exception ignored) {
-            operation = AttributeModifier.Operation.ADD_NUMBER;
+            operationRaw = AttributeModifier.Operation.ADD_NUMBER;
         }
+        final AttributeModifier.Operation operation = operationRaw;
 
         String keyId = keyRaw.trim();
         if (keyId.isBlank()) return ActionResult.ALLOW;

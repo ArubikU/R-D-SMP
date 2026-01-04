@@ -30,19 +30,21 @@ final class ExplodeAction {
         final Double finalPower = power;
         final Boolean finalSetFire = setFire;
         final Boolean finalBreakBlocks = breakBlocks;
+        final Object finalLocationSpec = locationSpec;
 
         return ctx -> {
-            List<Location> locs = Resolvers.locations(ctx, locationSpec);
+            List<Location> locs = Resolvers.locations(ctx, finalLocationSpec);
             if (locs.isEmpty()) {
-                if (locationSpec == null && ctx.location() != null) {
+                if (finalLocationSpec == null && ctx.location() != null) {
                     locs = List.of(ctx.location());
                 } else {
                     return ActionResult.ALLOW;
                 }
             }
 
+            final List<Location> finalLocs = locs;
             ActionUtils.runSync(ctx.plugin(), () -> {
-                for (Location loc : locs) {
+                for (Location loc : finalLocs) {
                     if (loc != null && loc.getWorld() != null) {
                         loc.getWorld().createExplosion(loc, finalPower.floatValue(), finalSetFire, finalBreakBlocks);
                     }

@@ -3,7 +3,7 @@ package net.rollanddeath.smp.core.items.recipes;
 import net.rollanddeath.smp.core.scripting.Action;
 import net.rollanddeath.smp.core.scripting.Condition;
 import net.rollanddeath.smp.core.scripting.builtin.actions.ActionRegistrar;
-import net.rollanddeath.smp.core.scripting.builtin.BuiltInConditions;
+import net.rollanddeath.smp.core.scripting.builtin.conditions.ConditionRegistrar;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.ArrayList;
@@ -41,7 +41,7 @@ public final class RecipeRuleParser {
 
         List<Condition> requireAll = new ArrayList<>();
         for (Map<?, ?> raw : phaseSection.getMapList("require_all")) {
-            Condition c = BuiltInConditions.parse(raw);
+            Condition c = ConditionRegistrar.parse(raw);
             if (c != null) requireAll.add(c);
         }
 

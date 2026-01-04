@@ -6,6 +6,7 @@ import java.util.Map;
 
 import net.rollanddeath.smp.core.scripting.Action;
 import net.rollanddeath.smp.core.scripting.ActionResult;
+import net.rollanddeath.smp.core.scripting.Resolvers;
 import net.rollanddeath.smp.core.scripting.ScriptContext;
 import net.rollanddeath.smp.core.scripting.ScriptEngine;
 import net.rollanddeath.smp.core.scripting.builtin.BuiltInArgs;
@@ -64,7 +65,7 @@ final class CallAction {
 
     private static Object resolveScriptVars(ScriptContext ctx, Object value) {
         if (value == null) return null;
-        if (value instanceof String s) return BuiltInArgs.resolveArg(ctx, s);
+        if (value instanceof String s) return Resolvers.resolve(ctx, s);
         if (value instanceof Number || value instanceof Boolean) return value;
         if (value instanceof List<?> list) {
             return list.stream()

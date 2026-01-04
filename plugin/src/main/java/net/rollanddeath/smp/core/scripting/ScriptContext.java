@@ -18,6 +18,12 @@ import java.util.Map;
 
 public final class ScriptContext {
 
+    /** Límite de profundidad de recursión para getValue para prevenir StackOverflowError */
+    private static final int MAX_GET_VALUE_DEPTH = 32;
+    
+    /** ThreadLocal para rastrear la profundidad de recursión de getValue */
+    private static final ThreadLocal<Integer> GET_VALUE_DEPTH = ThreadLocal.withInitial(() -> 0);
+
     private final RollAndDeathSMP plugin;
     private final Player player;
     private final String subjectId;
@@ -55,6 +61,12 @@ public final class ScriptContext {
         Object targetBase = variables != null ? variables.get("__target") : null;
         Object projectileBase = variables != null ? variables.get("__projectile") : null;
         Object itemBase = variables != null ? variables.get("__item") : null;
+        Object locationBase = variables != null ? variables.get("__location") : null;
+
+        // LOCATION override (útil para proyectiles donde queremos que LOCATION sea la posición del proyectil)
+        if (locationBase instanceof Location loc) {
+            scopes.put(ScopeId.LOCATION, plugin.getScopeRegistry().location(loc));
+        }
 
         if (subjectBase instanceof Entity) {
             scopes.put(ScopeId.SUBJECT, plugin.getScopeRegistry().subject(subjectBase));
@@ -143,6 +155,26 @@ public final class ScriptContext {
         Object eventPayload = EventPayloads.wrap(eventRaw);
         ScopeContainer eventScope = plugin.getScopeRegistry().event(eventPayload);
         scopes.put(ScopeId.EVENT, eventScope);
+
+        // Inyectar variables con prefijo EVENT.args.* o EVENT.cache.* al cache del scope EVENT.
+        // Esto permite que callbacks de proyectiles y otras invocaciones pasen args correctamente.
+        if (variables != null) {
+            for (Map.Entry<String, Object> entry : variables.entrySet()) {
+                String key = entry.getKey();
+                if (key != null && (key.startsWith("EVENT.args.") || key.startsWith("EVENT.cache."))) {
+                    try {
+                        // Convertir EVENT.args.X a EVENT.cache.X para el sistema de scopes
+                        String cacheKey = key.startsWith("EVENT.args.") 
+                            ? "EVENT.cache." + key.substring("EVENT.args.".length())
+                            : key;
+                        eventScope.setCacheEngineOnly(cacheKey, entry.getValue());
+                        plugin.getLogger().info("[DEBUG] ScriptContext injected cache: " + cacheKey + " = " + entry.getValue());
+                    } catch (Exception e) {
+                        plugin.getLogger().warning("[DEBUG] ScriptContext failed to inject: " + key + " -> " + e.getMessage());
+                    }
+                }
+            }
+        }
 
         // ITEM (fallback): si no se inyectó __item, intentamos derivarlo desde EVENT.item.
         // Esto cubre eventos Bukkit que exponen getItem() y payloads custom que ya incluyen "item".
@@ -361,6 +393,10 @@ public final class ScriptContext {
         return type.isInstance(p) ? type.cast(p) : null;
     }
 
+    public Entity entity() {
+        return subjectOrEventEntity(Entity.class);
+    }
+
     public <T> T subject(Class<T> type) {
         return base(ScopeId.SUBJECT, type);
     }
@@ -408,6 +444,20 @@ public final class ScriptContext {
     public Object getValue(String keyOrPath) {
         if (keyOrPath == null) return null;
 
+        // Prevenir recursión infinita
+        int depth = GET_VALUE_DEPTH.get();
+        if (depth >= MAX_GET_VALUE_DEPTH) {
+            return null; // Límite de profundidad alcanzado
+        }
+        GET_VALUE_DEPTH.set(depth + 1);
+        try {
+            return getValueInternal(keyOrPath);
+        } finally {
+            GET_VALUE_DEPTH.set(depth);
+        }
+    }
+    
+    private Object getValueInternal(String keyOrPath) {
         // Acceso engine-only a la key interna __event (para builtins).
         // Nota: si __event es un Map con native/__native, devolvemos el evento nativo.
         String rawInternal = keyOrPath.trim();
@@ -448,7 +498,53 @@ public final class ScriptContext {
         ScopePath p = ScopePath.parse(keyOrPath);
         if (p != null) {
             ScopeContainer sc = scopes.get(p.scope());
-            return sc != null ? sc.get(p) : null;
+            Object val = sc != null ? sc.get(p) : null;
+            if (val != null) return val;
+
+            // Fallback: Property resolution on nested objects (e.g. EVENT.custom.myVar.health)
+            // If the full path failed, try to find a valid parent path and resolve properties from there.
+            // Usamos el keyOrPath original (no p.path()) para evitar duplicar el scope.
+            String fullPath = keyOrPath;
+            int lastDot = fullPath.lastIndexOf('.');
+            while (lastDot > 0) {
+                String parentPath = fullPath.substring(0, lastDot);
+                String property = fullPath.substring(lastDot + 1);
+                
+                // parentPath ya contiene el scope (e.g., "EVENT.custom.myVar")
+                // así que lo usamos directamente sin agregar el scope de nuevo
+                Object parentObj = getValue(parentPath);
+                
+                if (parentObj != null) {
+                    // We found a parent! Now try to resolve the rest of the path as properties.
+                    // The 'rest' might be multiple segments if we peeled off multiple times?
+                    // No, the loop peels from the end. 
+                    // Wait, if we have A.B.C.D, and A.B is the object.
+                    // 1. Try A.B.C -> fail.
+                    // 2. Try A.B -> success.
+                    // Then we need to resolve C.D on the result.
+                    // My loop above only peels one segment at a time.
+                    // If I peel 'health' from 'myVar.health', I get 'myVar'. getValue('myVar') works.
+                    // Then I resolve 'health'.
+                    
+                    // But if I have 'myVar.location.x'.
+                    // 1. Peel 'x'. Try 'myVar.location'.
+                    //    If 'myVar.location' resolves (via recursion), then I resolve 'x' on it.
+                    //    Recursion handles the chain!
+                    
+                    return Resolvers.resolveProperty(parentObj, property);
+                }
+                
+                lastDot = fullPath.lastIndexOf('.', lastDot - 1);
+            }
+        }
+
+        // Dynamic property resolution for variables without explicit scope (e.g. myVar.health)
+        if (keyOrPath.indexOf('.') > 0) {
+            String[] parts = keyOrPath.split("\\.", 2);
+            Object base = getValue(parts[0]);
+            if (base != null) {
+                return Resolvers.resolveProperty(base, parts[1]);
+            }
         }
 
         return null;

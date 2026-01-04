@@ -19,7 +19,7 @@ final class SetEventUseInteractedBlockAction {
         if (value == null || value.isBlank()) return null;
 
         return ctx -> {
-            Event ev = ctx.nativeEvent();
+            Event ev = ctx.nativeEvent(Event.class);
             if (ev instanceof PlayerInteractEvent pie) {
                 try {
                     pie.setUseInteractedBlock(org.bukkit.event.Event.Result.valueOf(value.toUpperCase()));

@@ -2,7 +2,8 @@ package net.rollanddeath.smp.core.scripting.builtin.actions;
 
 import net.rollanddeath.smp.core.scripting.Action;
 import net.rollanddeath.smp.core.scripting.Resolvers;
-import net.rollanddeath.smp.core.scripting.builtin.BuiltInActions;
+import net.rollanddeath.smp.core.scripting.ActionResult;
+import org.bukkit.World;
 
 final class SetWorldTimeAction {
     private SetWorldTimeAction() {
@@ -19,6 +20,14 @@ final class SetWorldTimeAction {
             if (t != null) time = (long) t;
         }
         if (time == null) return null;
-        return BuiltInActions.setWorldTime(time);
+        
+        long finalTime = time;
+        return ctx -> {
+            World w = ctx.world();
+            if (w != null) {
+                w.setTime(finalTime);
+            }
+            return ActionResult.ALLOW;
+        };
     }
 }

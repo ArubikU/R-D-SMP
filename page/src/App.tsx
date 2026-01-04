@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { dailyEvents, weeklyRoles, mobs, items, serverRules, tutorials, wikiAdvancedEntries, dayRules } from './data';
+import { useEffect, useState } from 'react';
+import { dailyEvents, weeklyRoles, mobs, serverRules, tutorials, wikiAdvancedEntries, dayRules } from './data';
 import { NavButton } from './components/ui/NavButton';
 import { SectionTitle } from './components/ui/SectionTitle';
 import { EventCard } from './components/EventCard';
@@ -18,6 +18,182 @@ function App() {
     const [wikiSection, setWikiSection] = useState('events');
     const [simSection, setSimSection] = useState('roulette');
     const [searchTerm, setSearchTerm] = useState("");
+    const [itemsLoading, setItemsLoading] = useState(false);
+    const [itemsError, setItemsError] = useState<string | null>(null);
+    const [remoteItems, setRemoteItems] = useState<any[]>([]);
+
+    const ingredientName = (entry: any) => {
+        if (!entry) return null;
+        return entry.custom ?? entry.material ?? entry.name ?? entry.id ?? null;
+    };
+
+    const buildRecipe = (definition: any, type: string, displayName: string) => {
+        if (!definition) return null;
+
+        const resultName = ingredientName(definition.result) ?? displayName;
+        const warning = definition.result?.warning ?? definition.warning ?? null;
+
+        if (type?.includes('shapeless')) {
+            const ingredients = Array.isArray(definition.ingredients)
+                ? definition.ingredients.map(ingredientName).filter(Boolean)
+                : [];
+
+            return {
+                type: 'shapeless',
+                ingredients,
+                result: resultName,
+                warning,
+            };
+        }
+
+        if (type?.includes('shaped') || Array.isArray(definition.pattern)) {
+            const pattern: string[] = (definition.pattern ?? []).slice(0, 3).map((row: string) => (row ?? '').padEnd(3, ' '));
+            const keyMap = definition.key ?? {};
+            const grid: (string | null)[] = [];
+
+            for (let r = 0; r < 3; r++) {
+                const row = pattern[r] ?? '   ';
+                for (let c = 0; c < 3; c++) {
+                    const symbol = row[c];
+                    if (!symbol || symbol === ' ') {
+                        grid.push(null);
+                        continue;
+                    }
+                    grid.push(ingredientName(keyMap[symbol]) ?? null);
+                }
+            }
+
+            return {
+                type: 'shaped',
+                grid,
+                result: resultName,
+                warning,
+            };
+        }
+
+        return null;
+    };
+
+    const normalizeRecipe = (recipe: any) => {
+        const definition = recipe?.definition ?? {};
+        const meta = recipe?.result_meta ?? {};
+        const resultName = meta.display_name ?? ingredientName(definition.result) ?? recipe.id ?? 'Receta';
+        const recipeBlock = buildRecipe(definition, recipe?.type, resultName);
+        const roleRequirement = meta.required_role ?? definition.required_role ?? null;
+        const descParts = [];
+        if (roleRequirement) descParts.push(`Requiere rol ${roleRequirement}`);
+        if (recipe?.rules && recipe.rules.length) descParts.push('Contiene reglas especiales de crafteo');
+        const desc = descParts.join(' · ') || 'Receta disponible en el servidor';
+
+        return {
+            name: resultName,
+            type: roleRequirement ? `Rol: ${roleRequirement}` : 'Receta',
+            desc,
+            rarity: meta.rarity ?? 'raro',
+            acquisition: 'Crafteo',
+            recipe: recipeBlock,
+            warning: recipeBlock?.warning ?? null,
+        };
+    };
+
+    const normalizeDrop = (drop: any) => {
+        const name = drop?.item_display_name ?? drop?.item_id ?? 'Ítem';
+        const requiredRole = drop?.required_role;
+        const material = drop?.material ?? null;
+        const mobName = drop?.mob_name ?? drop?.mob_id ?? 'Mob';
+        const chance = typeof drop?.chance === 'number' ? drop.chance : undefined;
+        const amount = drop?.amount ?? 1;
+
+        const parts: string[] = [];
+        parts.push(`Drop de ${mobName}`);
+        if (chance !== undefined) {
+            const pct = (chance * 100).toFixed(chance < 0.05 ? 2 : 1);
+            parts.push(`Prob: ${pct}%`);
+        }
+        if (amount && amount !== 1) parts.push(`Cantidad: x${amount}`);
+        if (material) parts.push(`Material base: ${material}`);
+        if (requiredRole) parts.push(`Requiere rol ${requiredRole}`);
+
+        const acquisition = parts.join(' · ');
+
+        return {
+            name,
+            type: requiredRole ? `Rol: ${requiredRole}` : 'Drop',
+            desc: parts.join(' · ') || 'Drop / Loot del servidor',
+            rarity: drop?.rarity ?? 'raro',
+            acquisition,
+            recipe: null,
+            dropSources: [acquisition],
+        };
+    };
+
+    useEffect(() => {
+        let cancelled = false;
+        const load = async () => {
+            setItemsLoading(true);
+            setItemsError(null);
+            try {
+                const [recipesRes, dropsRes] = await Promise.all([
+                    fetch('/api/proxy?url=http://151.245.32.130:25587/recipes'),
+                    fetch('/api/proxy?url=http://151.245.32.130:25587/drops'),
+                ]);
+
+                if (!recipesRes.ok) throw new Error(`Estado HTTP ${recipesRes.status} en /recipes`);
+                if (!dropsRes.ok) throw new Error(`Estado HTTP ${dropsRes.status} en /drops`);
+
+                const recipesData = await recipesRes.json();
+                const dropsData = await dropsRes.json();
+
+                const recipes = Array.isArray(recipesData?.recipes) ? recipesData.recipes : [];
+                const drops = Array.isArray(dropsData?.drops) ? dropsData.drops : [];
+
+                if (!cancelled) {
+                    const normalizedRecipes = recipes.map(normalizeRecipe).filter(Boolean);
+                    const normalizedDrops = drops.map(normalizeDrop).filter(Boolean);
+
+                    const mergedMap = new Map<string, any>();
+
+                    const upsert = (item: any) => {
+                        const existing = mergedMap.get(item.name);
+                        if (!existing) {
+                            mergedMap.set(item.name, item);
+                            return;
+                        }
+
+                        const dropSources = [
+                            ...(existing.dropSources ?? []),
+                            ...(item.dropSources ?? []),
+                        ].filter(Boolean);
+
+                        mergedMap.set(item.name, {
+                            ...existing,
+                            ...item,
+                            recipe: existing.recipe ?? item.recipe ?? null,
+                            dropSources,
+                            acquisition: dropSources.length
+                                ? dropSources.join(' | ')
+                                : (item.acquisition ?? existing.acquisition),
+                            desc: [existing.desc, item.desc].filter(Boolean).join(' | '),
+                        });
+                    };
+
+                    normalizedDrops.forEach(upsert);
+                    normalizedRecipes.forEach(upsert);
+
+                    setRemoteItems(Array.from(mergedMap.values()));
+                }
+            } catch (err: any) {
+                if (!cancelled) setItemsError(err?.message ?? 'No se pudo cargar /recipes o /drops');
+            } finally {
+                if (!cancelled) setItemsLoading(false);
+            }
+        };
+
+        load();
+        return () => {
+            cancelled = true;
+        };
+    }, []);
 
     // Filter logic
     const filteredEvents = dailyEvents.filter(ev => 
@@ -167,12 +343,21 @@ function App() {
             case 'items':
                 return (
                     <div>
-                        <SectionTitle>Ítems & Artefactos ({items.length})</SectionTitle>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {items.map((it, i) => (
-                                <ItemCard key={i} item={it} />
-                            ))}
-                        </div>
+                        <SectionTitle>Ítems & Artefactos ({remoteItems.length})</SectionTitle>
+                        {itemsError && (
+                            <div className="bg-red-900/30 border border-red-700 text-red-200 p-4 mb-4">
+                                Error cargando recetas: {itemsError}
+                            </div>
+                        )}
+                        {itemsLoading ? (
+                            <div className="text-gray-400">Cargando recetas desde el servidor...</div>
+                        ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {remoteItems.map((it, i) => (
+                                    <ItemCard key={i} item={it} />
+                                ))}
+                            </div>
+                        )}
                     </div>
                 );
             case 'tutorials':
@@ -266,7 +451,7 @@ function App() {
                                     <WikiSidebarBtn id="events" label="Eventos" icon="🎲" />
                                     <WikiSidebarBtn id="roles" label="Roles" icon="⚔️" />
                                     <WikiSidebarBtn id="mobs" label="Bestiario" icon="🧟" />
-                                    <WikiSidebarBtn id="items" label="Items" icon="🎒" />
+                                    <WikiSidebarBtn id="items" label="Items (API)" icon="🎒" />
                                     <WikiSidebarBtn id="tutorials" label="Tutoriales" icon="📚" />
                                     {wikiAdvancedEntries.map(section => (
                                         <WikiSidebarBtn

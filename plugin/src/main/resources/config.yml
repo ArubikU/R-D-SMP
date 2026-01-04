@@ -5,9 +5,17 @@ web-status:
   enabled: true
   port: 33503
 
+game:
+  # Intervalo (en días del juego) entre giros de la ruleta de modificadores. Usa 1 para el comportamiento diario anterior.
+  modifier_interval_days: 3
+
 discord:
   enabled: true
   webhook_url: "https://discord.com/api/webhooks/1446343596495208498/kp6oaaZr1zJYsRpyNuNTLbVsjdpCKI8eq6ozVFJpaMD9bzmeY4iEVkZvqo0Vv8oZXHjI"
+
+lives:
+  enabled: true
+  default: 3
 
 reanimation:
   enabled: true

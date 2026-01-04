@@ -28,66 +28,92 @@ public final class DropItemAtLocationAction {
 
         String material = Resolvers.string(null, raw, "material", "mat");
         String customItem = Resolvers.string(null, raw, "custom_item", "custom");
+        Object itemsSpec = raw.get("items");
         Integer amount = Resolvers.integer(null, raw, "amount");
         Integer min = Resolvers.integer(null, raw, "min");
         Integer max = Resolvers.integer(null, raw, "max");
         boolean naturally = raw.get("naturally") instanceof Boolean b ? b : true;
 
-        return ctx -> execute(ctx, where, material, customItem, amount, min, max, naturally);
+        return ctx -> execute(ctx, where, material, customItem, itemsSpec, amount, min, max, naturally);
     }
 
-    private static ActionResult execute(ScriptContext ctx, Object locationSpec, String materialRaw, String customItemRaw, Integer amount, Integer min, Integer max, boolean naturally) {
+    private static ActionResult execute(ScriptContext ctx, Object locationSpec, String materialRaw, String customItemRaw, Object itemsSpec, Integer amount, Integer min, Integer max, boolean naturally) {
         RollAndDeathSMP plugin = ctx.plugin();
         if (plugin == null) return ActionResult.ALLOW;
 
-        Location loc = Resolvers.location(locationSpec, ctx, ctx.player() != null ? ctx.player().getWorld() : null);
+        Location loc = Resolvers.location(ctx, locationSpec, ctx.player() != null ? ctx.player().getWorld() : null);
         if (loc == null || loc.getWorld() == null) return ActionResult.ALLOW;
 
-        ItemStack stack = null;
+        java.util.List<ItemStack> stacksToDrop = new java.util.ArrayList<>();
+
+        // 1. Single item from material/custom
+        ItemStack singleStack = null;
         if (customItemRaw != null && !customItemRaw.isBlank()) {
             try {
                 var item = plugin.getItemManager() != null ? plugin.getItemManager().getItem(customItemRaw) : null;
                 if (item != null && item.getItemStack() != null) {
-                    stack = item.getItemStack().clone();
+                    singleStack = item.getItemStack().clone();
                 }
             } catch (Exception ignored) {
             }
         }
 
-        if (stack == null) {
-            if (materialRaw == null || materialRaw.isBlank()) return ActionResult.ALLOW;
+        if (singleStack == null && materialRaw != null && !materialRaw.isBlank()) {
             Material mat;
             try {
                 mat = Material.valueOf(materialRaw.trim().toUpperCase(Locale.ROOT));
             } catch (Exception ignored) {
                 mat = null;
             }
-            if (mat == null || mat == Material.AIR) return ActionResult.ALLOW;
-            stack = new ItemStack(mat, 1);
+            if (mat != null && mat != Material.AIR) {
+                singleStack = new ItemStack(mat, 1);
+            }
         }
 
-        int lo;
-        int hi;
-        if (amount != null) {
-            lo = Math.max(1, amount);
-            hi = lo;
-        } else {
-            lo = min != null ? Math.max(1, min) : 1;
-            hi = max != null ? Math.max(lo, max) : lo;
+        if (singleStack != null) {
+            int lo;
+            int hi;
+            if (amount != null) {
+                lo = Math.max(1, amount);
+                hi = lo;
+            } else {
+                lo = min != null ? Math.max(1, min) : 1;
+                hi = max != null ? Math.max(lo, max) : lo;
+            }
+            int finalAmt = lo == hi ? lo : ThreadLocalRandom.current().nextInt(lo, hi + 1);
+            if (finalAmt > 0) {
+                singleStack.setAmount(finalAmt);
+                stacksToDrop.add(singleStack);
+            }
         }
-        int finalAmt = lo == hi ? lo : ThreadLocalRandom.current().nextInt(lo, hi + 1);
-        if (finalAmt <= 0) return ActionResult.ALLOW;
 
-        ItemStack finalStack = stack.clone();
-        finalStack.setAmount(finalAmt);
+        // 2. List of items (e.g. from EVENT.drops)
+        if (itemsSpec != null) {
+            Object resolvedItems = Resolvers.resolve(ctx, itemsSpec);
+            if (resolvedItems instanceof java.util.List<?> list) {
+                for (Object o : list) {
+                    if (o instanceof ItemStack is) {
+                        stacksToDrop.add(is.clone());
+                    }
+                }
+            } else if (resolvedItems instanceof ItemStack is) {
+                stacksToDrop.add(is.clone());
+            }
+        }
+
+        if (stacksToDrop.isEmpty()) return ActionResult.ALLOW;
+
         Location finalLoc = loc.clone();
 
         plugin.getServer().getScheduler().runTask(plugin, () -> {
             try {
-                if (naturally) {
-                    finalLoc.getWorld().dropItemNaturally(finalLoc, finalStack);
-                } else {
-                    finalLoc.getWorld().dropItem(finalLoc, finalStack);
+                for (ItemStack s : stacksToDrop) {
+                    if (s == null || s.getType() == Material.AIR || s.getAmount() <= 0) continue;
+                    if (naturally) {
+                        finalLoc.getWorld().dropItemNaturally(finalLoc, s);
+                    } else {
+                        finalLoc.getWorld().dropItem(finalLoc, s);
+                    }
                 }
             } catch (Exception ignored) {
             }

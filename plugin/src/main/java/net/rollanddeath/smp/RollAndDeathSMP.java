@@ -34,6 +34,11 @@ import net.rollanddeath.smp.core.game.SoftLockListener;
 import net.rollanddeath.smp.core.game.ArmorRestrictionTask;
 import net.rollanddeath.smp.core.rules.DayRuleListener;
 import net.rollanddeath.smp.core.rules.DayRuleManager;
+import net.rollanddeath.smp.core.monetization.MonetizationManager;
+import net.rollanddeath.smp.core.monetization.MonetizationListener;
+import net.rollanddeath.smp.core.monetization.MonetizationCommand;
+import net.rollanddeath.smp.core.monetization.TrailListener;
+import net.rollanddeath.smp.core.monetization.TrailCommand;
 import net.rollanddeath.smp.core.items.CraftingListener;
 import net.rollanddeath.smp.core.commands.AdminCommand;
 import net.rollanddeath.smp.core.commands.KillStoreCommand;
@@ -86,12 +91,14 @@ public final class RollAndDeathSMP extends JavaPlugin {
     private AnnounceManager announceManager;
     private ReanimationManager reanimationManager;
     private CombatLogManager combatLogManager;
+    private MonetizationManager monetizationManager;
     private DiscordWebhookService discordService;
     private PlayerHudManager playerHudManager;
     private DayRuleManager dayRuleManager;
     private ScopeRegistry scopeRegistry;
     private ScriptedProjectileService scriptedProjectileService;
     private ScriptedParticleSystemService scriptedParticleSystemService;
+    private net.rollanddeath.smp.core.modifiers.scripted.PersistentShadowService persistentShadowService;
     private ScriptLibrary scriptLibrary;
 
     @Override
@@ -102,6 +109,8 @@ public final class RollAndDeathSMP extends JavaPlugin {
         this.scopeRegistry = new ScopeRegistry(this);
 
         // Script library (macros reutilizables)
+        net.rollanddeath.smp.core.scripting.builtin.actions.ActionRegistrar.registerDefaults();
+        net.rollanddeath.smp.core.scripting.builtin.conditions.ConditionRegistrar.registerDefaults();
         this.scriptLibrary = ScriptLibraryLoader.load(this);
 
         // Scripting runtime helpers
@@ -109,12 +118,17 @@ public final class RollAndDeathSMP extends JavaPlugin {
         this.scriptedParticleSystemService.start();
         this.scriptedProjectileService = new ScriptedProjectileService(this);
         this.scriptedProjectileService.start();
+        this.persistentShadowService = new net.rollanddeath.smp.core.modifiers.scripted.PersistentShadowService(this);
 
         // Ajuste global: solo 30% de jugadores necesarios para saltar la noche
         getServer().getWorlds().forEach(world -> world.setGameRule(GameRule.PLAYERS_SLEEPING_PERCENTAGE, 30));
 
         // Initialize Managers
-        this.lifeManager = new LifeManager(this);
+        ConfigurationSection livesSection = getConfig().getConfigurationSection("lives");
+        boolean livesEnabled = livesSection == null || livesSection.getBoolean("enabled", true);
+        int defaultLives = livesSection != null ? livesSection.getInt("default", 3) : 3;
+
+        this.lifeManager = new LifeManager(this, livesEnabled, defaultLives);
         this.modifierManager = new ModifierManager(this);
         this.teamManager = new TeamManager(this);
         teamManager.loadFromConfig(getConfig().getConfigurationSection("teams"));
@@ -140,6 +154,7 @@ public final class RollAndDeathSMP extends JavaPlugin {
         this.dayRuleManager = new DayRuleManager(this);
         this.killPointsManager = new KillPointsManager(this);
         this.announceManager = new AnnounceManager(this);
+        this.monetizationManager = new MonetizationManager(this);
 
         // Reactiva modifiers persistidos una vez que los managers necesarios ya existen.
         // Ej: "purge" necesita ProtectionManager.
@@ -371,6 +386,9 @@ public final class RollAndDeathSMP extends JavaPlugin {
         getServer().getPluginManager().registerEvents(roleManager, this);
         getServer().getPluginManager().registerEvents(new net.rollanddeath.smp.core.mobs.MobSpawnListener(this), this);
         getServer().getPluginManager().registerEvents(new net.rollanddeath.smp.core.mobs.BossDeathListener(this), this);
+        getServer().getPluginManager().registerEvents(new DayRuleListener(this), this);
+        getServer().getPluginManager().registerEvents(new MonetizationListener(monetizationManager), this);
+        getServer().getPluginManager().registerEvents(new TrailListener(monetizationManager), this);
 
         // Register Commands
         TeamCommand teamCommand = new TeamCommand(this, teamManager);
@@ -446,6 +464,84 @@ public final class RollAndDeathSMP extends JavaPlugin {
         getCommand("reglas").setExecutor(rulesCmd);
         getServer().getPluginManager().registerEvents(rulesCmd, this);
 
+        MonetizationCommand monetCmd = new MonetizationCommand(monetizationManager);
+        PluginCommand ecCmd = getCommand("ec");
+        if (ecCmd != null) {
+            ecCmd.setExecutor(monetCmd);
+            ecCmd.setTabCompleter(monetCmd);
+        }
+        PluginCommand craftCmd = getCommand("craft");
+        if (craftCmd != null) {
+            craftCmd.setExecutor(monetCmd);
+            craftCmd.setTabCompleter(monetCmd);
+        }
+        PluginCommand anvilCmd = getCommand("anvil");
+        if (anvilCmd != null) {
+            anvilCmd.setExecutor(monetCmd);
+            anvilCmd.setTabCompleter(monetCmd);
+        }
+        PluginCommand enchantCmd = getCommand("enchant");
+        if (enchantCmd != null) {
+            enchantCmd.setExecutor(monetCmd);
+            enchantCmd.setTabCompleter(monetCmd);
+        }
+        PluginCommand stoneCmd = getCommand("stonecutter");
+        if (stoneCmd != null) {
+            stoneCmd.setExecutor(monetCmd);
+            stoneCmd.setTabCompleter(monetCmd);
+        }
+        PluginCommand smithCmd = getCommand("smith");
+        if (smithCmd != null) {
+            smithCmd.setExecutor(monetCmd);
+            smithCmd.setTabCompleter(monetCmd);
+        }
+        PluginCommand loomCmd = getCommand("loom");
+        if (loomCmd != null) {
+            loomCmd.setExecutor(monetCmd);
+            loomCmd.setTabCompleter(monetCmd);
+        }
+        PluginCommand grindCmd = getCommand("grindstone");
+        if (grindCmd != null) {
+            grindCmd.setExecutor(monetCmd);
+            grindCmd.setTabCompleter(monetCmd);
+        }
+        PluginCommand cartCmd = getCommand("cartography");
+        if (cartCmd != null) {
+            cartCmd.setExecutor(monetCmd);
+            cartCmd.setTabCompleter(monetCmd);
+        }
+        TrailCommand trailCmd = new TrailCommand(monetizationManager);
+        PluginCommand trail = getCommand("trail");
+        if (trail != null) {
+            trail.setExecutor(trailCmd);
+            trail.setTabCompleter(trailCmd);
+        }
+        PluginCommand backpackCmd = getCommand("backpack");
+        if (backpackCmd != null) {
+            backpackCmd.setExecutor(monetCmd);
+            backpackCmd.setTabCompleter(monetCmd);
+        }
+        PluginCommand trashCmd = getCommand("trash");
+        if (trashCmd != null) {
+            trashCmd.setExecutor(monetCmd);
+            trashCmd.setTabCompleter(monetCmd);
+        }
+        PluginCommand furnaceCmd = getCommand("furnace");
+        if (furnaceCmd != null) {
+            furnaceCmd.setExecutor(monetCmd);
+            furnaceCmd.setTabCompleter(monetCmd);
+        }
+        PluginCommand blastCmd = getCommand("blast");
+        if (blastCmd != null) {
+            blastCmd.setExecutor(monetCmd);
+            blastCmd.setTabCompleter(monetCmd);
+        }
+        PluginCommand smokerCmd = getCommand("smoker");
+        if (smokerCmd != null) {
+            smokerCmd.setExecutor(monetCmd);
+            smokerCmd.setTabCompleter(monetCmd);
+        }
+
         if (discordService != null && discordService.isEnabled()) {
             discordService.sendServerStatus(true);
         }
@@ -477,6 +573,9 @@ public final class RollAndDeathSMP extends JavaPlugin {
         }
         if (scriptedParticleSystemService != null) {
             scriptedParticleSystemService.stop();
+        }
+        if (persistentShadowService != null) {
+            persistentShadowService.stop();
         }
         if (webStatusManager != null) {
             webStatusManager.stop();
@@ -589,6 +688,10 @@ public final class RollAndDeathSMP extends JavaPlugin {
 
     public ScriptedParticleSystemService getScriptedParticleSystemService() {
         return scriptedParticleSystemService;
+    }
+
+    public net.rollanddeath.smp.core.modifiers.scripted.PersistentShadowService getPersistentShadowService() {
+        return persistentShadowService;
     }
 
     public DiscordWebhookService getDiscordService() {

@@ -16,6 +16,7 @@ public class GameManager {
     private static final int NETHER_UNLOCK_DAY = 7;
     private static final int END_UNLOCK_DAY = 14;
     private static final int PERMADEATH_DAY = 31;
+    private static final int DEFAULT_MODIFIER_INTERVAL_DAYS = 3;
 
     private final RollAndDeathSMP plugin;
     private int currentDay = 0;
@@ -144,8 +145,18 @@ public class GameManager {
 
     private Instant calculateNextEventInstant() {
         LocalDate baseDate = lastCheckDate != null ? lastCheckDate : LocalDate.now();
-        LocalDateTime nextMidnight = baseDate.plusDays(1).atStartOfDay();
+        int interval = getModifierIntervalDays();
+        int lastSpinDay = plugin.getModifierManager().getLastRouletteDay();
+        int daysSinceLast = lastSpinDay < 0 ? currentDay : Math.max(0, currentDay - lastSpinDay);
+        int daysUntilNext = Math.max(0, interval - daysSinceLast);
+        int daysToAdd = Math.max(1, daysUntilNext);
+        LocalDateTime nextMidnight = baseDate.plusDays(daysToAdd).atStartOfDay();
         return nextMidnight.atZone(ZoneId.systemDefault()).toInstant();
+    }
+
+    private int getModifierIntervalDays() {
+        int interval = plugin.getConfig().getInt("game.modifier_interval_days", DEFAULT_MODIFIER_INTERVAL_DAYS);
+        return Math.max(1, interval);
     }
 
     private void startEventCountdownTask() {

@@ -13,13 +13,14 @@ final class SetBlockAction {
     private SetBlockAction() {}
 
     static void register() {
-        ActionRegistrar.register("set_block", SetBlockAction::parse, "block", "change_block");
+        ActionRegistrar.register("set_block", SetBlockAction::parse, "block", "change_block", "set_block_type_at");
     }
 
     private static Action parse(Map<?, ?> raw) {
-        Object targetSpec = raw.get("location");
-        if (targetSpec == null) targetSpec = raw.get("at");
-        if (targetSpec == null) targetSpec = raw.get("block"); // Could be block object
+        Object targetSpecRaw = raw.get("location");
+        if (targetSpecRaw == null) targetSpecRaw = raw.get("at");
+        if (targetSpecRaw == null) targetSpecRaw = raw.get("block"); // Could be block object
+        final Object targetSpec = targetSpecRaw;
         
         Material type = Resolvers.material(null, raw, "type", "material");
         
@@ -34,13 +35,16 @@ final class SetBlockAction {
         Double offsetZ = Resolvers.doubleVal(null, raw, "offset_z", "dz");
 
         return ctx -> {
-            List<Location> locations = Resolvers.locations(ctx, targetSpec);
-            if (locations.isEmpty()) {
+            List<Location> resolvedLocations = Resolvers.locations(ctx, targetSpec);
+            final List<Location> locations;
+            if (resolvedLocations.isEmpty()) {
                 if (targetSpec == null && ctx.location() != null) {
                     locations = List.of(ctx.location());
                 } else {
                     return ActionResult.ALLOW;
                 }
+            } else {
+                locations = resolvedLocations;
             }
 
             double ox = offsetX != null ? offsetX : 0;

@@ -22,11 +22,12 @@ public final class PlaceTorchesAroundAction {
     private static Action parse(java.util.Map<?, ?> raw) {
         Object center = firstNonNull(raw, "center", "where", "location", "center_key", "key");
         if (center == null) return null;
-        Integer distance = Resolvers.integer(null, raw, "distance");
-        if (distance == null) distance = Resolvers.integer(null, raw, "radius");
-        boolean includeDiagonals = raw.get("include_diagonals") instanceof Boolean b ? b : false;
-        String material = Resolvers.string(null, raw, "material");
-        return ctx -> execute(ctx, center, distance != null ? Math.max(1, distance) : 1, includeDiagonals, material);
+        Integer distanceRaw = Resolvers.integer(null, raw, "distance");
+        if (distanceRaw == null) distanceRaw = Resolvers.integer(null, raw, "radius");
+        final int distance = distanceRaw != null ? Math.max(1, distanceRaw) : 1;
+        final boolean includeDiagonals = raw.get("include_diagonals") instanceof Boolean b ? b : false;
+        final String material = Resolvers.string(null, raw, "material");
+        return ctx -> execute(ctx, center, distance, includeDiagonals, material);
     }
 
     private static ActionResult execute(ScriptContext ctx, Object centerSpec, int distance, boolean includeDiagonals, String materialRaw) {
@@ -40,7 +41,7 @@ public final class PlaceTorchesAroundAction {
             mat = Material.TORCH;
         }
 
-        Location center = Resolvers.location(centerSpec, ctx, ctx.player() != null ? ctx.player().getWorld() : null);
+        Location center = Resolvers.location(ctx, centerSpec, ctx.player() != null ? ctx.player().getWorld() : null);
         if (center == null || center.getWorld() == null) return ActionResult.ALLOW;
 
         int d = Math.max(1, distance);

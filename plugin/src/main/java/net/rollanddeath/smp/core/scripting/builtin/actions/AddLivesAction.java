@@ -9,7 +9,6 @@ import net.rollanddeath.smp.core.scripting.Action;
 import net.rollanddeath.smp.core.scripting.ActionResult;
 import net.rollanddeath.smp.core.scripting.Resolvers;
 import net.rollanddeath.smp.core.scripting.ScriptContext;
-import net.rollanddeath.smp.core.scripting.builtin.BuiltInActions;
 import net.rollanddeath.smp.integration.PlaceholderUtil;
 import org.bukkit.entity.Player;
 
@@ -37,11 +36,15 @@ final class AddLivesAction {
         Player player = ctx.player();
         RollAndDeathSMP plugin = ctx.plugin();
 
+        if (plugin == null || player == null || !plugin.getLifeManager().isEnabled()) {
+            return ActionResult.ALLOW;
+        }
+
         Integer resolvedAmount = Resolvers.integer(ctx, amountSpec);
         int amount = resolvedAmount != null ? resolvedAmount : 0;
         if (amount <= 0) return ActionResult.ALLOW;
 
-        BuiltInActions.runSync(plugin, () -> {
+        ActionUtils.runSync(plugin, () -> {
             for (int i = 0; i < amount; i++) {
                 plugin.getLifeManager().addLife(player);
             }

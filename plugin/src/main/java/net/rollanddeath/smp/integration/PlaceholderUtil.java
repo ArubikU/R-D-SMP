@@ -21,7 +21,9 @@ public final class PlaceholderUtil {
         if (text == null) return null;
 
         String out = text;
-        out = out.replace("%player%", player.getName());
+        if (player != null) {
+            out = out.replace("%player%", player.getName());
+        }
 
         // Fallback interno (cuando no hay PlaceholderAPI)
         out = replaceInternal(plugin, player, out);
@@ -44,14 +46,18 @@ public final class PlaceholderUtil {
         String out = text;
 
         if (out.contains("%rdsmp_lives%") && plugin.getLifeManager() != null) {
-            out = out.replace("%rdsmp_lives%", String.valueOf(plugin.getLifeManager().getLives(player)));
+            if (!plugin.getLifeManager().isEnabled() || player == null) {
+                out = out.replace("%rdsmp_lives%", "off");
+            } else {
+                out = out.replace("%rdsmp_lives%", String.valueOf(plugin.getLifeManager().getLives(player)));
+            }
         }
 
         if (out.contains("%rdsmp_day%") && plugin.getGameManager() != null) {
             out = out.replace("%rdsmp_day%", String.valueOf(plugin.getGameManager().getCurrentDay()));
         }
 
-        if (out.contains("%rdsmp_role%") && plugin.getRoleManager() != null) {
+        if (out.contains("%rdsmp_role%") && plugin.getRoleManager() != null && player != null) {
             RoleType role = plugin.getRoleManager().getPlayerRole(player);
             out = out.replace("%rdsmp_role%", role != null ? role.name().toLowerCase(Locale.ROOT) : "none");
         }

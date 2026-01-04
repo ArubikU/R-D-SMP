@@ -33,7 +33,7 @@ public final class BroadcastWithLocationAction {
         Player player = ctx.player();
         if (plugin == null) return ActionResult.ALLOW;
 
-        Location loc = Resolvers.location(locationSpec, ctx, player != null ? player.getWorld() : null);
+        Location loc = Resolvers.location(ctx, locationSpec, player != null ? player.getWorld() : null);
         if (loc == null) return ActionResult.ALLOW;
 
         String msg = PlaceholderUtil.resolvePlaceholders(plugin, player, message);
@@ -58,6 +58,13 @@ public final class BroadcastWithLocationAction {
         String world = loc.getWorld() != null ? loc.getWorld().getName() : "";
 
         return message
+            // Formato {x} (usado en YAML)
+            .replace("{x}", String.valueOf(x))
+            .replace("{y}", String.valueOf(y))
+            .replace("{z}", String.valueOf(z))
+            .replace("{world}", world)
+            .replace("{world_name}", world)
+            // Formato %x% (alternativo)
             .replace("%x%", String.valueOf(x))
             .replace("%y%", String.valueOf(y))
             .replace("%z%", String.valueOf(z))

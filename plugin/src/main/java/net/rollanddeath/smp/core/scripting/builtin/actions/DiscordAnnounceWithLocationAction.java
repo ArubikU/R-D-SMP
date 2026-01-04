@@ -35,7 +35,7 @@ public final class DiscordAnnounceWithLocationAction {
         Player player = ctx.player();
         if (plugin == null) return ActionResult.ALLOW;
 
-        Location loc = Resolvers.location(locationSpec, ctx, player != null ? player.getWorld() : null);
+        Location loc = Resolvers.location(ctx, locationSpec, player != null ? player.getWorld() : null);
         if (loc == null) return ActionResult.ALLOW;
 
         String t = PlaceholderUtil.resolvePlaceholders(plugin, player, title);

@@ -12,24 +12,28 @@ final class LightningAction {
     private LightningAction() {}
 
     static void register() {
-        ActionRegistrar.register("lightning", LightningAction::parse, "strike_lightning", "lightning_strike", "thunder");
+        ActionRegistrar.register("lightning", LightningAction::parse, "strike_lightning", "lightning_strike", "thunder", "strike_lightning_effect_at");
     }
 
     private static Action parse(Map<?, ?> raw) {
-        Object targetSpec = raw.get("target");
-        if (targetSpec == null) targetSpec = raw.get("location");
-        if (targetSpec == null) targetSpec = raw.get("entity");
+        Object targetSpecRaw = raw.get("target");
+        if (targetSpecRaw == null) targetSpecRaw = raw.get("location");
+        if (targetSpecRaw == null) targetSpecRaw = raw.get("entity");
+        final Object targetSpec = targetSpecRaw;
         
         boolean effectOnly = raw.get("effect_only") instanceof Boolean b ? b : false;
 
         return ctx -> {
-            List<Location> locations = Resolvers.locations(ctx, targetSpec);
-            if (locations.isEmpty()) {
+            List<Location> resolvedLocations = Resolvers.locations(ctx, targetSpec);
+            final List<Location> locations;
+            if (resolvedLocations.isEmpty()) {
                 if (targetSpec == null && ctx.location() != null) {
                     locations = List.of(ctx.location());
                 } else {
                     return ActionResult.ALLOW;
                 }
+            } else {
+                locations = resolvedLocations;
             }
 
             ActionUtils.runSync(ctx.plugin(), () -> {

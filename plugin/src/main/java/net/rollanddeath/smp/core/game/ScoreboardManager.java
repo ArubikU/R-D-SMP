@@ -130,7 +130,10 @@ public class ScoreboardManager implements Listener {
         
         // Lives
         setScore(obj, "  ", 12);
-        setScore(obj, "Vidas: " + lifeManager.getLives(player), 11);
+        String livesLine = lifeManager.isEnabled()
+            ? "Vidas: " + lifeManager.getLives(player)
+            : "Vidas: desactivadas";
+        setScore(obj, livesLine, 11);
         
         // Team
         Team team = teamManager.getTeam(player.getUniqueId());

@@ -1,8 +1,10 @@
 package net.rollanddeath.smp.core.scripting.builtin.actions;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 import net.rollanddeath.smp.core.scripting.Action;
+import net.rollanddeath.smp.core.scripting.ActionResult;
 import net.rollanddeath.smp.core.scripting.Resolvers;
-import net.rollanddeath.smp.core.scripting.builtin.BuiltInActions;
 
 final class RandomBoolToVarAction {
     private RandomBoolToVarAction() {
@@ -18,6 +20,11 @@ final class RandomBoolToVarAction {
         Double p = Resolvers.doubleVal(null, raw, "probability");
         if (p == null) p = Resolvers.doubleVal(null, raw, "p");
         double probability = p != null ? p : 0.5;
-        return BuiltInActions.randomBoolToVar(key, probability);
+        
+        return ctx -> {
+            boolean val = ThreadLocalRandom.current().nextDouble() < probability;
+            ctx.setGenericVarCompat(key, val);
+            return ActionResult.ALLOW;
+        };
     }
 }

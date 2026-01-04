@@ -5,7 +5,6 @@ import net.rollanddeath.smp.core.scripting.Action;
 import net.rollanddeath.smp.core.scripting.ActionResult;
 import net.rollanddeath.smp.core.scripting.Resolvers;
 import net.rollanddeath.smp.core.scripting.ScriptContext;
-import net.rollanddeath.smp.core.scripting.builtin.BuiltInActions;
 import org.bukkit.entity.Player;
 
 final class AddPlayerFoodAction {
@@ -33,7 +32,7 @@ final class AddPlayerFoodAction {
         double fd = foodDelta != null ? foodDelta : 0.0;
         double sd = saturationDelta != null ? saturationDelta : 0.0;
 
-        BuiltInActions.runSync(plugin, () -> {
+        ActionUtils.runSync(plugin, () -> {
             try {
                 int food = player.getFoodLevel();
                 float sat = player.getSaturation();

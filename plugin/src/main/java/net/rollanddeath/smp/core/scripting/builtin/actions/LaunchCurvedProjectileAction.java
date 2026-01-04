@@ -62,6 +62,9 @@ final class LaunchCurvedProjectileAction {
         List<Action> onLaunch = Resolvers.parseActionList(raw.get("on_launch"));
         
         Object targetsSpec = raw.get("targets");
+        
+        // Parse args que se inyectarán como EVENT.args.* en los callbacks
+        Map<String, Object> argsSpec = parseArgsSpec(raw.get("args"));
 
         return ctx -> {
             var plugin = ctx.plugin();
@@ -180,11 +183,32 @@ final class LaunchCurvedProjectileAction {
             Class<? extends Projectile> projClass = projectileClassFromName(projectileType);
             if (projClass == null) return ActionResult.ALLOW;
 
+            // Construir baseVars con args resueltos para que on_hit pueda acceder a EVENT.args.*
+            Map<String, Object> baseVars = ctx.variables() != null ? new HashMap<>(ctx.variables()) : new HashMap<>();
+            if (argsSpec != null && !argsSpec.isEmpty()) {
+                for (Map.Entry<String, Object> e : argsSpec.entrySet()) {
+                    String argKey = e.getKey();
+                    Object argValue = e.getValue();
+                    // Resolver valores dinámicos (ej: EVENT.custom.next_jump)
+                    if (argValue instanceof String strVal && strVal.contains(".")) {
+                        Object resolved = ctx.getValue(strVal);
+                        plugin.getLogger().info("[DEBUG] launch_curved_projectile args: " + argKey + " = " + strVal + " -> resolved: " + resolved);
+                        if (resolved != null) {
+                            argValue = resolved;
+                        }
+                    } else {
+                        plugin.getLogger().info("[DEBUG] launch_curved_projectile args: " + argKey + " = " + argValue + " (literal)");
+                    }
+                    // Inyectar como EVENT.args.<key> (el sistema de cache lo busca así)
+                    baseVars.put("EVENT.args." + argKey, argValue);
+                }
+            }
+
             ScriptedProjectileService.ScriptInvocation inv = new ScriptedProjectileService.ScriptInvocation(
                 ctx.subjectId(),
                 ctx.phase() != null ? ctx.phase() : ScriptPhase.MOB,
                 ctx.player(),
-                ctx.variables() != null ? new HashMap<>(ctx.variables()) : null
+                baseVars
             );
 
             ScriptedProjectileService.LaunchRequest req = new ScriptedProjectileService.LaunchRequest(
@@ -210,6 +234,7 @@ final class LaunchCurvedProjectileAction {
                 onTick,
                 onLaunch,
                 allowedTypes,
+                allowedUuids,
                 inv
             );
 
@@ -357,5 +382,22 @@ final class LaunchCurvedProjectileAction {
             case "ENDER_PEARL" -> (Class<? extends Projectile>) org.bukkit.entity.EnderPearl.class;
             default -> (Class<? extends Projectile>) org.bukkit.entity.Snowball.class;
         };
+    }
+
+    /**
+     * Parsea el mapa de args del YAML.
+     * Soporta valores literales y referencias a variables (que se resolverán en runtime).
+     */
+    private static Map<String, Object> parseArgsSpec(Object argsRaw) {
+        if (argsRaw == null) return null;
+        if (!(argsRaw instanceof Map<?, ?> map)) return null;
+        if (map.isEmpty()) return null;
+        
+        Map<String, Object> result = new HashMap<>();
+        for (Map.Entry<?, ?> e : map.entrySet()) {
+            if (!(e.getKey() instanceof String key) || key.isBlank()) continue;
+            result.put(key.trim(), e.getValue());
+        }
+        return result.isEmpty() ? null : result;
     }
 }

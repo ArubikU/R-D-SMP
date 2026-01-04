@@ -4,7 +4,7 @@ import net.rollanddeath.smp.RollAndDeathSMP;
 import net.rollanddeath.smp.core.scripting.Action;
 import net.rollanddeath.smp.core.scripting.Condition;
 import net.rollanddeath.smp.core.scripting.builtin.actions.ActionRegistrar;
-import net.rollanddeath.smp.core.scripting.builtin.BuiltInConditions;
+import net.rollanddeath.smp.core.scripting.builtin.conditions.ConditionRegistrar;
 import net.rollanddeath.smp.core.scripting.lint.ScriptLintIssue;
 import net.rollanddeath.smp.core.scripting.lint.ScriptLinter;
 import org.bukkit.configuration.ConfigurationSection;
@@ -96,7 +96,7 @@ public final class ScriptLibraryLoader {
             for (String id : condSec.getKeys(false)) {
                 Object raw = condSec.get(id);
                 if (!(raw instanceof Map<?, ?> m)) continue;
-                Condition c = BuiltInConditions.parse(m);
+                Condition c = ConditionRegistrar.parse(m);
                 if (c != null) conditions.put(id, c);
             }
         }

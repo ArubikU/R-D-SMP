@@ -5,5 +5,6 @@ public enum ScriptPhase {
     CRAFT,
     MODIFIER,
     MOB,
-    ITEM
+    ITEM,
+    RULE
 }

@@ -124,13 +124,14 @@ public final class ObjectKeyAccess {
             case "x" -> loc.getX();
             case "y" -> loc.getY();
             case "z" -> loc.getZ();
-            case "blockx" -> loc.getBlockX();
-            case "blocky" -> loc.getBlockY();
-            case "blockz" -> loc.getBlockZ();
+            case "blockx", "block_x" -> loc.getBlockX();
+            case "blocky", "block_y" -> loc.getBlockY();
+            case "blockz", "block_z" -> loc.getBlockZ();
             case "yaw" -> loc.getYaw();
             case "pitch" -> loc.getPitch();
             case "world" -> loc.getWorld() != null ? loc.getWorld().getName() : null;
             case "worldobj", "world_object" -> loc.getWorld();
+            case "chunk" -> loc.getChunk();
             case "block" -> loc.getBlock();
             case "blockbelow", "block_below", "belowblock", "below_block" -> {
                 try {
@@ -146,14 +147,23 @@ public final class ObjectKeyAccess {
 
     private static Object getBlockChild(Block block, String key) {
         return switch (key.toLowerCase(Locale.ROOT)) {
-            case "type" -> block.getType() != null ? block.getType().name() : null;
-            case "material" -> block.getType() != null ? block.getType().name() : null;
+            case "type" -> block.getType().name();
+            case "material" -> block.getType().name();
+            case "data" -> block.getBlockData().getAsString();
+            case "location" -> block.getLocation();
+            case "world" -> block.getWorld();
+            case "worldobj", "world_object" -> block.getWorld();
             case "x" -> block.getX();
             case "y" -> block.getY();
             case "z" -> block.getZ();
-            case "world" -> block.getWorld() != null ? block.getWorld().getName() : null;
-            case "worldobj", "world_object" -> block.getWorld();
-            case "location" -> block.getLocation();
+            case "light" -> block.getLightLevel();
+            case "block_power" -> block.getBlockPower();
+            case "temperature" -> block.getTemperature();
+            case "humidity" -> block.getHumidity();
+            case "biome" -> block.getBiome().name();
+            case "is_passable" -> block.isPassable();
+            case "is_liquid" -> block.isLiquid();
+            case "is_empty" -> block.isEmpty();
             default -> null;
         };
     }
@@ -172,52 +182,21 @@ public final class ObjectKeyAccess {
     private static Object getItemStackChild(ItemStack is, String key) {
         String k = key.toLowerCase(Locale.ROOT);
         return switch (k) {
-            case "type", "material" -> is.getType() != null ? is.getType().name() : null;
-            case "amount" -> {
-                try {
-                    yield is.getAmount();
-                } catch (Exception ignored) {
-                    yield null;
-                }
-            }
-            case "isair", "is_air" -> {
-                try {
-                    yield is.getType() == null || is.getType().isAir();
-                } catch (Exception ignored) {
-                    yield false;
-                }
-            }
-            case "isedible", "is_edible", "isfood", "is_food" -> {
-                try {
-                    yield is.getType() != null && is.getType().isEdible();
-                } catch (Exception ignored) {
-                    yield false;
-                }
-            }
-            case "hasmeta", "has_meta" -> {
-                try {
-                    yield is.hasItemMeta();
-                } catch (Exception ignored) {
-                    yield false;
-                }
-            }
+            case "type", "material" -> is.getType().name();
+            case "amount" -> is.getAmount();
+            case "max_stack_size" -> is.getMaxStackSize();
+            case "isair", "is_air" -> is.getType().isAir();
+            case "isedible", "is_edible", "isfood", "is_food" -> is.getType().isEdible();
+            case "hasmeta", "has_meta", "has_item_meta" -> is.hasItemMeta();
             case "displayname", "display_name" -> {
-                try {
-                    if (!is.hasItemMeta() || is.getItemMeta() == null) yield null;
-                    var meta = is.getItemMeta();
-                    yield meta.hasDisplayName() ? meta.getDisplayName() : null;
-                } catch (Exception ignored) {
-                    yield null;
-                }
+                if (!is.hasItemMeta() || is.getItemMeta() == null) yield null;
+                var meta = is.getItemMeta();
+                yield meta.hasDisplayName() ? meta.getDisplayName() : null;
             }
             case "custommodeldata", "custom_model_data" -> {
-                try {
-                    if (!is.hasItemMeta() || is.getItemMeta() == null) yield null;
-                    var meta = is.getItemMeta();
-                    yield meta.hasCustomModelData() ? meta.getCustomModelData() : null;
-                } catch (Exception ignored) {
-                    yield null;
-                }
+                if (!is.hasItemMeta() || is.getItemMeta() == null) yield null;
+                var meta = is.getItemMeta();
+                yield meta.hasCustomModelData() ? meta.getCustomModelData() : null;
             }
             case "lore" -> {
                 try {
@@ -289,8 +268,19 @@ public final class ObjectKeyAccess {
     private static Object getWorldChild(World w, String key) {
         return switch (key.toLowerCase(Locale.ROOT)) {
             case "name" -> w.getName();
+            case "uuid" -> w.getUID().toString();
             case "time" -> w.getTime();
             case "fulltime", "full_time" -> w.getFullTime();
+            case "weather" -> w.isThundering() ? "thunder" : (w.hasStorm() ? "rain" : "clear");
+            case "storm" -> w.hasStorm();
+            case "thundering" -> w.isThundering();
+            case "seed" -> w.getSeed();
+            case "environment" -> w.getEnvironment().name();
+            case "difficulty" -> w.getDifficulty().name();
+            case "max_height" -> w.getMaxHeight();
+            case "min_height" -> w.getMinHeight();
+            case "sea_level" -> w.getSeaLevel();
+            case "player_count" -> w.getPlayerCount();
             default -> null;
         };
     }
@@ -298,62 +288,88 @@ public final class ObjectKeyAccess {
     private static Object getEntityChild(Entity e, String key) {
         return switch (key.toLowerCase(Locale.ROOT)) {
             case "uuid" -> String.valueOf(e.getUniqueId());
-            case "type" -> e.getType() != null ? e.getType().name() : null;
-            case "ismonster", "is_monster" -> e instanceof Monster;
-            case "name" -> {
-                try {
-                    yield e.getName();
-                } catch (Exception ex) {
-                    yield null;
-                }
-            }
-            case "customname", "custom_name" -> {
-                try {
-                    var cn = e.customName();
-                    yield cn != null ? cn.toString() : null;
-                } catch (Exception ex) {
-                    yield null;
-                }
-            }
+            case "type" -> e.getType().name();
+            case "name" -> e.getName();
+            case "custom_name" -> e.getCustomName();
             case "location" -> e.getLocation();
-            case "world" -> e.getWorld() != null ? e.getWorld().getName() : null;
+            case "world" -> e.getWorld();
             case "worldobj", "world_object" -> e.getWorld();
-            case "velocity" -> {
-                try {
-                    yield e.getVelocity();
-                } catch (Exception ex) {
-                    yield null;
-                }
-            }
-            case "isdead", "is_dead" -> {
-                try {
-                    yield e.isDead();
-                } catch (Exception ex) {
-                    yield null;
-                }
-            }
+            case "velocity" -> e.getVelocity();
+            case "fall_distance" -> e.getFallDistance();
+            case "fire_ticks" -> e.getFireTicks();
+            case "freeze_ticks" -> e.getFreezeTicks();
+            case "height" -> e.getHeight();
+            case "width" -> e.getWidth();
+            case "is_dead", "dead" -> e.isDead();
+            case "is_valid", "valid" -> e.isValid();
+            case "is_on_ground", "on_ground" -> e.isOnGround();
+            case "is_glowing", "glowing" -> e.isGlowing();
+            case "is_invulnerable", "invulnerable" -> e.isInvulnerable();
+            case "is_silent", "silent" -> e.isSilent();
+            case "is_custom_name_visible" -> e.isCustomNameVisible();
+            case "passengers" -> e.getPassengers();
+            case "vehicle" -> e.getVehicle();
+            case "facing" -> e.getFacing().name();
+            case "x" -> e.getLocation().getX();
+            case "y" -> e.getLocation().getY();
+            case "z" -> e.getLocation().getZ();
+            case "yaw" -> e.getLocation().getYaw();
+            case "pitch" -> e.getLocation().getPitch();
+            case "ismonster", "is_monster" -> e instanceof Monster;
             default -> null;
         };
     }
 
     private static Object getLivingEntityChild(LivingEntity le, String key) {
         String k = key.toLowerCase(Locale.ROOT);
-        if (k.equals("health")) {
-            try {
-                return le.getHealth();
-            } catch (Exception ignored) {
-                return null;
+        switch (k) {
+            case "health": return le.getHealth();
+            case "max_health", "maxhealth": {
+                var attr = le.getAttribute(org.bukkit.attribute.Attribute.MAX_HEALTH);
+                return attr != null ? attr.getValue() : null;
             }
+            case "absorption": return le.getAbsorptionAmount();
+            case "air": return le.getRemainingAir();
+            case "max_air": return le.getMaximumAir();
+            case "eye_location": return le.getEyeLocation();
+            case "eye_height": return le.getEyeHeight();
+            case "is_gliding": return le.isGliding();
+            case "is_swimming": return le.isSwimming();
+            case "is_climbing": return le.isClimbing();
+            case "is_invisible": return le.isInvisible();
+            case "is_leashed": return le.isLeashed();
         }
-        if (k.equals("maxhealth") || k.equals("max_health")) {
-            try {
-                var inst = le.getAttribute(org.bukkit.attribute.Attribute.MAX_HEALTH);
-                return inst != null ? inst.getValue() : null;
-            } catch (Exception ignored) {
-                return null;
-            }
+        
+        if (le instanceof org.bukkit.entity.Player p) {
+            Object v = getPlayerChild(p, k);
+            if (v != null) return v;
         }
+        
         return getEntityChild(le, key);
+    }
+
+    private static Object getPlayerChild(org.bukkit.entity.Player p, String key) {
+        return switch (key) {
+            case "display_name", "displayname" -> p.getDisplayName();
+            case "gamemode" -> p.getGameMode().name();
+            case "ping" -> p.getPing();
+            case "locale" -> p.getLocale();
+            case "address" -> p.getAddress() != null ? p.getAddress().toString() : null;
+            case "exp" -> p.getExp();
+            case "level" -> p.getLevel();
+            case "total_exp" -> p.getTotalExperience();
+            case "fly_speed" -> p.getFlySpeed();
+            case "walk_speed" -> p.getWalkSpeed();
+            case "is_flying" -> p.isFlying();
+            case "is_sneaking" -> p.isSneaking();
+            case "is_sprinting" -> p.isSprinting();
+            case "is_blocking" -> p.isBlocking();
+            case "is_sleeping" -> p.isSleeping();
+            case "is_op" -> p.isOp();
+            case "food" -> p.getFoodLevel();
+            case "saturation" -> p.getSaturation();
+            default -> null;
+        };
     }
 
     private static Object getProjectileChild(Projectile pr, String key) {

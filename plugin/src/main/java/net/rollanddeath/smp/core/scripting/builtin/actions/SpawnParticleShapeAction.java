@@ -21,12 +21,14 @@ final class SpawnParticleShapeAction {
     }
 
     private static Action parse(Map<?, ?> raw) {
-        Object centerSpec = raw.get("center");
-        if (centerSpec == null) centerSpec = raw.get("location");
-        if (centerSpec == null) centerSpec = raw.get("center_key");
+        Object centerSpecRaw = raw.get("center");
+        if (centerSpecRaw == null) centerSpecRaw = raw.get("location");
+        if (centerSpecRaw == null) centerSpecRaw = raw.get("center_key");
+        final Object centerSpec = centerSpecRaw;
         
-        Object followEntitySpec = raw.get("follow_entity");
-        if (followEntitySpec == null) followEntitySpec = raw.get("follow_entity_key");
+        Object followEntitySpecRaw = raw.get("follow_entity");
+        if (followEntitySpecRaw == null) followEntitySpecRaw = raw.get("follow_entity_key");
+        final Object followEntitySpec = followEntitySpecRaw;
         
         String particle = Resolvers.string(null, raw, "particle");
         Integer count = Resolvers.integer(null, raw, "count");
@@ -60,14 +62,14 @@ final class SpawnParticleShapeAction {
             ScriptedParticleSystemService svc = plugin.getScriptedParticleSystemService();
             if (svc == null) return ActionResult.ALLOW;
 
-            Entity followEnt = Resolvers.entity(followEntitySpec, ctx);
+            Entity followEnt = Resolvers.entity(ctx, followEntitySpec);
             UUID followId = followEnt != null ? followEnt.getUniqueId() : null;
 
             Location center = null;
             if (followId == null) {
                 World defaultWorld = ctx.player() != null ? ctx.player().getWorld() : null;
                 Object cObj = centerSpec != null ? centerSpec : "caster";
-                center = Resolvers.location(cObj, ctx, defaultWorld);
+                center = Resolvers.location(ctx, cObj, defaultWorld);
                 if (center == null && ctx.player() != null) {
                     center = ctx.player().getLocation();
                 }

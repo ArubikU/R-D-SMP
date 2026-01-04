@@ -23,7 +23,9 @@ final class FreezeAreaAction {
         if (key == null) return null;
 
         Integer radius = Resolvers.integer(null, raw, "radius");
-        int r = radius != null ? Math.max(0, radius) : 4;
+        String radiusKey = Resolvers.string(null, raw, "radius_key");
+        int defaultR = radius != null ? Math.max(0, radius) : 4;
+        
         Double airChance = Resolvers.doubleVal(null, raw, "air_chance");
         double p = airChance != null ? Math.max(0.0, Math.min(1.0, airChance)) : 0.3;
         
@@ -48,10 +50,18 @@ final class FreezeAreaAction {
             Location loc = Resolvers.resolveLocation(ctx, finalKey);
             if (loc == null) return ActionResult.ALLOW;
 
+            // Resolver radio dinámicamente
+            int r = defaultR;
+            if (radiusKey != null && !radiusKey.isBlank()) {
+                Double dyn = Resolvers.doubleVal(ctx, radiusKey);
+                if (dyn != null) r = (int) Math.round(dyn);
+            }
+            final int finalR = Math.max(0, r);
+
             ActionUtils.runSync(ctx.plugin(), () -> {
-                for (int x = -r; x <= r; x++) {
-                    for (int y = -r; y <= r; y++) {
-                        for (int z = -r; z <= r; z++) {
+                for (int x = -finalR; x <= finalR; x++) {
+                    for (int y = -finalR; y <= finalR; y++) {
+                        for (int z = -finalR; z <= finalR; z++) {
                             Block b = loc.getWorld().getBlockAt(loc.getBlockX() + x, loc.getBlockY() + y, loc.getBlockZ() + z);
                             if (b.getType() == Material.AIR) {
                                 if (Math.random() < p) {

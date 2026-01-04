@@ -345,6 +345,7 @@ public class RecipeManager {
 
         private static final Pattern PDC_TOKEN = Pattern.compile("%pdc:([^%]+)%");
         private static final Pattern PDC_PERCENT_TOKEN = Pattern.compile("%pdc_percent:([^%]+)%");
+        private static final Pattern PDC_DOUBLE_TOKEN = Pattern.compile("%pdc_double:([^%]+)%");
 
         private void applyPdcLorePlaceholders(ItemMeta meta) {
                 if (meta == null) return;
@@ -375,6 +376,7 @@ public class RecipeManager {
 
                 String out = input;
                 out = replaceToken(out, meta, PDC_PERCENT_TOKEN, true);
+                out = replaceToken(out, meta, PDC_DOUBLE_TOKEN, false);
                 out = replaceToken(out, meta, PDC_TOKEN, false);
                 return out;
         }

@@ -3,7 +3,6 @@ package net.rollanddeath.smp.core.scripting.builtin.actions;
 import net.rollanddeath.smp.core.scripting.Action;
 import net.rollanddeath.smp.core.scripting.ActionResult;
 import net.rollanddeath.smp.core.scripting.Resolvers;
-import net.rollanddeath.smp.core.scripting.builtin.BuiltInActions;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -32,7 +31,7 @@ final class RemoveEffectAction {
 
             Integer onlyAmp = Resolvers.integer(ctx, onlyAmpSpec);
 
-            BuiltInActions.runSync(ctx.plugin(), () -> {
+            ActionUtils.runSync(ctx.plugin(), () -> {
                 PotionEffect current = player.getPotionEffect(type);
                 if (current == null) return;
                 if (onlyAmp != null && current.getAmplifier() != onlyAmp) return;
