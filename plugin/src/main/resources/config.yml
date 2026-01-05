@@ -30,3 +30,33 @@ deathmatch:
   combatlog_enabled: true
   combat_cooldown_seconds: 20
   broadcast_on_kill: true
+
+# Kit inicial configurable
+starter_kit:
+  enabled: true
+  include_daily_rolls: true
+  daily_rolls: 2
+  # Lista editable de ítems. Campos soportados:
+  # - material (obligatorio): nombre de Material de Bukkit
+  # - amount (opcional): cantidad
+  # - enchants (opcional): mapa ENCHANTMENT: level
+  # - name, lore (opcionales)
+  # - unbreakable (bool), custom_model_data (int)
+  items:
+    - material: IRON_HELMET
+      enchants:
+        PROTECTION: 2
+    - material: IRON_CHESTPLATE
+      enchants:
+        PROTECTION: 2
+    - material: IRON_LEGGINGS
+      enchants:
+        PROTECTION: 2
+    - material: IRON_BOOTS
+      enchants:
+        PROTECTION: 2
+    - material: IRON_SWORD
+      enchants:
+        SHARPNESS: 2
+    - material: BREAD
+      amount: 64

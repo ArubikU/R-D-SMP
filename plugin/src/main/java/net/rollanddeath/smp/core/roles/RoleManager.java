@@ -2,26 +2,15 @@ package net.rollanddeath.smp.core.roles;
 
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.rollanddeath.smp.RollAndDeathSMP;
-import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.scheduler.BukkitTask;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.YamlConfiguration;
 
-import java.io.File;
-import java.io.IOException;
-import java.time.Duration;
+import java.util.ArrayList;
 import java.util.EnumMap;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
 
 public class RoleManager implements Listener {
 
@@ -29,19 +18,9 @@ public class RoleManager implements Listener {
     private final Map<RoleType, Role> roles = new EnumMap<>(RoleType.class);
     private final NamespacedKey roleKey;
 
-    private final File dataFile;
-    private final Map<UUID, RoleType> pendingRoles = new HashMap<>();
-    private long nextRerollAtMillis = -1L;
-    private BukkitTask rerollTask;
-    private final Random random = new Random();
-
     public RoleManager(RollAndDeathSMP plugin) {
         this.plugin = plugin;
         this.roleKey = new NamespacedKey(plugin, "player_role");
-        this.dataFile = new File(plugin.getDataFolder(), "roles-data.yml");
-        plugin.getDataFolder().mkdirs();
-        loadData();
-        startRerollWatcher();
     }
 
     public void registerRole(Role role) {
@@ -70,101 +49,12 @@ public class RoleManager implements Listener {
         }
     }
 
-    @EventHandler
-    public void onJoin(PlayerJoinEvent event) {
-        applyPending(event.getPlayer());
+    public List<RoleType> getRegisteredRoles() {
+        return new ArrayList<>(roles.keySet());
     }
 
-    public void rerollAllRoles() {
-        RoleType[] pool = RoleType.values();
-
-        // Online players: assign immediately
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            RoleType randomRole = pool[random.nextInt(pool.length)];
-            setPlayerRole(player, randomRole);
-        }
-
-        // Offline players: store pending assignment
-        for (OfflinePlayer offline : Bukkit.getOfflinePlayers()) {
-            if (offline.isOnline()) continue;
-            UUID id = offline.getUniqueId();
-            RoleType randomRole = pool[random.nextInt(pool.length)];
-            pendingRoles.put(id, randomRole);
-        }
-
-        persistData();
-        setNextRerollFromNow();
-    }
-
-    public long getNextRerollAtMillis() {
-        return nextRerollAtMillis;
-    }
-
-    public void setNextRerollFromNow() {
-        nextRerollAtMillis = System.currentTimeMillis() + Duration.ofDays(7).toMillis();
-        persistData();
-    }
-
-    private void applyPending(Player player) {
-        RoleType pending = pendingRoles.remove(player.getUniqueId());
-        if (pending != null) {
-            setPlayerRole(player, pending);
-            persistData();
-        }
-    }
-
-    private void startRerollWatcher() {
-        if (rerollTask != null) {
-            rerollTask.cancel();
-        }
-
-        rerollTask = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
-            if (nextRerollAtMillis <= 0) return;
-            long now = System.currentTimeMillis();
-            if (now >= nextRerollAtMillis) {
-                rerollAllRoles();
-            }
-        }, 20L * 60L, 20L * 60L * 30L); // check every 30 minutes
-    }
-
-    private void loadData() {
-        if (!dataFile.exists()) {
-            return;
-        }
-
-        YamlConfiguration cfg = YamlConfiguration.loadConfiguration(dataFile);
-        nextRerollAtMillis = cfg.getLong("next_reroll_at", -1L);
-
-        ConfigurationSection pendingSection = cfg.getConfigurationSection("pending");
-        if (pendingSection != null) {
-            for (String key : pendingSection.getKeys(false)) {
-                try {
-                    UUID uuid = UUID.fromString(key);
-                    String roleName = pendingSection.getString(key);
-                    if (roleName == null) continue;
-                    RoleType type = RoleType.valueOf(roleName);
-                    pendingRoles.put(uuid, type);
-                } catch (IllegalArgumentException ignored) {
-                    // skip bad entries
-                }
-            }
-        }
-    }
-
-    private void persistData() {
-        YamlConfiguration cfg = new YamlConfiguration();
-        cfg.set("next_reroll_at", nextRerollAtMillis);
-        Map<String, String> serialized = new HashMap<>();
-        for (Map.Entry<UUID, RoleType> entry : pendingRoles.entrySet()) {
-            serialized.put(entry.getKey().toString(), entry.getValue().name());
-        }
-        cfg.createSection("pending", serialized);
-
-        try {
-            cfg.save(dataFile);
-        } catch (IOException e) {
-            plugin.getLogger().warning("No se pudo guardar roles-data.yml: " + e.getMessage());
-        }
+    public boolean isRegistered(RoleType type) {
+        return roles.containsKey(type);
     }
 
     public Role getRole(RoleType type) {

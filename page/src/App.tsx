@@ -320,8 +320,8 @@ function App() {
             case 'roles':
                 return (
                     <div>
-                        <SectionTitle>Ruleta Semanal (Roles)</SectionTitle>
-                        <p className="text-gray-400 mb-6 text-lg">Estos efectos son personales y definen tu rol durante una semana completa.</p>
+                        <SectionTitle>Roles Personalizables</SectionTitle>
+                        <p className="text-gray-400 mb-6 text-lg">Elige tu rol cuando quieras; el efecto se aplica mientras lo tengas activo.</p>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4">
                             {weeklyRoles.map((role, idx) => (
                                 <RoleCard key={idx} role={role} />
@@ -478,8 +478,8 @@ function App() {
                 // Let's just render the same content but wrapped.
                 return (
                     <div className="animate-in slide-in-from-bottom-4 duration-500">
-                        <SectionTitle>Detalle de Roles Semanales</SectionTitle>
-                        <p className="text-xl text-gray-400 mb-8">Información extendida sobre los modificadores personales.</p>
+                        <SectionTitle>Detalle de Roles Elegibles</SectionTitle>
+                        <p className="text-xl text-gray-400 mb-8">Selecciona libremente tu rol; no hay rotación semanal.</p>
                         
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                             {weeklyRoles.map((role, idx) => (
@@ -547,7 +547,7 @@ function App() {
                             <div className="bg-zinc-900/80 p-8 border-t-4 border-blue-600 hover:bg-zinc-800 transition-colors cursor-default">
                                 <div className="text-5xl mb-4">⚔️</div>
                                 <h3 className="text-3xl text-white mb-2 uppercase">Roles & RPG</h3>
-                                <p className="text-xl text-gray-400">Roll Semanal personal. Obtén clases como "Vampiro", "Berserker" o "Tanque" con ventajas y debilidades únicas.</p>
+                                <p className="text-xl text-gray-400">Elige tu rol manualmente (Vampiro, Berserker, Tanque, etc.) y activa sus ventajas y debilidades cuando quieras.</p>
                             </div>
                         </div>
 

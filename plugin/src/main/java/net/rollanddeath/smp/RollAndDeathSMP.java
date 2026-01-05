@@ -34,6 +34,11 @@ import net.rollanddeath.smp.core.game.SoftLockListener;
 import net.rollanddeath.smp.core.game.ArmorRestrictionTask;
 import net.rollanddeath.smp.core.rules.DayRuleListener;
 import net.rollanddeath.smp.core.rules.DayRuleManager;
+import net.rollanddeath.smp.core.hunters.BountyManager;
+import net.rollanddeath.smp.core.hunters.BountyCommand;
+import net.rollanddeath.smp.core.hunters.BountyListener;
+import net.rollanddeath.smp.core.shops.ShopManager;
+import net.rollanddeath.smp.core.shops.ShopListener;
 import net.rollanddeath.smp.core.monetization.MonetizationManager;
 import net.rollanddeath.smp.core.monetization.MonetizationListener;
 import net.rollanddeath.smp.core.monetization.MonetizationCommand;
@@ -100,6 +105,8 @@ public final class RollAndDeathSMP extends JavaPlugin {
     private ScriptedParticleSystemService scriptedParticleSystemService;
     private net.rollanddeath.smp.core.modifiers.scripted.PersistentShadowService persistentShadowService;
     private ScriptLibrary scriptLibrary;
+    private BountyManager bountyManager;
+    private ShopManager shopManager;
 
     @Override
     public void onEnable() {
@@ -155,6 +162,8 @@ public final class RollAndDeathSMP extends JavaPlugin {
         this.killPointsManager = new KillPointsManager(this);
         this.announceManager = new AnnounceManager(this);
         this.monetizationManager = new MonetizationManager(this);
+        this.bountyManager = new BountyManager(this);
+        this.shopManager = new ShopManager(this);
 
         // Reactiva modifiers persistidos una vez que los managers necesarios ya existen.
         // Ej: "purge" necesita ProtectionManager.
@@ -389,6 +398,8 @@ public final class RollAndDeathSMP extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new DayRuleListener(this), this);
         getServer().getPluginManager().registerEvents(new MonetizationListener(monetizationManager), this);
         getServer().getPluginManager().registerEvents(new TrailListener(monetizationManager), this);
+        getServer().getPluginManager().registerEvents(new BountyListener(bountyManager), this);
+        getServer().getPluginManager().registerEvents(new ShopListener(this, shopManager), this);
 
         // Register Commands
         TeamCommand teamCommand = new TeamCommand(this, teamManager);
@@ -540,6 +551,13 @@ public final class RollAndDeathSMP extends JavaPlugin {
         if (smokerCmd != null) {
             smokerCmd.setExecutor(monetCmd);
             smokerCmd.setTabCompleter(monetCmd);
+        }
+
+        BountyCommand bountyCommand = new BountyCommand(bountyManager);
+        PluginCommand cazadoresCmd = getCommand("cazadores");
+        if (cazadoresCmd != null) {
+            cazadoresCmd.setExecutor(bountyCommand);
+            cazadoresCmd.setTabCompleter(bountyCommand);
         }
 
         if (discordService != null && discordService.isEnabled()) {

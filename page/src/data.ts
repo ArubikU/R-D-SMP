@@ -359,6 +359,28 @@ export const tutorials = [
         ]
     },
     {
+        id: "hunters",
+        title: "Cazadores y Recompensas",
+        icon: "🏹",
+        content: [
+            { subtitle: "Comando Principal", text: "Usa /cazadores para abrir el panel de recompensas activas." },
+            { subtitle: "Publicar Recompensa", text: "Agrega un premio (ej. 10 diamantes) por la cabeza de un jugador. Debes tener el premio en tu inventario; queda retenido hasta que alguien cobre." },
+            { subtitle: "Cobro Automático", text: "Quien mate al objetivo y entregue la cabeza en /cazadores cobra toda la recompensa acumulada al instante." },
+            { subtitle: "Notas", text: "Las recompensas se acumulan; cualquiera puede aportar. Puedes cancelar para recuperar tu premio si nadie ha cobrado. Respeta las reglas de guerra/combate vigentes." }
+        ]
+    },
+    {
+        id: "shops",
+        title: "Tiendas de Cartel",
+        icon: "🏪",
+        content: [
+            { subtitle: "Crear tienda", text: "Coloca un cartel [tienda] pegado a un cofre/barril/shulker. Sigue el chat: ok con el item a vender en mano, elige cantidad, ok con el item de pago (puedes añadir un número), confirma." },
+            { subtitle: "Comprar", text: "Haz clic en el cartel y escribe cuántos paquetes quieres (1/10/32/64 o número). Necesitas el pago exacto; solo se consumen ítems que coincidan." },
+            { subtitle: "Cobrar o borrar", text: "El dueño al clicar ve opciones: retirar paga todo lo acumulado; borrar elimina la tienda y devuelve los pagos pendientes." },
+            { subtitle: "Coincidencia y stock", text: "Solo coinciden material + encantamientos + custom_item_id. Otros ítems en el contenedor se ignoran; puedes reabastecer con tolvas mientras coincidan." }
+        ]
+    },
+    {
         id: "protection",
         title: "Protección de Bloques",
         icon: "🏰",
@@ -421,6 +443,16 @@ export const tutorials = [
             { subtitle: "Armas", text: "Espada de Hierro con Afilado II." },
             { subtitle: "Suministros", text: "64 Panes para empezar tu aventura." },
             { subtitle: "Bonus", text: "2 Recompensas del Roll Diario gratis al entrar por primera vez." }
+        ]
+    },
+    {
+        id: "monetization",
+        title: "Tienda y Soporte",
+        icon: "💎",
+        content: [
+            { subtitle: "Link de la tienda", text: "Apoya el host y consigue permisos de conveniencia en la Tebex oficial: https://roll-and-death-smp.tebex.io/" },
+            { subtitle: "¿Qué se vende?", text: "Permisos de comodidad (backpack, ender ampliado, mesas portátiles) y cosméticos (particle trails). Nada pay-to-win." },
+            { subtitle: "Por qué", text: "Cada compra ayuda a cubrir el costo del host (~23 USD/mes). ¡Gracias por apoyar el servidor!" }
         ]
     }
 ];
