@@ -3,7 +3,7 @@
 # Web Status Server
 web-status:
   enabled: true
-  port: 33503
+  port: 25587
 
 game:
   # Intervalo (en días del juego) entre giros de la ruleta de modificadores. Usa 1 para el comportamiento diario anterior.
@@ -33,7 +33,7 @@ deathmatch:
 
 # Kit inicial configurable
 starter_kit:
-  enabled: true
+  enabled: false
   include_daily_rolls: true
   daily_rolls: 2
   # Lista editable de ítems. Campos soportados:

@@ -113,6 +113,9 @@ public final class RollAndDeathSMP extends JavaPlugin {
     public void onEnable() {
         // Load Config
         saveDefaultConfig();
+        // Rellena claves nuevas con defaults sin pisar valores existentes (evita configs vacías)
+        getConfig().options().copyDefaults(true);
+        saveConfig();
 
         this.scopeRegistry = new ScopeRegistry(this);
 
