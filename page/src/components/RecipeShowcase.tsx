@@ -12,6 +12,18 @@ interface RecipeProps {
 }
 
 export const RecipeShowcase: React.FC<RecipeProps> = ({ recipe }) => {
+    const stripFormatting = (value: string) => value.replace(/<[^>]+>/g, '').trim();
+
+    const toWikiName = (value: string) => {
+        const base = stripFormatting(value || '');
+        const withSpaces = base.replace(/_/g, ' ');
+        const parts = withSpaces.split(/\s+/).filter(Boolean);
+        if (!parts.length) return base;
+        return parts
+            .map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+            .join('_');
+    };
+
     const resolveLocalIcon = (name: string) => {
         const direct = itemIconMap[name];
         if (direct) return direct;
@@ -34,11 +46,10 @@ export const RecipeShowcase: React.FC<RecipeProps> = ({ recipe }) => {
         const localIcon = resolveLocalIcon(name);
         if (localIcon) return localIcon;
 
-        const formattedName = name.replace(/ /g, '_');
-        if(formattedName === "Nether_Star" || formattedName === "End_Crystal") {
-        return `https://minecraft.wiki/images/Invicon_${formattedName}.gif`;
-        }
-        return `https://minecraft.wiki/images/Invicon_${formattedName}.png`;
+        const wikiName = toWikiName(name);
+        const formattedName = wikiName.replace(/ /g, '_');
+        const specialGif = formattedName === 'Nether_Star' || formattedName === 'End_Crystal';
+        return `https://minecraft.wiki/images/Invicon_${formattedName}.${specialGif ? 'gif' : 'png'}`;
     };
 
     const renderSlot = (itemName: string | null, index: number) => (

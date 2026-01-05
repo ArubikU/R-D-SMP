@@ -22,9 +22,51 @@ function App() {
     const [itemsError, setItemsError] = useState<string | null>(null);
     const [remoteItems, setRemoteItems] = useState<any[]>([]);
 
+    const stripFormatting = (value: string | null | undefined) => {
+        if (!value) return '';
+        return value.replace(/<[^>]+>/g, '').trim();
+    };
+
+    const fixMojibake = (value: string) => {
+        const fixes: Record<string, string> = {
+            'Ca�tico': 'Caótico',
+            'Ca�tica': 'Caótica',
+            'Guardi�n': 'Guardián',
+            'Br�jula': 'Brújula',
+            'B�lsamo': 'Bálsamo',
+            'Vamp�rico': 'Vampírico',
+            'Pirot�cnica': 'Pirotécnica',
+            'Ca��n': 'Cañón',
+            'Hidromiel de B�rbaro': 'Hidromiel de Bárbaro',
+            'Antorcha Pirot�cnica': 'Antorcha Pirotécnica',
+        };
+        let out = value;
+        Object.entries(fixes).forEach(([bad, good]) => {
+            out = out.replace(new RegExp(bad, 'g'), good);
+        });
+        return out;
+    };
+
+    const humanizeMaybe = (value: string | null) => {
+        if (!value) return value;
+        if (!value.includes('_') && !/^[A-Z0-9_]+$/.test(value)) return value;
+        const words = value.replace(/_/g, ' ').split(/\s+/).filter(Boolean);
+        if (!words.length) return value;
+        const human = words.map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+        return human;
+    };
+
+    const cleanText = (value: any) => {
+        if (value === null || value === undefined) return value;
+        const plain = stripFormatting(String(value));
+        const fixed = fixMojibake(plain.normalize('NFC'));
+        return humanizeMaybe(fixed);
+    };
+
     const ingredientName = (entry: any) => {
         if (!entry) return null;
-        return entry.custom ?? entry.material ?? entry.name ?? entry.id ?? null;
+        const raw = entry.custom ?? entry.material ?? entry.name ?? entry.id ?? null;
+        return cleanText(raw);
     };
 
     const buildRecipe = (definition: any, type: string, displayName: string) => {
@@ -77,9 +119,9 @@ function App() {
     const normalizeRecipe = (recipe: any) => {
         const definition = recipe?.definition ?? {};
         const meta = recipe?.result_meta ?? {};
-        const resultName = meta.display_name ?? ingredientName(definition.result) ?? recipe.id ?? 'Receta';
+        const resultName = cleanText(meta.display_name) ?? ingredientName(definition.result) ?? cleanText(recipe.id) ?? 'Receta';
         const recipeBlock = buildRecipe(definition, recipe?.type, resultName);
-        const roleRequirement = meta.required_role ?? definition.required_role ?? null;
+        const roleRequirement = cleanText(meta.required_role ?? definition.required_role ?? null);
         const descParts = [];
         if (roleRequirement) descParts.push(`Requiere rol ${roleRequirement}`);
         if (recipe?.rules && recipe.rules.length) descParts.push('Contiene reglas especiales de crafteo');
@@ -97,10 +139,10 @@ function App() {
     };
 
     const normalizeDrop = (drop: any) => {
-        const name = drop?.item_display_name ?? drop?.item_id ?? 'Ítem';
-        const requiredRole = drop?.required_role;
-        const material = drop?.material ?? null;
-        const mobName = drop?.mob_name ?? drop?.mob_id ?? 'Mob';
+        const name = cleanText(drop?.item_display_name ?? drop?.item_id ?? 'Ítem');
+        const requiredRole = cleanText(drop?.required_role);
+        const material = cleanText(drop?.material ?? null);
+        const mobName = cleanText(drop?.mob_name ?? drop?.mob_id ?? 'Mob');
         const chance = typeof drop?.chance === 'number' ? drop.chance : undefined;
         const amount = drop?.amount ?? 1;
 
@@ -119,11 +161,11 @@ function App() {
         return {
             name,
             type: requiredRole ? `Rol: ${requiredRole}` : 'Drop',
-            desc: parts.join(' · ') || 'Drop / Loot del servidor',
+            desc: cleanText(parts.join(' · ') || 'Drop / Loot del servidor'),
             rarity: drop?.rarity ?? 'raro',
-            acquisition,
+            acquisition: cleanText(acquisition),
             recipe: null,
-            dropSources: [acquisition],
+            dropSources: [cleanText(acquisition)],
         };
     };
 
