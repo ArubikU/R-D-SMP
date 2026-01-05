@@ -144,8 +144,11 @@ function App() {
                 const recipesData = await recipesRes.json();
                 const dropsData = await dropsRes.json();
 
-                const recipes = Array.isArray(recipesData?.recipes) ? recipesData.recipes : [];
-                const drops = Array.isArray(dropsData?.drops) ? dropsData.drops : [];
+                const recipesPayload = recipesData?.data ?? recipesData;
+                const dropsPayload = dropsData?.data ?? dropsData;
+
+                const recipes = Array.isArray(recipesPayload?.recipes) ? recipesPayload.recipes : [];
+                const drops = Array.isArray(dropsPayload?.drops) ? dropsPayload.drops : [];
 
                 if (!cancelled) {
                     const normalizedRecipes = recipes.map(normalizeRecipe).filter(Boolean);
