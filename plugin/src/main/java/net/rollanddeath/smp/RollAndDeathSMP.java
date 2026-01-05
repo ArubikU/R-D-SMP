@@ -45,6 +45,7 @@ import net.rollanddeath.smp.core.monetization.MonetizationCommand;
 import net.rollanddeath.smp.core.monetization.TrailListener;
 import net.rollanddeath.smp.core.monetization.TrailCommand;
 import net.rollanddeath.smp.core.items.CraftingListener;
+import net.rollanddeath.smp.core.items.UpgradeAndAnvilListener;
 import net.rollanddeath.smp.core.commands.AdminCommand;
 import net.rollanddeath.smp.core.commands.KillStoreCommand;
 import net.rollanddeath.smp.core.items.DailyRollManager;
@@ -381,6 +382,7 @@ public final class RollAndDeathSMP extends JavaPlugin {
         recipeManager.registerRecipes();
         getServer().getPluginManager().registerEvents(lootManager, this);
         getServer().getPluginManager().registerEvents(new CraftingListener(this), this);
+        getServer().getPluginManager().registerEvents(new UpgradeAndAnvilListener(this), this);
         getServer().getPluginManager().registerEvents(reanimationManager, this);
         if (combatLogManager.isEnabled()) {
             getServer().getPluginManager().registerEvents(combatLogManager, this);

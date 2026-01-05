@@ -333,6 +333,10 @@ public final class ScriptedItem extends CustomItem {
         return def.displayName();
     }
 
+    public ScriptedItemDefinition getDefinition() {
+        return def;
+    }
+
     @Override
     protected Integer getCustomModelData() {
         return def.customModelData();

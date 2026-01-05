@@ -22,7 +22,10 @@ public record ScriptedItemDefinition(
     List<PdcSpec> pdc,
     List<EnchantmentSpec> enchantments,
     List<AttributeSpec> attributes,
-    Map<String, ModifierRule> events
+    Map<String, ModifierRule> events,
+    boolean allowAnvilRepair,
+    boolean allowMending,
+    List<AnvilRepairSpec> anvilItems
 ) {
 
     public record PdcSpec(
@@ -45,5 +48,19 @@ public record ScriptedItemDefinition(
         EquipmentSlotGroup slot,
         String key
     ) {
+    }
+
+    public record AnvilRepairSpec(
+        Material material,
+        String customId,
+        int percent
+    ) {
+        public boolean isMaterial() {
+            return material != null;
+        }
+
+        public boolean isCustom() {
+            return customId != null && !customId.isBlank();
+        }
     }
 }

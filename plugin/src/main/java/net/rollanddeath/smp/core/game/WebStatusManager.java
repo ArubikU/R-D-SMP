@@ -281,13 +281,14 @@ public class WebStatusManager {
                             CustomItem custom = plugin.getItemManager().getItem(customId.trim().toUpperCase(Locale.ROOT));
                             if (custom != null) {
                                 obj.addProperty("item_display_name", custom.getDisplayName());
-                                Integer cmd = custom.getCustomModelData();
-                                if (cmd != null) obj.addProperty("custom_model_data", cmd);
+                                ItemStack stack = custom.getItemStack();
+                                if (stack.hasItemMeta() && stack.getItemMeta().hasCustomModelData()) {
+                                    obj.addProperty("custom_model_data", stack.getItemMeta().getCustomModelData());
+                                }
 
                                 RoleType role = custom.getRequiredRoleType();
                                 if (role != null) obj.addProperty("required_role", role.getName());
 
-                                ItemStack stack = custom.getItemStack();
                                 obj.addProperty("material", stack.getType().name());
                             }
                         } else if (material != null && !material.isBlank()) {

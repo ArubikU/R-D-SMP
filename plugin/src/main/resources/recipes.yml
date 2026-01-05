@@ -4,6 +4,7 @@
 # recipes:
 #   <id>:
 #     type: shaped | shapeless | furnace | blasting | smoking | campfire | stonecutting | smithing_transform
+#            | upgrade (smithing/anvil)
 #     result:
 #       # UNO de:
 #       material: <Bukkit Material>
@@ -34,6 +35,12 @@
 # Stonecutting:
 #   input: { material: STONE }
 #
+# Upgrade (custom smithing/anvil sin receta vanilla):
+#   station: smithing | anvil (default smithing)
+#   template: { material: NETHERITE_UPGRADE_SMITHING_TEMPLATE } (opcional para smithing)
+#   base:     { custom: SOFT_STAFF }
+#   addition: { custom: POWER_CORE }
+
 # Smithing transform:
 #   template: { material: NETHERITE_UPGRADE_SMITHING_TEMPLATE }
 #   base:     { material: DIAMOND_SWORD }
@@ -244,6 +251,7 @@ recipes:
 
   soul_contract:
     type: shaped
+    enabled: false
     result: { custom: SOUL_CONTRACT }
     pattern:
       - "SPS"
@@ -1077,6 +1085,417 @@ recipes:
 
   loki_role_dice:
     type: shapeless
+
+  # --- Staff base crafts (Tier I) ---
+  air_staff_base:
+    type: shapeless
+    result:
+      custom: AIR_STAFF
+      params:
+        pdc:
+          - { key: staff_damage, type: DOUBLE, value: 1.8 }
+          - { key: staff_speed, type: DOUBLE, value: 8.0 }
+          - { key: staff_tier, type: INT, value: 1 }
+    ingredients:
+      - { material: STICK }
+      - { material: FEATHER }
+      - { material: GLASS }
+    rules:
+      prepare:
+        require_all:
+          - { type: var_compare, key: "SUBJECT.level", operator: ">=", value: 30 }
+        on_fail:
+          - { type: message, color: red, message: "Necesitas 30 niveles de experiencia." }
+      craft:
+        require_all:
+          - { type: var_compare, key: "SUBJECT.level", operator: ">=", value: 30 }
+        on_pass:
+          - { type: command, as: console, command: "experience add %player% -30 levels" }
+        on_fail:
+          - { type: message, color: red, message: "Necesitas 30 niveles de experiencia." }
+
+  earth_staff_base:
+    type: shapeless
+    result:
+      custom: EARTH_STAFF
+      params:
+        pdc:
+          - { key: staff_damage, type: DOUBLE, value: 2.0 }
+          - { key: staff_root_duration, type: DOUBLE, value: 2.5 }
+          - { key: staff_tier, type: INT, value: 1 }
+    ingredients:
+      - { material: STICK }
+      - { material: MOSS_BLOCK }
+      - { material: COBBLESTONE }
+    rules:
+      prepare:
+        require_all:
+          - { type: var_compare, key: "SUBJECT.level", operator: ">=", value: 30 }
+        on_fail:
+          - { type: message, color: red, message: "Necesitas 30 niveles de experiencia." }
+      craft:
+        require_all:
+          - { type: var_compare, key: "SUBJECT.level", operator: ">=", value: 30 }
+        on_pass:
+          - { type: command, as: console, command: "experience add %player% -30 levels" }
+        on_fail:
+          - { type: message, color: red, message: "Necesitas 30 niveles de experiencia." }
+
+  ice_staff_base:
+    type: shapeless
+    result:
+      custom: ICE_STAFF
+      params:
+        pdc:
+          - { key: staff_damage, type: DOUBLE, value: 1.8 }
+          - { key: staff_freeze_radius, type: DOUBLE, value: 2.5 }
+          - { key: staff_tier, type: INT, value: 1 }
+    ingredients:
+      - { material: STICK }
+      - { material: SNOWBALL }
+      - { material: PACKED_ICE }
+    rules:
+      prepare:
+        require_all:
+          - { type: var_compare, key: "SUBJECT.level", operator: ">=", value: 30 }
+        on_fail:
+          - { type: message, color: red, message: "Necesitas 30 niveles de experiencia." }
+      craft:
+        require_all:
+          - { type: var_compare, key: "SUBJECT.level", operator: ">=", value: 30 }
+        on_pass:
+          - { type: command, as: console, command: "experience add %player% -30 levels" }
+        on_fail:
+          - { type: message, color: red, message: "Necesitas 30 niveles de experiencia." }
+
+  fire_staff_base:
+    type: shapeless
+    result:
+      custom: FIRE_STAFF
+      params:
+        pdc:
+          - { key: staff_damage, type: DOUBLE, value: 2.0 }
+          - { key: staff_burn_duration, type: DOUBLE, value: 2.0 }
+          - { key: staff_tier, type: INT, value: 1 }
+    ingredients:
+      - { material: STICK }
+      - { material: BLAZE_POWDER }
+      - { material: MAGMA_CREAM }
+    rules:
+      prepare:
+        require_all:
+          - { type: var_compare, key: "SUBJECT.level", operator: ">=", value: 30 }
+        on_fail:
+          - { type: message, color: red, message: "Necesitas 30 niveles de experiencia." }
+      craft:
+        require_all:
+          - { type: var_compare, key: "SUBJECT.level", operator: ">=", value: 30 }
+        on_pass:
+          - { type: command, as: console, command: "experience add %player% -30 levels" }
+        on_fail:
+          - { type: message, color: red, message: "Necesitas 30 niveles de experiencia." }
+
+  void_staff_base:
+    type: shapeless
+    result:
+      custom: VOID_STAFF
+      params:
+        pdc:
+          - { key: staff_damage, type: DOUBLE, value: 2.8 }
+          - { key: staff_speed, type: DOUBLE, value: 7.0 }
+          - { key: staff_pull_power, type: DOUBLE, value: 0.10 }
+          - { key: staff_tier, type: INT, value: 1 }
+    ingredients:
+      - { material: STICK }
+      - { material: ENDER_PEARL }
+      - { material: OBSIDIAN }
+    rules:
+      prepare:
+        require_all:
+          - { type: var_compare, key: "SUBJECT.level", operator: ">=", value: 30 }
+        on_fail:
+          - { type: message, color: red, message: "Necesitas 30 niveles de experiencia." }
+      craft:
+        require_all:
+          - { type: var_compare, key: "SUBJECT.level", operator: ">=", value: 30 }
+        on_pass:
+          - { type: command, as: console, command: "experience add %player% -30 levels" }
+        on_fail:
+          - { type: message, color: red, message: "Necesitas 30 niveles de experiencia." }
+
+  # --- Staff upgrades (Tier II) ---
+  air_staff_t2:
+    type: upgrade
+    station: smithing
+    template: { material: NETHERITE_UPGRADE_SMITHING_TEMPLATE }
+    result:
+      custom: AIR_STAFF
+      params:
+        pdc:
+          - { key: staff_damage, type: DOUBLE, value: 2.3 }
+          - { key: staff_speed, type: DOUBLE, value: 8.8 }
+          - { key: staff_tier, type: INT, value: 2 }
+    base: { custom: AIR_STAFF }
+    addition: { material: PHANTOM_MEMBRANE }
+    rules:
+      prepare:
+        require_all:
+          - { type: var_compare, key: "SUBJECT.level", operator: ">=", value: 45 }
+        on_fail:
+          - { type: message, color: red, message: "Necesitas 45 niveles de experiencia." }
+      craft:
+        require_all:
+          - { type: var_compare, key: "SUBJECT.level", operator: ">=", value: 45 }
+        on_pass:
+          - { type: command, as: console, command: "experience add %player% -45 levels" }
+        on_fail:
+          - { type: message, color: red, message: "Necesitas 45 niveles de experiencia." }
+
+  earth_staff_t2:
+    type: upgrade
+    station: smithing
+    template: { material: NETHERITE_UPGRADE_SMITHING_TEMPLATE }
+    result:
+      custom: EARTH_STAFF
+      params:
+        pdc:
+          - { key: staff_damage, type: DOUBLE, value: 2.6 }
+          - { key: staff_root_duration, type: DOUBLE, value: 3.2 }
+          - { key: staff_tier, type: INT, value: 2 }
+    base: { custom: EARTH_STAFF }
+    addition: { material: MOSSY_COBBLESTONE }
+    rules:
+      prepare:
+        require_all:
+          - { type: var_compare, key: "SUBJECT.level", operator: ">=", value: 45 }
+        on_fail:
+          - { type: message, color: red, message: "Necesitas 45 niveles de experiencia." }
+      craft:
+        require_all:
+          - { type: var_compare, key: "SUBJECT.level", operator: ">=", value: 45 }
+        on_pass:
+          - { type: command, as: console, command: "experience add %player% -45 levels" }
+        on_fail:
+          - { type: message, color: red, message: "Necesitas 45 niveles de experiencia." }
+
+  ice_staff_t2:
+    type: upgrade
+    station: smithing
+    template: { material: NETHERITE_UPGRADE_SMITHING_TEMPLATE }
+    result:
+      custom: ICE_STAFF
+      params:
+        pdc:
+          - { key: staff_damage, type: DOUBLE, value: 2.3 }
+          - { key: staff_freeze_radius, type: DOUBLE, value: 3.0 }
+          - { key: staff_tier, type: INT, value: 2 }
+    base: { custom: ICE_STAFF }
+    addition: { material: POWDER_SNOW_BUCKET }
+    rules:
+      prepare:
+        require_all:
+          - { type: var_compare, key: "SUBJECT.level", operator: ">=", value: 45 }
+        on_fail:
+          - { type: message, color: red, message: "Necesitas 45 niveles de experiencia." }
+      craft:
+        require_all:
+          - { type: var_compare, key: "SUBJECT.level", operator: ">=", value: 45 }
+        on_pass:
+          - { type: command, as: console, command: "experience add %player% -45 levels" }
+        on_fail:
+          - { type: message, color: red, message: "Necesitas 45 niveles de experiencia." }
+
+  fire_staff_t2:
+    type: upgrade
+    station: smithing
+    template: { material: NETHERITE_UPGRADE_SMITHING_TEMPLATE }
+    result:
+      custom: FIRE_STAFF
+      params:
+        pdc:
+          - { key: staff_damage, type: DOUBLE, value: 2.6 }
+          - { key: staff_burn_duration, type: DOUBLE, value: 3.0 }
+          - { key: staff_tier, type: INT, value: 2 }
+    base: { custom: FIRE_STAFF }
+    addition: { material: BLAZE_ROD }
+    rules:
+      prepare:
+        require_all:
+          - { type: var_compare, key: "SUBJECT.level", operator: ">=", value: 45 }
+        on_fail:
+          - { type: message, color: red, message: "Necesitas 45 niveles de experiencia." }
+      craft:
+        require_all:
+          - { type: var_compare, key: "SUBJECT.level", operator: ">=", value: 45 }
+        on_pass:
+          - { type: command, as: console, command: "experience add %player% -45 levels" }
+        on_fail:
+          - { type: message, color: red, message: "Necesitas 45 niveles de experiencia." }
+
+  void_staff_t2:
+    type: upgrade
+    station: smithing
+    template: { material: NETHERITE_UPGRADE_SMITHING_TEMPLATE }
+    result:
+      custom: VOID_STAFF
+      params:
+        pdc:
+          - { key: staff_damage, type: DOUBLE, value: 3.5 }
+          - { key: staff_speed, type: DOUBLE, value: 7.5 }
+          - { key: staff_pull_power, type: DOUBLE, value: 0.12 }
+          - { key: staff_tier, type: INT, value: 2 }
+    base: { custom: VOID_STAFF }
+    addition: { material: ECHO_SHARD }
+    rules:
+      prepare:
+        require_all:
+          - { type: var_compare, key: "SUBJECT.level", operator: ">=", value: 45 }
+        on_fail:
+          - { type: message, color: red, message: "Necesitas 45 niveles de experiencia." }
+      craft:
+        require_all:
+          - { type: var_compare, key: "SUBJECT.level", operator: ">=", value: 45 }
+        on_pass:
+          - { type: command, as: console, command: "experience add %player% -45 levels" }
+        on_fail:
+          - { type: message, color: red, message: "Necesitas 45 niveles de experiencia." }
+
+  # --- Staff upgrades (Tier III) ---
+  air_staff_t3:
+    type: upgrade
+    station: smithing
+    template: { material: NETHERITE_UPGRADE_SMITHING_TEMPLATE }
+    result:
+      custom: AIR_STAFF
+      params:
+        pdc:
+          - { key: staff_damage, type: DOUBLE, value: 2.8 }
+          - { key: staff_speed, type: DOUBLE, value: 9.5 }
+          - { key: staff_tier, type: INT, value: 3 }
+    base: { custom: AIR_STAFF }
+    addition: { material: HEART_OF_THE_SEA }
+    rules:
+      prepare:
+        require_all:
+          - { type: var_compare, key: "SUBJECT.level", operator: ">=", value: 60 }
+        on_fail:
+          - { type: message, color: red, message: "Necesitas 60 niveles de experiencia." }
+      craft:
+        require_all:
+          - { type: var_compare, key: "SUBJECT.level", operator: ">=", value: 60 }
+        on_pass:
+          - { type: command, as: console, command: "experience add %player% -60 levels" }
+        on_fail:
+          - { type: message, color: red, message: "Necesitas 60 niveles de experiencia." }
+
+  earth_staff_t3:
+    type: upgrade
+    station: smithing
+    template: { material: NETHERITE_UPGRADE_SMITHING_TEMPLATE }
+    result:
+      custom: EARTH_STAFF
+      params:
+        pdc:
+          - { key: staff_damage, type: DOUBLE, value: 3.2 }
+          - { key: staff_root_duration, type: DOUBLE, value: 3.8 }
+          - { key: staff_tier, type: INT, value: 3 }
+    base: { custom: EARTH_STAFF }
+    addition: { material: NETHERITE_INGOT }
+    rules:
+      prepare:
+        require_all:
+          - { type: var_compare, key: "SUBJECT.level", operator: ">=", value: 60 }
+        on_fail:
+          - { type: message, color: red, message: "Necesitas 60 niveles de experiencia." }
+      craft:
+        require_all:
+          - { type: var_compare, key: "SUBJECT.level", operator: ">=", value: 60 }
+        on_pass:
+          - { type: command, as: console, command: "experience add %player% -60 levels" }
+        on_fail:
+          - { type: message, color: red, message: "Necesitas 60 niveles de experiencia." }
+
+  ice_staff_t3:
+    type: upgrade
+    station: smithing
+    template: { material: NETHERITE_UPGRADE_SMITHING_TEMPLATE }
+    result:
+      custom: ICE_STAFF
+      params:
+        pdc:
+          - { key: staff_damage, type: DOUBLE, value: 2.8 }
+          - { key: staff_freeze_radius, type: DOUBLE, value: 3.5 }
+          - { key: staff_tier, type: INT, value: 3 }
+    base: { custom: ICE_STAFF }
+    addition: { material: BLUE_ICE }
+    rules:
+      prepare:
+        require_all:
+          - { type: var_compare, key: "SUBJECT.level", operator: ">=", value: 60 }
+        on_fail:
+          - { type: message, color: red, message: "Necesitas 60 niveles de experiencia." }
+      craft:
+        require_all:
+          - { type: var_compare, key: "SUBJECT.level", operator: ">=", value: 60 }
+        on_pass:
+          - { type: command, as: console, command: "experience add %player% -60 levels" }
+        on_fail:
+          - { type: message, color: red, message: "Necesitas 60 niveles de experiencia." }
+
+  fire_staff_t3:
+    type: upgrade
+    station: smithing
+    template: { material: NETHERITE_UPGRADE_SMITHING_TEMPLATE }
+    result:
+      custom: FIRE_STAFF
+      params:
+        pdc:
+          - { key: staff_damage, type: DOUBLE, value: 3.2 }
+          - { key: staff_burn_duration, type: DOUBLE, value: 4.0 }
+          - { key: staff_tier, type: INT, value: 3 }
+    base: { custom: FIRE_STAFF }
+    addition: { material: NETHER_STAR }
+    rules:
+      prepare:
+        require_all:
+          - { type: var_compare, key: "SUBJECT.level", operator: ">=", value: 60 }
+        on_fail:
+          - { type: message, color: red, message: "Necesitas 60 niveles de experiencia." }
+      craft:
+        require_all:
+          - { type: var_compare, key: "SUBJECT.level", operator: ">=", value: 60 }
+        on_pass:
+          - { type: command, as: console, command: "experience add %player% -60 levels" }
+        on_fail:
+          - { type: message, color: red, message: "Necesitas 60 niveles de experiencia." }
+
+  void_staff_t3:
+    type: upgrade
+    station: smithing
+    template: { material: NETHERITE_UPGRADE_SMITHING_TEMPLATE }
+    result:
+      custom: VOID_STAFF
+      params:
+        pdc:
+          - { key: staff_damage, type: DOUBLE, value: 4.2 }
+          - { key: staff_speed, type: DOUBLE, value: 8.0 }
+          - { key: staff_pull_power, type: DOUBLE, value: 0.15 }
+          - { key: staff_tier, type: INT, value: 3 }
+    base: { custom: VOID_STAFF }
+    addition: { material: DRAGON_BREATH }
+    rules:
+      prepare:
+        require_all:
+          - { type: var_compare, key: "SUBJECT.level", operator: ">=", value: 60 }
+        on_fail:
+          - { type: message, color: red, message: "Necesitas 60 niveles de experiencia." }
+      craft:
+        require_all:
+          - { type: var_compare, key: "SUBJECT.level", operator: ">=", value: 60 }
+        on_pass:
+          - { type: command, as: console, command: "experience add %player% -60 levels" }
+        on_fail:
+          - { type: message, color: red, message: "Necesitas 60 niveles de experiencia." }
     result: { custom: LOKI_ROLE_DICE }
     ingredients:
       - { material: EMERALD_BLOCK }

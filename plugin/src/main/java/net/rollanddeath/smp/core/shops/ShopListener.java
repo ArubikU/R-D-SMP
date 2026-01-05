@@ -251,7 +251,9 @@ public class ShopListener implements Listener {
                 session.price = price;
                 session.priceAmount = amount;
                 session.stage = CreationStage.WAIT_CONFIRM;
-                player.sendMessage(MiniMessage.miniMessage().deserialize("<gold>Vas a vender <white>" + session.sellAmount + "x</white> " + session.sell.format().content() + " por <white>" + amount + "x</white> " + price.format().content() + ". Escribe <green>confirmar</green> o <red>cancelar</red>.")
+                String sellName = net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText().serialize(session.sell.format());
+                String priceName = net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText().serialize(price.format());
+                player.sendMessage(MiniMessage.miniMessage().deserialize("<gold>Vas a vender <white>" + session.sellAmount + "x</white> " + sellName + " por <white>" + amount + "x</white> " + priceName + ". Escribe <green>confirmar</green> o <red>cancelar</red>.")
                     .append(Component.space())
                     .append(buttons(
                             "<click:suggest_command:'confirmar'><green>[Confirmar]</green></click>",

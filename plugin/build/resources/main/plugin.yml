@@ -19,8 +19,7 @@ commands:
     usage: /tc <message>
   role:
     description: Manage roles
-    usage: /role set <player> <role> | /role rerollall
-    permission: rd.admin.roles
+    usage: /role list | /role choose <rol> | /role clear | /role set <player> <role>
   mob:
     description: Manage custom mobs
     usage: /mob spawn <type>
@@ -109,6 +108,9 @@ commands:
     description: Abre un ahumador portátil
     usage: /smoker
     permission: rd.smoker
+  cazadores:
+    description: Publica y cobra recompensas por jugadores
+    usage: /cazadores poner <jugador> [cantidad] | /cazadores listar | /cazadores ver <jugador> | /cazadores cancelar <jugador>
   trail:
     description: Activa/desactiva partículas cosméticas (tab para ver opciones)
     usage: /trail [nombre|none]

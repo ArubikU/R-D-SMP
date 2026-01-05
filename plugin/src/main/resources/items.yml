@@ -1,6 +1,13 @@
 # Ítems custom definidos por scripts.
 #
 # Nota: este archivo se mergea (defaults del plugin + overrides del servidor).
+#
+# Opciones de yunque/mending por ítem (opcionales):
+#   anvil_repair: true|false   # false bloquea reparaciones/renombres vanilla, salvo reglas en anvil_items
+#   allow_mending: true|false  # false cancela el efecto de mending en este ítem
+#   anvil_items:               # mapa de material o custom_id -> porcentaje de reparación por ítem
+#     IRON_INGOT: 25           # repara 25% de la durabilidad máxima por cada lingote
+#     ELECTRIC_STAFF: 40       # también soporta IDs custom declarados en items.yml
 
 # --- Ejemplo: llamar un macro desde un ítem (scripts.yml) ---
 # items:
@@ -545,6 +552,7 @@ items:
         deny_on_fail: false
 
   NOTCH_HEART:
+    enabled: false
     name: "Corazón de Notch"
     custom_model_data: 710026
     base_material: ENCHANTED_GOLDEN_APPLE
@@ -564,6 +572,7 @@ items:
         deny_on_fail: false
 
   LIFE_GAPPLE:
+    enabled: false
     name: "Manzana de Vida"
     custom_model_data: 710032
     base_material: ENCHANTED_GOLDEN_APPLE
@@ -701,6 +710,7 @@ items:
 
   STEEL_SWORD:
     base_material: IRON_SWORD
+      - "<yellow>Tier %pdc:staff_tier%"
     lore:
       - "Espada de acero templada"
       - "Nivel netherite en daño"
@@ -1537,12 +1547,20 @@ items:
     name: "<white>Bastón de Aire"
     base_material: IRON_HOE
     max_damage: 100
+    anvil_repair: false
+    allow_mending: false
+    anvil_items:
+      NETHER_STAR: 100
+      DIAMOND: 10
     pdc:
-      - { key: staff_damage, type: DOUBLE, value: 2.0 }
-      - { key: staff_speed, type: DOUBLE, value: 8.5 }
+      - { key: staff_damage, type: DOUBLE, value: 1.8 }
+      - { key: staff_speed, type: DOUBLE, value: 8.0 }
+      - { key: staff_root_duration, type: DOUBLE, value: 2.5 }
+      - { key: staff_tier, type: INT, value: 1 }
     lore:
       - "<gray>Controla los vientos"
       - ""
+      - "<yellow>Tier %pdc:staff_tier%"
       - "<gray>Al disparar:"
       - "<blue> +%pdc_double:staff_damage% Daño de Proyectil"
       - "<blue> +%pdc_double:staff_speed% Velocidad de Proyectil"
@@ -1638,13 +1656,20 @@ items:
     name: "<dark_purple>Bastón del Vacío"
     base_material: NETHERITE_HOE
     max_damage: 150
+    anvil_repair: false
+    allow_mending: false
+    anvil_items:
+      NETHER_STAR: 100
+      DIAMOND: 10
     pdc:
-      - { key: staff_damage, type: DOUBLE, value: 3.5 }
-      - { key: staff_speed, type: DOUBLE, value: 7.5 }
-      - { key: staff_pull_power, type: DOUBLE, value: 0.12 }
+      - { key: staff_damage, type: DOUBLE, value: 2.8 }
+      - { key: staff_speed, type: DOUBLE, value: 7.0 }
+      - { key: staff_pull_power, type: DOUBLE, value: 0.10 }
+      - { key: staff_tier, type: INT, value: 1 }
     lore:
       - "<gray>Consume a tus enemigos"
       - ""
+      - "<yellow>Tier %pdc:staff_tier%"
       - "<gray>Al disparar:"
       - "<blue> +%pdc_double:staff_damage% Daño de Proyectil"
       - "<blue> +%pdc_double:staff_speed% Velocidad de Proyectil"
@@ -1761,13 +1786,20 @@ items:
     name: "<green>Bastón de Tierra"
     base_material: STONE_HOE
     max_damage: 80
+    anvil_repair: false
+    allow_mending: false
+    anvil_items:
+      NETHER_STAR: 100
+      DIAMOND: 10
     pdc:
-      - { key: staff_damage, type: DOUBLE, value: 2.5 }
-      - { key: staff_speed, type: DOUBLE, value: 6.5 }
-      - { key: staff_root_duration, type: DOUBLE, value: 3.0 }
+      - { key: staff_damage, type: DOUBLE, value: 2.0 }
+      - { key: staff_speed, type: DOUBLE, value: 8.0 }
+      - { key: staff_tier, type: INT, value: 1 }
+      - { key: staff_root_duration, type: DOUBLE, value: 2.5 }
     lore:
       - "<gray>Aplasta a tus enemigos"
       - ""
+      - "<yellow>Tier %pdc:staff_tier%"
       - "<gray>Al disparar:"
       - "<blue> +%pdc_double:staff_damage% Daño de Proyectil"
       - "<blue> +%pdc_double:staff_speed% Velocidad de Proyectil"
@@ -1879,14 +1911,21 @@ items:
     name: "<aqua>Bastón de Hielo"
     base_material: DIAMOND_HOE
     max_damage: 120
+    anvil_repair: false
+    allow_mending: false
+    anvil_items:
+      NETHER_STAR: 100
+      DIAMOND: 10
     pdc:
-      - { key: staff_damage, type: DOUBLE, value: 2.0 }
+      - { key: staff_damage, type: DOUBLE, value: 1.8 }
       - { key: staff_speed, type: DOUBLE, value: 7.5 }
       - { key: staff_freeze_duration, type: DOUBLE, value: 3.0 }
-      - { key: staff_freeze_radius, type: DOUBLE, value: 3.0 }
+      - { key: staff_freeze_radius, type: DOUBLE, value: 2.5 }
+      - { key: staff_tier, type: INT, value: 1 }
     lore:
       - "<gray>Congela a tus enemigos"
       - ""
+      - "<yellow>Tier %pdc:staff_tier%"
       - "<gray>Al disparar:"
       - "<blue> +%pdc_double:staff_damage% Daño de Proyectil"
       - "<blue> +%pdc_double:staff_speed% Velocidad de Proyectil"
@@ -1998,13 +2037,20 @@ items:
     name: "<gold>Bastón de Fuego"
     base_material: GOLDEN_HOE
     max_damage: 100
+    anvil_repair: false
+    allow_mending: false
+    anvil_items:
+      NETHER_STAR: 100
+      DIAMOND: 10
     pdc:
-      - { key: staff_damage, type: DOUBLE, value: 2.5 }
+      - { key: staff_damage, type: DOUBLE, value: 2.0 }
       - { key: staff_speed, type: DOUBLE, value: 8.0 }
-      - { key: staff_burn_duration, type: DOUBLE, value: 3.0 }
+      - { key: staff_burn_duration, type: DOUBLE, value: 2.0 }
+      - { key: staff_tier, type: INT, value: 1 }
     lore:
       - "<gray>Incinera a tus enemigos"
       - ""
+      - "<yellow>Tier %pdc:staff_tier%"
       - "<gray>Al disparar:"
       - "<blue> +%pdc_double:staff_damage% Daño de Proyectil"
       - "<blue> +%pdc_double:staff_speed% Velocidad de Proyectil"

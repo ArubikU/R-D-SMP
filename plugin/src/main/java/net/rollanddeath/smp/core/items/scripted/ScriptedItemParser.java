@@ -92,7 +92,11 @@ public final class ScriptedItemParser {
                 }
             }
 
-            out.put(id, new ScriptedItemDefinition(id, baseMat, displayName, cmd, maxStackSize, maxDamage, lore, leatherColor, pdc, enchants, attrs, events));
+            boolean allowAnvilRepair = sec.getBoolean("anvil_repair", true);
+            boolean allowMending = sec.getBoolean("allow_mending", true);
+            List<ScriptedItemDefinition.AnvilRepairSpec> repairSpecs = parseAnvilRepairs(sec.getConfigurationSection("anvil_items"));
+
+            out.put(id, new ScriptedItemDefinition(id, baseMat, displayName, cmd, maxStackSize, maxDamage, lore, leatherColor, pdc, enchants, attrs, events, allowAnvilRepair, allowMending, repairSpecs));
         }
 
         return out;
@@ -218,6 +222,45 @@ public final class ScriptedItemParser {
         String key = raw.get("key") instanceof String s ? s : null;
 
         return new ScriptedItemDefinition.AttributeSpec(attribute, amount, op, slot, key);
+    }
+
+    private static List<ScriptedItemDefinition.AnvilRepairSpec> parseAnvilRepairs(ConfigurationSection sec) {
+        if (sec == null) return List.of();
+
+        List<ScriptedItemDefinition.AnvilRepairSpec> out = new ArrayList<>();
+        for (String key : sec.getKeys(false)) {
+            Object rawVal = sec.get(key);
+            if (rawVal == null) continue;
+
+            int percent;
+            if (rawVal instanceof Number n) {
+                percent = n.intValue();
+            } else {
+                try {
+                    percent = Integer.parseInt(String.valueOf(rawVal).trim());
+                } catch (Exception ignored) {
+                    continue;
+                }
+            }
+            if (percent < 1) percent = 1;
+            if (percent > 100) percent = 100;
+
+            String ing = key.trim();
+            if (ing.isEmpty()) continue;
+            Material mat = null;
+            try {
+                mat = Material.valueOf(ing.toUpperCase(Locale.ROOT));
+            } catch (Exception ignored) {
+                mat = null;
+            }
+
+            if (mat != null) {
+                out.add(new ScriptedItemDefinition.AnvilRepairSpec(mat, null, percent));
+            } else {
+                out.add(new ScriptedItemDefinition.AnvilRepairSpec(null, ing.trim().toUpperCase(Locale.ROOT), percent));
+            }
+        }
+        return out;
     }
 
     private static ScriptedItemDefinition.PdcSpec parsePdc(Map<?, ?> raw) {

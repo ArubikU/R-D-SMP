@@ -16,13 +16,13 @@ import java.util.stream.Collectors;
 
 public class TrailCommand implements CommandExecutor, TabCompleter {
 
-    private static final List<Particle> ALLOWED = List.of(
+        private static final List<Particle> ALLOWED = List.of(
             Particle.HEART,
             Particle.FLAME,
-            Particle.TOTEM,
-            Particle.VILLAGER_HAPPY,
+            Particle.TOTEM_OF_UNDYING,
+            Particle.HAPPY_VILLAGER,
             Particle.CRIT
-    );
+        );
 
     private final MonetizationManager monetizationManager;
 

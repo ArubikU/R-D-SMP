@@ -3,6 +3,7 @@ package net.rollanddeath.smp.core.items;
 import net.rollanddeath.smp.RollAndDeathSMP;
 import net.rollanddeath.smp.core.items.recipes.RecipeRuleParser;
 import net.rollanddeath.smp.core.items.recipes.RecipeRuleSet;
+import net.rollanddeath.smp.core.items.recipes.UpgradeRecipe;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
@@ -22,6 +23,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -34,6 +36,7 @@ public class RecipeManager {
     private final RollAndDeathSMP plugin;
 
         private final Map<NamespacedKey, RecipeRuleSet> rulesByKey = new HashMap<>();
+        private final List<UpgradeRecipe> upgradeRecipes = new ArrayList<>();
 
     public RecipeManager(RollAndDeathSMP plugin) {
         this.plugin = plugin;
@@ -43,12 +46,17 @@ public class RecipeManager {
                 return rulesByKey.get(key);
         }
 
+        public List<UpgradeRecipe> getUpgradeRecipes() {
+                return java.util.Collections.unmodifiableList(upgradeRecipes);
+        }
+
     public void registerRecipes() {
                 ensureRecipesFile();
                 File file = new File(plugin.getDataFolder(), "recipes.yml");
                 YamlConfiguration yaml = YamlConfiguration.loadConfiguration(file);
 
                 rulesByKey.clear();
+                upgradeRecipes.clear();
 
                 ConfigurationSection root = yaml.getConfigurationSection("recipes");
                 if (root == null) {
@@ -97,28 +105,80 @@ public class RecipeManager {
                         throw new IllegalArgumentException("result inválido o faltante");
                 }
 
-                Recipe recipe = switch (type) {
-                        case "shaped" -> buildShapedRecipe(key, result, section);
-                        case "shapeless" -> buildShapelessRecipe(key, result, section);
-                        case "furnace" -> buildFurnaceRecipe(key, result, section);
-                        case "blasting" -> buildBlastingRecipe(key, result, section);
-                        case "smoking" -> buildSmokingRecipe(key, result, section);
-                        case "campfire" -> buildCampfireRecipe(key, result, section);
-                        case "stonecutting" -> buildStonecuttingRecipe(key, result, section);
-                        case "smithing_transform" -> buildSmithingTransformRecipe(key, result, section);
-                        default -> throw new IllegalArgumentException("type no soportado: " + type);
-                };
-
                 RecipeRuleSet rules = RecipeRuleParser.parseRuleSet(section);
-                if (rules != null) {
-                        rulesByKey.put(key, rules);
+                switch (type) {
+                        case "shaped" -> {
+                                Recipe recipe = buildShapedRecipe(key, result, section);
+                                if (rules != null) rulesByKey.put(key, rules);
+                                addRecipeSafe(id, key, recipe);
+                        }
+                        case "shapeless" -> {
+                                Recipe recipe = buildShapelessRecipe(key, result, section);
+                                if (rules != null) rulesByKey.put(key, rules);
+                                addRecipeSafe(id, key, recipe);
+                        }
+                        case "furnace" -> {
+                                Recipe recipe = buildFurnaceRecipe(key, result, section);
+                                if (rules != null) rulesByKey.put(key, rules);
+                                addRecipeSafe(id, key, recipe);
+                        }
+                        case "blasting" -> {
+                                Recipe recipe = buildBlastingRecipe(key, result, section);
+                                if (rules != null) rulesByKey.put(key, rules);
+                                addRecipeSafe(id, key, recipe);
+                        }
+                        case "smoking" -> {
+                                Recipe recipe = buildSmokingRecipe(key, result, section);
+                                if (rules != null) rulesByKey.put(key, rules);
+                                addRecipeSafe(id, key, recipe);
+                        }
+                        case "campfire" -> {
+                                Recipe recipe = buildCampfireRecipe(key, result, section);
+                                if (rules != null) rulesByKey.put(key, rules);
+                                addRecipeSafe(id, key, recipe);
+                        }
+                        case "stonecutting" -> {
+                                Recipe recipe = buildStonecuttingRecipe(key, result, section);
+                                if (rules != null) rulesByKey.put(key, rules);
+                                addRecipeSafe(id, key, recipe);
+                        }
+                        case "smithing_transform" -> {
+                                Recipe recipe = buildSmithingTransformRecipe(key, result, section);
+                                if (rules != null) rulesByKey.put(key, rules);
+                                addRecipeSafe(id, key, recipe);
+                        }
+                        case "upgrade" -> {
+                                registerUpgradeRecipe(key, result, section);
+                                if (rules != null) rulesByKey.put(key, rules);
+                        }
+                        default -> throw new IllegalArgumentException("type no soportado: " + type);
                 }
+        }
 
+        private void addRecipeSafe(String id, NamespacedKey key, Recipe recipe) {
                 boolean added = plugin.getServer().addRecipe(recipe);
                 if (!added) {
                         plugin.getLogger().warning("La receta '" + id + "' no se pudo añadir (posible duplicado)."
                                         + " Key=" + key.getKey());
                 }
+        }
+
+        private void registerUpgradeRecipe(NamespacedKey key, ItemStack result, ConfigurationSection section) {
+                String stationRaw = section.getString("station", "smithing");
+                UpgradeRecipe.Station station = UpgradeRecipe.Station.fromString(stationRaw);
+
+                RecipeChoice base = resolveChoice(section.getConfigurationSection("base"));
+                RecipeChoice addition = resolveChoice(section.getConfigurationSection("addition"));
+                if (base == null || addition == null) {
+                        throw new IllegalArgumentException("upgrade requiere base y addition");
+                }
+
+                RecipeChoice template = null;
+                if (station == UpgradeRecipe.Station.SMITHING) {
+                        template = resolveChoice(section.getConfigurationSection("template"));
+                }
+
+                upgradeRecipes.add(new UpgradeRecipe(key, station, template, base, addition, result));
         }
 
 

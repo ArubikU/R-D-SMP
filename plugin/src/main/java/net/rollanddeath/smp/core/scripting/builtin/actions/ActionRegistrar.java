@@ -137,7 +137,6 @@ public final class ActionRegistrar {
         FortuneTouchBestDropAction.register();
         LumberjackBreakTreeAction.register();
         MirrorWorldEndermanPassiveAction.register();
-        MirrorWorldPigAggressiveAction.register();
         PersistentShadowStartAction.register();
         PersistentShadowStopAction.register();
         FairTradePiglinBarterAction.register();

@@ -134,8 +134,8 @@ function App() {
             setItemsError(null);
             try {
                 const [recipesRes, dropsRes] = await Promise.all([
-                    fetch('/api/proxy?url=http://151.245.32.130:25587/recipes'),
-                    fetch('/api/proxy?url=http://151.245.32.130:25587/drops'),
+                    fetch('https://v0-retroproxy.vercel.app/api/proxy?url=http://151.245.32.130:25587/recipes'),
+                    fetch('https://v0-retroproxy.vercel.app/api/proxy?url=http://151.245.32.130:25587/drops'),
                 ]);
 
                 if (!recipesRes.ok) throw new Error(`Estado HTTP ${recipesRes.status} en /recipes`);
