@@ -52,8 +52,12 @@ function App() {
         if (!value.includes('_') && !/^[A-Z0-9_]+$/.test(value)) return value;
         const words = value.replace(/_/g, ' ').split(/\s+/).filter(Boolean);
         if (!words.length) return value;
-        const human = words.map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
-        return human;
+        const titled = words.map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
+        if (titled[titled.length - 1]?.toLowerCase() === 'block' && titled.length > 1) {
+            const material = titled.slice(0, -1).join(' ');
+            return `Block of ${material}`;
+        }
+        return titled.join(' ');
     };
 
     const cleanText = (value: any) => {
